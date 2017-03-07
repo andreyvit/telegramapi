@@ -2,14 +2,17 @@ package telegramapi
 
 import (
 	"bytes"
-	"encoding/binary"
 	"encoding/hex"
 	"errors"
-	"io"
+	"github.com/andreyvit/telegramapi/binints"
 	"log"
 	"net"
 	"time"
+
+	"github.com/andreyvit/telegramapi/mtproto"
 )
+
+const maxMsgLen = 1024 * 1024 * 10
 
 type Conn struct {
 	netconn net.Conn
@@ -83,81 +86,67 @@ func (c *Conn) sendRaw(data []byte) error {
 }
 
 func (c *Conn) ReadMessage(timeout time.Duration) ([]byte, error) {
-	c.netconn.SetReadDeadline(time.Now().Add(timeout))
-
-	var sizebuf [3]byte
-	n, err := c.netconn.Read(sizebuf[0:1])
-	if _, ok := err.(net.Error); ok {
-		return nil, nil
-	} else if err != nil {
+	raw, err := mtproto.ReadAbridgedTCPMessage(c.netconn, maxMsgLen, timeout, 1*time.Minute)
+	if raw == nil || err != nil {
 		return nil, err
 	}
-	// if n != 1 {
-	// 	return nil, errors.New("partial read")
-	// }
 
-	var msglen int
-	if sizebuf[0] == 0x7F {
-		panic("cannot handle 7F yet")
-	} else if sizebuf[0] >= 0x7F {
-		panic("WAT?!")
-	}
-	msglen = int(sizebuf[0]) * 4
+	log.Printf("Received %v raw bytes: %v", len(raw), hex.EncodeToString(raw))
 
-	data := make([]byte, msglen)
-	c.netconn.SetReadDeadline(time.Now().Add(1 * time.Minute))
-	n, err = c.netconn.Read(data)
-	if _, ok := err.(net.Error); ok {
-		// timeout
-	} else if err != nil {
+	data, err := c.decrypt(raw)
+	if err != nil {
 		return nil, err
 	}
-	if n < msglen {
-		return nil, errors.New("partial read")
-	}
-
-	log.Printf("Received %v bytes: %v", len(data), hex.EncodeToString(data))
 
 	return data, nil
 }
 
-func (c *Conn) PrintMessage(msg []byte) {
-	var authKeyID uint64
-	reader := bytes.NewReader(msg)
-	err := binary.Read(reader, binary.LittleEndian, &authKeyID)
-	if err != nil {
-		panic(err)
-	}
+func (c *Conn) decrypt(msg []byte) ([]byte, error) {
+	var payload []byte
+	var a mtproto.Accum
+	r := bytes.NewReader(msg)
 
-	if authKeyID != 0 {
+	authKeyID, err := binints.ReadUint64LE(r)
+	a.Push(err)
+
+	if authKeyID == 0 {
+		msgID, err := binints.ReadUint64LE(r)
+		a.Push(err)
+
+		msgLen, err := binints.ReadUint32LE(r)
+		a.Push(err)
+
+		payload, err = mtproto.ReadN(r, int(msgLen))
+		a.Push(err)
+
+		log.Printf("Received unencrypted: msgID=%x msgLen=%d err=%v, payload: %s", msgID, msgLen, a.Error(), hex.EncodeToString(payload))
+	} else {
+		// log.Printf("Received encrypted: authKeyID=%x msgID=%x msgLen=%d cmd = %08x", authKeyID, msgID, msgLen, cmd)
 		panic("authKeyID != 0")
 	}
 
-	var msgID uint64
-	err = binary.Read(reader, binary.LittleEndian, &msgID)
-	if err != nil {
-		panic(err)
+	a.Push(binints.ExpectEOF(r))
+	return payload, a.Error()
+}
+
+func (c *Conn) PrintMessage(msg []byte) {
+	r := bytes.NewReader(msg)
+	var a mtproto.Accum
+
+	cmd, err := binints.ReadUint32LE(r)
+	a.Push(err)
+
+	if cmd == mtproto.IDResPQ {
+		var res mtproto.ResPQ
+		err = mtproto.ReadResPQ(r, &res)
+		a.Push(err)
+
+		log.Printf("res_pq#%08x: %+#v", cmd, res)
+	} else {
+		log.Printf("Unknown cmd: %08x", cmd)
 	}
 
-	var msgLen uint32
-	err = binary.Read(reader, binary.LittleEndian, &msgLen)
-	if err != nil {
-		panic(err)
-	}
-
-	var cmd uint32
-	err = binary.Read(reader, binary.LittleEndian, &cmd)
-	if err != nil {
-		panic(err)
-	}
-
-	off, _ := reader.Seek(0, io.SeekCurrent)
-
-	log.Printf("Received: authKeyID=%x msgID=%x msgLen=%d cmd = %08x", authKeyID, msgID, msgLen, cmd)
-	msgLen -= 4
-
-	payload := msg[int(off) : int(off)+int(msgLen)]
-	log.Printf("Received payload: %v", hex.EncodeToString(payload))
+	log.Printf("Err: %v", a.Error())
 }
 
 func (c *Conn) formatMessage(data []byte) []byte {
