@@ -26,7 +26,12 @@ Slv8kg9qv1m6XHVQY3PnEw+QQtqSIXklHwIDAQAB
 `
 
 func main() {
-	err := doit()
+	options := telegramapi.Options{
+		Endpoint:  testEndpoint,
+		PublicKey: publicKey,
+	}
+
+	err := doit(options)
 	if err != nil {
 		log.Printf("** ERROR: %v", err)
 		os.Exit(1)
@@ -47,8 +52,8 @@ func main() {
 	log.Printf("OK")
 }
 
-func doit() error {
-	conn, err := telegramapi.Connect()
+func doit(options telegramapi.Options) error {
+	conn, err := telegramapi.Connect(options)
 	if err != nil {
 		return errors.Wrap(err, "connection")
 	}

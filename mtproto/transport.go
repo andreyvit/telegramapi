@@ -60,3 +60,6 @@ func ReadAbridgedTCPMessage(r TCPReader, maxMsgLen int, firstByteTimeout time.Du
 
 	return data, nil
 }
+
+type TCPTransport struct {
+}

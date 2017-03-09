@@ -2,6 +2,7 @@ package telegramapi
 
 import (
 	"bytes"
+	"crypto/rsa"
 	"encoding/hex"
 	"errors"
 	"github.com/andreyvit/telegramapi/binints"
@@ -14,29 +15,55 @@ import (
 
 const maxMsgLen = 1024 * 1024 * 10
 
-type Conn struct {
-	netconn net.Conn
-
-	efSent bool
-
-	seq uint32
+type Options struct {
+	Endpoint  string
+	PublicKey string
 }
 
-const testEndpoint = "149.154.167.40:443"
-const productionEndpoint = "149.154.167.50:443"
+type Conn struct {
+	Options
+
+	pubKey *rsa.PublicKey
+
+	netconn net.Conn
+	framer  *mtproto.Framer
+	keyex   *mtproto.KeyEx
+
+	efSent bool
+}
 
 const msgUseLayer18 uint32 = 0x1c900537
 const msgUseLayer2 uint32 = 0x289dd1f6
 const helpGetConfig = 0xc4f9186b
-const msgReqPQ = 0x60469778
 
-func Connect() (*Conn, error) {
-	netconn, err := net.Dial("tcp", testEndpoint)
+var ErrAuthTimeout = errors.New("authentication timeout")
+
+func Connect(options Options) (*Conn, error) {
+	if options.Endpoint == "" {
+		return nil, errors.New("configuration error: missing endpoint")
+	}
+	if options.PublicKey == "" {
+		return nil, errors.New("configuration error: missing public key")
+	}
+	pubKey, err := mtproto.ParsePublicKey(options.PublicKey)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Conn{netconn: netconn}, nil
+	netconn, err := net.Dial("tcp", options.Endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Conn{
+		Options: options,
+		pubKey:  pubKey,
+		netconn: netconn,
+		framer:  &mtproto.Framer{},
+		keyex: &mtproto.KeyEx{
+			PubKey: pubKey,
+		},
+	}, nil
 }
 
 func (c *Conn) Close() {
@@ -44,42 +71,49 @@ func (c *Conn) Close() {
 }
 
 func (c *Conn) SayHello() error {
-	var buf bytes.Buffer
-
-	// writeUint32(&buf, helpGetConfig)
-	// writeUint32(&buf, msgUseLayer2)
-	writeUint32(&buf, msgReqPQ)
-	writeUint128(&buf, 0x60469778, 0xc4f9186b)
-
-	err := c.SendUnencrypted(buf.Bytes())
+	msg := c.keyex.Start()
+	err := c.send(msg)
 	if err != nil {
 		return err
+	}
+
+	for !c.keyex.IsFinished() {
+		payload, err := c.ReadMessage(10 * time.Second)
+		if err != nil {
+			return err
+		}
+		if payload == nil {
+			return ErrAuthTimeout
+		}
+
+		msg, err := c.keyex.Handle(payload)
+		if err != nil {
+			return err
+		}
+		if msg != nil {
+			err := c.send(*msg)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
 }
 
-func (c *Conn) SendUnencrypted(payload []byte) error {
-	var buf bytes.Buffer
-	writeUint64(&buf, 0)
-
-	msgID := c.generateMsgID()
-	writeUint64(&buf, msgID)
-
-	writeUint32(&buf, uint32(len(payload)))
-	buf.Write(payload)
-
-	return c.sendRaw(buf.Bytes())
-}
-
-func (c *Conn) sendRaw(data []byte) error {
-	msg := c.formatMessage(data)
-	log.Printf("Sending %v bytes: %v", len(msg), hex.EncodeToString(msg))
-	n, err := c.netconn.Write(msg)
+func (c *Conn) send(msg mtproto.OutgoingMsg) error {
+	data, err := c.framer.Format(msg)
 	if err != nil {
 		return err
 	}
-	if n < len(msg) {
+
+	raw := c.formatTCPMessage(data)
+	log.Printf("Sending %v bytes: %v", len(raw), hex.EncodeToString(raw))
+	n, err := c.netconn.Write(raw)
+	if err != nil {
+		return err
+	}
+	if n < len(raw) {
 		return errors.New("sent partly failed")
 	}
 	return nil
@@ -93,40 +127,12 @@ func (c *Conn) ReadMessage(timeout time.Duration) ([]byte, error) {
 
 	log.Printf("Received %v raw bytes: %v", len(raw), hex.EncodeToString(raw))
 
-	data, err := c.decrypt(raw)
+	data, err := c.framer.Parse(raw)
 	if err != nil {
 		return nil, err
 	}
 
 	return data, nil
-}
-
-func (c *Conn) decrypt(msg []byte) ([]byte, error) {
-	var payload []byte
-	var a mtproto.Accum
-	r := bytes.NewReader(msg)
-
-	authKeyID, err := binints.ReadUint64LE(r)
-	a.Push(err)
-
-	if authKeyID == 0 {
-		msgID, err := binints.ReadUint64LE(r)
-		a.Push(err)
-
-		msgLen, err := binints.ReadUint32LE(r)
-		a.Push(err)
-
-		payload, err = mtproto.ReadN(r, int(msgLen))
-		a.Push(err)
-
-		log.Printf("Received unencrypted: msgID=%x msgLen=%d err=%v, payload: %s", msgID, msgLen, a.Error(), hex.EncodeToString(payload))
-	} else {
-		// log.Printf("Received encrypted: authKeyID=%x msgID=%x msgLen=%d cmd = %08x", authKeyID, msgID, msgLen, cmd)
-		panic("authKeyID != 0")
-	}
-
-	a.Push(binints.ExpectEOF(r))
-	return payload, a.Error()
 }
 
 func (c *Conn) PrintMessage(msg []byte) {
@@ -149,7 +155,7 @@ func (c *Conn) PrintMessage(msg []byte) {
 	log.Printf("Err: %v", a.Error())
 }
 
-func (c *Conn) formatMessage(data []byte) []byte {
+func (c *Conn) formatTCPMessage(data []byte) []byte {
 	var buf bytes.Buffer
 
 	if !c.efSent {
@@ -170,7 +176,7 @@ func (c *Conn) formatMessage(data []byte) []byte {
 		buf.WriteByte(byte(l))
 	} else {
 		buf.WriteByte(0x7F)
-		writeUint24(&buf, uint32(l))
+		binints.WriteUint24LE(&buf, uint32(l))
 	}
 
 	buf.Write(data)
