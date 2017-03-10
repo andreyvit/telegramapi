@@ -1,5 +1,5 @@
 // Infinite Garble Extension (IGE) mode.
-
+//
 // IGE is similar to cipher block chaining (CBC) mode:
 //
 // 1) like in CBC, the plaintext is XORed, before encryption,

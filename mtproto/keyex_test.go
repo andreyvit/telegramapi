@@ -21,17 +21,19 @@ var randomness = `
 311C85DB234AA2640AFC4A76A735CF5B1F0FD68BD17FA181E1229AD867CC02
 
 6F620AFA575C9233EB4C014110A7BCAF49464F798A18A0981FEA1E05E8DA67D9681E0FD6DF0EDF0272AE3492451A84502F2EFC0DA18741A5FB80BD82296919A70FAA6D07CBBBCA2037EA7D3E327B61D585ED3373EE0553A91CBD29B01FA9A89D479CA53D57BDE3A76FBD922A923A0A38B922C1D0701F53FF52D7EA9217080163A64901E766EB6A0F20BC391B64B9D1DD2CD13A7D0C946A3A7DF8CEC9E2236446F646C42CFE2B60A2A8D776E56C8D7519B08B88ED0970E10D12A8C9E355D765F2B7BBB7B4CA9360083435523CB0D57D2B106FD14F94B4EEE79D8AC131CA56AD389C84FE279716F8124A543337FB9EA3D988EC5FA63D90A4BA3970E7A39E5C0DE5
+
+311C85DB234AA2640AFC4A76
 `
 
 // example requests and responses from https://core.telegram.org/mtproto/samples-auth_key
 
-var req1 = `
+const req1 = `
 00 00 00 00 00 00 00 00 4A 96 70 27 C4 7A E5 51
 14 00 00 00 78 97 46 60 3E 05 49 82 8C CA 27 E9
 66 B3 01 A4 8F EC E2 FC
 `
 
-var res1 = `
+const res1 = `
 00 00 00 00 00 00 00 00 01 C8 83 1E C9 7A E5 51
 40 00 00 00 63 24 16 05 3E 05 49 82 8C CA 27 E9
 66 B3 01 A4 8F EC E2 FC A5 CF 4D 33 F4 A1 1E A8
@@ -39,7 +41,7 @@ var res1 = `
 81 00 00 00 15 C4 B5 1C 01 00 00 00 21 6B E8 6C
 02 2B B4 C3`
 
-var req2 = `
+const req2 = `
 00 00 00 00 00 00 00 00 27 7A 71 17 C9 7A E5 51
 40 01 00 00 BE E4 12 D7 3E 05 49 82 8C CA 27 E9
 66 B3 01 A4 8F EC E2 FC A5 CF 4D 33 F4 A1 1E A8
@@ -64,7 +66,7 @@ DF 7C 67 BC 9E 95 08 E1 11 C7 8F C4 6E 05 7F 5C
 C3 34 38 E6
 `
 
-var res2 = `
+const res2 = `
 00 00 00 00 00 00 00 00 01 54 43 36 CB 7A E5 51
 78 02 00 00 5C 07 E8 D0 3E 05 49 82 8C CA 27 E9
 66 B3 01 A4 8F EC E2 FC A5 CF 4D 33 F4 A1 1E A8
@@ -108,6 +110,44 @@ D5 AE 45 B9 48 32 AC 79 CE 7C 51 1D 19 4B C4 2B
 6B 8D 87 34 D0 EE 75 9A 63 8A F0 13
 `
 
+const req3 = `
+00 00 00 00 00 00 00 00 6D 2C A3 2A CD 7A E5 51
+78 01 00 00 1F 5F 04 F5 3E 05 49 82 8C CA 27 E9
+66 B3 01 A4 8F EC E2 FC A5 CF 4D 33 F4 A1 1E A8
+77 BA 4A A5 73 90 73 30 FE 50 01 00 92 8A 49 57
+D0 46 3B 52 5C 1C C4 8A AB AA 03 0A 25 6B E5 C7
+46 79 2C 84 CA 4C 5A 0D F6 0A C7 99 04 8D 98 A3
+8A 84 80 ED CF 08 22 14 DF C7 9D CB 9E E3 4E 20
+65 13 E2 B3 BC 15 04 CF E6 C9 AD A4 6B F9 A0 3C
+A7 4F 19 2E AF 8C 27 84 54 AD AB C7 95 A5 66 61
+54 62 D3 18 17 38 29 84 03 95 05 F7 1C B3 3A 41
+E2 52 7A 4B 1A C0 51 07 87 2F ED 8E 3A BC EE 15
+18 AE 96 5B 0E D3 AE D7 F6 74 79 15 5B DA 8E 4C
+28 6B 64 CD F1 23 EC 74 8C F2 89 B1 DB 02 D1 90
+7B 56 2D F4 62 D8 58 2B A6 F0 A3 02 2D C2 D3 50
+4D 69 D1 BA 48 B6 77 E3 A8 30 BF AF D6 75 84 C8
+AA 24 E1 34 4A 89 04 E3 05 F9 58 7C 92 EF 96 4F
+00 83 F5 0F 61 EA B4 A3 93 EA A3 3C 92 70 29 4A
+ED C7 73 28 91 D4 EA 15 99 F5 23 11 D7 44 69 D2
+11 2F 4E DF 3F 34 2E 93 C8 E8 7E 81 2D C3 98 9B
+AE CF E6 74 0A 46 07 75 24 C7 50 93 F5 A5 40 57
+36 DE 89 37 BB 6E 42 C9 A0 DC F2 2C A5 32 27 D4
+62 BC CC 2C FE 94 B6 FE 86 AB 7F BF A3 95 02 1F
+66 66 1A F7 C0 02 4C A2 98 6C A0 3F 34 76 90 54
+07 D1 EA 9C 01 0B 76 32 58 DB 1A A2 CC 78 26 D9
+13 34 EF C1 FD C6 65 B6 7F E4 5E D0
+`
+
+const res3 = `
+00 00 00 00 00 00 00 00 01 30 AA C5 CE 7A E5 51
+34 00 00 00 34 F7 CB 3B 3E 05 49 82 8C CA 27 E9
+66 B3 01 A4 8F EC E2 FC A5 CF 4D 33 F4 A1 1E A8
+77 BA 4A A5 73 90 73 30 CC EB C0 21 72 66 E1 ED
+EC 7F B0 A0 EE D6 C2 20
+`
+
+const expectedKeyStr = `AB96E207C631300986F30EF97DF55E179E63C112675F0CE502EE76D74BBEE6CBD1E95772818881E9F2FF54BD52C258787474F6A7BEA61EABE49D1D01D55F64FC07BC31685716EC8FB46FEACF9502E42CFD6B9F45A08E90AA5C2B5933AC767CBE1CD50D8E64F89727CA4A1A5D32C0DB80A9FCDBDDD4F8D5A1E774198F1A4299F927C484FEEC395F29647E43C3243986F93609E23538C21871DF50E00070B3B6A8FA9BC15628E8B43FF977409A61CEEC5A21CF7DFB5A4CC28F5257BC30CD8F2FB92FBF21E28924065F50E0BBD5E11A420300E2C136B80E9826C6C5609B5371B7850AA628323B6422F3A94F6DFDE4C3DC1EA60F7E11EE63122B3F39CBD1A8430157`
+
 func TestKeyExchange(t *testing.T) {
 	var keyex KeyEx
 	var framer Framer
@@ -119,16 +159,20 @@ func TestKeyExchange(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// --- req 1
+
 	framer.MsgIDOverride = 0x51e57ac42770964a
-	bytes, err := framer.Format(keyex.Start())
+	msgbytes, err := framer.Format(keyex.Start())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	a, e := hex.EncodeToString(bytes), hex.EncodeToString(fromHex(req1))
+	a, e := hex.EncodeToString(msgbytes), hex.EncodeToString(fromHex(req1))
 	if a != e {
 		t.Errorf("req_pq is %q, expected %q", a, e)
 	}
+
+	// --- res 1
 
 	payload, err := framer.Parse(fromHex(res1))
 	if err != nil {
@@ -139,22 +183,26 @@ func TestKeyExchange(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// --- req 2
+
 	if msg == nil {
 		t.Fatal("no reply to res_pq")
 	}
 	framer.MsgIDOverride = 0x51e57ac917717a27
-	bytes, err = framer.Format(*msg)
+	msgbytes, err = framer.Format(*msg)
 	if err != nil {
 		t.Fatal(err)
 	}
-	ebytes := fromHex(req2)
-	a, e = hex.EncodeToString(bytes), hex.EncodeToString(ebytes)
-	if len(bytes) != len(ebytes) {
-		t.Errorf("req_DH_params is %v, expected %v (len mismatch: got %v, wanted %v)", a, e, len(bytes), len(ebytes))
+	emsgbytes := fromHex(req2)
+	a, e = hex.EncodeToString(msgbytes), hex.EncodeToString(emsgbytes)
+	if len(msgbytes) != len(emsgbytes) {
+		t.Errorf("req_DH_params is %v, expected %v (len mismatch: got %v, wanted %v)", a, e, len(msgbytes), len(emsgbytes))
 	}
 	// if a != e {
 	// 	t.Errorf("req_DH_params is %v, expected %v", a, e)
 	// }
+
+	// --- res 2
 
 	payload, err = framer.Parse(fromHex(res2))
 	if err != nil {
@@ -165,9 +213,46 @@ func TestKeyExchange(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// --- req 3
+
 	if msg == nil {
 		t.Fatal("no reply to server_DH_params_ok")
 	}
+	framer.MsgIDOverride = 0x51e57acd2aa32c6d
+	msgbytes, err = framer.Format(*msg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	emsgbytes = fromHex(req3)
+	a, e = hex.EncodeToString(msgbytes), hex.EncodeToString(emsgbytes)
+	if len(msgbytes) != len(emsgbytes) {
+		t.Errorf("set_client_DH_params is %v, expected %v (len mismatch: got %v, wanted %v)", a, e, len(msgbytes), len(emsgbytes))
+	}
+
+	// --- res 3
+
+	payload, err = framer.Parse(fromHex(res3))
+	if err != nil {
+		t.Fatal(err)
+	}
+	msg, err = keyex.Handle(payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// --- done
+
+	key, keyHash, err := keyex.Result()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedKey := fromHex(expectedKeyStr)
+	if !bytes.Equal(key, expectedKey) {
+		t.Errorf("key is %x, expected %x", key, expectedKey)
+	}
+
+	_ = keyHash // TODO: verify
 }
 
 func fromHex(s string) []byte {

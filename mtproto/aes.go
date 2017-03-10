@@ -76,6 +76,28 @@ func AESIGEDecrypt(dst, src, key, iv []byte) ([]byte, error) {
 	return dst, nil
 }
 
+func AESIGEPadEncryptWithHash(dst, src, key, iv []byte, random io.Reader) ([]byte, error) {
+	h := sha1.Sum(src)
+	hs := len(h)
+	bs := aes.BlockSize
+
+	pad := bs - ((hs + len(src)) % bs)
+	if pad == bs {
+		pad = 0
+	}
+	padded := make([]byte, hs+len(src)+pad)
+	copy(padded[0:hs], h[:])
+	copy(padded[hs:hs+len(src)], src)
+	if pad > 0 {
+		_, err := io.ReadFull(random, padded[hs+len(src):])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return AESIGEPadEncrypt(dst, padded, key, iv, nil)
+}
+
 func AESIGEDecryptWithHash(dst, src, key, iv []byte) ([]byte, []byte, error) {
 	var err error
 	dst, err = AESIGEDecrypt(dst, src, key, iv)

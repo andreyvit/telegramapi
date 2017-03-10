@@ -59,12 +59,5 @@ func EncryptRSA(data []byte, key *rsa.PublicKey) []byte {
 	var result big.Int
 	result.Exp(&m, e, key.N)
 
-	bytes := result.Bytes()
-	if len(bytes) >= rsaBlockLen {
-		return bytes
-	} else {
-		result := make([]byte, rsaBlockLen)
-		copy(result[rsaBlockLen-len(bytes):rsaBlockLen], bytes)
-		return result
-	}
+	return leftZeroPad(result.Bytes(), rsaBlockLen)
 }
