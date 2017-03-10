@@ -4,12 +4,8 @@ import (
 	"errors"
 	"github.com/andreyvit/telegramapi/binints"
 	"io"
+	"math/big"
 )
-
-func ReadUint128(r io.Reader, buf []byte) error {
-	_ = buf[15]
-	return binints.ReadFull(r, buf)
-}
 
 func ReadN(r io.Reader, n int) ([]byte, error) {
 	buf := make([]byte, n)
@@ -107,6 +103,26 @@ func WriteString(w io.Writer, b []byte) error {
 	}
 
 	return nil
+}
+
+func ReadBigIntBE(r io.Reader) (*big.Int, error) {
+	b, err := ReadString(r)
+	if err != nil {
+		return nil, err
+	}
+
+	n := new(big.Int)
+	n.SetBytes(b)
+	return n, nil
+}
+
+func WriteBigIntBE(w io.Writer, n *big.Int) error {
+	b := n.Bytes()
+	if len(b) == 0 {
+		b = []byte{0}
+	}
+
+	return WriteString(w, b)
 }
 
 func ReadVectorLong(r io.Reader) ([]uint64, error) {

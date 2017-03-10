@@ -16,12 +16,14 @@ var ErrMalformedCommand = errors.New("malformed command")
 var ErrUnexpectedCommand = errors.New("unexpected command")
 
 const (
-	IDVectorLong       uint32 = 0x1cb5c415
-	IDReqPQ                   = 0x60469778
-	IDResPQ                   = 0x05162463
-	IDPQInnerData             = 0x83c95aec
-	IDReqDHParams             = 0xd712e4be
-	IDServerDHParamsOK        = 0xd0e8075c
+	IDVectorLong         uint32 = 0x1cb5c415
+	IDReqPQ                     = 0x60469778
+	IDResPQ                     = 0x05162463
+	IDPQInnerData               = 0x83c95aec
+	IDReqDHParams               = 0xd712e4be
+	IDServerDHParamsOK          = 0xd0e8075c
+	IDServerDHParamsFail        = 0x79cb045d
+	IDServerDHInnerData         = 0xb5890dba
 )
 
 type ResPQ struct {
@@ -32,29 +34,21 @@ type ResPQ struct {
 	ServerPubKeyFingerprints []uint64
 }
 
-type ServerDHParamsOK struct {
-	Nonce       [16]byte
-	ServerNonce [16]byte
-}
-
 func ReadResPQ(r io.Reader, res *ResPQ) error {
-	err := ReadUint128(r, res.Nonce[:])
+	err := binints.ReadUint128LE(r, res.Nonce[:])
 	if err != nil {
 		return err
 	}
 
-	err = ReadUint128(r, res.ServerNonce[:])
+	err = binints.ReadUint128LE(r, res.ServerNonce[:])
 	if err != nil {
 		return err
 	}
 
-	pq, err := ReadString(r)
+	res.PQ, err = ReadBigIntBE(r)
 	if err != nil {
 		return err
 	}
-
-	res.PQ = big.NewInt(0)
-	res.PQ.SetBytes(pq)
 
 	res.ServerPubKeyFingerprints, err = ReadVectorLong(r)
 	if err != nil {
@@ -80,17 +74,17 @@ func (data *PQInnerData) WriteTo(w io.Writer) error {
 		return err
 	}
 
-	err = WriteString(w, data.PQ.Bytes())
+	err = WriteBigIntBE(w, data.PQ)
 	if err != nil {
 		return err
 	}
 
-	err = WriteString(w, data.P.Bytes())
+	err = WriteBigIntBE(w, data.P)
 	if err != nil {
 		return err
 	}
 
-	err = WriteString(w, data.Q.Bytes())
+	err = WriteBigIntBE(w, data.Q)
 	if err != nil {
 		return err
 	}
@@ -190,4 +184,13 @@ func (data *ReqDHParams) WriteTo(w io.Writer) error {
 	}
 
 	return nil
+}
+
+type ServerDHParamsOK struct {
+	Nonce       [16]byte
+	ServerNonce [16]byte
+	// G           int
+	// DHPrime    *big.Int
+	GA         *big.Int
+	ServerTime int
 }

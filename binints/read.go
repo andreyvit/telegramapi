@@ -37,6 +37,11 @@ func ReadUint32LE(r io.Reader) (uint32, error) {
 	return DecodeUint32LE(buf[:]), nil
 }
 
+func ReadUint32LEAsInt(r io.Reader) (int, error) {
+	n, err := ReadUint32LE(r)
+	return int(n), err
+}
+
 func ReadUint64LE(r io.Reader) (uint64, error) {
 	var buf [8]byte
 	err := ReadFull(r, buf[:])
@@ -44,6 +49,13 @@ func ReadUint64LE(r io.Reader) (uint64, error) {
 		return 0, err
 	}
 	return DecodeUint64LE(buf[:]), nil
+}
+
+func ReadUint128LE(r io.Reader, buf []byte) error {
+	if len(buf) != 16 {
+		panic("16-byte buffer required")
+	}
+	return ReadFull(r, buf)
 }
 
 var ErrTrailingData = errors.New("unexpected trailing data")
