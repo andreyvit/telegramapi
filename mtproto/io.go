@@ -58,15 +58,6 @@ func WriteStringLen(w io.Writer, len int) (int, error) {
 	return pad, err
 }
 
-func PaddingOf(len int) int {
-	rem := len % 4
-	if rem == 0 {
-		return 0
-	} else {
-		return 4 - rem
-	}
-}
-
 func ReadString(r io.Reader) ([]byte, error) {
 	len, pad, err := ReadStringLen(r)
 	if err != nil {

@@ -2,22 +2,21 @@ package mtproto
 
 import (
 	"bytes"
-	"encoding/hex"
-	"log"
 
 	"github.com/andreyvit/telegramapi/binints"
 )
 
-type OutgoingMsg struct {
+type Msg struct {
 	Encrypted bool
+	MsgID     uint64
 	Payload   []byte
 }
 
-func NormalMsg(b []byte) OutgoingMsg {
-	return OutgoingMsg{true, b}
+func NormalMsg(b []byte) Msg {
+	return Msg{true, 0, b}
 }
-func UnencryptedMsg(b []byte) OutgoingMsg {
-	return OutgoingMsg{false, b}
+func UnencryptedMsg(b []byte) Msg {
+	return Msg{false, 0, b}
 }
 
 type Framer struct {
@@ -26,7 +25,7 @@ type Framer struct {
 	gen MsgIDGen
 }
 
-func (fr *Framer) Format(msg OutgoingMsg) ([]byte, error) {
+func (fr *Framer) Format(msg Msg) ([]byte, error) {
 	var buf bytes.Buffer
 	binints.WriteUint64LE(&buf, 0)
 
@@ -45,30 +44,32 @@ func (fr *Framer) Format(msg OutgoingMsg) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (fr *Framer) Parse(msg []byte) ([]byte, error) {
-	r := bytes.NewReader(msg)
-	var payload []byte
-	var a Accum
+func (fr *Framer) Parse(raw []byte) (Msg, error) {
+	r := bytes.NewReader(raw)
 
 	authKeyID, err := binints.ReadUint64LE(r)
-	a.Push(err)
+	if err != nil {
+		return Msg{}, err
+	}
 
 	if authKeyID == 0 {
+		var a Accum
+
 		msgID, err := binints.ReadUint64LE(r)
 		a.Push(err)
 
 		msgLen, err := binints.ReadUint32LE(r)
 		a.Push(err)
 
-		payload, err = ReadN(r, int(msgLen))
+		payload, err := ReadN(r, int(msgLen))
 		a.Push(err)
 
-		log.Printf("Received unencrypted: msgID=%x msgLen=%d err=%v, payload: %s", msgID, msgLen, a.Error(), hex.EncodeToString(payload))
+		a.Push(binints.ExpectEOF(r))
+
+		return Msg{false, msgID, payload}, a.Error()
 	} else {
 		// log.Printf("Received encrypted: authKeyID=%x msgID=%x msgLen=%d cmd = %08x", authKeyID, msgID, msgLen, cmd)
 		panic("authKeyID != 0")
+		// a.Push(binints.ExpectEOF(r))
 	}
-
-	a.Push(binints.ExpectEOF(r))
-	return payload, a.Error()
 }

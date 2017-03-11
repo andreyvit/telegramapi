@@ -13,7 +13,7 @@ import (
 	"github.com/andreyvit/telegramapi/mtproto"
 )
 
-const maxMsgLen = 1024 * 1024 * 10
+const maxMsgLen = 10 * 1024 * 1024
 
 type Options struct {
 	Endpoint  string
@@ -25,6 +25,7 @@ type Conn struct {
 
 	pubKey *rsa.PublicKey
 
+	session *mtproto.Session
 	netconn net.Conn
 	framer  *mtproto.Framer
 	keyex   *mtproto.KeyEx
@@ -55,9 +56,20 @@ func Connect(options Options) (*Conn, error) {
 		return nil, err
 	}
 
+	tr, err := mtproto.DialTCP(options.Endpoint, mtproto.TCPTransportOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	session := mtproto.NewSession(tr, mtproto.SessionOptions{
+		PubKey: pubKey,
+	})
+
 	return &Conn{
 		Options: options,
 		pubKey:  pubKey,
+
+		session: session,
 		netconn: netconn,
 		framer:  &mtproto.Framer{},
 		keyex: &mtproto.KeyEx{
@@ -68,6 +80,7 @@ func Connect(options Options) (*Conn, error) {
 
 func (c *Conn) Close() {
 	c.netconn.Close()
+	c.session.Close()
 }
 
 func (c *Conn) SayHello() error {
@@ -86,7 +99,8 @@ func (c *Conn) SayHello() error {
 			return ErrAuthTimeout
 		}
 
-		msg, err := c.keyex.Handle(payload)
+		r := mtproto.NewReader(payload)
+		msg, err := c.keyex.Handle(r)
 		if err != nil {
 			return err
 		}
@@ -101,7 +115,7 @@ func (c *Conn) SayHello() error {
 	return nil
 }
 
-func (c *Conn) send(msg mtproto.OutgoingMsg) error {
+func (c *Conn) send(msg mtproto.Msg) error {
 	data, err := c.framer.Format(msg)
 	if err != nil {
 		return err
@@ -127,33 +141,33 @@ func (c *Conn) ReadMessage(timeout time.Duration) ([]byte, error) {
 
 	log.Printf("Received %v raw bytes: %v", len(raw), hex.EncodeToString(raw))
 
-	data, err := c.framer.Parse(raw)
+	msg, err := c.framer.Parse(raw)
 	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	return msg.Payload, nil
 }
 
-func (c *Conn) PrintMessage(msg []byte) {
-	r := bytes.NewReader(msg)
-	var a mtproto.Accum
+// func (c *Conn) PrintMessage(msg []byte) {
+// 	r := bytes.NewReader(msg)
+// 	var a mtproto.Accum
 
-	cmd, err := binints.ReadUint32LE(r)
-	a.Push(err)
+// 	cmd, err := binints.ReadUint32LE(r)
+// 	a.Push(err)
 
-	if cmd == mtproto.IDResPQ {
-		var res mtproto.ResPQ
-		err = mtproto.ReadResPQ(r, &res)
-		a.Push(err)
+// 	if cmd == mtproto.IDResPQ {
+// 		var res mtproto.ResPQ
+// 		err = mtproto.ReadResPQ(r, &res)
+// 		a.Push(err)
 
-		log.Printf("res_pq#%08x: %+#v", cmd, res)
-	} else {
-		log.Printf("Unknown cmd: %08x", cmd)
-	}
+// 		log.Printf("res_pq#%08x: %+#v", cmd, res)
+// 	} else {
+// 		log.Printf("Unknown cmd: %08x", cmd)
+// 	}
 
-	log.Printf("Err: %v", a.Error())
-}
+// 	log.Printf("Err: %v", a.Error())
+// }
 
 func (c *Conn) formatTCPMessage(data []byte) []byte {
 	var buf bytes.Buffer

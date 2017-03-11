@@ -28,6 +28,13 @@ const (
 	KeyExSetClientDHParams
 )
 
+type AuthResult struct {
+	Key        []byte
+	KeyID      uint64
+	ServerSalt [8]byte
+	TimeOffset int
+}
+
 type KeyEx struct {
 	RandomReader io.Reader
 	PubKey       *rsa.PublicKey
@@ -47,19 +54,18 @@ type KeyEx struct {
 	b       *big.Int
 	dhPrime *big.Int
 
-	authKey        []byte
-	authKeyHash    uint64
+	auth           AuthResult
 	authKeyAuxHash uint64
 }
 
-func (kex *KeyEx) Result() ([]byte, uint64, error) {
+func (kex *KeyEx) Result() (*AuthResult, error) {
 	switch kex.state {
 	case KeyExDone:
-		return kex.authKey, kex.authKeyHash, nil
+		return &kex.auth, nil
 	case KeyExFailed:
-		return nil, 0, kex.err
+		return nil, kex.err
 	default:
-		return nil, 0, ErrKeyExchangeNotFinished
+		return nil, ErrKeyExchangeNotFinished
 	}
 }
 
@@ -72,7 +78,7 @@ func (kex *KeyEx) IsFinished() bool {
 	}
 }
 
-func (kex *KeyEx) Start() OutgoingMsg {
+func (kex *KeyEx) Start() Msg {
 	if kex.RandomReader == nil {
 		kex.RandomReader = rand.Reader
 	}
@@ -93,8 +99,8 @@ func (kex *KeyEx) Start() OutgoingMsg {
 	return UnencryptedMsg(buf.Bytes())
 }
 
-func (kex *KeyEx) Handle(payload []byte) (*OutgoingMsg, error) {
-	msg, err := kex.handle(payload)
+func (kex *KeyEx) Handle(r *Reader) (*Msg, error) {
+	msg, err := kex.handle(r)
 	if err != nil {
 		kex.state = KeyExFailed
 		kex.err = err
@@ -102,12 +108,8 @@ func (kex *KeyEx) Handle(payload []byte) (*OutgoingMsg, error) {
 	return msg, err
 }
 
-func (kex *KeyEx) handle(payload []byte) (*OutgoingMsg, error) {
-	r := bytes.NewReader(payload)
-	cmd, err := binints.ReadUint32LE(r)
-	if err != nil {
-		return nil, ErrMalformedCommand
-	}
+func (kex *KeyEx) handle(r *Reader) (*Msg, error) {
+	cmd := r.Cmd()
 
 	switch kex.state {
 	case KeyExInit:
@@ -120,12 +122,7 @@ func (kex *KeyEx) handle(payload []byte) (*OutgoingMsg, error) {
 			return nil, ErrUnexpectedCommand
 		}
 
-		var res ResPQ
-		err := ReadResPQ(r, &res)
-		if err != nil {
-			return nil, err
-		}
-		return kex.handleResPQ(&res)
+		return kex.handleResPQ(r)
 
 	case KeyExReqDHParams:
 		if cmd == IDServerDHParamsOK {
@@ -152,13 +149,35 @@ func (kex *KeyEx) handle(payload []byte) (*OutgoingMsg, error) {
 	}
 }
 
-func (kex *KeyEx) handleResPQ(res *ResPQ) (*OutgoingMsg, error) {
-	log.Printf("res_pq: %+#v", *res)
+func (kex *KeyEx) handleNoncePair(r *Reader) error {
+	var nonce [16]byte
+	if r.ReadUint128(nonce[:]) {
+		if 1 != subtle.ConstantTimeCompare(nonce[:], kex.nonce[:]) {
+			return errors.New("bad nonce")
+		}
+	}
+	if r.ReadUint128(nonce[:]) {
+		if 1 != subtle.ConstantTimeCompare(nonce[:], kex.nonce[:]) {
+			return errors.New("bad server nonce")
+		}
+	}
+	return nil
+}
+
+func (kex *KeyEx) handleResPQ(r *Reader) (*Msg, error) {
+	var res ResPQ
+	res.ReadFrom(r)
+	if r.Err() != nil {
+		return nil, r.Err()
+	}
 
 	if 1 != subtle.ConstantTimeCompare(res.Nonce[:], kex.nonce[:]) {
-		log.Printf("res_pq nonce = %v, wanted %v", res.Nonce[:], kex.nonce[:])
-		return nil, errors.New("bad client nonce")
+		return nil, errors.New("bad nonce")
 	}
+
+	copy(kex.serverNonce[:], res.ServerNonce[:])
+
+	//log.Printf("res_pq: %+#v", *res)
 
 	expectedFingerprint := ComputePubKeyFingerprint(kex.PubKey)
 	var keyOK bool
@@ -172,15 +191,13 @@ func (kex *KeyEx) handleResPQ(res *ResPQ) (*OutgoingMsg, error) {
 		return nil, errors.New("public key fingerprint mismatch")
 	}
 
-	copy(kex.serverNonce[:], res.ServerNonce[:])
-
 	if res.PQ.BitLen() > 64 {
 		log.Printf("mtproto/keyex: PQ number does not fit into uint64: %v", res.PQ)
 		return nil, errors.New("PQ too large")
 	}
-	pq := res.PQ.Uint64()
-	p, q := factorize(pq)
-	log.Printf("mtproto/keyex: %v = %v (p) * %v (q)", pq, p, q)
+	pqn := res.PQ.Uint64()
+	p, q := factorize(pqn)
+	log.Printf("mtproto/keyex: %v = %v (p) * %v (q)", pqn, p, q)
 
 	msgdata := &ReqDHParams{
 		PQInnerData: PQInnerData{
@@ -215,17 +232,14 @@ func (kex *KeyEx) handleResPQ(res *ResPQ) (*OutgoingMsg, error) {
 	return &msg, nil
 }
 
-func (kex *KeyEx) handleServerDHParamsOK(r io.Reader) (*OutgoingMsg, error) {
+func (kex *KeyEx) handleServerDHParamsOK(r *Reader) (*Msg, error) {
 	var res ServerDHParamsOK
 
-	err := binints.ReadUint128LE(r, res.Nonce[:])
-	if err != nil {
-		return nil, err
-	}
-
-	err = binints.ReadUint128LE(r, res.ServerNonce[:])
-	if err != nil {
-		return nil, err
+	r.ReadUint128(res.Nonce[:])
+	r.ReadUint128(res.ServerNonce[:])
+	encrypted := r.ReadString()
+	if r.Err() != nil {
+		return nil, r.Err()
 	}
 
 	if 1 != subtle.ConstantTimeCompare(res.Nonce[:], kex.nonce[:]) {
@@ -238,11 +252,6 @@ func (kex *KeyEx) handleServerDHParamsOK(r io.Reader) (*OutgoingMsg, error) {
 	}
 
 	deriveTempAESKey(kex.serverNonce[:], kex.newNonce[:], kex.tmpAESKey[:], kex.tmpAESIV[:])
-
-	encrypted, err := ReadString(r)
-	if err != nil {
-		return nil, err
-	}
 
 	answer, answerHash, err := AESIGEDecryptWithHash(nil, encrypted, kex.tmpAESKey[:], kex.tmpAESIV[:])
 	if err != nil {
@@ -264,24 +273,19 @@ func (kex *KeyEx) handleServerDHParamsOK(r io.Reader) (*OutgoingMsg, error) {
 	// TODO: check hash here (need to determine the reader offset here)
 	_ = answerHash
 
-	r = bytes.NewReader(answer)
-
-	ansCmd, err := binints.ReadUint32LE(r)
-	if err != nil {
-		return nil, err
-	}
-	if ansCmd != IDServerDHInnerData {
+	r = NewReader(answer)
+	if r.Cmd() != IDServerDHInnerData {
 		return nil, errors.New("expected server_DH_inner_data")
 	}
 
-	err = binints.ReadUint128LE(r, res.Nonce[:])
-	if err != nil {
-		return nil, err
-	}
-
-	err = binints.ReadUint128LE(r, res.ServerNonce[:])
-	if err != nil {
-		return nil, err
+	r.ReadUint128(res.Nonce[:])
+	r.ReadUint128(res.ServerNonce[:])
+	kex.g = r.ReadInt()
+	kex.dhPrime = r.ReadBigInt()
+	res.GA = r.ReadBigInt()
+	res.ServerTime = r.ReadInt()
+	if r.Err() != nil {
+		return nil, r.Err()
 	}
 
 	if 1 != subtle.ConstantTimeCompare(res.Nonce[:], kex.nonce[:]) {
@@ -289,26 +293,6 @@ func (kex *KeyEx) handleServerDHParamsOK(r io.Reader) (*OutgoingMsg, error) {
 	}
 	if 1 != subtle.ConstantTimeCompare(res.ServerNonce[:], kex.serverNonce[:]) {
 		return nil, errors.New("bad server nonce")
-	}
-
-	kex.g, err = binints.ReadUint32LEAsInt(r)
-	if err != nil {
-		return nil, err
-	}
-
-	kex.dhPrime, err = ReadBigIntBE(r)
-	if err != nil {
-		return nil, err
-	}
-
-	res.GA, err = ReadBigIntBE(r)
-	if err != nil {
-		return nil, err
-	}
-
-	res.ServerTime, err = binints.ReadUint32LEAsInt(r)
-	if err != nil {
-		return nil, err
 	}
 
 	// VERIFICATION
@@ -335,12 +319,16 @@ func (kex *KeyEx) handleServerDHParamsOK(r io.Reader) (*OutgoingMsg, error) {
 
 	gab := new(big.Int)
 	gab.Exp(res.GA, kex.b, kex.dhPrime)
-	kex.authKey = leftZeroPad(gab.Bytes(), 256)
+	kex.auth.Key = leftZeroPad(gab.Bytes(), 256)
 
-	authKeyHash := sha1.Sum(kex.authKey)
-	kex.authKeyHash = binints.DecodeUint64LE(authKeyHash[12:])
+	authKeyHash := sha1.Sum(kex.auth.Key)
+	kex.auth.KeyID = binints.DecodeUint64LE(authKeyHash[12:])
 	kex.authKeyAuxHash = binints.DecodeUint64LE(authKeyHash[:8])
-	log.Printf("Auth key: %v (hash: %x)", hex.EncodeToString(kex.authKey), kex.authKeyHash)
+	for i := 0; i < 8; i++ {
+		kex.auth.ServerSalt[i] = kex.newNonce[i] ^ kex.serverNonce[i]
+	}
+
+	log.Printf("Auth key: %v (key ID: %x, server salt: %x)", hex.EncodeToString(kex.auth.Key), kex.auth.KeyID, kex.auth.ServerSalt)
 
 	// RESPONSE
 
@@ -389,22 +377,14 @@ func (kex *KeyEx) handleServerDHParamsOK(r io.Reader) (*OutgoingMsg, error) {
 	return &msg, nil
 }
 
-func (kex *KeyEx) handleDHGenOK(r io.Reader) (*OutgoingMsg, error) {
+func (kex *KeyEx) handleDHGenOK(r *Reader) (*Msg, error) {
 	var res DHGenOK
 
-	err := binints.ReadUint128LE(r, res.Nonce[:])
-	if err != nil {
-		return nil, err
-	}
-
-	err = binints.ReadUint128LE(r, res.ServerNonce[:])
-	if err != nil {
-		return nil, err
-	}
-
-	err = binints.ReadUint128LE(r, res.NewNonceHash[:])
-	if err != nil {
-		return nil, err
+	r.ReadUint128(res.Nonce[:])
+	r.ReadUint128(res.ServerNonce[:])
+	r.ReadUint128(res.NewNonceHash[:])
+	if r.Err() != nil {
+		return nil, r.Err()
 	}
 
 	if 1 != subtle.ConstantTimeCompare(res.Nonce[:], kex.nonce[:]) {
@@ -415,6 +395,8 @@ func (kex *KeyEx) handleDHGenOK(r io.Reader) (*OutgoingMsg, error) {
 		// log.Printf("server_dh_params_ok server nonce = %v, wanted %v", res.Nonce[:], kex.serverNonce[:])
 		return nil, errors.New("bad server nonce")
 	}
+
+	// TODO: check NewNonceHash
 
 	log.Printf("✓ Key exchange complete")
 

@@ -76,7 +76,7 @@ func doit(options telegramapi.Options) error {
 		if msg == nil {
 			break
 		}
-		conn.PrintMessage(msg)
+		// conn.PrintMessage(msg)
 	}
 
 	return nil

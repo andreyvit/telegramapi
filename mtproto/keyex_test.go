@@ -174,11 +174,11 @@ func TestKeyExchange(t *testing.T) {
 
 	// --- res 1
 
-	payload, err := framer.Parse(fromHex(res1))
+	inmsg, err := framer.Parse(fromHex(res1))
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err := keyex.Handle(payload)
+	msg, err := keyex.Handle(NewReader(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -204,11 +204,11 @@ func TestKeyExchange(t *testing.T) {
 
 	// --- res 2
 
-	payload, err = framer.Parse(fromHex(res2))
+	inmsg, err = framer.Parse(fromHex(res2))
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err = keyex.Handle(payload)
+	msg, err = keyex.Handle(NewReader(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -231,28 +231,26 @@ func TestKeyExchange(t *testing.T) {
 
 	// --- res 3
 
-	payload, err = framer.Parse(fromHex(res3))
+	inmsg, err = framer.Parse(fromHex(res3))
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err = keyex.Handle(payload)
+	msg, err = keyex.Handle(NewReader(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// --- done
 
-	key, keyHash, err := keyex.Result()
+	auth, err := keyex.Result()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	expectedKey := fromHex(expectedKeyStr)
-	if !bytes.Equal(key, expectedKey) {
-		t.Errorf("key is %x, expected %x", key, expectedKey)
+	if !bytes.Equal(auth.Key, expectedKey) {
+		t.Errorf("key is %x, expected %x", auth.Key, expectedKey)
 	}
-
-	_ = keyHash // TODO: verify
 }
 
 func fromHex(s string) []byte {

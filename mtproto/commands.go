@@ -39,28 +39,11 @@ type ResPQ struct {
 	ServerPubKeyFingerprints []uint64
 }
 
-func ReadResPQ(r io.Reader, res *ResPQ) error {
-	err := binints.ReadUint128LE(r, res.Nonce[:])
-	if err != nil {
-		return err
-	}
-
-	err = binints.ReadUint128LE(r, res.ServerNonce[:])
-	if err != nil {
-		return err
-	}
-
-	res.PQ, err = ReadBigIntBE(r)
-	if err != nil {
-		return err
-	}
-
-	res.ServerPubKeyFingerprints, err = ReadVectorLong(r)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (data *ResPQ) ReadFrom(r *Reader) {
+	r.ReadUint128(data.Nonce[:])
+	r.ReadUint128(data.ServerNonce[:])
+	data.PQ = r.ReadBigInt()
+	data.ServerPubKeyFingerprints = r.ReadVectorLong()
 }
 
 type PQInnerData struct {
