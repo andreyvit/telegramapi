@@ -6,19 +6,6 @@ import (
 	"github.com/andreyvit/telegramapi/binints"
 )
 
-type Msg struct {
-	Encrypted bool
-	MsgID     uint64
-	Payload   []byte
-}
-
-func NormalMsg(b []byte) Msg {
-	return Msg{true, 0, b}
-}
-func UnencryptedMsg(b []byte) Msg {
-	return Msg{false, 0, b}
-}
-
 type Framer struct {
 	MsgIDOverride uint64
 
@@ -66,7 +53,7 @@ func (fr *Framer) Parse(raw []byte) (Msg, error) {
 
 		a.Push(binints.ExpectEOF(r))
 
-		return Msg{false, msgID, payload}, a.Error()
+		return Msg{payload, KeyExMsg, msgID}, a.Error()
 	} else {
 		// log.Printf("Received encrypted: authKeyID=%x msgID=%x msgLen=%d cmd = %08x", authKeyID, msgID, msgLen, cmd)
 		panic("authKeyID != 0")

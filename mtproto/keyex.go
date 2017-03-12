@@ -1,7 +1,6 @@
 package mtproto
 
 import (
-	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
@@ -83,20 +82,17 @@ func (kex *KeyEx) Start() Msg {
 		kex.RandomReader = rand.Reader
 	}
 
-	var buf bytes.Buffer
-	binints.WriteUint32LE(&buf, IDReqPQ)
-
 	_, err := io.ReadFull(kex.RandomReader, kex.nonce[:])
 	if err != nil {
 		panic(err)
 	}
-	err = binints.WriteUint128LE(&buf, kex.nonce[:])
-	if err != nil {
-		panic(err)
-	}
+
+	w := NewWriterCmd(IDReqPQ)
+	w.WriteUint128(kex.nonce[:])
+	msg := MakeMsg(w.Bytes(), KeyExMsg)
 
 	kex.state = KeyExReqPQ
-	return UnencryptedMsg(buf.Bytes())
+	return msg
 }
 
 func (kex *KeyEx) Handle(r *Reader) (*Msg, error) {
@@ -222,12 +218,7 @@ func (kex *KeyEx) handleResPQ(r *Reader) (*Msg, error) {
 	copy(msgdata.PQInnerData.ServerNonce[:], kex.serverNonce[:])
 	copy(msgdata.PQInnerData.NewNonce[:], kex.newNonce[:])
 
-	var msgbuf bytes.Buffer
-	err = msgdata.WriteTo(&msgbuf)
-	if err != nil {
-		return nil, err
-	}
-	msg := UnencryptedMsg(msgbuf.Bytes())
+	msg := MakeMsg(BytesOf(msgdata), KeyExMsg)
 	kex.state = KeyExReqDHParams
 	return &msg, nil
 }
@@ -332,47 +323,23 @@ func (kex *KeyEx) handleServerDHParamsOK(r *Reader) (*Msg, error) {
 
 	// RESPONSE
 
-	var buf bytes.Buffer
-	binints.WriteUint32LE(&buf, IDClientDHInnerData)
+	w := NewWriterCmd(IDClientDHInnerData)
+	w.WriteUint128(kex.nonce[:])
+	w.WriteUint128(kex.serverNonce[:])
+	w.WriteUint64(retryID)
+	w.WriteBigInt(gb)
 
-	err = binints.WriteUint128LE(&buf, kex.nonce[:])
-	if err != nil {
-		return nil, err
-	}
-	err = binints.WriteUint128LE(&buf, kex.serverNonce[:])
-	if err != nil {
-		return nil, err
-	}
-	err = binints.WriteUint64LE(&buf, retryID)
-	if err != nil {
-		return nil, err
-	}
-	err = WriteBigIntBE(&buf, gb)
+	encrypted, err = AESIGEPadEncryptWithHash(nil, w.Bytes(), kex.tmpAESKey[:], kex.tmpAESIV[:], kex.RandomReader)
 	if err != nil {
 		return nil, err
 	}
 
-	encrypted, err = AESIGEPadEncryptWithHash(nil, buf.Bytes(), kex.tmpAESKey[:], kex.tmpAESIV[:], kex.RandomReader)
-	if err != nil {
-		return nil, err
-	}
+	w = NewWriterCmd(IDSetClientDHParams)
+	w.WriteUint128(kex.nonce[:])
+	w.WriteUint128(kex.serverNonce[:])
+	w.WriteString(encrypted)
 
-	buf.Truncate(0)
-	binints.WriteUint32LE(&buf, IDSetClientDHParams)
-	err = binints.WriteUint128LE(&buf, kex.nonce[:])
-	if err != nil {
-		return nil, err
-	}
-	err = binints.WriteUint128LE(&buf, kex.serverNonce[:])
-	if err != nil {
-		return nil, err
-	}
-	err = WriteString(&buf, encrypted)
-	if err != nil {
-		return nil, err
-	}
-
-	msg := UnencryptedMsg(buf.Bytes())
+	msg := MakeMsg(w.Bytes(), KeyExMsg)
 	kex.state = KeyExSetClientDHParams
 	return &msg, nil
 }

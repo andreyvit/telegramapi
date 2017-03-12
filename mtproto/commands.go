@@ -5,11 +5,8 @@ import (
 	"crypto/rsa"
 	"crypto/sha1"
 	"errors"
-	"io"
 	"log"
 	"math/big"
-
-	"github.com/andreyvit/telegramapi/binints"
 )
 
 var ErrMalformedCommand = errors.New("malformed command")
@@ -62,43 +59,14 @@ type DHGenOK struct {
 	NewNonceHash [16]byte
 }
 
-func (data *PQInnerData) WriteTo(w io.Writer) error {
-	err := binints.WriteUint32LE(w, IDPQInnerData)
-	if err != nil {
-		return err
-	}
-
-	err = WriteBigIntBE(w, data.PQ)
-	if err != nil {
-		return err
-	}
-
-	err = WriteBigIntBE(w, data.P)
-	if err != nil {
-		return err
-	}
-
-	err = WriteBigIntBE(w, data.Q)
-	if err != nil {
-		return err
-	}
-
-	_, err = w.Write(data.Nonce[:])
-	if err != nil {
-		return err
-	}
-
-	_, err = w.Write(data.ServerNonce[:])
-	if err != nil {
-		return err
-	}
-
-	_, err = w.Write(data.NewNonce[:])
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (data *PQInnerData) WriteTo(w *Writer) {
+	w.WriteCmd(IDPQInnerData)
+	w.WriteBigInt(data.PQ)
+	w.WriteBigInt(data.P)
+	w.WriteBigInt(data.Q)
+	w.Write(data.Nonce[:])
+	w.Write(data.ServerNonce[:])
+	w.Write(data.NewNonce[:])
 }
 
 type ReqDHParams struct {
@@ -108,24 +76,13 @@ type ReqDHParams struct {
 	Random255               [255]byte
 }
 
-func (data *ReqDHParams) WriteTo(w io.Writer) error {
-	var unencrypted bytes.Buffer
-	err := data.PQInnerData.WriteTo(&unencrypted)
-	if err != nil {
-		return err
-	}
-
-	hash := sha1.Sum(unencrypted.Bytes())
+func (data *ReqDHParams) WriteTo(w *Writer) {
+	unencrypted := BytesOf(&data.PQInnerData)
+	hash := sha1.Sum(unencrypted)
 
 	var dataWithHash bytes.Buffer
-	_, err = dataWithHash.Write(hash[:])
-	if err != nil {
-		return err
-	}
-	_, err = dataWithHash.Write(unencrypted.Bytes())
-	if err != nil {
-		return err
-	}
+	_, _ = dataWithHash.Write(hash[:])
+	_, _ = dataWithHash.Write(unencrypted)
 
 	// pad to 255
 	const tlen = 255
@@ -133,10 +90,7 @@ func (data *ReqDHParams) WriteTo(w io.Writer) error {
 	if olen > tlen {
 		panic("dataWithHash.Len() > 255")
 	}
-	_, err = dataWithHash.Write(data.Random255[:tlen-olen])
-	if err != nil {
-		return err
-	}
+	_, _ = dataWithHash.Write(data.Random255[:tlen-olen])
 
 	encrypted := EncryptRSA(dataWithHash.Bytes(), data.PubKey)
 	log.Printf("ReqDHParams: encrypted %v bytes (%v + padding) into %v bytes", dataWithHash.Len(), olen, len(encrypted))
@@ -144,40 +98,13 @@ func (data *ReqDHParams) WriteTo(w io.Writer) error {
 		panic("len(encrypted) != 256")
 	}
 
-	err = binints.WriteUint32LE(w, IDReqDHParams)
-	if err != nil {
-		return err
-	}
-
-	err = binints.WriteUint128LE(w, data.PQInnerData.Nonce[:])
-	if err != nil {
-		return err
-	}
-	err = binints.WriteUint128LE(w, data.PQInnerData.ServerNonce[:])
-	if err != nil {
-		return err
-	}
-
-	err = WriteString(w, data.P.Bytes())
-	if err != nil {
-		return err
-	}
-	err = WriteString(w, data.Q.Bytes())
-	if err != nil {
-		return err
-	}
-
-	err = binints.WriteUint64LE(w, data.ServerPubKeyFingerprint)
-	if err != nil {
-		return err
-	}
-
-	err = WriteString(w, encrypted)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	w.WriteCmd(IDReqDHParams)
+	w.WriteUint128(data.PQInnerData.Nonce[:])
+	w.WriteUint128(data.PQInnerData.ServerNonce[:])
+	w.WriteBigInt(data.P)
+	w.WriteBigInt(data.Q)
+	w.WriteUint64(data.ServerPubKeyFingerprint)
+	w.WriteString(encrypted)
 }
 
 type ServerDHParamsOK struct {

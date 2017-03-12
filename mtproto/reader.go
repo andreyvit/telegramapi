@@ -97,6 +97,9 @@ func (r *Reader) ReadUint32() uint32 {
 func (r *Reader) ReadInt() int {
 	return int(r.ReadUint32())
 }
+func (r *Reader) ReadCmd() uint32 {
+	return r.ReadUint32()
+}
 
 func (r *Reader) TryReadUint64() (uint64, bool) {
 	if !r.need(8) {
@@ -215,13 +218,4 @@ func (r *Reader) ReadVectorLong() []uint64 {
 		}
 	}
 	return res
-}
-
-func PaddingOf(len int) int {
-	rem := len % 4
-	if rem == 0 {
-		return 0
-	} else {
-		return 4 - rem
-	}
 }
