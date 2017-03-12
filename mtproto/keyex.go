@@ -95,13 +95,14 @@ func (kex *KeyEx) Start() Msg {
 	return msg
 }
 
-func (kex *KeyEx) Handle(r *Reader) (*Msg, error) {
-	msg, err := kex.handle(r)
+func (kex *KeyEx) Handle(inmsg Msg) (*Msg, error) {
+	r := NewReader(inmsg.Payload)
+	omsg, err := kex.handle(r)
 	if err != nil {
 		kex.state = KeyExFailed
 		kex.err = err
 	}
-	return msg, err
+	return omsg, err
 }
 
 func (kex *KeyEx) handle(r *Reader) (*Msg, error) {

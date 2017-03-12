@@ -8,6 +8,19 @@ const (
 	KeyExMsg           = 2
 )
 
+func (t MsgType) String() string {
+	switch t {
+	case ContentMsg:
+		return "Content"
+	case ServiceMsg:
+		return "Service"
+	case KeyExMsg:
+		return "KeyEx"
+	default:
+		panic("invalid value")
+	}
+}
+
 type Msg struct {
 	Payload []byte
 	Type    MsgType

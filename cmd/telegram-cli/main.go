@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/andreyvit/telegramapi"
 )
@@ -29,12 +26,7 @@ func main() {
 	options := telegramapi.Options{
 		Endpoint:  testEndpoint,
 		PublicKey: publicKey,
-	}
-
-	err := doit(options)
-	if err != nil {
-		log.Printf("** ERROR: %v", err)
-		os.Exit(1)
+		Verbose:   2,
 	}
 
 	appID := os.Getenv("TG_APP_ID")
@@ -49,35 +41,36 @@ func main() {
 		os.Exit(64) // EX_USAGE
 	}
 
-	log.Printf("OK")
+	conn, err := telegramapi.Connect(options)
+	if err != nil {
+		log.Printf("** ERROR connecting: %v", err)
+		os.Exit(1)
+	}
+	defer conn.Close()
+	log.Printf("✓ Connected")
+
+	conn.Run()
+	err = conn.Err()
+	if err != nil {
+		log.Printf("** ERROR: %v", err)
+		os.Exit(1)
+	}
+
+	log.Printf("✓ DONE")
 }
 
 func doit(options telegramapi.Options) error {
-	conn, err := telegramapi.Connect(options)
-	if err != nil {
-		return errors.Wrap(err, "connection")
-	}
-	defer conn.Close()
 
-	log.Printf("Connected")
-
-	err = conn.SayHello()
-	if err != nil {
-		return errors.Wrap(err, "saying hello")
-	}
-
-	log.Printf("Sent message")
-
-	for {
-		msg, err := conn.ReadMessage(2 * time.Second)
-		if err != nil {
-			return errors.Wrap(err, "read")
-		}
-		if msg == nil {
-			break
-		}
-		// conn.PrintMessage(msg)
-	}
+	// for {
+	// 	msg, err := conn.ReadMessage(2 * time.Second)
+	// 	if err != nil {
+	// 		return errors.Wrap(err, "read")
+	// 	}
+	// 	if msg == nil {
+	// 		break
+	// 	}
+	// 	// conn.PrintMessage(msg)
+	// }
 
 	return nil
 }

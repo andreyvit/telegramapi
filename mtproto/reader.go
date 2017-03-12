@@ -14,6 +14,18 @@ type Reader struct {
 	err error
 }
 
+func CmdOfPayload(b []byte) uint32 {
+	if len(b) < 4 {
+		return 0
+	} else {
+		v := uint32(b[0])
+		v |= uint32(b[1]) << (8 * 1)
+		v |= uint32(b[2]) << (8 * 2)
+		v |= uint32(b[3]) << (8 * 3)
+		return v
+	}
+}
+
 func NewReader(data []byte) *Reader {
 	r := &Reader{0, data, nil}
 	r.cmd = r.ReadUint32()
