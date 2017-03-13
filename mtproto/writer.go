@@ -122,6 +122,16 @@ func (w *Writer) WriteVectorLong(v []uint64) {
 	}
 }
 
+func (w *Writer) PaddingTo(bs int) int {
+	len := w.buf.Len()
+	r := len % bs
+	if r == 0 {
+		return 0
+	} else {
+		return bs - r
+	}
+}
+
 type WritableToWriter interface {
 	WriteTo(w *Writer)
 }

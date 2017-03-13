@@ -32,6 +32,7 @@ type AuthResult struct {
 	KeyID      uint64
 	ServerSalt [8]byte
 	TimeOffset int
+	SessionID  [8]byte
 }
 
 type KeyEx struct {
@@ -95,8 +96,7 @@ func (kex *KeyEx) Start() Msg {
 	return msg
 }
 
-func (kex *KeyEx) Handle(inmsg Msg) (*Msg, error) {
-	r := NewReader(inmsg.Payload)
+func (kex *KeyEx) Handle(r *Reader) (*Msg, error) {
 	omsg, err := kex.handle(r)
 	if err != nil {
 		kex.state = KeyExFailed

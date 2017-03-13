@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"log"
 	"net"
 	"time"
 
@@ -47,6 +48,7 @@ func ReadAbridgedTCPMessage(r TCPReader, maxMsgLen int, firstByteTimeout time.Du
 	if _, ok := err.(net.Error); ok {
 		return nil, nil
 	} else if err != nil {
+		log.Printf("mtproto.TCPTransport: failed to read TCP message length: %v", msglen, err)
 		return nil, err
 	}
 
@@ -60,8 +62,10 @@ func ReadAbridgedTCPMessage(r TCPReader, maxMsgLen int, firstByteTimeout time.Du
 	}
 	_, err = io.ReadFull(r, data)
 	if err != nil {
+		log.Printf("mtproto.TCPTransport: failed to read TCP message (%d): %v", msglen, err)
 		return nil, err
 	}
+	log.Printf("mtproto.TCPTransport: received %d bytes", len(data))
 
 	return data, nil
 }
@@ -128,10 +132,21 @@ func (tr *TCPTransport) Close() {
 func (tr *TCPTransport) Send(data []byte) error {
 	data = formatTCPMessage(data, !tr.firstSent)
 	tr.firstSent = true
+	log.Printf("mtproto.TCPTransport: sending %d bytes", len(data))
 	_, err := tr.Conn.Write(data)
 	return err
 }
 
-func (tr *TCPTransport) Recv() ([]byte, error) {
-	return ReadAbridgedTCPMessage(tr.Conn, tr.options.MaxMsgLen, 0, 0)
+func (tr *TCPTransport) Recv() ([]byte, int, error) {
+	raw, err := ReadAbridgedTCPMessage(tr.Conn, tr.options.MaxMsgLen, 0, 0)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if len(raw) == 4 {
+		errcode := int(int32(NewReader(raw).Cmd()))
+		return nil, errcode, nil
+	}
+
+	return raw, 0, nil
 }

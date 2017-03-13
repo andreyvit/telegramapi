@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-var randomness = `
+const randomness = `
 3E0549828CCA27E966B301A48FECE2FC
 311C85DB234AA2640AFC4A76A735CF5B1F0FD68BD17FA181E1229AD867CC024D
 
@@ -178,7 +178,7 @@ func TestKeyExchange(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err := keyex.Handle(inmsg)
+	msg, err := keyex.Handle(NewReader(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -208,7 +208,7 @@ func TestKeyExchange(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err = keyex.Handle(inmsg)
+	msg, err = keyex.Handle(NewReader(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -235,7 +235,7 @@ func TestKeyExchange(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err = keyex.Handle(inmsg)
+	msg, err = keyex.Handle(NewReader(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}

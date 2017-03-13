@@ -1,15 +1,19 @@
 package mtproto
 
 import (
+	"bytes"
+	"crypto/rand"
 	"crypto/rsa"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"io"
 	"log"
 )
 
 type Transport interface {
 	Send(data []byte) error
-	Recv() ([]byte, error)
+	Recv() ([]byte, int, error)
 	Close()
 }
 
@@ -20,21 +24,33 @@ type SessionOptions struct {
 	Verbose int
 }
 
+type Handler func(cmd uint32, r *Reader) ([]Msg, error)
+
+var ErrCmdNotHandled = errors.New("not handled")
+
 type Session struct {
 	options   SessionOptions
 	transport Transport
 	framer    *Framer
 	keyex     *KeyEx
+	handlers  []Handler
 
 	failc  chan error
 	sendc  chan Msg
 	closec chan struct{}
+	eventc chan uint32
 
 	err error
 }
 
+const (
+	PseudoIDInvalidCommand uint32 = iota
+	PseudoIDKeyExStart
+	PseudoIDHandshakeDone
+)
+
 func NewSession(transport Transport, options SessionOptions) *Session {
-	return &Session{
+	s := &Session{
 		options:   options,
 		transport: transport,
 		framer:    &Framer{},
@@ -45,7 +61,16 @@ func NewSession(transport Transport, options SessionOptions) *Session {
 		failc:  make(chan error, 1),
 		sendc:  make(chan Msg, 1),
 		closec: make(chan struct{}),
+		eventc: make(chan uint32, 10),
 	}
+	s.AddHandler(s.handleKeyEx)
+	s.AddHandler(s.handleConfig)
+	return s
+}
+
+func (sess *Session) AddHandler(handler func(cmd uint32, r *Reader) ([]Msg, error)) {
+	h := Handler(handler)
+	sess.handlers = append(sess.handlers, h)
 }
 
 func (sess *Session) Send(msg Msg) {
@@ -54,6 +79,10 @@ func (sess *Session) Send(msg Msg) {
 
 func (sess *Session) Err() error {
 	return sess.err
+}
+
+func (sess *Session) Notify(pseudocmd uint32) {
+	sess.eventc <- pseudocmd
 }
 
 func (sess *Session) Run() {
@@ -65,7 +94,7 @@ func (sess *Session) Run() {
 		log.Printf("mtproto.Session running...")
 	}
 
-	sess.sendInternal(sess.keyex.Start())
+	sess.eventc <- PseudoIDKeyExStart
 
 loop:
 	for sess.err == nil {
@@ -81,6 +110,8 @@ loop:
 			}
 		case err := <-sess.failc:
 			sess.failInternal(err)
+		case pseudocmd := <-sess.eventc:
+			sess.broadcastInternal(pseudocmd)
 		}
 	}
 
@@ -94,7 +125,7 @@ func (sess *Session) listen(incomingc chan<- []byte) {
 		log.Printf("mtproto.Session listening...")
 	}
 	for {
-		raw, err := sess.transport.Recv()
+		raw, errcode, err := sess.transport.Recv()
 		if err == io.EOF {
 			if sess.options.Verbose >= 2 {
 				log.Printf("mtproto.Session Recv'd EOF")
@@ -105,6 +136,12 @@ func (sess *Session) listen(incomingc chan<- []byte) {
 				log.Printf("mtproto.Session Recv failed: %v", err)
 			}
 			sess.failc <- err
+			break
+		} else if raw == nil && errcode != 0 {
+			if sess.options.Verbose >= 1 {
+				log.Printf("mtproto.Session Recv returned error code %v", errcode)
+			}
+			sess.failc <- fmt.Errorf("error code %v", errcode)
 			break
 		}
 		// if sess.options.Verbose >= 2 {
@@ -129,6 +166,10 @@ func (sess *Session) failInternal(err error) {
 	}
 	if sess.err == nil {
 		sess.err = err
+		if sess.options.Verbose >= 1 {
+			log.Printf("mtproto.Session failed: %v", err)
+		}
+		panic("failed")
 	}
 }
 
@@ -166,6 +207,11 @@ func (sess *Session) handle(msg []byte) {
 func (sess *Session) doHandle(raw []byte) error {
 	msg, err := sess.framer.Parse(raw)
 	if err != nil {
+		if sess.options.Verbose >= 2 {
+			log.Printf("mtproto.Session failed to parse incoming data (%v bytes): %v - error: %v", len(raw), hex.EncodeToString(raw), err)
+		} else if sess.options.Verbose >= 1 {
+			log.Printf("mtproto.Session failed to parse incoming data (%v bytes) - error: %v", len(raw), err)
+		}
 		return err
 	}
 
@@ -175,19 +221,96 @@ func (sess *Session) doHandle(raw []byte) error {
 		log.Printf("mtproto.Session received %s (%v bytes, %v)", DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type)
 	}
 
-	if !sess.keyex.IsFinished() {
-		omsg, err := sess.keyex.Handle(msg)
-		if err != nil {
-			return err
-		}
-		if omsg != nil {
-			sess.sendInternal(*omsg)
-		}
-	} else {
-		log.Printf("mtproto.Session TODO: handle normal msg")
-	}
+	r := NewReader(msg.Payload)
+	sess.invokeHandlersInternal(r.Cmd(), r)
 
 	return nil
+}
+
+func (sess *Session) invokeHandlersInternal(cmd uint32, r *Reader) {
+	for _, h := range sess.handlers {
+		msgs, err := h(cmd, r)
+		if err != nil && err != ErrCmdNotHandled {
+			sess.failInternal(err)
+			return
+		}
+		for _, msg := range msgs {
+			sess.sendInternal(msg)
+		}
+		if err != ErrCmdNotHandled {
+			return
+		}
+	}
+
+	if sess.options.Verbose >= 1 {
+		log.Printf("mtproto.Session: dropping unhandled message")
+	}
+}
+
+func (sess *Session) broadcastInternal(cmd uint32) {
+	if sess.options.Verbose >= 1 {
+		log.Printf("mtproto.Session broadcasting %s", CmdName(cmd))
+	}
+	for _, h := range sess.handlers {
+		msgs, err := h(cmd, nil)
+		if err != nil && err != ErrCmdNotHandled {
+			sess.failInternal(err)
+			return
+		}
+		for _, msg := range msgs {
+			sess.sendInternal(msg)
+		}
+	}
+}
+
+func (sess *Session) handleKeyEx(cmd uint32, r *Reader) ([]Msg, error) {
+	if sess.keyex.IsFinished() {
+		return nil, ErrCmdNotHandled
+	}
+
+	if cmd == PseudoIDKeyExStart {
+		omsg := sess.keyex.Start()
+		return []Msg{omsg}, nil
+	} else if r != nil {
+		omsg, err := sess.keyex.Handle(r)
+		if err != nil {
+			return nil, err
+		}
+		if omsg != nil {
+			return []Msg{*omsg}, nil
+		} else {
+			auth, err := sess.keyex.Result()
+			if err != nil {
+				return nil, err
+			}
+			sess.ApplyAuth(auth)
+			return []Msg{}, nil
+		}
+	} else {
+		return nil, ErrCmdNotHandled
+	}
+}
+
+func (sess *Session) handleConfig(cmd uint32, r *Reader) ([]Msg, error) {
+	if cmd == PseudoIDHandshakeDone {
+		w := NewWriterCmd(Cmd("help.getConfig"))
+		return []Msg{MakeMsg(w.Bytes(), ServiceMsg)}, nil
+	} else {
+		return nil, ErrCmdNotHandled
+	}
+}
+
+func (sess *Session) ApplyAuth(auth *AuthResult) {
+	var zero [8]byte
+	if bytes.Equal(zero[:], auth.SessionID[:]) {
+		_, err := io.ReadFull(rand.Reader, auth.SessionID[:])
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	sess.framer.SetAuth(auth)
+	sess.Notify(PseudoIDHandshakeDone)
 }
 
 func (sess *Session) Close() {
@@ -196,4 +319,9 @@ func (sess *Session) Close() {
 
 func (sess *Session) Wait() {
 	// TODO
+}
+
+func init() {
+	RegisterCmd(PseudoIDKeyExStart, "KeyExStart", "")
+	RegisterCmd(PseudoIDHandshakeDone, "HandshakeDone", "")
 }
