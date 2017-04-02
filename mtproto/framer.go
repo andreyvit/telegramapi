@@ -156,7 +156,7 @@ func deriveAESKey(authKey, msgKey []byte, key, iv []byte, isClient bool) {
 	b := sha1.Sum(src[:48])
 
 	// sha1_с = SHA1(substr(auth_key, 64+x, 32) + msg_key)
-	copy(src[0:32], authKey[96+x:96+x+32])
+	copy(src[0:32], authKey[64+x:64+x+32])
 	copy(src[32:48], msgKey)
 	c := sha1.Sum(src[:48])
 
