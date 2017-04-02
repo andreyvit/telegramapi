@@ -65,6 +65,7 @@ func NewSession(transport Transport, options SessionOptions) *Session {
 	}
 	s.AddHandler(s.handleKeyEx)
 	s.AddHandler(s.handleConfig)
+	s.AddHandler(s.handleRPCResult)
 	return s
 }
 
@@ -228,23 +229,33 @@ func (sess *Session) doHandle(raw []byte) error {
 }
 
 func (sess *Session) invokeHandlersInternal(cmd uint32, r *Reader) {
-	for _, h := range sess.handlers {
-		msgs, err := h(cmd, r)
-		if err != nil && err != ErrCmdNotHandled {
-			sess.failInternal(err)
-			return
+	msgs, err := sess.invokeHandlersInternalReturnCmds(cmd, r)
+	if err == ErrCmdNotHandled {
+		if sess.options.Verbose >= 1 {
+			log.Printf("mtproto.Session: dropping unhandled message %s (within %s)", DescribeCmd(r.Cmd()), DescribeCmd(cmd))
 		}
+	} else if err != nil {
+		sess.failInternal(err)
+	} else {
 		for _, msg := range msgs {
 			sess.sendInternal(msg)
 		}
-		if err != ErrCmdNotHandled {
-			return
+	}
+}
+
+func (sess *Session) invokeHandlersInternalReturnCmds(cmd uint32, r *Reader) ([]Msg, error) {
+	for _, h := range sess.handlers {
+		msgs, err := h(cmd, r)
+		if err == ErrCmdNotHandled {
+			continue
+		} else if err != nil {
+			return nil, err
+		} else {
+			return msgs, nil
 		}
 	}
 
-	if sess.options.Verbose >= 1 {
-		log.Printf("mtproto.Session: dropping unhandled message")
-	}
+	return nil, ErrCmdNotHandled
 }
 
 func (sess *Session) broadcastInternal(cmd uint32) {
@@ -302,7 +313,18 @@ func (sess *Session) handleConfig(cmd uint32, r *Reader) ([]Msg, error) {
 		w.WriteBlobStr("0.1")
 		w.WriteBlobStr("en")
 		w.WriteCmd(Cmd("help.getNearestDc"))
-		return []Msg{MakeMsg(w.Bytes(), ServiceMsg)}, nil
+		return []Msg{MakeMsg(w.Bytes(), ContentMsg)}, nil
+	} else {
+		return nil, ErrCmdNotHandled
+	}
+}
+
+func (sess *Session) handleRPCResult(cmd uint32, r *Reader) ([]Msg, error) {
+	if cmd == Cmd("rpc_result") {
+		reqMsgID := r.ReadUint64()
+		_ = reqMsgID
+		subcmd := r.StartInnerCmd()
+		return sess.invokeHandlersInternalReturnCmds(subcmd, r)
 	} else {
 		return nil, ErrCmdNotHandled
 	}

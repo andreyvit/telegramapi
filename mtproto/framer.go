@@ -1,13 +1,14 @@
 package mtproto
 
 import (
-	"bytes"
 	"crypto/rand"
 	"crypto/sha1"
-	"github.com/andreyvit/telegramapi/binints"
+	"errors"
 	"io"
 	"log"
 )
+
+var ErrUnknownKeyID = errors.New("unknown auth key ID")
 
 type Framer struct {
 	MsgIDOverride uint64
@@ -99,32 +100,67 @@ func (fr *Framer) Format(msg Msg) ([]byte, error) {
 }
 
 func (fr *Framer) Parse(raw []byte) (Msg, error) {
-	r := bytes.NewReader(raw)
+	r := ReadRaw(raw)
 
-	authKeyID, err := binints.ReadUint64LE(r)
-	if err != nil {
-		return Msg{}, err
+	authKeyID, ok := r.TryReadUint64()
+	if !ok {
+		return Msg{}, r.Err()
 	}
 
 	if authKeyID == 0 {
-		var a Accum
+		msgID := r.ReadUint64()
+		msgLen := r.ReadInt()
+		payload := r.ReadN(msgLen)
+		r.ExpectEOF()
 
-		msgID, err := binints.ReadUint64LE(r)
-		a.Push(err)
-
-		msgLen, err := binints.ReadUint32LE(r)
-		a.Push(err)
-
-		payload, err := ReadN(r, int(msgLen))
-		a.Push(err)
-
-		a.Push(binints.ExpectEOF(r))
-
-		return Msg{payload, KeyExMsg, msgID}, a.Error()
+		return Msg{payload, KeyExMsg, msgID}, r.Err()
 	} else {
-		// log.Printf("Received encrypted: authKeyID=%x msgID=%x msgLen=%d cmd = %08x", authKeyID, msgID, msgLen, cmd)
-		panic("authKeyID != 0")
-		// a.Push(binints.ExpectEOF(r))
+		if authKeyID != fr.auth.KeyID {
+			return Msg{}, ErrUnknownKeyID
+		}
+
+		var msgKey [16]byte
+		r.ReadUint128(msgKey[:])
+		enc := r.ReadToEnd()
+		if err := r.Err(); err != nil {
+			return Msg{}, r.Err()
+		}
+
+		log.Printf("Received encrypted: authKeyID=%x data=(%d) %x", authKeyID, len(enc), enc)
+
+		var key, iv [32]byte
+		deriveAESKey(fr.auth.Key, msgKey[:], key[:], iv[:], false)
+		log.Printf("AES key: %x", key)
+		log.Printf("AES iv: %x", key)
+
+		decrypted, err := AESIGEDecrypt(nil, enc, key[:], iv[:])
+		if err != nil {
+			return Msg{}, err
+		}
+
+		r.Reset(decrypted)
+		var salt [8]byte
+		var sessid [8]byte
+		r.ReadFull(salt[:])
+		r.ReadFull(sessid[:])
+		msgID := r.ReadUint64()
+		seqNo := r.ReadInt()
+		msgLen := r.ReadInt()
+		payload := r.ReadN(msgLen)
+		if err := r.Err(); err != nil {
+			return Msg{}, r.Err()
+		}
+
+		log.Printf("Received: authKeyID=%x msgID=%v seqNo=%v payload=(%d) %x", authKeyID, msgID, seqNo, len(payload), payload)
+
+		var typ MsgType
+		if (seqNo & 1) == 0 {
+			typ = ServiceMsg
+		} else {
+			typ = ContentMsg
+		}
+
+		return Msg{payload, typ, msgID}, nil
 	}
 }
 

@@ -32,6 +32,14 @@ func NewReader(data []byte) *Reader {
 	return r
 }
 
+func ReadRaw(data []byte) Reader {
+	return Reader{0, data, nil}
+}
+
+func (r *Reader) Reset(data []byte) {
+	*r = Reader{0, data, nil}
+}
+
 func (r *Reader) Cmd() uint32 {
 	return r.cmd
 }
@@ -112,6 +120,10 @@ func (r *Reader) ReadInt() int {
 func (r *Reader) ReadCmd() uint32 {
 	return r.ReadUint32()
 }
+func (r *Reader) StartInnerCmd() uint32 {
+	r.cmd = r.ReadCmd()
+	return r.cmd
+}
 
 func (r *Reader) TryReadUint64() (uint64, bool) {
 	if !r.need(8) {
@@ -160,10 +172,23 @@ func (r *Reader) ReadN(n int) []byte {
 	return v
 }
 
+func (r *Reader) ReadFull(b []byte) {
+	n := len(b)
+	if !r.need(n) {
+		return
+	}
+	copy(b, r.rem[:n])
+	r.rem = r.rem[n:]
+}
+
 func (r *Reader) Skip(n int) {
 	if r.need(n) {
 		r.rem = r.rem[n:]
 	}
+}
+
+func (r *Reader) ReadToEnd() []byte {
+	return r.rem
 }
 
 func (r *Reader) ReadBlobLen() (int, int) {
