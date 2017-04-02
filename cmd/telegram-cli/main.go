@@ -9,7 +9,9 @@ import (
 )
 
 const testEndpoint = "149.154.167.40:443"
-const productionEndpoint = "149.154.167.50:443"
+
+// const productionEndpoint = "149.154.167.50:443"
+const productionEndpoint = "149.154.175.100:443"
 
 const publicKey = `
 -----BEGIN RSA PUBLIC KEY-----
@@ -24,7 +26,7 @@ Slv8kg9qv1m6XHVQY3PnEw+QQtqSIXklHwIDAQAB
 
 func main() {
 	options := telegramapi.Options{
-		Endpoint:  testEndpoint,
+		Endpoint:  productionEndpoint,
 		PublicKey: publicKey,
 		Verbose:   2,
 	}
