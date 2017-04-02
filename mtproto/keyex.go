@@ -229,7 +229,7 @@ func (kex *KeyEx) handleServerDHParamsOK(r *Reader) (*Msg, error) {
 
 	r.ReadUint128(res.Nonce[:])
 	r.ReadUint128(res.ServerNonce[:])
-	encrypted := r.ReadString()
+	encrypted := r.ReadBlob()
 	if r.Err() != nil {
 		return nil, r.Err()
 	}
@@ -338,7 +338,7 @@ func (kex *KeyEx) handleServerDHParamsOK(r *Reader) (*Msg, error) {
 	w = NewWriterCmd(IDSetClientDHParams)
 	w.WriteUint128(kex.nonce[:])
 	w.WriteUint128(kex.serverNonce[:])
-	w.WriteString(encrypted)
+	w.WriteBlob(encrypted)
 
 	msg := MakeMsg(w.Bytes(), KeyExMsg)
 	kex.state = KeyExSetClientDHParams

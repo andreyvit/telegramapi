@@ -1,7 +1,6 @@
 package mtproto
 
 import (
-	"bytes"
 	"crypto/rsa"
 	"crypto/sha1"
 	"encoding/asn1"
@@ -34,19 +33,10 @@ func ParsePublicKey(s string) (*rsa.PublicKey, error) {
 }
 
 func ComputePubKeyFingerprint(key *rsa.PublicKey) uint64 {
-	var buf bytes.Buffer
-	err := WriteString(&buf, key.N.Bytes())
-	if err != nil {
-		panic(err)
-	}
-
-	e := big.NewInt(int64(key.E))
-	err = WriteString(&buf, e.Bytes())
-	if err != nil {
-		panic(err)
-	}
-
-	sha1 := sha1.Sum(buf.Bytes())
+	var w Writer
+	w.WriteBigInt(key.N)
+	w.WriteBigInt(big.NewInt(int64(key.E)))
+	sha1 := sha1.Sum(w.Bytes())
 	return binints.DecodeUint64LE(sha1[12:20])
 }
 

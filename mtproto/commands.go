@@ -104,7 +104,7 @@ func (data *ReqDHParams) WriteTo(w *Writer) {
 	w.WriteBigInt(data.P)
 	w.WriteBigInt(data.Q)
 	w.WriteUint64(data.ServerPubKeyFingerprint)
-	w.WriteString(encrypted)
+	w.WriteBlob(encrypted)
 }
 
 type ServerDHParamsOK struct {

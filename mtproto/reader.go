@@ -166,7 +166,7 @@ func (r *Reader) Skip(n int) {
 	}
 }
 
-func (r *Reader) ReadStringLen() (int, int) {
+func (r *Reader) ReadBlobLen() (int, int) {
 	b, ok := r.TryReadByte()
 	if !ok {
 		return -1, 0
@@ -185,8 +185,8 @@ func (r *Reader) ReadStringLen() (int, int) {
 	}
 }
 
-func (r *Reader) ReadString() []byte {
-	len, pad := r.ReadStringLen()
+func (r *Reader) ReadBlob() []byte {
+	len, pad := r.ReadBlobLen()
 	if len < 0 {
 		return nil
 	}
@@ -196,8 +196,17 @@ func (r *Reader) ReadString() []byte {
 	return buf
 }
 
+func (r *Reader) ReadString() string {
+	blob := r.ReadBlob()
+	if blob != nil {
+		return string(blob)
+	} else {
+		return ""
+	}
+}
+
 func (r *Reader) ReadBigInt() *big.Int {
-	b := r.ReadString()
+	b := r.ReadBlob()
 	if b == nil {
 		return nil
 	}

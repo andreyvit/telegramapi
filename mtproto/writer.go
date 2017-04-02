@@ -84,7 +84,7 @@ func (w *Writer) ZeroPad(n int) {
 	}
 }
 
-func (w *Writer) WriteStringLen(v int) int {
+func (w *Writer) WriteBlobLen(v int) int {
 	if v < 0 {
 		panic("negative len")
 	}
@@ -99,10 +99,14 @@ func (w *Writer) WriteStringLen(v int) int {
 	}
 }
 
-func (w *Writer) WriteString(v []byte) {
-	pad := w.WriteStringLen(len(v))
+func (w *Writer) WriteBlob(v []byte) {
+	pad := w.WriteBlobLen(len(v))
 	w.Write(v)
 	w.ZeroPad(pad)
+}
+
+func (w *Writer) WriteBlobStr(s string) {
+	w.WriteBlob([]byte(s))
 }
 
 func (w *Writer) WriteBigInt(v *big.Int) {
@@ -111,7 +115,7 @@ func (w *Writer) WriteBigInt(v *big.Int) {
 		b = []byte{0}
 	}
 
-	w.WriteString(b)
+	w.WriteBlob(b)
 }
 
 func (w *Writer) WriteVectorLong(v []uint64) {
