@@ -293,7 +293,15 @@ func (sess *Session) handleKeyEx(cmd uint32, r *Reader) ([]Msg, error) {
 
 func (sess *Session) handleConfig(cmd uint32, r *Reader) ([]Msg, error) {
 	if cmd == PseudoIDHandshakeDone {
-		w := NewWriterCmd(Cmd("help.getConfig"))
+		w := NewWriterCmd(Cmd("invokeWithLayer"))
+		w.WriteInt(apiLayer)
+		w.WriteCmd(Cmd("initConnection"))
+		w.WriteInt(88766)
+		w.WriteBlobStr("Mac")
+		w.WriteBlobStr("10.11")
+		w.WriteBlobStr("0.1")
+		w.WriteBlobStr("en")
+		w.WriteCmd(Cmd("help.getNearestDc"))
 		return []Msg{MakeMsg(w.Bytes(), ServiceMsg)}, nil
 	} else {
 		return nil, ErrCmdNotHandled
