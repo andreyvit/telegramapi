@@ -53,7 +53,7 @@ func TestLexerMethods(t *testing.T) {
 		t.Fatalf("lex.Ident() == %q, expected %q", a, e)
 	}
 
-	lex.Unadvance()
+	lex.Unadvance(1)
 	if a, e := lex.Ident(), "string"; a != e {
 		t.Fatalf("lex.Ident() == %q, expected %q", a, e)
 	}

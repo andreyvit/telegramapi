@@ -1,6 +1,7 @@
 package tlschema
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
@@ -8,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 )
+
+var ErrWeirdDef = errors.New("this line is best ignored")
 
 const Natural = "#"
 
@@ -33,6 +36,11 @@ func (d Def) String() string {
 	}
 	buf.WriteString(" ")
 	buf.WriteString(d.Comb.String())
+	for _, arg := range d.GenericArgs {
+		buf.WriteString(" {")
+		buf.WriteString(arg.String())
+		buf.WriteString("}")
+	}
 	for _, arg := range d.Args {
 		buf.WriteString(" ")
 		buf.WriteString(arg.String())
@@ -60,8 +68,8 @@ type Arg struct {
 	Name string
 	Type TypeExpr
 
-	CondFieldName string
-	CondBit       int
+	CondArgName string
+	CondBit     int
 }
 
 func (a Arg) String() string {
@@ -69,16 +77,57 @@ func (a Arg) String() string {
 }
 
 type TypeExpr struct {
+	IsBang      bool
+	IsPercent   bool
 	Name        string
-	GenericArgs []string
+	GenericArgs []TypeExpr
 }
 
 func (t TypeExpr) String() string {
-	return t.Name
+	var buf bytes.Buffer
+	if t.IsBang {
+		buf.WriteString("!")
+	}
+	if t.IsPercent {
+		buf.WriteString("%")
+	}
+	buf.WriteString(t.Name)
+	if len(t.GenericArgs) > 0 {
+		buf.WriteString("<")
+		for idx, arg := range t.GenericArgs {
+			if idx > 0 {
+				buf.WriteString(",")
+			}
+			buf.WriteString(arg.String())
+		}
+		buf.WriteString(">")
+	}
+	return buf.String()
 }
 
 type ParseState struct {
 	InsideFuncs bool
+}
+
+func Parse(text string) ([]*Def, error) {
+	var state ParseState
+	var defs []*Def
+
+	scanner := bufio.NewScanner(strings.NewReader(text))
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		def, newState, err := ParseLine(line, state)
+		state = newState
+		if err != nil && err != ErrWeirdDef {
+			return nil, err
+		}
+		if def != nil {
+			defs = append(defs, def)
+		}
+	}
+
+	return defs, nil
 }
 
 func ParseLine(line string, state ParseState) (*Def, ParseState, error) {
@@ -90,9 +139,9 @@ func ParseLine(line string, state ParseState) (*Def, ParseState, error) {
 
 	if strings.HasPrefix(line, "---") {
 		if !strings.HasSuffix(line, "---") {
-			return nil, state, errors.New("expected trailing triple dash")
+			return nil, state, fmt.Errorf("expected trailing triple dash in %q", line)
 		}
-		line = strings.TrimSpace(line[3 : len(line)-6])
+		line = strings.TrimSpace(line[3 : len(line)-3])
 		switch line {
 		case "functions":
 			state.InsideFuncs = true
@@ -101,7 +150,7 @@ func ParseLine(line string, state ParseState) (*Def, ParseState, error) {
 			state.InsideFuncs = false
 			return nil, state, nil
 		default:
-			return nil, state, errors.New("unexpected section")
+			return nil, state, fmt.Errorf("unexpected section %q", line)
 		}
 	}
 
@@ -129,7 +178,28 @@ func scanDef(lex *lexer) (*Def, bool) {
 	}
 	def.Comb = comb
 
+	if lex.Op("?") {
+		lex.FailErr(ErrWeirdDef)
+		return nil, false
+	}
+
+	for lex.Op("{") {
+		arg, ok := scanArg(lex)
+		if !ok {
+			return nil, false
+		}
+
+		def.GenericArgs = append(def.GenericArgs, arg)
+
+		lex.NeedOp("}")
+	}
+
 	for !lex.Op("=") {
+		if lex.Op("[") {
+			lex.FailErr(ErrWeirdDef)
+			return nil, false
+		}
+
 		arg, ok := scanArg(lex)
 		if !ok {
 			return nil, false
@@ -173,12 +243,68 @@ func scanComb(lex *lexer) (Comb, bool) {
 func scanArg(lex *lexer) (Arg, bool) {
 	var arg Arg
 
+	if _, ok := lex.Int(); ok {
+		if lex.Op("*") {
+			lex.FailErr(ErrWeirdDef)
+			return arg, false
+		} else {
+			lex.Unadvance(1)
+		}
+	}
+
 	if s := lex.Ident(); s != "" {
 		if lex.Op(":") {
 			arg.Name = s
 		} else {
-			lex.Unadvance()
+			lex.Unadvance(1)
 		}
+	}
+
+	verbose := false //strings.Contains(lex.str, "profile_photo:Photo")
+
+	if verbose {
+		log.Printf("lexer (before): %s", lex.DebugString())
+	}
+	if argname := lex.Ident(); argname != "" {
+		if verbose {
+			log.Printf("lexer (argname): %s", lex.DebugString())
+		}
+		if lex.Op(".") {
+			if verbose {
+				log.Printf("lexer (op): %s", lex.DebugString())
+			}
+			if num, ok := lex.Int(); ok {
+				if verbose {
+					log.Printf("lexer (num): %s", lex.DebugString())
+				}
+				if lex.Op("?") {
+					arg.CondArgName = argname
+					arg.CondBit = num
+				} else {
+					lex.Unadvance(3)
+					if verbose {
+						log.Printf("lexer (num undo): %s", lex.DebugString())
+					}
+				}
+			} else {
+				if verbose {
+					log.Printf("lexer (int failed): %s", lex.DebugString())
+				}
+				lex.Unadvance(2)
+				if verbose {
+					log.Printf("lexer (op undo): %s", lex.DebugString())
+				}
+			}
+		} else {
+			lex.Unadvance(1)
+			if verbose {
+				log.Printf("lexer (argname undo): %s", lex.DebugString())
+			}
+		}
+	}
+
+	if verbose {
+		log.Printf("lexer (after): %s", lex.DebugString())
 	}
 
 	typ, ok := scanTypeExpr(lex)
@@ -194,12 +320,35 @@ func scanTypeExpr(lex *lexer) (TypeExpr, bool) {
 	var typ TypeExpr
 	var ok bool
 
-	typ.Name, _, ok = scanScopedName(lex)
-	if !ok {
-		return typ, false
+	if lex.Op("!") {
+		typ.IsBang = true
+	}
+	if lex.Op("%") {
+		typ.IsPercent = true
 	}
 
-	// TODO: < ... >
+	if lex.Op("#") {
+		typ.Name = Natural
+	} else {
+		typ.Name, _, ok = scanScopedName(lex)
+		if !ok {
+			return typ, false
+		}
+	}
+
+	if lex.Op("<") {
+		for {
+			subtyp, ok := scanTypeExpr(lex)
+			if !ok {
+				return typ, false
+			}
+			typ.GenericArgs = append(typ.GenericArgs, subtyp)
+			if !lex.Op(",") {
+				break
+			}
+		}
+		lex.NeedOp(">")
+	}
 
 	return typ, true
 }
