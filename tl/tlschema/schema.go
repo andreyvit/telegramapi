@@ -1,10 +1,10 @@
 package tlschema
 
 import (
-	"fmt"
-	// 	"log"
-	// 	"strconv"
-	// 	"strings"
+// "fmt"
+// 	"log"
+// 	"strconv"
+// 	"strings"
 )
 
 type Schema struct {
@@ -82,27 +82,23 @@ func (sch *Schema) MustParse(text string) {
 }
 
 func (sch *Schema) addComb(comb *Comb) {
-	if comb.IsWeird {
-		return
-	}
-
 	sch.combs = append(sch.combs, comb)
 	if comb.IsFunc {
 		sch.funcs = append(sch.funcs, comb)
 	}
 
 	if comb.Tag != 0 {
-		if sch.tagsToCombs[comb.Tag] != nil {
-			panic(fmt.Sprintf("tag %08x conflict between %s and %s", comb.Tag, sch.tagsToCombs[comb.Tag].CombName.String(), comb.CombName.String()))
-		}
+		// if sch.tagsToCombs[comb.Tag] != nil {
+		// 	panic(fmt.Sprintf("tag %08x conflict between %s and %s", comb.Tag, sch.tagsToCombs[comb.Tag].CombName.String(), comb.CombName.String()))
+		// }
 		sch.tagsToCombs[comb.Tag] = comb
 	}
 
 	name := comb.CombName.Full()
 	if name != "" {
-		if sch.namesToCombs[name] != nil {
-			panic(fmt.Sprintf("name conflict for %q between %08x and %08x", name, comb.Tag, sch.namesToCombs[name].Tag))
-		}
+		// if sch.namesToCombs[name] != nil {
+		// 	panic(fmt.Sprintf("name conflict for %q between %08x and %08x", name, comb.Tag, sch.namesToCombs[name].Tag))
+		// }
 		sch.namesToCombs[name] = comb
 	}
 
@@ -111,6 +107,9 @@ func (sch *Schema) addComb(comb *Comb) {
 
 		typ := sch.namesToTypes[comb.TypeStr]
 		if typ == nil {
+			if comb.ResultType.Name.IsBare() {
+				panic("bare result type: " + comb.ResultType.String())
+			}
 			typ = &Type{Name: comb.ResultType.Name}
 			sch.types = append(sch.types, typ)
 			sch.namesToTypes[comb.TypeStr] = typ

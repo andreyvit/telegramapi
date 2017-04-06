@@ -3,6 +3,7 @@ package tl
 import (
 	"errors"
 	"math/big"
+	"time"
 )
 
 var ErrMessageTooShort = errors.New("message too short")
@@ -123,6 +124,13 @@ func (r *Reader) ReadCmd() uint32 {
 func (r *Reader) StartInnerCmd() uint32 {
 	r.cmd = r.ReadCmd()
 	return r.cmd
+}
+func (r *Reader) ReadTimeSec32() time.Time {
+	u, ok := r.TryReadUint32()
+	if !ok {
+		return time.Time{}
+	}
+	return time.Unix(int64(u), 0)
 }
 
 func (r *Reader) TryReadUint64() (uint64, bool) {

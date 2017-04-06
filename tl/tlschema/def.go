@@ -64,6 +64,10 @@ type TypeExpr struct {
 	GenericArgs []TypeExpr
 }
 
+func (t TypeExpr) IsBare() bool {
+	return t.IsPercent || t.Name.IsBare()
+}
+
 func (t TypeExpr) String() string {
 	var buf bytes.Buffer
 	if t.IsBang {

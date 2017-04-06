@@ -34,6 +34,21 @@ func (n ScopedName) HasScope() bool {
 	return n.shortidx != 0
 }
 
+func (n ScopedName) IsBare() bool {
+	for _, r := range n.Short() {
+		return !unicode.IsUpper(r)
+	}
+	panic("ScopedName.IsBare does not support empty names")
+}
+
+func MakeScopedNameComponents(scope, short string) ScopedName {
+	if scope == "" {
+		return ScopedName{short, 0}
+	} else {
+		return ScopedName{scope + "." + short, len(scope) + 1}
+	}
+}
+
 func MakeScopedName(s string) ScopedName {
 	i := strings.IndexRune(s, '.')
 	if i < 0 {
@@ -67,5 +82,13 @@ func ToGoName(s string) string {
 		}
 	}
 
+	return buf.String()
+}
+
+func toBareName(s string) string {
+	var buf bytes.Buffer
+	buf.Grow(len(s))
+	buf.WriteString(strings.ToLower(s[:1]))
+	buf.WriteString(s[1:])
 	return buf.String()
 }

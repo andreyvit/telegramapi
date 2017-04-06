@@ -3,6 +3,7 @@ package tl
 import (
 	"bytes"
 	"math/big"
+	"time"
 )
 
 type Writer struct {
@@ -66,6 +67,9 @@ func (w *Writer) WriteCmd(v uint32) {
 }
 func (w *Writer) WriteInt(v int) {
 	w.WriteUint32(uint32(v))
+}
+func (w *Writer) WriteTimeSec32(tm time.Time) {
+	w.WriteUint32(uint32(tm.Unix()))
 }
 
 func (w *Writer) Write(v []byte) {
