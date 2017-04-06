@@ -66,23 +66,55 @@ func (n ScopedName) GoName() string {
 	}
 }
 
-func ToGoName(s string) string {
-	var buf bytes.Buffer
-	buf.Grow(len(s))
+var abbrevs = []string{"Dh", "Ok", "Pq", "RPC", "Ip"}
 
-	up := true
-	for _, r := range s {
-		if r == '_' {
-			up = true
-		} else if up {
-			buf.WriteRune(unicode.ToUpper(r))
-			up = false
-		} else {
-			buf.WriteRune(r)
+func checkAbbrevs(suffix []byte) {
+	n := len(suffix)
+	for _, a := range abbrevs {
+		if len(a) == n && bytes.Equal([]byte(a), suffix) {
+			for i := range suffix {
+				suffix[i] = byte(unicode.ToUpper(rune(suffix[i])))
+			}
+			return
 		}
 	}
+}
 
-	return buf.String()
+func ToGoName(s string) string {
+	buf := make([]byte, 0, len(s))
+
+	up := true
+	cnt := 0
+	for _, r := range s {
+		if r == '_' {
+			if cnt > 0 {
+				checkAbbrevs(buf[len(buf)-cnt:])
+			}
+			up = true
+		} else if up {
+			if cnt > 0 {
+				checkAbbrevs(buf[len(buf)-cnt:])
+			}
+			buf = append(buf, byte(unicode.ToUpper(r)))
+			up = false
+			cnt = 1
+		} else {
+			if unicode.IsUpper(r) {
+				if cnt > 0 {
+					checkAbbrevs(buf[len(buf)-cnt:])
+				}
+				cnt = 1
+			} else {
+				cnt++
+			}
+			buf = append(buf, byte(r))
+		}
+	}
+	if cnt > 0 {
+		checkAbbrevs(buf[len(buf)-cnt:])
+	}
+
+	return string(buf)
 }
 
 func toBareName(s string) string {

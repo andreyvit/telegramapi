@@ -13,6 +13,10 @@ func TestToGoName(t *testing.T) {
 		{"foo_bar", "FooBar"},
 		{"req_DH_params", "ReqDHParams"},
 		{"inputMediaGame", "InputMediaGame"},
+		{"res_pq", "ResPQ"},
+		{"res_pq_test", "ResPQTest"},
+		{"res_pqTest", "ResPQTest"},
+		{"res_pqrTest", "ResPqrTest"},
 	}
 
 	for _, tt := range tests {
