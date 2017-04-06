@@ -12,6 +12,7 @@ type Schema struct {
 	tagsToCombs  map[uint32]*Comb
 	namesToCombs map[string]*Comb
 
+	types        []*Type
 	namesToTypes map[string]*Type
 }
 
@@ -25,6 +26,10 @@ func (sch *Schema) ByTag(tag uint32) *Comb {
 
 func (sch *Schema) ByName(name string) *Comb {
 	return sch.namesToCombs[name]
+}
+
+func (sch *Schema) Types() []*Type {
+	return sch.types
 }
 
 func (sch *Schema) Type(name string) *Type {
@@ -94,7 +99,8 @@ func (sch *Schema) addComb(comb *Comb) {
 
 		typ := sch.namesToTypes[comb.TypeStr]
 		if typ == nil {
-			typ = &Type{Name: comb.TypeStr}
+			typ = &Type{Name: comb.Type.Name}
+			sch.types = append(sch.types, typ)
 			sch.namesToTypes[comb.TypeStr] = typ
 		}
 		typ.Ctors = append(typ.Ctors, comb)

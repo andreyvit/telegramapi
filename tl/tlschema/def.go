@@ -3,7 +3,6 @@ package tlschema
 import (
 	"bytes"
 	"fmt"
-	"strings"
 )
 
 const Natural = "#"
@@ -89,30 +88,4 @@ func (t TypeExpr) String() string {
 
 func (t TypeExpr) IsJustTypeName() bool {
 	return !t.IsBang && !t.IsPercent && len(t.GenericArgs) == 0
-}
-
-type ScopedName struct {
-	full     string
-	shortidx int
-}
-
-func (n ScopedName) String() string {
-	return n.full
-}
-
-func (n ScopedName) Full() string {
-	return n.full
-}
-
-func (n ScopedName) Short() string {
-	return n.full[n.shortidx:]
-}
-
-func MakeScopedName(s string) ScopedName {
-	i := strings.IndexRune(s, '.')
-	if i < 0 {
-		return ScopedName{s, 0}
-	} else {
-		return ScopedName{s, i + 1}
-	}
 }

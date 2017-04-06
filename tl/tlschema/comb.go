@@ -14,13 +14,13 @@ func (c *Comb) FullName() string {
 }
 
 type Type struct {
-	Name  string
+	Name  ScopedName
 	Ctors []*Comb
 }
 
 func (t *Type) String() string {
 	var buf bytes.Buffer
-	buf.WriteString(t.Name)
+	buf.WriteString(t.Name.Full())
 	buf.WriteString(" => ")
 	for i, ctor := range t.Ctors {
 		if i > 0 {
