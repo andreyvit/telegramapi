@@ -141,7 +141,7 @@ type WritableToWriter interface {
 }
 
 func BytesOf(ww WritableToWriter) []byte {
-	w := NewWriter()
-	ww.WriteTo(w)
+	var w Writer
+	ww.WriteTo(&w)
 	return w.Bytes()
 }

@@ -16,7 +16,7 @@ type Def struct {
 	GenericArgs []Arg
 	Args        []Arg
 
-	Type TypeExpr
+	ResultType TypeExpr
 }
 
 func (d Def) String() string {
@@ -41,7 +41,7 @@ func (d Def) String() string {
 		buf.WriteString(arg.String())
 	}
 	buf.WriteString(" = ")
-	buf.WriteString(d.Type.String())
+	buf.WriteString(d.ResultType.String())
 	return buf.String()
 }
 

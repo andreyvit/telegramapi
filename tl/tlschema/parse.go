@@ -119,7 +119,7 @@ func scanDef(lex *lexer) (*Def, bool) {
 		def.Args = append(def.Args, arg)
 	}
 
-	def.Type, ok = scanTypeExpr(lex)
+	def.ResultType, ok = scanTypeExpr(lex)
 	if !ok {
 		return nil, false
 	}

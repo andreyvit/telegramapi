@@ -9,6 +9,7 @@ import (
 
 type Schema struct {
 	combs        []*Comb
+	funcs        []*Comb
 	tagsToCombs  map[uint32]*Comb
 	namesToCombs map[string]*Comb
 
@@ -18,6 +19,10 @@ type Schema struct {
 
 func (sch *Schema) Combs() []*Comb {
 	return sch.combs
+}
+
+func (sch *Schema) Funcs() []*Comb {
+	return sch.funcs
 }
 
 func (sch *Schema) ByTag(tag uint32) *Comb {
@@ -77,7 +82,14 @@ func (sch *Schema) MustParse(text string) {
 }
 
 func (sch *Schema) addComb(comb *Comb) {
+	if comb.IsWeird {
+		return
+	}
+
 	sch.combs = append(sch.combs, comb)
+	if comb.IsFunc {
+		sch.funcs = append(sch.funcs, comb)
+	}
 
 	if comb.Tag != 0 {
 		if sch.tagsToCombs[comb.Tag] != nil {
@@ -94,12 +106,12 @@ func (sch *Schema) addComb(comb *Comb) {
 		sch.namesToCombs[name] = comb
 	}
 
-	if comb.Type.IsJustTypeName() {
-		comb.TypeStr = comb.Type.Name.Full()
+	if !comb.IsFunc && comb.ResultType.IsJustTypeName() {
+		comb.TypeStr = comb.ResultType.Name.Full()
 
 		typ := sch.namesToTypes[comb.TypeStr]
 		if typ == nil {
-			typ = &Type{Name: comb.Type.Name}
+			typ = &Type{Name: comb.ResultType.Name}
 			sch.types = append(sch.types, typ)
 			sch.namesToTypes[comb.TypeStr] = typ
 		}
