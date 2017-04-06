@@ -15,12 +15,12 @@ const (
 	TagResPQ                          = 0x05162463
 	TagPQInnerData                    = 0x83c95aec
 	TagServerDHParamsFail             = 0x79cb045d
-	TagServerDHParamsOk               = 0xd0e8075c
+	TagServerDHParamsOK               = 0xd0e8075c
 	TagServerDHInnerData              = 0xb5890dba
 	TagClientDHInnerData              = 0x6643b654
-	TagDhGenOk                        = 0x3bcbf734
-	TagDhGenRetry                     = 0x46dc1fb9
-	TagDhGenFail                      = 0xa69dae02
+	TagDHGenOK                        = 0x3bcbf734
+	TagDHGenRetry                     = 0x46dc1fb9
+	TagDHGenFail                      = 0xa69dae02
 	TagRpcResult                      = 0xf35c6d01
 	TagRpcError                       = 0x2144ca19
 	TagRpcAnswerUnknown               = 0x5e2ad36e
@@ -29,7 +29,7 @@ const (
 	TagFutureSalt                     = 0x0949d9dc
 	TagFutureSalts                    = 0xae500895
 	TagPong                           = 0x347773c5
-	TagDestroySessionOk               = 0xe22045fc
+	TagDestroySessionOK               = 0xe22045fc
 	TagDestroySessionNone             = 0x62d350c9
 	TagNewSessionCreated              = 0x9ec20908
 	TagMsgContainer                   = 0x73f1f8dc
@@ -45,7 +45,7 @@ const (
 	TagMsgsAllInfo                    = 0x8cc0d131
 	TagMsgDetailedInfo                = 0x276d3ec6
 	TagMsgNewDetailedInfo             = 0x809db6df
-	TagReqPq                          = 0x60469778
+	TagReqPQ                          = 0x60469778
 	TagReqDHParams                    = 0xd712e4be
 	TagSetClientDHParams              = 0xf5045f1f
 	TagRpcDropAnswer                  = 0x58e4a740
@@ -67,7 +67,7 @@ const (
 type TLResPQ struct {
 	Nonce                       [16]byte // nonce: int128
 	ServerNonce                 [16]byte // server_nonce: int128
-	Pq                          *big.Int // pq: bytes
+	PQ                          *big.Int // pq: bytes
 	ServerPublicKeyFingerprints []uint64 // server_public_key_fingerprints: Vector<long>
 }
 
@@ -78,7 +78,7 @@ func (s *TLResPQ) Cmd() uint32 {
 func (s *TLResPQ) ReadBareFrom(r *tl.Reader) {
 	r.ReadUint128(s.Nonce[:])
 	r.ReadUint128(s.ServerNonce[:])
-	s.Pq = r.ReadBigInt()
+	s.PQ = r.ReadBigInt()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -91,7 +91,7 @@ func (s *TLResPQ) ReadBareFrom(r *tl.Reader) {
 func (s *TLResPQ) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(s.Nonce[:])
 	w.WriteUint128(s.ServerNonce[:])
-	w.WriteBigInt(s.Pq)
+	w.WriteBigInt(s.PQ)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(s.ServerPublicKeyFingerprints))
 	for i := 0; i < len(s.ServerPublicKeyFingerprints); i++ {
@@ -101,7 +101,7 @@ func (s *TLResPQ) WriteBareTo(w *tl.Writer) {
 
 // TLPQInnerData represents p_q_inner_data from TL schema
 type TLPQInnerData struct {
-	Pq          *big.Int // pq: bytes
+	PQ          *big.Int // pq: bytes
 	P           *big.Int // p: bytes
 	Q           *big.Int // q: bytes
 	Nonce       [16]byte // nonce: int128
@@ -114,7 +114,7 @@ func (s *TLPQInnerData) Cmd() uint32 {
 }
 
 func (s *TLPQInnerData) ReadBareFrom(r *tl.Reader) {
-	s.Pq = r.ReadBigInt()
+	s.PQ = r.ReadBigInt()
 	s.P = r.ReadBigInt()
 	s.Q = r.ReadBigInt()
 	r.ReadUint128(s.Nonce[:])
@@ -123,7 +123,7 @@ func (s *TLPQInnerData) ReadBareFrom(r *tl.Reader) {
 }
 
 func (s *TLPQInnerData) WriteBareTo(w *tl.Writer) {
-	w.WriteBigInt(s.Pq)
+	w.WriteBigInt(s.PQ)
 	w.WriteBigInt(s.P)
 	w.WriteBigInt(s.Q)
 	w.WriteUint128(s.Nonce[:])
@@ -136,7 +136,7 @@ type TLServerDHInnerData struct {
 	Nonce       [16]byte  // nonce: int128
 	ServerNonce [16]byte  // server_nonce: int128
 	G           int       // g: int
-	DhPrime     *big.Int  // dh_prime: bytes
+	DHPrime     *big.Int  // dh_prime: bytes
 	GA          *big.Int  // g_a: bytes
 	ServerTime  time.Time // server_time: int
 }
@@ -149,7 +149,7 @@ func (s *TLServerDHInnerData) ReadBareFrom(r *tl.Reader) {
 	r.ReadUint128(s.Nonce[:])
 	r.ReadUint128(s.ServerNonce[:])
 	s.G = r.ReadInt()
-	s.DhPrime = r.ReadBigInt()
+	s.DHPrime = r.ReadBigInt()
 	s.GA = r.ReadBigInt()
 	s.ServerTime = r.ReadTimeSec32()
 }
@@ -158,7 +158,7 @@ func (s *TLServerDHInnerData) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(s.Nonce[:])
 	w.WriteUint128(s.ServerNonce[:])
 	w.WriteInt(s.G)
-	w.WriteBigInt(s.DhPrime)
+	w.WriteBigInt(s.DHPrime)
 	w.WriteBigInt(s.GA)
 	w.WriteTimeSec32(s.ServerTime)
 }
@@ -530,20 +530,20 @@ func (s *TLMsgsAllInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(s.Info)
 }
 
-// TLReqPq represents req_pq from TL schema
-type TLReqPq struct {
+// TLReqPQ represents req_pq from TL schema
+type TLReqPQ struct {
 	Nonce [16]byte // nonce: int128
 }
 
-func (s *TLReqPq) Cmd() uint32 {
-	return TagReqPq
+func (s *TLReqPQ) Cmd() uint32 {
+	return TagReqPQ
 }
 
-func (s *TLReqPq) ReadBareFrom(r *tl.Reader) {
+func (s *TLReqPQ) ReadBareFrom(r *tl.Reader) {
 	r.ReadUint128(s.Nonce[:])
 }
 
-func (s *TLReqPq) WriteBareTo(w *tl.Writer) {
+func (s *TLReqPQ) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(s.Nonce[:])
 }
 
@@ -788,8 +788,8 @@ func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
 		s := new(TLMsgsAllInfo)
 		s.ReadBareFrom(r)
 		return s
-	case TagReqPq:
-		s := new(TLReqPq)
+	case TagReqPQ:
+		s := new(TLReqPQ)
 		s.ReadBareFrom(r)
 		return s
 	case TagReqDHParams:
