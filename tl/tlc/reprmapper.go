@@ -2,7 +2,6 @@ package tlc
 
 import (
 	"bytes"
-	"log"
 
 	"github.com/andreyvit/telegramapi/tl/tlschema"
 )
@@ -69,10 +68,6 @@ func (rm *ReprMapper) analyze() {
 	}
 
 	for _, comb := range rm.schema.Funcs() {
-		if !comb.ResultType.IsJustTypeName() {
-			log.Print("cannot map result of " + comb.CombName.Full() + ": type " + comb.ResultType.String())
-		}
-
 		sr := &StructRepr{
 			TLName: comb.CombName.Full(),
 			GoName: rm.prefix + comb.CombName.GoName(),
