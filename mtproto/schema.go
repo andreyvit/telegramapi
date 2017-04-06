@@ -9,6 +9,9 @@ import (
 	"github.com/andreyvit/telegramapi/tl"
 )
 
+//go:generate go install ../tl/cmd/tlc
+//go:generate tlc mtproto mtproto generated.go
+
 type cmdInfo struct {
 	cmd      uint32
 	fullname string
