@@ -2,108 +2,13 @@ package tlschema
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 )
 
 var ErrWeirdDef = errors.New("this line is best ignored")
-
-const Natural = "#"
-
-type CombinatorRef struct {
-}
-
-type Def struct {
-	Comb   Comb
-	IsFunc bool
-
-	GenericArgs []Arg
-	Args        []Arg
-
-	Type TypeExpr
-}
-
-func (d Def) String() string {
-	var buf bytes.Buffer
-	if d.IsFunc {
-		buf.WriteString("func")
-	} else {
-		buf.WriteString("ctor")
-	}
-	buf.WriteString(" ")
-	buf.WriteString(d.Comb.String())
-	for _, arg := range d.GenericArgs {
-		buf.WriteString(" {")
-		buf.WriteString(arg.String())
-		buf.WriteString("}")
-	}
-	for _, arg := range d.Args {
-		buf.WriteString(" ")
-		buf.WriteString(arg.String())
-	}
-	buf.WriteString(" = ")
-	buf.WriteString(d.Type.String())
-	return buf.String()
-}
-
-type Comb struct {
-	Number    uint32
-	FullName  string
-	ShortName string
-}
-
-func (c Comb) String() string {
-	if c.Number == 0 {
-		return c.FullName
-	} else {
-		return fmt.Sprintf("%s#%08x", c.FullName, c.Number)
-	}
-}
-
-type Arg struct {
-	Name string
-	Type TypeExpr
-
-	CondArgName string
-	CondBit     int
-}
-
-func (a Arg) String() string {
-	return fmt.Sprintf("%s:%s", a.Name, a.Type.String())
-}
-
-type TypeExpr struct {
-	IsBang      bool
-	IsPercent   bool
-	Name        string
-	GenericArgs []TypeExpr
-}
-
-func (t TypeExpr) String() string {
-	var buf bytes.Buffer
-	if t.IsBang {
-		buf.WriteString("!")
-	}
-	if t.IsPercent {
-		buf.WriteString("%")
-	}
-	buf.WriteString(t.Name)
-	if len(t.GenericArgs) > 0 {
-		buf.WriteString("<")
-		for idx, arg := range t.GenericArgs {
-			if idx > 0 {
-				buf.WriteString(",")
-			}
-			buf.WriteString(arg.String())
-		}
-		buf.WriteString(">")
-	}
-	return buf.String()
-}
 
 type ParseState struct {
 	InsideFuncs bool
@@ -171,16 +76,22 @@ func ParseLine(line string, state ParseState) (*Def, ParseState, error) {
 
 func scanDef(lex *lexer) (*Def, bool) {
 	var def Def
+	var ok bool
 
-	comb, ok := scanComb(lex)
+	def.CombName, ok = scanScopedName(lex)
 	if !ok {
 		return nil, false
 	}
-	def.Comb = comb
+
+	if lex.Op("#") {
+		def.Tag, ok = lex.NeedHex32()
+		if !ok {
+			return nil, false
+		}
+	}
 
 	if lex.Op("?") {
-		lex.FailErr(ErrWeirdDef)
-		return nil, false
+		def.IsWeird = true
 	}
 
 	for lex.Op("{") {
@@ -214,30 +125,6 @@ func scanDef(lex *lexer) (*Def, bool) {
 	}
 
 	return &def, true
-}
-
-func scanComb(lex *lexer) (Comb, bool) {
-	var comb Comb
-	var ok bool
-
-	comb.FullName, comb.ShortName, ok = scanScopedName(lex)
-	if !ok {
-		return comb, false
-	}
-
-	if lex.Op("#") {
-		numstr := lex.NeedIdent()
-		if numstr == "" {
-			return comb, false
-		}
-		num, err := strconv.ParseUint(numstr, 16, 32)
-		if err != nil {
-			lex.FailPrev("invalid hex number")
-			return comb, false
-		}
-		comb.Number = uint32(num)
-	}
-	return comb, true
 }
 
 func scanArg(lex *lexer) (Arg, bool) {
@@ -328,9 +215,9 @@ func scanTypeExpr(lex *lexer) (TypeExpr, bool) {
 	}
 
 	if lex.Op("#") {
-		typ.Name = Natural
+		typ.Name = MakeScopedName(Natural)
 	} else {
-		typ.Name, _, ok = scanScopedName(lex)
+		typ.Name, ok = scanScopedName(lex)
 		if !ok {
 			return typ, false
 		}
@@ -353,37 +240,19 @@ func scanTypeExpr(lex *lexer) (TypeExpr, bool) {
 	return typ, true
 }
 
-func scanScopedName(lex *lexer) (string, string, bool) {
+func scanScopedName(lex *lexer) (ScopedName, bool) {
 	n := lex.NeedIdent()
 	if n == "" {
-		return "", "", false
+		return ScopedName{}, false
 	}
 
 	if lex.Op(".") {
 		n2 := lex.NeedIdent()
 		if n2 == "" {
-			return "", "", false
+			return ScopedName{}, false
 		}
-		return n + "." + n2, n2, true
+		return ScopedName{n + "." + n2, len(n) + 1}, true
 	} else {
-		return n, n, true
+		return ScopedName{n, 0}, true
 	}
-}
-
-func parseCombinatorName(s string) (string, uint32) {
-	idx := strings.IndexRune(s, '#')
-	if idx < 0 {
-		return s, 0
-	}
-
-	name := s[:idx]
-	cmdstr := s[idx+1:]
-	if len(cmdstr) > 8 {
-		log.Panicf("invalid schema, cmd hex code > 8 chars in %#v", s)
-	}
-	cmd, err := strconv.ParseUint(cmdstr, 16, 32)
-	if err != nil {
-		log.Panicf("invalid schema, cannot parse hex in %#v: %v", s, err)
-	}
-	return name, uint32(cmd)
 }

@@ -162,6 +162,27 @@ func (lex *lexer) Int() (int, bool) {
 	return int(n), true
 }
 
+func (lex *lexer) Hex32() (uint32, bool) {
+	s := lex.Ident()
+	if s == "" {
+		return 0, false
+	}
+	n, err := strconv.ParseUint(s, 16, 32)
+	if err != nil {
+		lex.Unadvance(1)
+		return 0, false
+	}
+	return uint32(n), true
+}
+
+func (lex *lexer) NeedHex32() (uint32, bool) {
+	n, ok := lex.Hex32()
+	if !ok {
+		lex.FailNext("expected a hex number, got <TOKEN>")
+	}
+	return n, ok
+}
+
 func (lex *lexer) NeedOp(op string) bool {
 	if !lex.Op(op) {
 		lex.FailNext("expected " + op + ", got <TOKEN>")
