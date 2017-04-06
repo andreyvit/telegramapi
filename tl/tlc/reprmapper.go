@@ -8,6 +8,8 @@ import (
 )
 
 type ReprMapper struct {
+	prefix string
+
 	schema    *tlschema.Schema
 	typeReprs map[string]GenericRepr
 	funcReprs map[uint32]*StructRepr
@@ -18,19 +20,20 @@ type ReprMapper struct {
 
 func NewReprMapper(sch *tlschema.Schema) *ReprMapper {
 	rm := &ReprMapper{
+		prefix:    "TL",
 		schema:    sch,
 		typeReprs: make(map[string]GenericRepr),
 		funcReprs: make(map[uint32]*StructRepr),
 		typeOverrides: map[string]string{
-			"ResPQ:pq":                      "bigint_",
-			"P_Q_inner_data:pq":             "bigint_",
-			"P_Q_inner_data:p":              "bigint_",
-			"P_Q_inner_data:q":              "bigint_",
-			"Server_DH_inner_data:dh_prime": "bigint_",
-			"Server_DH_inner_data:g_a":      "bigint_",
-			"Client_DH_Inner_Data:g_b":      "bigint_",
+			"resPQ:pq":                      "bigint_",
+			"p_q_inner_data:pq":             "bigint_",
+			"p_q_inner_data:p":              "bigint_",
+			"p_q_inner_data:q":              "bigint_",
+			"server_DH_inner_data:dh_prime": "bigint_",
+			"server_DH_inner_data:g_a":      "bigint_",
+			"client_DH_inner_data:g_b":      "bigint_",
 
-			"Server_DH_inner_data:server_time": "unixtime_",
+			"server_DH_inner_data:server_time": "unixtime_",
 		},
 	}
 
@@ -72,7 +75,7 @@ func (rm *ReprMapper) analyze() {
 
 		sr := &StructRepr{
 			TLName: comb.CombName.Full(),
-			GoName: comb.CombName.GoName(),
+			GoName: rm.prefix + comb.CombName.GoName(),
 			Ctor:   comb,
 		}
 		rm.addRepr(sr)
@@ -83,15 +86,11 @@ func (rm *ReprMapper) analyze() {
 	}
 }
 
-func (rm *ReprMapper) findGenericRepr(name string, context string) GenericRepr {
+func (rm *ReprMapper) ResolveTypeExpr(expr tlschema.TypeExpr, context string) Repr {
 	if override := rm.typeOverrides[context]; override != "" {
-		name = override
+		expr.Name = tlschema.MakeScopedName(override)
 	}
 
-	return rm.typeReprs[name]
-}
-
-func (rm *ReprMapper) ResolveTypeExpr(expr tlschema.TypeExpr, context string) Repr {
 	if expr.Name.IsBare() {
 		comb := rm.schema.ByName(expr.Name.Full())
 		if comb == nil {
@@ -102,7 +101,7 @@ func (rm *ReprMapper) ResolveTypeExpr(expr tlschema.TypeExpr, context string) Re
 		expr.Name = comb.ResultType.Name
 	}
 
-	gr := rm.findGenericRepr(expr.Name.Full(), context)
+	gr := rm.typeReprs[expr.Name.Full()]
 	if gr == nil {
 		return &UnsupportedRepr{expr.String(), "unknown type"}
 	}
@@ -148,8 +147,9 @@ func (rm *ReprMapper) AppendGoDefs(buf *bytes.Buffer) {
 	}
 
 	buf.WriteString("\n")
-	buf.WriteString("func ReadObjectFrom(r *tlschema.Reader) tl.Object {\n")
-	buf.WriteString("\tswitch r.Cmd() {\n")
+	buf.WriteString("func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {\n")
+	buf.WriteString("\tcmd := r.ReadCmd()\n")
+	buf.WriteString("\tswitch cmd {\n")
 	for _, repr := range rm.reprs {
 		repr.AppendSwitchCase(buf, "\t")
 	}
@@ -178,7 +178,7 @@ func (rm *ReprMapper) pick(typ *tlschema.Type) GenericRepr {
 		}
 		return &StructRepr{
 			TLName: ctor.CombName.Full(),
-			GoName: typ.Name.GoName(),
+			GoName: rm.prefix + typ.Name.GoName(),
 			Ctor:   ctor,
 		}
 	}

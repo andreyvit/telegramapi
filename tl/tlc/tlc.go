@@ -41,9 +41,9 @@ func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 	buf.WriteString("const (\n")
 	idx := 0
 	for _, comb := range sch.Combs() {
-		if comb.Tag == 0 {
-			continue
-		}
+		// if comb.Tag == 0 {
+		// 	continue
+		// }
 		buf.WriteString("\t")
 		buf.WriteString(IDConstName(comb))
 		if idx == 0 {

@@ -107,7 +107,7 @@ func (kex *KeyEx) Handle(r *tl.Reader) (*Msg, error) {
 }
 
 func (kex *KeyEx) handle(r *tl.Reader) (*Msg, error) {
-	cmd := r.Cmd()
+	cmd := r.ReadCmd()
 
 	switch kex.state {
 	case KeyExInit:
@@ -267,7 +267,7 @@ func (kex *KeyEx) handleServerDHParamsOK(r *tl.Reader) (*Msg, error) {
 	_ = answerHash
 
 	r = tl.NewReader(answer)
-	if r.Cmd() != IDServerDHInnerData {
+	if r.ReadCmd() != IDServerDHInnerData {
 		return nil, errors.New("expected server_DH_inner_data")
 	}
 

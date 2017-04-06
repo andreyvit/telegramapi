@@ -109,7 +109,7 @@ func (w *Writer) WriteBlob(v []byte) {
 	w.ZeroPad(pad)
 }
 
-func (w *Writer) WriteBlobStr(s string) {
+func (w *Writer) WriteString(s string) {
 	w.WriteBlob([]byte(s))
 }
 

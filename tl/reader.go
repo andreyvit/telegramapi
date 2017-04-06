@@ -10,8 +10,8 @@ var ErrMessageTooShort = errors.New("message too short")
 var ErrTrailingData = errors.New("unexpected trailing data")
 
 type Reader struct {
-	cmd uint32
 	rem []byte
+	cmd uint32
 	err error
 }
 
@@ -28,17 +28,17 @@ func CmdOfPayload(b []byte) uint32 {
 }
 
 func NewReader(data []byte) *Reader {
-	r := &Reader{0, data, nil}
-	r.cmd = r.ReadUint32()
+	r := &Reader{data, 0, nil}
+	r.StartInnerCmd()
 	return r
 }
 
 func ReadRaw(data []byte) Reader {
-	return Reader{0, data, nil}
+	return Reader{data, 0, nil}
 }
 
 func (r *Reader) Reset(data []byte) {
-	*r = Reader{0, data, nil}
+	*r = Reader{data, 0, nil}
 }
 
 func (r *Reader) Cmd() uint32 {
@@ -98,6 +98,19 @@ func (r *Reader) TryReadUint24() (uint32, bool) {
 	return v, true
 }
 
+func (r *Reader) PeekUint32() uint32 {
+	if len(r.rem) < 4 {
+		return 0
+	}
+
+	b := r.rem
+	v := uint32(b[0])
+	v |= uint32(b[1]) << (8 * 1)
+	v |= uint32(b[2]) << (8 * 2)
+	v |= uint32(b[3]) << (8 * 3)
+	return v
+}
+
 func (r *Reader) TryReadUint32() (uint32, bool) {
 	if !r.need(4) {
 		return 0, false
@@ -122,7 +135,7 @@ func (r *Reader) ReadCmd() uint32 {
 	return r.ReadUint32()
 }
 func (r *Reader) StartInnerCmd() uint32 {
-	r.cmd = r.ReadCmd()
+	r.cmd = r.PeekUint32()
 	return r.cmd
 }
 func (r *Reader) ReadTimeSec32() time.Time {

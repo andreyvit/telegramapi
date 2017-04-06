@@ -40,13 +40,13 @@ func TestSimple(t *testing.T) {
             return TagNearestDc
         }
 
-        func (s *NearestDc) ReadFrom(r *tlschema.Reader) {
+        func (s *NearestDc) ReadBareFrom(r *tlschema.Reader) {
             s.Country = r.ReadString()
             s.ThisDc = r.ReadInt()
             s.NearestDc = r.ReadInt()
         }
 
-        func (s *NearestDc) WriteTo(w *tlschema.Writer) {
+        func (s *NearestDc) WriteBareTo(w *tlschema.Writer) {
             w.WriteString(s.Country)
             w.WriteInt(s.ThisDc)
             w.WriteInt(s.NearestDc)
@@ -60,21 +60,22 @@ func TestSimple(t *testing.T) {
             return TagHelpGetNearestDc
         }
 
-        func (s *HelpGetNearestDc) ReadFrom(r *tlschema.Reader) {
+        func (s *HelpGetNearestDc) ReadBareFrom(r *tlschema.Reader) {
         }
 
-        func (s *HelpGetNearestDc) WriteTo(w *tlschema.Writer) {
+        func (s *HelpGetNearestDc) WriteBareTo(w *tlschema.Writer) {
         }
 
-        func ReadObjectFrom(r *tlschema.Reader) tl.Object {
-            switch r.Cmd() {
+        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+            cmd := r.ReadCmd()
+            switch cmd {
             case TagNearestDc:
                 s := new(NearestDc)
-                s.ReadFrom(r)
+                s.ReadBareFrom(r)
                 return s
             case TagHelpGetNearestDc:
                 s := new(HelpGetNearestDc)
-                s.ReadFrom(r)
+                s.ReadBareFrom(r)
                 return s
             default:
                 return nil
@@ -115,19 +116,74 @@ func TestInt(t *testing.T) {
             return TagFoo
         }
 
-        func (s *Foo) ReadFrom(r *tlschema.Reader) {
+        func (s *Foo) ReadBareFrom(r *tlschema.Reader) {
             s.Bar = r.ReadInt()
         }
 
-        func (s *Foo) WriteTo(w *tlschema.Writer) {
+        func (s *Foo) WriteBareTo(w *tlschema.Writer) {
             w.WriteInt(s.Bar)
         }
         
-        func ReadObjectFrom(r *tlschema.Reader) tl.Object {
-            switch r.Cmd() {
+        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+            cmd := r.ReadCmd()
+            switch cmd {
             case TagFoo:
                 s := new(Foo)
-                s.ReadFrom(r)
+                s.ReadBareFrom(r)
+                return s
+            default:
+                return nil
+            }
+        }
+    `
+	a, e := diff.TrimLinesInString(code), diff.TrimLinesInString(expected)
+	if a != e {
+		t.Errorf("Code not as expected:\n%v\n\nActual:\n%s", diff.LineDiff(e, a), code)
+	}
+}
+
+func TestBigInt(t *testing.T) {
+	sch := tlschema.MustParse(`
+        resPQ#11223344 pq:bytes = ResPQ;
+    `)
+	code := GenerateGoCode(sch, Options{PackageName: "foo"})
+	expected := `
+        package foo
+
+        import (
+            "github.com/andreyvit/telegramapi/tl"
+            "math/big"
+            "time"
+        )
+
+        const (
+            TagResPQ  uint32 = 0x11223344
+            TagVector        = 0x1cb5c415
+        )
+
+        // ResPQ represents resPQ from TL schema
+        type ResPQ struct {
+            Pq *big.Int // pq: bytes
+        }
+
+        func (s *ResPQ) Cmd() uint32 {
+            return TagResPQ
+        }
+
+        func (s *ResPQ) ReadBareFrom(r *tlschema.Reader) {
+            s.Pq = r.ReadBigInt()
+        }
+
+        func (s *ResPQ) WriteBareTo(w *tlschema.Writer) {
+            w.WriteBigInt(s.Pq)
+        }
+        
+        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+            cmd := r.ReadCmd()
+            switch cmd {
+            case TagResPQ:
+                s := new(ResPQ)
+                s.ReadBareFrom(r)
                 return s
             default:
                 return nil
@@ -168,7 +224,7 @@ func TestVectorBareInt(t *testing.T) {
             return TagFoo
         }
 
-        func (s *Foo) ReadFrom(r *tlschema.Reader) {
+        func (s *Foo) ReadBareFrom(r *tlschema.Reader) {
             if cmd := r.ReadCmd(); cmd != TagVector {
                 r.Fail(errors.New("expected: vector"))
             }
@@ -178,7 +234,7 @@ func TestVectorBareInt(t *testing.T) {
             }
         }
 
-        func (s *Foo) WriteTo(w *tlschema.Writer) {
+        func (s *Foo) WriteBareTo(w *tlschema.Writer) {
             w.WriteCmd(TagVector)
             w.WriteInt(len(s.Bar))
             for i := 0; i < len(s.Bar); i++ {
@@ -186,11 +242,12 @@ func TestVectorBareInt(t *testing.T) {
             }
         }        
 
-        func ReadObjectFrom(r *tlschema.Reader) tl.Object {
-            switch r.Cmd() {
+        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+            cmd := r.ReadCmd()
+            switch cmd {
             case TagFoo:
                 s := new(Foo)
-                s.ReadFrom(r)
+                s.ReadBareFrom(r)
                 return s
             default:
                 return nil
@@ -231,25 +288,26 @@ func TestBareVectorBareInt(t *testing.T) {
             return TagFoo
         }
 
-        func (s *Foo) ReadFrom(r *tlschema.Reader) {
+        func (s *Foo) ReadBareFrom(r *tlschema.Reader) {
             s.Bar = make([]int, r.ReadInt())
             for i := 0; i < len(s.Bar); i++ {
                 s.Bar[i] = r.ReadInt()
             }
         }
 
-        func (s *Foo) WriteTo(w *tlschema.Writer) {
+        func (s *Foo) WriteBareTo(w *tlschema.Writer) {
             w.WriteInt(len(s.Bar))
             for i := 0; i < len(s.Bar); i++ {
                 w.WriteInt(s.Bar[i])
             }
         }        
 
-        func ReadObjectFrom(r *tlschema.Reader) tl.Object {
-            switch r.Cmd() {
+        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+            cmd := r.ReadCmd()
+            switch cmd {
             case TagFoo:
                 s := new(Foo)
-                s.ReadFrom(r)
+                s.ReadBareFrom(r)
                 return s
             default:
                 return nil
@@ -292,17 +350,18 @@ func TestBareVectorBareStruct(t *testing.T) {
             return TagFoo
         }
 
-        func (s *Foo) ReadFrom(r *tlschema.Reader) {
+        func (s *Foo) ReadBareFrom(r *tlschema.Reader) {
             s.Bar = make([]*Boz, r.ReadInt())
             for i := 0; i < len(s.Bar); i++ {
-                s.Bar[i].ReadFrom(r)
+                s.Bar[i] = new(Boz)
+                s.Bar[i].ReadBareFrom(r)
             }
         }
 
-        func (s *Foo) WriteTo(w *tlschema.Writer) {
+        func (s *Foo) WriteBareTo(w *tlschema.Writer) {
             w.WriteInt(len(s.Bar))
             for i := 0; i < len(s.Bar); i++ {
-                s.Bar[i].WriteTo(w)
+                s.Bar[i].WriteBareTo(w)
             }
         }   
 
@@ -314,21 +373,22 @@ func TestBareVectorBareStruct(t *testing.T) {
             return TagBoz
         }
 
-        func (s *Boz) ReadFrom(r *tlschema.Reader) {
+        func (s *Boz) ReadBareFrom(r *tlschema.Reader) {
         }
 
-        func (s *Boz) WriteTo(w *tlschema.Writer) {
+        func (s *Boz) WriteBareTo(w *tlschema.Writer) {
         }
 
-        func ReadObjectFrom(r *tlschema.Reader) tl.Object {
-            switch r.Cmd() {
+        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+            cmd := r.ReadCmd()
+            switch cmd {
             case TagFoo:
                 s := new(Foo)
-                s.ReadFrom(r)
+                s.ReadBareFrom(r)
                 return s
             case TagBoz:
                 s := new(Boz)
-                s.ReadFrom(r)
+                s.ReadBareFrom(r)
                 return s
             default:
                 return nil
@@ -371,21 +431,22 @@ func TestBareVectorBoxedStruct(t *testing.T) {
             return TagFoo
         }
 
-        func (s *Foo) ReadFrom(r *tlschema.Reader) {
+        func (s *Foo) ReadBareFrom(r *tlschema.Reader) {
             s.Bar = make([]*Boz, r.ReadInt())
             for i := 0; i < len(s.Bar); i++ {
                 if cmd := r.ReadCmd(); cmd != TagBoz {
                     r.Fail(errors.New("expected: boz"))
                 }
-                s.Bar[i].ReadFrom(r)
+                s.Bar[i] = new(Boz)
+                s.Bar[i].ReadBareFrom(r)
             }
         }
 
-        func (s *Foo) WriteTo(w *tlschema.Writer) {
+        func (s *Foo) WriteBareTo(w *tlschema.Writer) {
             w.WriteInt(len(s.Bar))
             for i := 0; i < len(s.Bar); i++ {
                 w.WriteCmd(TagBoz)
-                s.Bar[i].WriteTo(w)
+                s.Bar[i].WriteBareTo(w)
             }
         }   
 
@@ -397,21 +458,22 @@ func TestBareVectorBoxedStruct(t *testing.T) {
             return TagBoz
         }
 
-        func (s *Boz) ReadFrom(r *tlschema.Reader) {
+        func (s *Boz) ReadBareFrom(r *tlschema.Reader) {
         }
 
-        func (s *Boz) WriteTo(w *tlschema.Writer) {
+        func (s *Boz) WriteBareTo(w *tlschema.Writer) {
         }
 
-        func ReadObjectFrom(r *tlschema.Reader) tl.Object {
-            switch r.Cmd() {
+        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+            cmd := r.ReadCmd()
+            switch cmd {
             case TagFoo:
                 s := new(Foo)
-                s.ReadFrom(r)
+                s.ReadBareFrom(r)
                 return s
             case TagBoz:
                 s := new(Boz)
-                s.ReadFrom(r)
+                s.ReadBareFrom(r)
                 return s
             default:
                 return nil

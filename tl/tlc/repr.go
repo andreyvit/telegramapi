@@ -306,7 +306,7 @@ func (r *Int128Repr) Resolve(resolver Resolver) {
 
 func (r *Int128Repr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
 	buf.WriteString(indent)
-	buf.WriteString("r.ReadUint64(")
+	buf.WriteString("r.ReadUint128(")
 	buf.WriteString(dst)
 	buf.WriteString("[:])\n")
 }
@@ -380,13 +380,18 @@ func (r *ObjectRepr) Resolve(resolver Resolver) {
 func (r *ObjectRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
 	buf.WriteString(indent)
 	buf.WriteString(dst)
-	buf.WriteString(" = ReadObjectFrom(r)\n")
+	buf.WriteString(" = ReadBoxedObjectFrom(r)\n")
 }
 func (r *ObjectRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
 	// buf.WriteString(indent)
 	// buf.WriteString("if ")
 	// buf.WriteString(src)
 	// buf.WriteString(" != nil {\b")
+
+	buf.WriteString(indent)
+	buf.WriteString("w.WriteCmd(")
+	buf.WriteString(src)
+	buf.WriteString(".Cmd())\n")
 
 	buf.WriteString(indent)
 	buf.WriteString(src)
@@ -479,7 +484,7 @@ func (r *VectorRepr) GoType() string {
 	return "[]" + r.ItemRepr.GoType()
 }
 func (r *VectorRepr) GoImports() []string {
-	return r.ItemRepr.GoImports()
+	return append([]string{"errors"}, r.ItemRepr.GoImports()...)
 }
 
 type BoxedRepr struct {
@@ -639,7 +644,7 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer) {
 	buf.WriteString("\n")
 	buf.WriteString("func (s *")
 	buf.WriteString(r.GoName)
-	buf.WriteString(") ReadBareFrom(r *tlschema.Reader) {\n")
+	buf.WriteString(") ReadBareFrom(r *tl.Reader) {\n")
 	for _, ar := range r.ArgReprs {
 		ar.TypeRepr.AppendReadStmt(buf, "\t", "s."+ar.GoName)
 	}
@@ -648,7 +653,7 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer) {
 	buf.WriteString("\n")
 	buf.WriteString("func (s *")
 	buf.WriteString(r.GoName)
-	buf.WriteString(") WriteBareTo(w *tlschema.Writer) {\n")
+	buf.WriteString(") WriteBareTo(w *tl.Writer) {\n")
 	for _, ar := range r.ArgReprs {
 		ar.TypeRepr.AppendWriteStmt(buf, "\t", "s."+ar.GoName)
 	}

@@ -1,7 +1,7 @@
 package knownschemas
 
 const MTProtoSchema = `
-05162 ? = Int;
+int ? = Int;
 long ? = Long;
 double ? = Double;
 string ? = String;

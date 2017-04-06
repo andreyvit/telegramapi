@@ -225,7 +225,7 @@ func (sess *Session) doHandle(raw []byte) error {
 	}
 
 	r := tl.NewReader(msg.Payload)
-	sess.invokeHandlersInternal(r.Cmd(), r)
+	sess.invokeHandlersInternal(r.ReadCmd(), r)
 
 	return nil
 }
@@ -310,10 +310,10 @@ func (sess *Session) handleConfig(cmd uint32, r *tl.Reader) ([]Msg, error) {
 		w.WriteInt(apiLayer)
 		w.WriteCmd(Cmd("initConnection"))
 		w.WriteInt(88766)
-		w.WriteBlobStr("Mac")
-		w.WriteBlobStr("10.11")
-		w.WriteBlobStr("0.1")
-		w.WriteBlobStr("en")
+		w.WriteString("Mac")
+		w.WriteString("10.11")
+		w.WriteString("0.1")
+		w.WriteString("en")
 		w.WriteCmd(Cmd("help.getNearestDc"))
 		return []Msg{MakeMsg(w.Bytes(), ContentMsg)}, nil
 	} else {
