@@ -13,68 +13,54 @@ func TestSimple(t *testing.T) {
         --- functions ---
         help.getNearestDc#1fb33026 = NearestDc;
     `)
-	code := GenerateGoCode(sch, Options{PackageName: "foo"})
+	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        package foo
-
-        import (
-            "github.com/andreyvit/telegramapi/tl"
-            "math/big"
-            "time"
-        )
-
-        const (
-            TagNearestDc        uint32 = 0x8e1a1775
-            TagHelpGetNearestDc        = 0x1fb33026
-            TagVector                  = 0x1cb5c415
-        )
-
-        // NearestDc represents nearestDc from TL schema
-        type NearestDc struct {
+        // TLNearestDc represents nearestDc from TL schema
+        type TLNearestDc struct {
             Country   string // country: string
             ThisDc    int    // this_dc: int
             NearestDc int    // nearest_dc: int
         }
 
-        func (s *NearestDc) Cmd() uint32 {
+        func (s *TLNearestDc) Cmd() uint32 {
             return TagNearestDc
         }
 
-        func (s *NearestDc) ReadBareFrom(r *tlschema.Reader) {
+        func (s *TLNearestDc) ReadBareFrom(r *tl.Reader) {
             s.Country = r.ReadString()
             s.ThisDc = r.ReadInt()
             s.NearestDc = r.ReadInt()
         }
 
-        func (s *NearestDc) WriteBareTo(w *tlschema.Writer) {
+        func (s *TLNearestDc) WriteBareTo(w *tl.Writer) {
             w.WriteString(s.Country)
             w.WriteInt(s.ThisDc)
             w.WriteInt(s.NearestDc)
         }
 
-        // HelpGetNearestDc represents help.getNearestDc from TL schema
-        type HelpGetNearestDc struct {
+        // TLHelpGetNearestDc represents help.getNearestDc from TL schema
+        type TLHelpGetNearestDc struct {
         }
 
-        func (s *HelpGetNearestDc) Cmd() uint32 {
+        func (s *TLHelpGetNearestDc) Cmd() uint32 {
             return TagHelpGetNearestDc
         }
 
-        func (s *HelpGetNearestDc) ReadBareFrom(r *tlschema.Reader) {
+        func (s *TLHelpGetNearestDc) ReadBareFrom(r *tl.Reader) {
         }
 
-        func (s *HelpGetNearestDc) WriteBareTo(w *tlschema.Writer) {
+        func (s *TLHelpGetNearestDc) WriteBareTo(w *tl.Writer) {
         }
 
-        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+        func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
             cmd := r.ReadCmd()
             switch cmd {
             case TagNearestDc:
-                s := new(NearestDc)
+                s := new(TLNearestDc)
                 s.ReadBareFrom(r)
                 return s
             case TagHelpGetNearestDc:
-                s := new(HelpGetNearestDc)
+                s := new(TLHelpGetNearestDc)
                 s.ReadBareFrom(r)
                 return s
             default:
@@ -92,43 +78,30 @@ func TestInt(t *testing.T) {
 	sch := tlschema.MustParse(`
         foo#11223344 bar:int = Foo;
     `)
-	code := GenerateGoCode(sch, Options{PackageName: "foo"})
+	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        package foo
-
-        import (
-            "github.com/andreyvit/telegramapi/tl"
-            "math/big"
-            "time"
-        )
-
-        const (
-            TagFoo    uint32 = 0x11223344
-            TagVector        = 0x1cb5c415
-        )
-
-        // Foo represents foo from TL schema
-        type Foo struct {
+        // TLFoo represents foo from TL schema
+        type TLFoo struct {
             Bar int // bar: int
         }
 
-        func (s *Foo) Cmd() uint32 {
+        func (s *TLFoo) Cmd() uint32 {
             return TagFoo
         }
 
-        func (s *Foo) ReadBareFrom(r *tlschema.Reader) {
+        func (s *TLFoo) ReadBareFrom(r *tl.Reader) {
             s.Bar = r.ReadInt()
         }
 
-        func (s *Foo) WriteBareTo(w *tlschema.Writer) {
+        func (s *TLFoo) WriteBareTo(w *tl.Writer) {
             w.WriteInt(s.Bar)
         }
         
-        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+        func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
             cmd := r.ReadCmd()
             switch cmd {
             case TagFoo:
-                s := new(Foo)
+                s := new(TLFoo)
                 s.ReadBareFrom(r)
                 return s
             default:
@@ -146,43 +119,30 @@ func TestBigInt(t *testing.T) {
 	sch := tlschema.MustParse(`
         resPQ#11223344 pq:bytes = ResPQ;
     `)
-	code := GenerateGoCode(sch, Options{PackageName: "foo"})
+	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        package foo
-
-        import (
-            "github.com/andreyvit/telegramapi/tl"
-            "math/big"
-            "time"
-        )
-
-        const (
-            TagResPQ  uint32 = 0x11223344
-            TagVector        = 0x1cb5c415
-        )
-
-        // ResPQ represents resPQ from TL schema
-        type ResPQ struct {
-            Pq *big.Int // pq: bytes
+        // TLResPQ represents resPQ from TL schema
+        type TLResPQ struct {
+            PQ *big.Int // pq: bytes
         }
 
-        func (s *ResPQ) Cmd() uint32 {
+        func (s *TLResPQ) Cmd() uint32 {
             return TagResPQ
         }
 
-        func (s *ResPQ) ReadBareFrom(r *tlschema.Reader) {
-            s.Pq = r.ReadBigInt()
+        func (s *TLResPQ) ReadBareFrom(r *tl.Reader) {
+            s.PQ = r.ReadBigInt()
         }
 
-        func (s *ResPQ) WriteBareTo(w *tlschema.Writer) {
-            w.WriteBigInt(s.Pq)
+        func (s *TLResPQ) WriteBareTo(w *tl.Writer) {
+            w.WriteBigInt(s.PQ)
         }
         
-        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+        func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
             cmd := r.ReadCmd()
             switch cmd {
             case TagResPQ:
-                s := new(ResPQ)
+                s := new(TLResPQ)
                 s.ReadBareFrom(r)
                 return s
             default:
@@ -200,31 +160,18 @@ func TestVectorBareInt(t *testing.T) {
 	sch := tlschema.MustParse(`
         foo#11223344 bar:Vector<int> = Foo;
     `)
-	code := GenerateGoCode(sch, Options{PackageName: "foo"})
+	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        package foo
-
-        import (
-            "github.com/andreyvit/telegramapi/tl"
-            "math/big"
-            "time"
-        )
-
-        const (
-            TagFoo    uint32 = 0x11223344
-            TagVector        = 0x1cb5c415
-        )
-
-        // Foo represents foo from TL schema
-        type Foo struct {
+        // TLFoo represents foo from TL schema
+        type TLFoo struct {
             Bar []int // bar: Vector<int>
         }
 
-        func (s *Foo) Cmd() uint32 {
+        func (s *TLFoo) Cmd() uint32 {
             return TagFoo
         }
 
-        func (s *Foo) ReadBareFrom(r *tlschema.Reader) {
+        func (s *TLFoo) ReadBareFrom(r *tl.Reader) {
             if cmd := r.ReadCmd(); cmd != TagVector {
                 r.Fail(errors.New("expected: vector"))
             }
@@ -234,7 +181,7 @@ func TestVectorBareInt(t *testing.T) {
             }
         }
 
-        func (s *Foo) WriteBareTo(w *tlschema.Writer) {
+        func (s *TLFoo) WriteBareTo(w *tl.Writer) {
             w.WriteCmd(TagVector)
             w.WriteInt(len(s.Bar))
             for i := 0; i < len(s.Bar); i++ {
@@ -242,11 +189,11 @@ func TestVectorBareInt(t *testing.T) {
             }
         }        
 
-        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+        func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
             cmd := r.ReadCmd()
             switch cmd {
             case TagFoo:
-                s := new(Foo)
+                s := new(TLFoo)
                 s.ReadBareFrom(r)
                 return s
             default:
@@ -264,49 +211,36 @@ func TestBareVectorBareInt(t *testing.T) {
 	sch := tlschema.MustParse(`
         foo#11223344 bar:%Vector<int> = Foo;
     `)
-	code := GenerateGoCode(sch, Options{PackageName: "foo"})
+	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        package foo
-
-        import (
-            "github.com/andreyvit/telegramapi/tl"
-            "math/big"
-            "time"
-        )
-
-        const (
-            TagFoo    uint32 = 0x11223344
-            TagVector        = 0x1cb5c415
-        )
-
-        // Foo represents foo from TL schema
-        type Foo struct {
+        // TLFoo represents foo from TL schema
+        type TLFoo struct {
             Bar []int // bar: %Vector<int>
         }
 
-        func (s *Foo) Cmd() uint32 {
+        func (s *TLFoo) Cmd() uint32 {
             return TagFoo
         }
 
-        func (s *Foo) ReadBareFrom(r *tlschema.Reader) {
+        func (s *TLFoo) ReadBareFrom(r *tl.Reader) {
             s.Bar = make([]int, r.ReadInt())
             for i := 0; i < len(s.Bar); i++ {
                 s.Bar[i] = r.ReadInt()
             }
         }
 
-        func (s *Foo) WriteBareTo(w *tlschema.Writer) {
+        func (s *TLFoo) WriteBareTo(w *tl.Writer) {
             w.WriteInt(len(s.Bar))
             for i := 0; i < len(s.Bar); i++ {
                 w.WriteInt(s.Bar[i])
             }
         }        
 
-        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+        func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
             cmd := r.ReadCmd()
             switch cmd {
             case TagFoo:
-                s := new(Foo)
+                s := new(TLFoo)
                 s.ReadBareFrom(r)
                 return s
             default:
@@ -325,69 +259,55 @@ func TestBareVectorBareStruct(t *testing.T) {
         foo#11223344 bar:vector<%Boz> = Foo;
         boz#99887766 = Boz;
     `)
-	code := GenerateGoCode(sch, Options{PackageName: "foo"})
+	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        package foo
-
-        import (
-            "github.com/andreyvit/telegramapi/tl"
-            "math/big"
-            "time"
-        )
-
-        const (
-            TagFoo    uint32 = 0x11223344
-            TagBoz           = 0x99887766
-            TagVector        = 0x1cb5c415
-        )
-
-        // Foo represents foo from TL schema
-        type Foo struct {
-            Bar []*Boz // bar: vector<%Boz>
+        // TLFoo represents foo from TL schema
+        type TLFoo struct {
+            Bar []*TLBoz // bar: vector<%Boz>
         }
 
-        func (s *Foo) Cmd() uint32 {
+        func (s *TLFoo) Cmd() uint32 {
             return TagFoo
         }
 
-        func (s *Foo) ReadBareFrom(r *tlschema.Reader) {
-            s.Bar = make([]*Boz, r.ReadInt())
+        func (s *TLFoo) ReadBareFrom(r *tl.Reader) {
+            s.Bar = make([]*TLBoz, r.ReadInt())
             for i := 0; i < len(s.Bar); i++ {
-                s.Bar[i] = new(Boz)
+                s.Bar[i] = new(TLBoz)
                 s.Bar[i].ReadBareFrom(r)
             }
         }
 
-        func (s *Foo) WriteBareTo(w *tlschema.Writer) {
+        func (s *TLFoo) WriteBareTo(w *tl.Writer) {
             w.WriteInt(len(s.Bar))
             for i := 0; i < len(s.Bar); i++ {
                 s.Bar[i].WriteBareTo(w)
             }
         }   
 
-        // Boz represents boz from TL schema
-        type Boz struct {
+        // TLBoz represents boz from TL schema
+        type TLBoz struct {
         }
 
-        func (s *Boz) Cmd() uint32 {
+        func (s *TLBoz) Cmd() uint32 {
             return TagBoz
         }
 
-        func (s *Boz) ReadBareFrom(r *tlschema.Reader) {
+        func (s *TLBoz) ReadBareFrom(r *tl.Reader) {
         }
 
-        func (s *Boz) WriteBareTo(w *tlschema.Writer) {
+        func (s *TLBoz) WriteBareTo(w *tl.Writer) {
         }
 
-        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+        func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
             cmd := r.ReadCmd()
             switch cmd {
             case TagFoo:
-                s := new(Foo)
+                s := new(TLFoo)
                 s.ReadBareFrom(r)
                 return s
             case TagBoz:
-                s := new(Boz)
+                s := new(TLBoz)
                 s.ReadBareFrom(r)
                 return s
             default:
@@ -406,43 +326,29 @@ func TestBareVectorBoxedStruct(t *testing.T) {
         foo#11223344 bar:vector<Boz> = Foo;
         boz#99887766 = Boz;
     `)
-	code := GenerateGoCode(sch, Options{PackageName: "foo"})
+	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        package foo
-
-        import (
-            "github.com/andreyvit/telegramapi/tl"
-            "math/big"
-            "time"
-        )
-
-        const (
-            TagFoo    uint32 = 0x11223344
-            TagBoz           = 0x99887766
-            TagVector        = 0x1cb5c415
-        )
-
-        // Foo represents foo from TL schema
-        type Foo struct {
-            Bar []*Boz // bar: vector<Boz>
+        // TLFoo represents foo from TL schema
+        type TLFoo struct {
+            Bar []*TLBoz // bar: vector<Boz>
         }
 
-        func (s *Foo) Cmd() uint32 {
+        func (s *TLFoo) Cmd() uint32 {
             return TagFoo
         }
 
-        func (s *Foo) ReadBareFrom(r *tlschema.Reader) {
-            s.Bar = make([]*Boz, r.ReadInt())
+        func (s *TLFoo) ReadBareFrom(r *tl.Reader) {
+            s.Bar = make([]*TLBoz, r.ReadInt())
             for i := 0; i < len(s.Bar); i++ {
                 if cmd := r.ReadCmd(); cmd != TagBoz {
                     r.Fail(errors.New("expected: boz"))
                 }
-                s.Bar[i] = new(Boz)
+                s.Bar[i] = new(TLBoz)
                 s.Bar[i].ReadBareFrom(r)
             }
         }
 
-        func (s *Foo) WriteBareTo(w *tlschema.Writer) {
+        func (s *TLFoo) WriteBareTo(w *tl.Writer) {
             w.WriteInt(len(s.Bar))
             for i := 0; i < len(s.Bar); i++ {
                 w.WriteCmd(TagBoz)
@@ -450,29 +356,29 @@ func TestBareVectorBoxedStruct(t *testing.T) {
             }
         }   
 
-        // Boz represents boz from TL schema
-        type Boz struct {
+        // TLBoz represents boz from TL schema
+        type TLBoz struct {
         }
 
-        func (s *Boz) Cmd() uint32 {
+        func (s *TLBoz) Cmd() uint32 {
             return TagBoz
         }
 
-        func (s *Boz) ReadBareFrom(r *tlschema.Reader) {
+        func (s *TLBoz) ReadBareFrom(r *tl.Reader) {
         }
 
-        func (s *Boz) WriteBareTo(w *tlschema.Writer) {
+        func (s *TLBoz) WriteBareTo(w *tl.Writer) {
         }
 
-        func ReadBoxedObjectFrom(r *tlschema.Reader) tl.Object {
+        func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
             cmd := r.ReadCmd()
             switch cmd {
             case TagFoo:
-                s := new(Foo)
+                s := new(TLFoo)
                 s.ReadBareFrom(r)
                 return s
             case TagBoz:
-                s := new(Boz)
+                s := new(TLBoz)
                 s.ReadBareFrom(r)
                 return s
             default:
@@ -488,10 +394,10 @@ func TestBareVectorBoxedStruct(t *testing.T) {
 
 func TestMTProto(t *testing.T) {
 	sch := tlschema.MustParse(knownschemas.MTProtoSchema)
-	GenerateGoCode(sch, Options{PackageName: "foo"})
+	GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 }
 
 func TestTelegram(t *testing.T) {
 	sch := tlschema.MustParse(knownschemas.TelegramSchema)
-	GenerateGoCode(sch, Options{PackageName: "foo"})
+	GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 }
