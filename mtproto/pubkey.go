@@ -9,6 +9,7 @@ import (
 	"math/big"
 
 	"github.com/andreyvit/telegramapi/binints"
+	"github.com/andreyvit/telegramapi/tl"
 )
 
 const rsaBlockLen = 256
@@ -33,7 +34,7 @@ func ParsePublicKey(s string) (*rsa.PublicKey, error) {
 }
 
 func ComputePubKeyFingerprint(key *rsa.PublicKey) uint64 {
-	var w Writer
+	var w tl.Writer
 	w.WriteBigInt(key.N)
 	w.WriteBigInt(big.NewInt(int64(key.E)))
 	sha1 := sha1.Sum(w.Bytes())

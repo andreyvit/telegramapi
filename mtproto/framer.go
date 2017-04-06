@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/sha1"
 	"errors"
+	"github.com/andreyvit/telegramapi/tl"
 	"io"
 	"log"
 )
@@ -36,7 +37,7 @@ func (fr *Framer) Format(msg Msg) ([]byte, error) {
 		msgID = fr.gen.Generate()
 	}
 
-	w := NewWriter()
+	w := tl.NewWriter()
 	if fr.auth == nil {
 		if msg.Type != KeyExMsg {
 			panic("cannot send encrypted messages before key exchange is finished")
@@ -100,7 +101,7 @@ func (fr *Framer) Format(msg Msg) ([]byte, error) {
 }
 
 func (fr *Framer) Parse(raw []byte) (Msg, error) {
-	r := ReadRaw(raw)
+	r := tl.ReadRaw(raw)
 
 	authKeyID, ok := r.TryReadUint64()
 	if !ok {

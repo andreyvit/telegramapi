@@ -1,6 +1,6 @@
-package mtproto
+package tl
 
-func PaddingOf(len int) int {
+func paddingOf(len int) int {
 	rem := len % 4
 	if rem == 0 {
 		return 0

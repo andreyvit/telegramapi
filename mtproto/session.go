@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io"
 	"log"
+
+	"github.com/andreyvit/telegramapi/tl"
 )
 
 type Transport interface {
@@ -24,7 +26,7 @@ type SessionOptions struct {
 	Verbose int
 }
 
-type Handler func(cmd uint32, r *Reader) ([]Msg, error)
+type Handler func(cmd uint32, r *tl.Reader) ([]Msg, error)
 
 var ErrCmdNotHandled = errors.New("not handled")
 
@@ -69,7 +71,7 @@ func NewSession(transport Transport, options SessionOptions) *Session {
 	return s
 }
 
-func (sess *Session) AddHandler(handler func(cmd uint32, r *Reader) ([]Msg, error)) {
+func (sess *Session) AddHandler(handler func(cmd uint32, r *tl.Reader) ([]Msg, error)) {
 	h := Handler(handler)
 	sess.handlers = append(sess.handlers, h)
 }
@@ -222,13 +224,13 @@ func (sess *Session) doHandle(raw []byte) error {
 		log.Printf("mtproto.Session received %s (%v bytes, %v)", DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type)
 	}
 
-	r := NewReader(msg.Payload)
+	r := tl.NewReader(msg.Payload)
 	sess.invokeHandlersInternal(r.Cmd(), r)
 
 	return nil
 }
 
-func (sess *Session) invokeHandlersInternal(cmd uint32, r *Reader) {
+func (sess *Session) invokeHandlersInternal(cmd uint32, r *tl.Reader) {
 	msgs, err := sess.invokeHandlersInternalReturnCmds(cmd, r)
 	if err == ErrCmdNotHandled {
 		if sess.options.Verbose >= 1 {
@@ -243,7 +245,7 @@ func (sess *Session) invokeHandlersInternal(cmd uint32, r *Reader) {
 	}
 }
 
-func (sess *Session) invokeHandlersInternalReturnCmds(cmd uint32, r *Reader) ([]Msg, error) {
+func (sess *Session) invokeHandlersInternalReturnCmds(cmd uint32, r *tl.Reader) ([]Msg, error) {
 	for _, h := range sess.handlers {
 		msgs, err := h(cmd, r)
 		if err == ErrCmdNotHandled {
@@ -274,7 +276,7 @@ func (sess *Session) broadcastInternal(cmd uint32) {
 	}
 }
 
-func (sess *Session) handleKeyEx(cmd uint32, r *Reader) ([]Msg, error) {
+func (sess *Session) handleKeyEx(cmd uint32, r *tl.Reader) ([]Msg, error) {
 	if sess.keyex.IsFinished() {
 		return nil, ErrCmdNotHandled
 	}
@@ -302,9 +304,9 @@ func (sess *Session) handleKeyEx(cmd uint32, r *Reader) ([]Msg, error) {
 	}
 }
 
-func (sess *Session) handleConfig(cmd uint32, r *Reader) ([]Msg, error) {
+func (sess *Session) handleConfig(cmd uint32, r *tl.Reader) ([]Msg, error) {
 	if cmd == PseudoIDHandshakeDone {
-		w := NewWriterCmd(Cmd("invokeWithLayer"))
+		w := tl.NewWriterCmd(Cmd("invokeWithLayer"))
 		w.WriteInt(apiLayer)
 		w.WriteCmd(Cmd("initConnection"))
 		w.WriteInt(88766)
@@ -319,7 +321,7 @@ func (sess *Session) handleConfig(cmd uint32, r *Reader) ([]Msg, error) {
 	}
 }
 
-func (sess *Session) handleRPCResult(cmd uint32, r *Reader) ([]Msg, error) {
+func (sess *Session) handleRPCResult(cmd uint32, r *tl.Reader) ([]Msg, error) {
 	if cmd == Cmd("rpc_result") {
 		reqMsgID := r.ReadUint64()
 		_ = reqMsgID

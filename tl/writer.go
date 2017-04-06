@@ -1,4 +1,4 @@
-package mtproto
+package tl
 
 import (
 	"bytes"
@@ -90,12 +90,12 @@ func (w *Writer) WriteBlobLen(v int) int {
 	}
 	if v < 254 {
 		w.WriteByte(byte(v))
-		return PaddingOf(1 + v)
+		return paddingOf(1 + v)
 	} else {
 		w.buf.Grow(4)
 		w.WriteByte(254)
 		w.WriteUint24(uint32(v))
-		return PaddingOf(4 + v)
+		return paddingOf(4 + v)
 	}
 }
 

@@ -5,6 +5,8 @@ import (
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/andreyvit/telegramapi/tl"
 )
 
 type cmdInfo struct {
@@ -91,7 +93,7 @@ func DescribeCmd(cmd uint32) string {
 }
 
 func DescribeCmdOfPayload(b []byte) string {
-	return DescribeCmd(CmdOfPayload(b))
+	return DescribeCmd(tl.CmdOfPayload(b))
 }
 
 func parseCombinatorName(s string) (string, uint32) {

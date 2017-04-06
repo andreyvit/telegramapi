@@ -1,4 +1,4 @@
-package mtproto
+package tl
 
 import (
 	"errors"
@@ -201,12 +201,12 @@ func (r *Reader) ReadBlobLen() (int, int) {
 		if !ok {
 			return -1, 0
 		}
-		return int(size), PaddingOf(4 + int(size))
+		return int(size), paddingOf(4 + int(size))
 	} else if b > 254 {
 		r.Fail(errors.New("unexpected string size byte FF"))
 		return -1, 0
 	} else {
-		return int(b), PaddingOf(1 + int(b))
+		return int(b), paddingOf(1 + int(b))
 	}
 }
 

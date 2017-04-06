@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"github.com/andreyvit/telegramapi/binints"
+	"github.com/andreyvit/telegramapi/tl"
 	"io"
 	"log"
 	"math/big"
@@ -88,7 +89,7 @@ func (kex *KeyEx) Start() Msg {
 		panic(err)
 	}
 
-	w := NewWriterCmd(IDReqPQ)
+	w := tl.NewWriterCmd(IDReqPQ)
 	w.WriteUint128(kex.nonce[:])
 	msg := MakeMsg(w.Bytes(), KeyExMsg)
 
@@ -96,7 +97,7 @@ func (kex *KeyEx) Start() Msg {
 	return msg
 }
 
-func (kex *KeyEx) Handle(r *Reader) (*Msg, error) {
+func (kex *KeyEx) Handle(r *tl.Reader) (*Msg, error) {
 	omsg, err := kex.handle(r)
 	if err != nil {
 		kex.state = KeyExFailed
@@ -105,7 +106,7 @@ func (kex *KeyEx) Handle(r *Reader) (*Msg, error) {
 	return omsg, err
 }
 
-func (kex *KeyEx) handle(r *Reader) (*Msg, error) {
+func (kex *KeyEx) handle(r *tl.Reader) (*Msg, error) {
 	cmd := r.Cmd()
 
 	switch kex.state {
@@ -146,7 +147,7 @@ func (kex *KeyEx) handle(r *Reader) (*Msg, error) {
 	}
 }
 
-func (kex *KeyEx) handleNoncePair(r *Reader) error {
+func (kex *KeyEx) handleNoncePair(r *tl.Reader) error {
 	var nonce [16]byte
 	if r.ReadUint128(nonce[:]) {
 		if 1 != subtle.ConstantTimeCompare(nonce[:], kex.nonce[:]) {
@@ -161,7 +162,7 @@ func (kex *KeyEx) handleNoncePair(r *Reader) error {
 	return nil
 }
 
-func (kex *KeyEx) handleResPQ(r *Reader) (*Msg, error) {
+func (kex *KeyEx) handleResPQ(r *tl.Reader) (*Msg, error) {
 	var res ResPQ
 	res.ReadFrom(r)
 	if r.Err() != nil {
@@ -219,12 +220,12 @@ func (kex *KeyEx) handleResPQ(r *Reader) (*Msg, error) {
 	copy(msgdata.PQInnerData.ServerNonce[:], kex.serverNonce[:])
 	copy(msgdata.PQInnerData.NewNonce[:], kex.newNonce[:])
 
-	msg := MakeMsg(BytesOf(msgdata), KeyExMsg)
+	msg := MakeMsg(tl.BytesOf(msgdata), KeyExMsg)
 	kex.state = KeyExReqDHParams
 	return &msg, nil
 }
 
-func (kex *KeyEx) handleServerDHParamsOK(r *Reader) (*Msg, error) {
+func (kex *KeyEx) handleServerDHParamsOK(r *tl.Reader) (*Msg, error) {
 	var res ServerDHParamsOK
 
 	r.ReadUint128(res.Nonce[:])
@@ -265,7 +266,7 @@ func (kex *KeyEx) handleServerDHParamsOK(r *Reader) (*Msg, error) {
 	// TODO: check hash here (need to determine the reader offset here)
 	_ = answerHash
 
-	r = NewReader(answer)
+	r = tl.NewReader(answer)
 	if r.Cmd() != IDServerDHInnerData {
 		return nil, errors.New("expected server_DH_inner_data")
 	}
@@ -324,7 +325,7 @@ func (kex *KeyEx) handleServerDHParamsOK(r *Reader) (*Msg, error) {
 
 	// RESPONSE
 
-	w := NewWriterCmd(IDClientDHInnerData)
+	w := tl.NewWriterCmd(IDClientDHInnerData)
 	w.WriteUint128(kex.nonce[:])
 	w.WriteUint128(kex.serverNonce[:])
 	w.WriteUint64(retryID)
@@ -335,7 +336,7 @@ func (kex *KeyEx) handleServerDHParamsOK(r *Reader) (*Msg, error) {
 		return nil, err
 	}
 
-	w = NewWriterCmd(IDSetClientDHParams)
+	w = tl.NewWriterCmd(IDSetClientDHParams)
 	w.WriteUint128(kex.nonce[:])
 	w.WriteUint128(kex.serverNonce[:])
 	w.WriteBlob(encrypted)
@@ -345,7 +346,7 @@ func (kex *KeyEx) handleServerDHParamsOK(r *Reader) (*Msg, error) {
 	return &msg, nil
 }
 
-func (kex *KeyEx) handleDHGenOK(r *Reader) (*Msg, error) {
+func (kex *KeyEx) handleDHGenOK(r *tl.Reader) (*Msg, error) {
 	var res DHGenOK
 
 	r.ReadUint128(res.Nonce[:])

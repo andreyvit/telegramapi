@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/andreyvit/telegramapi/binints"
+	"github.com/andreyvit/telegramapi/tl"
 )
 
 type TCPReader interface {
@@ -144,7 +145,7 @@ func (tr *TCPTransport) Recv() ([]byte, int, error) {
 	}
 
 	if len(raw) == 4 {
-		errcode := int(int32(NewReader(raw).Cmd()))
+		errcode := int(int32(tl.NewReader(raw).Cmd()))
 		return nil, errcode, nil
 	}
 

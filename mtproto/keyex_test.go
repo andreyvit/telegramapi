@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"strings"
 	"testing"
+
+	"github.com/andreyvit/telegramapi/tl"
 )
 
 const randomness = `
@@ -178,7 +180,7 @@ func TestKeyExchange(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err := keyex.Handle(NewReader(inmsg.Payload))
+	msg, err := keyex.Handle(tl.NewReader(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -208,7 +210,7 @@ func TestKeyExchange(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err = keyex.Handle(NewReader(inmsg.Payload))
+	msg, err = keyex.Handle(tl.NewReader(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -235,7 +237,7 @@ func TestKeyExchange(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err = keyex.Handle(NewReader(inmsg.Payload))
+	msg, err = keyex.Handle(tl.NewReader(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}

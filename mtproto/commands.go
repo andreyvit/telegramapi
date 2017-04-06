@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha1"
 	"errors"
+	"github.com/andreyvit/telegramapi/tl"
 	"log"
 	"math/big"
 )
@@ -36,7 +37,7 @@ type ResPQ struct {
 	ServerPubKeyFingerprints []uint64
 }
 
-func (data *ResPQ) ReadFrom(r *Reader) {
+func (data *ResPQ) ReadFrom(r *tl.Reader) {
 	r.ReadUint128(data.Nonce[:])
 	r.ReadUint128(data.ServerNonce[:])
 	data.PQ = r.ReadBigInt()
@@ -59,7 +60,7 @@ type DHGenOK struct {
 	NewNonceHash [16]byte
 }
 
-func (data *PQInnerData) WriteTo(w *Writer) {
+func (data *PQInnerData) WriteTo(w *tl.Writer) {
 	w.WriteCmd(IDPQInnerData)
 	w.WriteBigInt(data.PQ)
 	w.WriteBigInt(data.P)
@@ -76,8 +77,8 @@ type ReqDHParams struct {
 	Random255               [255]byte
 }
 
-func (data *ReqDHParams) WriteTo(w *Writer) {
-	unencrypted := BytesOf(&data.PQInnerData)
+func (data *ReqDHParams) WriteTo(w *tl.Writer) {
+	unencrypted := tl.BytesOf(&data.PQInnerData)
 	hash := sha1.Sum(unencrypted)
 
 	var dataWithHash bytes.Buffer
