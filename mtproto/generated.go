@@ -131,6 +131,64 @@ func (s *TLPQInnerData) WriteBareTo(w *tl.Writer) {
 	w.Write(s.NewNonce[:])
 }
 
+// TLServerDHParamsType represents Server_DH_Params from TL schema
+type TLServerDHParamsType interface {
+	IsTLServerDHParams()
+	Cmd() uint32
+	ReadBareFrom(r *tl.Reader)
+	WriteBareTo(w *tl.Writer)
+}
+
+// TLServerDHParamsFail represents server_DH_params_fail from TL schema
+type TLServerDHParamsFail struct {
+	Nonce        [16]byte // nonce: int128
+	ServerNonce  [16]byte // server_nonce: int128
+	NewNonceHash [16]byte // new_nonce_hash: int128
+}
+
+func (s *TLServerDHParamsFail) IsTLServerDHParams() {}
+
+func (s *TLServerDHParamsFail) Cmd() uint32 {
+	return TagServerDHParamsFail
+}
+
+func (s *TLServerDHParamsFail) ReadBareFrom(r *tl.Reader) {
+	r.ReadUint128(s.Nonce[:])
+	r.ReadUint128(s.ServerNonce[:])
+	r.ReadUint128(s.NewNonceHash[:])
+}
+
+func (s *TLServerDHParamsFail) WriteBareTo(w *tl.Writer) {
+	w.WriteUint128(s.Nonce[:])
+	w.WriteUint128(s.ServerNonce[:])
+	w.WriteUint128(s.NewNonceHash[:])
+}
+
+// TLServerDHParamsOK represents server_DH_params_ok from TL schema
+type TLServerDHParamsOK struct {
+	Nonce           [16]byte // nonce: int128
+	ServerNonce     [16]byte // server_nonce: int128
+	EncryptedAnswer []byte   // encrypted_answer: bytes
+}
+
+func (s *TLServerDHParamsOK) IsTLServerDHParams() {}
+
+func (s *TLServerDHParamsOK) Cmd() uint32 {
+	return TagServerDHParamsOK
+}
+
+func (s *TLServerDHParamsOK) ReadBareFrom(r *tl.Reader) {
+	r.ReadUint128(s.Nonce[:])
+	r.ReadUint128(s.ServerNonce[:])
+	s.EncryptedAnswer = r.ReadBlob()
+}
+
+func (s *TLServerDHParamsOK) WriteBareTo(w *tl.Writer) {
+	w.WriteUint128(s.Nonce[:])
+	w.WriteUint128(s.ServerNonce[:])
+	w.WriteBlob(s.EncryptedAnswer)
+}
+
 // TLServerDHInnerData represents server_DH_inner_data from TL schema
 type TLServerDHInnerData struct {
 	Nonce       [16]byte  // nonce: int128
@@ -189,6 +247,89 @@ func (s *TLClientDHInnerData) WriteBareTo(w *tl.Writer) {
 	w.WriteBigInt(s.GB)
 }
 
+// TLSetClientDHParamsAnswerType represents Set_client_DH_params_answer from TL schema
+type TLSetClientDHParamsAnswerType interface {
+	IsTLSetClientDHParamsAnswer()
+	Cmd() uint32
+	ReadBareFrom(r *tl.Reader)
+	WriteBareTo(w *tl.Writer)
+}
+
+// TLDHGenOK represents dh_gen_ok from TL schema
+type TLDHGenOK struct {
+	Nonce         [16]byte // nonce: int128
+	ServerNonce   [16]byte // server_nonce: int128
+	NewNonceHash1 [16]byte // new_nonce_hash1: int128
+}
+
+func (s *TLDHGenOK) IsTLSetClientDHParamsAnswer() {}
+
+func (s *TLDHGenOK) Cmd() uint32 {
+	return TagDHGenOK
+}
+
+func (s *TLDHGenOK) ReadBareFrom(r *tl.Reader) {
+	r.ReadUint128(s.Nonce[:])
+	r.ReadUint128(s.ServerNonce[:])
+	r.ReadUint128(s.NewNonceHash1[:])
+}
+
+func (s *TLDHGenOK) WriteBareTo(w *tl.Writer) {
+	w.WriteUint128(s.Nonce[:])
+	w.WriteUint128(s.ServerNonce[:])
+	w.WriteUint128(s.NewNonceHash1[:])
+}
+
+// TLDHGenRetry represents dh_gen_retry from TL schema
+type TLDHGenRetry struct {
+	Nonce         [16]byte // nonce: int128
+	ServerNonce   [16]byte // server_nonce: int128
+	NewNonceHash2 [16]byte // new_nonce_hash2: int128
+}
+
+func (s *TLDHGenRetry) IsTLSetClientDHParamsAnswer() {}
+
+func (s *TLDHGenRetry) Cmd() uint32 {
+	return TagDHGenRetry
+}
+
+func (s *TLDHGenRetry) ReadBareFrom(r *tl.Reader) {
+	r.ReadUint128(s.Nonce[:])
+	r.ReadUint128(s.ServerNonce[:])
+	r.ReadUint128(s.NewNonceHash2[:])
+}
+
+func (s *TLDHGenRetry) WriteBareTo(w *tl.Writer) {
+	w.WriteUint128(s.Nonce[:])
+	w.WriteUint128(s.ServerNonce[:])
+	w.WriteUint128(s.NewNonceHash2[:])
+}
+
+// TLDHGenFail represents dh_gen_fail from TL schema
+type TLDHGenFail struct {
+	Nonce         [16]byte // nonce: int128
+	ServerNonce   [16]byte // server_nonce: int128
+	NewNonceHash3 [16]byte // new_nonce_hash3: int128
+}
+
+func (s *TLDHGenFail) IsTLSetClientDHParamsAnswer() {}
+
+func (s *TLDHGenFail) Cmd() uint32 {
+	return TagDHGenFail
+}
+
+func (s *TLDHGenFail) ReadBareFrom(r *tl.Reader) {
+	r.ReadUint128(s.Nonce[:])
+	r.ReadUint128(s.ServerNonce[:])
+	r.ReadUint128(s.NewNonceHash3[:])
+}
+
+func (s *TLDHGenFail) WriteBareTo(w *tl.Writer) {
+	w.WriteUint128(s.Nonce[:])
+	w.WriteUint128(s.ServerNonce[:])
+	w.WriteUint128(s.NewNonceHash3[:])
+}
+
 // TLRpcResult represents rpc_result from TL schema
 type TLRpcResult struct {
 	ReqMsgId uint64    // req_msg_id: long
@@ -228,6 +369,71 @@ func (s *TLRpcError) ReadBareFrom(r *tl.Reader) {
 func (s *TLRpcError) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(s.ErrorCode)
 	w.WriteString(s.ErrorMessage)
+}
+
+// TLRpcDropAnswerType represents RpcDropAnswer from TL schema
+type TLRpcDropAnswerType interface {
+	IsTLRpcDropAnswer()
+	Cmd() uint32
+	ReadBareFrom(r *tl.Reader)
+	WriteBareTo(w *tl.Writer)
+}
+
+// TLRpcAnswerUnknown represents rpc_answer_unknown from TL schema
+type TLRpcAnswerUnknown struct {
+}
+
+func (s *TLRpcAnswerUnknown) IsTLRpcDropAnswer() {}
+
+func (s *TLRpcAnswerUnknown) Cmd() uint32 {
+	return TagRpcAnswerUnknown
+}
+
+func (s *TLRpcAnswerUnknown) ReadBareFrom(r *tl.Reader) {
+}
+
+func (s *TLRpcAnswerUnknown) WriteBareTo(w *tl.Writer) {
+}
+
+// TLRpcAnswerDroppedRunning represents rpc_answer_dropped_running from TL schema
+type TLRpcAnswerDroppedRunning struct {
+}
+
+func (s *TLRpcAnswerDroppedRunning) IsTLRpcDropAnswer() {}
+
+func (s *TLRpcAnswerDroppedRunning) Cmd() uint32 {
+	return TagRpcAnswerDroppedRunning
+}
+
+func (s *TLRpcAnswerDroppedRunning) ReadBareFrom(r *tl.Reader) {
+}
+
+func (s *TLRpcAnswerDroppedRunning) WriteBareTo(w *tl.Writer) {
+}
+
+// TLRpcAnswerDropped represents rpc_answer_dropped from TL schema
+type TLRpcAnswerDropped struct {
+	MsgId uint64 // msg_id: long
+	SeqNo int    // seq_no: int
+	Bytes int    // bytes: int
+}
+
+func (s *TLRpcAnswerDropped) IsTLRpcDropAnswer() {}
+
+func (s *TLRpcAnswerDropped) Cmd() uint32 {
+	return TagRpcAnswerDropped
+}
+
+func (s *TLRpcAnswerDropped) ReadBareFrom(r *tl.Reader) {
+	s.MsgId = r.ReadUint64()
+	s.SeqNo = r.ReadInt()
+	s.Bytes = r.ReadInt()
+}
+
+func (s *TLRpcAnswerDropped) WriteBareTo(w *tl.Writer) {
+	w.WriteUint64(s.MsgId)
+	w.WriteInt(s.SeqNo)
+	w.WriteInt(s.Bytes)
 }
 
 // TLFutureSalt represents future_salt from TL schema
@@ -303,39 +509,85 @@ func (s *TLPong) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(s.PingId)
 }
 
-// TLNewSession represents new_session_created from TL schema
-type TLNewSession struct {
+// TLDestroySessionResType represents DestroySessionRes from TL schema
+type TLDestroySessionResType interface {
+	IsTLDestroySessionRes()
+	Cmd() uint32
+	ReadBareFrom(r *tl.Reader)
+	WriteBareTo(w *tl.Writer)
+}
+
+// TLDestroySessionOK represents destroy_session_ok from TL schema
+type TLDestroySessionOK struct {
+	SessionId uint64 // session_id: long
+}
+
+func (s *TLDestroySessionOK) IsTLDestroySessionRes() {}
+
+func (s *TLDestroySessionOK) Cmd() uint32 {
+	return TagDestroySessionOK
+}
+
+func (s *TLDestroySessionOK) ReadBareFrom(r *tl.Reader) {
+	s.SessionId = r.ReadUint64()
+}
+
+func (s *TLDestroySessionOK) WriteBareTo(w *tl.Writer) {
+	w.WriteUint64(s.SessionId)
+}
+
+// TLDestroySessionNone represents destroy_session_none from TL schema
+type TLDestroySessionNone struct {
+	SessionId uint64 // session_id: long
+}
+
+func (s *TLDestroySessionNone) IsTLDestroySessionRes() {}
+
+func (s *TLDestroySessionNone) Cmd() uint32 {
+	return TagDestroySessionNone
+}
+
+func (s *TLDestroySessionNone) ReadBareFrom(r *tl.Reader) {
+	s.SessionId = r.ReadUint64()
+}
+
+func (s *TLDestroySessionNone) WriteBareTo(w *tl.Writer) {
+	w.WriteUint64(s.SessionId)
+}
+
+// TLNewSessionCreated represents new_session_created from TL schema
+type TLNewSessionCreated struct {
 	FirstMsgId uint64 // first_msg_id: long
 	UniqueId   uint64 // unique_id: long
 	ServerSalt uint64 // server_salt: long
 }
 
-func (s *TLNewSession) Cmd() uint32 {
+func (s *TLNewSessionCreated) Cmd() uint32 {
 	return TagNewSessionCreated
 }
 
-func (s *TLNewSession) ReadBareFrom(r *tl.Reader) {
+func (s *TLNewSessionCreated) ReadBareFrom(r *tl.Reader) {
 	s.FirstMsgId = r.ReadUint64()
 	s.UniqueId = r.ReadUint64()
 	s.ServerSalt = r.ReadUint64()
 }
 
-func (s *TLNewSession) WriteBareTo(w *tl.Writer) {
+func (s *TLNewSessionCreated) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(s.FirstMsgId)
 	w.WriteUint64(s.UniqueId)
 	w.WriteUint64(s.ServerSalt)
 }
 
-// TLMessageContainer represents msg_container from TL schema
-type TLMessageContainer struct {
+// TLMsgContainer represents msg_container from TL schema
+type TLMsgContainer struct {
 	Messages []*TLMessage // messages: vector<%Message>
 }
 
-func (s *TLMessageContainer) Cmd() uint32 {
+func (s *TLMsgContainer) Cmd() uint32 {
 	return TagMsgContainer
 }
 
-func (s *TLMessageContainer) ReadBareFrom(r *tl.Reader) {
+func (s *TLMsgContainer) ReadBareFrom(r *tl.Reader) {
 	s.Messages = make([]*TLMessage, r.ReadInt())
 	for i := 0; i < len(s.Messages); i++ {
 		s.Messages[i] = new(TLMessage)
@@ -343,7 +595,7 @@ func (s *TLMessageContainer) ReadBareFrom(r *tl.Reader) {
 	}
 }
 
-func (s *TLMessageContainer) WriteBareTo(w *tl.Writer) {
+func (s *TLMsgContainer) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(len(s.Messages))
 	for i := 0; i < len(s.Messages); i++ {
 		s.Messages[i].WriteBareTo(w)
@@ -377,16 +629,16 @@ func (s *TLMessage) WriteBareTo(w *tl.Writer) {
 	s.Body.WriteBareTo(w)
 }
 
-// TLMessageCopy represents msg_copy from TL schema
-type TLMessageCopy struct {
+// TLMsgCopy represents msg_copy from TL schema
+type TLMsgCopy struct {
 	OrigMessage *TLMessage // orig_message: Message
 }
 
-func (s *TLMessageCopy) Cmd() uint32 {
+func (s *TLMsgCopy) Cmd() uint32 {
 	return TagMsgCopy
 }
 
-func (s *TLMessageCopy) ReadBareFrom(r *tl.Reader) {
+func (s *TLMsgCopy) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagMessage {
 		r.Fail(errors.New("expected: message"))
 	}
@@ -394,7 +646,7 @@ func (s *TLMessageCopy) ReadBareFrom(r *tl.Reader) {
 	s.OrigMessage.ReadBareFrom(r)
 }
 
-func (s *TLMessageCopy) WriteBareTo(w *tl.Writer) {
+func (s *TLMsgCopy) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagMessage)
 	s.OrigMessage.WriteBareTo(w)
 }
@@ -424,6 +676,67 @@ func (s *TLMsgsAck) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(s.MsgIds); i++ {
 		w.WriteUint64(s.MsgIds[i])
 	}
+}
+
+// TLBadMsgNotificationType represents BadMsgNotification from TL schema
+type TLBadMsgNotificationType interface {
+	IsTLBadMsgNotification()
+	Cmd() uint32
+	ReadBareFrom(r *tl.Reader)
+	WriteBareTo(w *tl.Writer)
+}
+
+// TLBadMsgNotification represents bad_msg_notification from TL schema
+type TLBadMsgNotification struct {
+	BadMsgId    uint64 // bad_msg_id: long
+	BadMsgSeqno int    // bad_msg_seqno: int
+	ErrorCode   int    // error_code: int
+}
+
+func (s *TLBadMsgNotification) IsTLBadMsgNotification() {}
+
+func (s *TLBadMsgNotification) Cmd() uint32 {
+	return TagBadMsgNotification
+}
+
+func (s *TLBadMsgNotification) ReadBareFrom(r *tl.Reader) {
+	s.BadMsgId = r.ReadUint64()
+	s.BadMsgSeqno = r.ReadInt()
+	s.ErrorCode = r.ReadInt()
+}
+
+func (s *TLBadMsgNotification) WriteBareTo(w *tl.Writer) {
+	w.WriteUint64(s.BadMsgId)
+	w.WriteInt(s.BadMsgSeqno)
+	w.WriteInt(s.ErrorCode)
+}
+
+// TLBadServerSalt represents bad_server_salt from TL schema
+type TLBadServerSalt struct {
+	BadMsgId      uint64 // bad_msg_id: long
+	BadMsgSeqno   int    // bad_msg_seqno: int
+	ErrorCode     int    // error_code: int
+	NewServerSalt uint64 // new_server_salt: long
+}
+
+func (s *TLBadServerSalt) IsTLBadMsgNotification() {}
+
+func (s *TLBadServerSalt) Cmd() uint32 {
+	return TagBadServerSalt
+}
+
+func (s *TLBadServerSalt) ReadBareFrom(r *tl.Reader) {
+	s.BadMsgId = r.ReadUint64()
+	s.BadMsgSeqno = r.ReadInt()
+	s.ErrorCode = r.ReadInt()
+	s.NewServerSalt = r.ReadUint64()
+}
+
+func (s *TLBadServerSalt) WriteBareTo(w *tl.Writer) {
+	w.WriteUint64(s.BadMsgId)
+	w.WriteInt(s.BadMsgSeqno)
+	w.WriteInt(s.ErrorCode)
+	w.WriteUint64(s.NewServerSalt)
 }
 
 // TLMsgResendReq represents msg_resend_req from TL schema
@@ -528,6 +841,67 @@ func (s *TLMsgsAllInfo) WriteBareTo(w *tl.Writer) {
 		w.WriteUint64(s.MsgIds[i])
 	}
 	w.WriteBlob(s.Info)
+}
+
+// TLMsgDetailedInfoType represents MsgDetailedInfo from TL schema
+type TLMsgDetailedInfoType interface {
+	IsTLMsgDetailedInfo()
+	Cmd() uint32
+	ReadBareFrom(r *tl.Reader)
+	WriteBareTo(w *tl.Writer)
+}
+
+// TLMsgDetailedInfo represents msg_detailed_info from TL schema
+type TLMsgDetailedInfo struct {
+	MsgId       uint64 // msg_id: long
+	AnswerMsgId uint64 // answer_msg_id: long
+	Bytes       int    // bytes: int
+	Status      int    // status: int
+}
+
+func (s *TLMsgDetailedInfo) IsTLMsgDetailedInfo() {}
+
+func (s *TLMsgDetailedInfo) Cmd() uint32 {
+	return TagMsgDetailedInfo
+}
+
+func (s *TLMsgDetailedInfo) ReadBareFrom(r *tl.Reader) {
+	s.MsgId = r.ReadUint64()
+	s.AnswerMsgId = r.ReadUint64()
+	s.Bytes = r.ReadInt()
+	s.Status = r.ReadInt()
+}
+
+func (s *TLMsgDetailedInfo) WriteBareTo(w *tl.Writer) {
+	w.WriteUint64(s.MsgId)
+	w.WriteUint64(s.AnswerMsgId)
+	w.WriteInt(s.Bytes)
+	w.WriteInt(s.Status)
+}
+
+// TLMsgNewDetailedInfo represents msg_new_detailed_info from TL schema
+type TLMsgNewDetailedInfo struct {
+	AnswerMsgId uint64 // answer_msg_id: long
+	Bytes       int    // bytes: int
+	Status      int    // status: int
+}
+
+func (s *TLMsgNewDetailedInfo) IsTLMsgDetailedInfo() {}
+
+func (s *TLMsgNewDetailedInfo) Cmd() uint32 {
+	return TagMsgNewDetailedInfo
+}
+
+func (s *TLMsgNewDetailedInfo) ReadBareFrom(r *tl.Reader) {
+	s.AnswerMsgId = r.ReadUint64()
+	s.Bytes = r.ReadInt()
+	s.Status = r.ReadInt()
+}
+
+func (s *TLMsgNewDetailedInfo) WriteBareTo(w *tl.Writer) {
+	w.WriteUint64(s.AnswerMsgId)
+	w.WriteInt(s.Bytes)
+	w.WriteInt(s.Status)
 }
 
 // TLReqPQ represents req_pq from TL schema
@@ -724,6 +1098,14 @@ func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
 		s := new(TLPQInnerData)
 		s.ReadBareFrom(r)
 		return s
+	case TagServerDHParamsFail:
+		s := new(TLServerDHParamsFail)
+		s.ReadBareFrom(r)
+		return s
+	case TagServerDHParamsOK:
+		s := new(TLServerDHParamsOK)
+		s.ReadBareFrom(r)
+		return s
 	case TagServerDHInnerData:
 		s := new(TLServerDHInnerData)
 		s.ReadBareFrom(r)
@@ -732,12 +1114,36 @@ func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
 		s := new(TLClientDHInnerData)
 		s.ReadBareFrom(r)
 		return s
+	case TagDHGenOK:
+		s := new(TLDHGenOK)
+		s.ReadBareFrom(r)
+		return s
+	case TagDHGenRetry:
+		s := new(TLDHGenRetry)
+		s.ReadBareFrom(r)
+		return s
+	case TagDHGenFail:
+		s := new(TLDHGenFail)
+		s.ReadBareFrom(r)
+		return s
 	case TagRpcResult:
 		s := new(TLRpcResult)
 		s.ReadBareFrom(r)
 		return s
 	case TagRpcError:
 		s := new(TLRpcError)
+		s.ReadBareFrom(r)
+		return s
+	case TagRpcAnswerUnknown:
+		s := new(TLRpcAnswerUnknown)
+		s.ReadBareFrom(r)
+		return s
+	case TagRpcAnswerDroppedRunning:
+		s := new(TLRpcAnswerDroppedRunning)
+		s.ReadBareFrom(r)
+		return s
+	case TagRpcAnswerDropped:
+		s := new(TLRpcAnswerDropped)
 		s.ReadBareFrom(r)
 		return s
 	case TagFutureSalt:
@@ -752,12 +1158,20 @@ func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
 		s := new(TLPong)
 		s.ReadBareFrom(r)
 		return s
+	case TagDestroySessionOK:
+		s := new(TLDestroySessionOK)
+		s.ReadBareFrom(r)
+		return s
+	case TagDestroySessionNone:
+		s := new(TLDestroySessionNone)
+		s.ReadBareFrom(r)
+		return s
 	case TagNewSessionCreated:
-		s := new(TLNewSession)
+		s := new(TLNewSessionCreated)
 		s.ReadBareFrom(r)
 		return s
 	case TagMsgContainer:
-		s := new(TLMessageContainer)
+		s := new(TLMsgContainer)
 		s.ReadBareFrom(r)
 		return s
 	case TagMessage:
@@ -765,11 +1179,19 @@ func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
 		s.ReadBareFrom(r)
 		return s
 	case TagMsgCopy:
-		s := new(TLMessageCopy)
+		s := new(TLMsgCopy)
 		s.ReadBareFrom(r)
 		return s
 	case TagMsgsAck:
 		s := new(TLMsgsAck)
+		s.ReadBareFrom(r)
+		return s
+	case TagBadMsgNotification:
+		s := new(TLBadMsgNotification)
+		s.ReadBareFrom(r)
+		return s
+	case TagBadServerSalt:
+		s := new(TLBadServerSalt)
 		s.ReadBareFrom(r)
 		return s
 	case TagMsgResendReq:
@@ -786,6 +1208,14 @@ func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
 		return s
 	case TagMsgsAllInfo:
 		s := new(TLMsgsAllInfo)
+		s.ReadBareFrom(r)
+		return s
+	case TagMsgDetailedInfo:
+		s := new(TLMsgDetailedInfo)
+		s.ReadBareFrom(r)
+		return s
+	case TagMsgNewDetailedInfo:
+		s := new(TLMsgNewDetailedInfo)
 		s.ReadBareFrom(r)
 		return s
 	case TagReqPQ:
@@ -825,6 +1255,14 @@ func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
 		s.ReadBareFrom(r)
 		return s
 	default:
+		return nil
+	}
+}
+
+func ReadLimitedBoxedObjectFrom(r *tl.Reader, cmds ...uint32) tl.Object {
+	if r.ExpectCmd(cmds...) {
+		return ReadBoxedObjectFrom(r)
+	} else {
 		return nil
 	}
 }
