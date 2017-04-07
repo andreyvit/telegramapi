@@ -59,7 +59,9 @@ func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 		buf.WriteString(")\n")
 	}
 
-	rm.AppendGoDefs(buf)
+	rm.AppendGoDefs(buf, CodeGenOptions{
+		SkipUtils: options.SkipPrelude,
+	})
 
 	src := buf.Bytes()
 	fmt, err := format.Source(src)
@@ -68,8 +70,4 @@ func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 		panic(err)
 	}
 	return string(fmt)
-}
-
-func IDConstName(comb *tlschema.Comb) string {
-	return "Tag" + comb.CombName.GoName()
 }

@@ -8,6 +8,7 @@ import (
 
 var ErrMessageTooShort = errors.New("message too short")
 var ErrTrailingData = errors.New("unexpected trailing data")
+var ErrUnexpectedCommand = errors.New("unexpected command")
 
 type Reader struct {
 	rem []byte
@@ -182,6 +183,17 @@ func (r *Reader) ExpectEOF() {
 	if len(r.rem) > 0 {
 		r.Fail(ErrTrailingData)
 	}
+}
+
+func (r *Reader) ExpectCmd(cmds ...uint32) bool {
+	cmd := r.PeekUint32()
+	for _, valid := range cmds {
+		if valid == cmd {
+			return true
+		}
+	}
+	r.Fail(ErrUnexpectedCommand)
+	return false
 }
 
 func (r *Reader) ReadN(n int) []byte {

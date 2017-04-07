@@ -392,6 +392,81 @@ func TestBareVectorBoxedStruct(t *testing.T) {
 	}
 }
 
+func TestMultiCtorType(t *testing.T) {
+	sch := tlschema.MustParse(`
+        foo#11223344 x:int = Foo;
+        bar#99887766 y:string = Foo;
+    `)
+	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
+	expected := `
+        // TLFooType represents Foo from TL schema
+        type TLFooType interface {
+            IsTLFoo()
+            Cmd() uint32
+            ReadBareFrom(r *tl.Reader)
+            WriteBareTo(w *tl.Writer)
+        }
+
+        // TLFoo represents foo from TL schema
+        type TLFoo struct {
+            X int // x: int
+        }
+
+        func (s *TLFoo) IsTLFoo() {}
+
+        func (s *TLFoo) Cmd() uint32 {
+            return TagFoo
+        }
+
+        func (s *TLFoo) ReadBareFrom(r *tl.Reader) {
+            s.X = r.ReadInt()
+        }
+
+        func (s *TLFoo) WriteBareTo(w *tl.Writer) {
+            w.WriteInt(s.X)
+        }
+
+        // TLBar represents bar from TL schema
+        type TLBar struct {
+            Y string // y: string
+        }
+
+        func (s *TLBar) IsTLFoo() {}
+
+        func (s *TLBar) Cmd() uint32 {
+            return TagBar
+        }
+
+        func (s *TLBar) ReadBareFrom(r *tl.Reader) {
+            s.Y = r.ReadString()
+        }
+
+        func (s *TLBar) WriteBareTo(w *tl.Writer) {
+            w.WriteString(s.Y)
+        }
+
+        func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {
+            cmd := r.ReadCmd()
+            switch cmd {
+            case TagFoo:
+                s := new(TLFoo)
+                s.ReadBareFrom(r)
+                return s
+            case TagBar:
+                s := new(TLBar)
+                s.ReadBareFrom(r)
+                return s
+            default:
+                return nil
+            }
+        }       
+    `
+	a, e := diff.TrimLinesInString(code), diff.TrimLinesInString(expected)
+	if a != e {
+		t.Errorf("Code not as expected:\n%v\n\nActual:\n%s", diff.LineDiff(e, a), code)
+	}
+}
+
 func TestMTProto(t *testing.T) {
 	sch := tlschema.MustParse(knownschemas.MTProtoSchema)
 	GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})

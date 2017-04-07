@@ -136,9 +136,9 @@ func (rm *ReprMapper) GoImports() []string {
 	return result
 }
 
-func (rm *ReprMapper) AppendGoDefs(buf *bytes.Buffer) {
+func (rm *ReprMapper) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 	for _, repr := range rm.reprs {
-		repr.AppendGoDefs(buf)
+		repr.AppendGoDefs(buf, options)
 	}
 
 	buf.WriteString("\n")
@@ -152,6 +152,17 @@ func (rm *ReprMapper) AppendGoDefs(buf *bytes.Buffer) {
 	buf.WriteString("\t\treturn nil\n")
 	buf.WriteString("\t}\n")
 	buf.WriteString("}\n")
+
+	if !options.SkipUtils {
+		buf.WriteString("\n")
+		buf.WriteString("func ReadLimitedBoxedObjectFrom(r *tl.Reader, cmds ...uint32) tl.Object {\n")
+		buf.WriteString("\tif r.ExpectCmd(cmds...) {\n")
+		buf.WriteString("\t\treturn ReadBoxedObjectFrom(r)\n")
+		buf.WriteString("\t} else {\n")
+		buf.WriteString("\t\treturn nil\n")
+		buf.WriteString("\t}\n")
+		buf.WriteString("}\n")
+	}
 }
 
 func (rm *ReprMapper) addRepr(repr GenericRepr) {
@@ -173,10 +184,27 @@ func (rm *ReprMapper) pick(typ *tlschema.Type) GenericRepr {
 		}
 		return &StructRepr{
 			TLName: ctor.CombName.Full(),
-			GoName: rm.prefix + typ.Name.GoName(),
+			GoName: rm.prefix + ctor.CombName.GoName(),
 			Ctor:   ctor,
 		}
-	}
+	default:
+		funcname := "Is" + rm.prefix + typ.Name.GoName()
 
-	return &UnsupportedRepr{typ.String(), "multiple ctors not implemented yet"}
+		var structs []*StructRepr
+		for _, ctor := range typ.Ctors {
+			structs = append(structs, &StructRepr{
+				TLName:           ctor.CombName.Full(),
+				GoName:           rm.prefix + ctor.CombName.GoName(),
+				Ctor:             ctor,
+				GoMarkerFuncName: funcname,
+			})
+		}
+
+		return &MultiCtorRepr{
+			TLName:           typ.Name.Full(),
+			GoName:           rm.prefix + typ.Name.GoName() + "Type",
+			Structs:          structs,
+			GoMarkerFuncName: funcname,
+		}
+	}
 }
