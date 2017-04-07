@@ -60,7 +60,8 @@ func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 	}
 
 	rm.AppendGoDefs(buf, CodeGenOptions{
-		SkipUtils: options.SkipPrelude,
+		SkipUtils:    options.SkipPrelude,
+		SkipComments: options.SkipPrelude,
 	})
 
 	src := buf.Bytes()

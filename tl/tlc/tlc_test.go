@@ -15,11 +15,10 @@ func TestSimple(t *testing.T) {
     `)
 	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        // TLNearestDc represents nearestDc from TL schema
         type TLNearestDc struct {
-            Country   string // country: string
-            ThisDc    int    // this_dc: int
-            NearestDc int    // nearest_dc: int
+            Country   string
+            ThisDc    int   
+            NearestDc int   
         }
 
         func (s *TLNearestDc) Cmd() uint32 {
@@ -38,7 +37,6 @@ func TestSimple(t *testing.T) {
             w.WriteInt(s.NearestDc)
         }
 
-        // TLHelpGetNearestDc represents help.getNearestDc from TL schema
         type TLHelpGetNearestDc struct {
         }
 
@@ -80,9 +78,8 @@ func TestInt(t *testing.T) {
     `)
 	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        // TLFoo represents foo from TL schema
         type TLFoo struct {
-            Bar int // bar: int
+            Bar int
         }
 
         func (s *TLFoo) Cmd() uint32 {
@@ -121,9 +118,8 @@ func TestBigInt(t *testing.T) {
     `)
 	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        // TLResPQ represents resPQ from TL schema
         type TLResPQ struct {
-            PQ *big.Int // pq: bytes
+            PQ *big.Int
         }
 
         func (s *TLResPQ) Cmd() uint32 {
@@ -162,9 +158,8 @@ func TestVectorBareInt(t *testing.T) {
     `)
 	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        // TLFoo represents foo from TL schema
         type TLFoo struct {
-            Bar []int // bar: Vector<int>
+            Bar []int
         }
 
         func (s *TLFoo) Cmd() uint32 {
@@ -213,9 +208,8 @@ func TestBareVectorBareInt(t *testing.T) {
     `)
 	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        // TLFoo represents foo from TL schema
         type TLFoo struct {
-            Bar []int // bar: %Vector<int>
+            Bar []int
         }
 
         func (s *TLFoo) Cmd() uint32 {
@@ -261,9 +255,8 @@ func TestBareVectorBareStruct(t *testing.T) {
     `)
 	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        // TLFoo represents foo from TL schema
         type TLFoo struct {
-            Bar []*TLBoz // bar: vector<%Boz>
+            Bar []*TLBoz
         }
 
         func (s *TLFoo) Cmd() uint32 {
@@ -285,7 +278,6 @@ func TestBareVectorBareStruct(t *testing.T) {
             }
         }   
 
-        // TLBoz represents boz from TL schema
         type TLBoz struct {
         }
 
@@ -328,9 +320,8 @@ func TestBareVectorBoxedStruct(t *testing.T) {
     `)
 	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        // TLFoo represents foo from TL schema
         type TLFoo struct {
-            Bar []*TLBoz // bar: vector<Boz>
+            Bar []*TLBoz
         }
 
         func (s *TLFoo) Cmd() uint32 {
@@ -356,7 +347,6 @@ func TestBareVectorBoxedStruct(t *testing.T) {
             }
         }   
 
-        // TLBoz represents boz from TL schema
         type TLBoz struct {
         }
 
@@ -399,7 +389,6 @@ func TestMultiCtorType(t *testing.T) {
     `)
 	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        // TLFooType represents Foo from TL schema
         type TLFooType interface {
             IsTLFoo()
             Cmd() uint32
@@ -407,9 +396,8 @@ func TestMultiCtorType(t *testing.T) {
             WriteBareTo(w *tl.Writer)
         }
 
-        // TLFoo represents foo from TL schema
         type TLFoo struct {
-            X int // x: int
+            X int
         }
 
         func (s *TLFoo) IsTLFoo() {}
@@ -426,9 +414,8 @@ func TestMultiCtorType(t *testing.T) {
             w.WriteInt(s.X)
         }
 
-        // TLBar represents bar from TL schema
         type TLBar struct {
-            Y string // y: string
+            Y string
         }
 
         func (s *TLBar) IsTLFoo() {}
