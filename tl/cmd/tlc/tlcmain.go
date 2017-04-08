@@ -49,7 +49,7 @@ func main() {
 		var options tlschema.ParseOptions
 		if schemaName == "mtproto" {
 			schema = knownschemas.MTProtoSchema
-			options.Origin = schemaName + ".tl"
+			options.Origin = "MTProto"
 			options.Alterations = &tlschema.Alterations{
 				Renamings: map[string]string{
 					"message": "proto_message",
@@ -65,7 +65,7 @@ func main() {
 			}
 		} else if schemaName == "telegram" {
 			schema = knownschemas.TelegramSchema
-			options.Origin = schemaName + ".tl"
+			options.Origin = "Telegram"
 		} else if strings.Contains(schemaName, ".") {
 			fmt.Fprintf(os.Stderr, "** Reading schema from file isn't implemented yet\n")
 			os.Exit(1)

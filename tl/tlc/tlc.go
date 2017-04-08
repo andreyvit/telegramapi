@@ -14,6 +14,12 @@ type Options struct {
 	SkipPrelude bool
 }
 
+type originInfo struct {
+	Name   string
+	GoName string
+	Combs  []uint32
+}
+
 func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 	rm := NewReprMapper(sch)
 	rm.Finalize()
@@ -75,6 +81,57 @@ func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 			idx++
 		}
 		buf.WriteString(")\n")
+
+		var origins []*originInfo
+		var originMap = make(map[string]*originInfo)
+
+		for _, comb := range sch.Combs() {
+			if comb.IsInternal {
+				continue
+			}
+			if comb.Tag == 0 {
+				continue
+			}
+			orig := originMap[comb.Origin]
+			if orig == nil {
+				orig = &originInfo{Name: comb.Origin, GoName: "SchemaOrigin" + tlschema.ToGoName(comb.Origin)}
+				originMap[comb.Origin] = orig
+				origins = append(origins, orig)
+			}
+			orig.Combs = append(orig.Combs, comb.Tag)
+		}
+
+		buf.WriteString("\n")
+		buf.WriteString("type SchemaOrigin int\n")
+		buf.WriteString("\n")
+		buf.WriteString("const (\n")
+		for i, orig := range origins {
+			buf.WriteString("\t")
+			buf.WriteString(orig.GoName)
+			if i == 0 {
+				buf.WriteString(" SchemaOrigin = 1 + iota")
+			}
+			buf.WriteString("\n")
+		}
+		buf.WriteString(")\n")
+
+		buf.WriteString("\n")
+		buf.WriteString("var combOrigins = map[uint32]SchemaOrigin{\n")
+		for _, comb := range sch.Combs() {
+			if comb.IsInternal {
+				continue
+			}
+			if comb.Tag == 0 {
+				continue
+			}
+			orig := originMap[comb.Origin]
+			buf.WriteString("\t")
+			buf.WriteString(IDConstName(comb))
+			buf.WriteString(": ")
+			buf.WriteString(orig.GoName)
+			buf.WriteString(",\n")
+		}
+		buf.WriteString("}\n")
 	}
 
 	rm.AppendGoDefs(buf, CodeGenOptions{
