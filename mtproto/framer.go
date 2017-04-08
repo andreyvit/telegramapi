@@ -101,7 +101,8 @@ func (fr *Framer) Format(msg Msg) ([]byte, error) {
 }
 
 func (fr *Framer) Parse(raw []byte) (Msg, error) {
-	r := tl.ReadRaw(raw)
+	var r tl.Reader
+	r.Reset(raw)
 
 	authKeyID, ok := r.TryReadUint64()
 	if !ok {

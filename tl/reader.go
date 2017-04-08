@@ -35,10 +35,6 @@ func NewReader(data []byte) *Reader {
 	return r
 }
 
-func ReadRaw(data []byte) Reader {
-	return Reader{data, 0, nil}
-}
-
 func (r *Reader) Reset(data []byte) {
 	*r = Reader{data, 0, nil}
 }
