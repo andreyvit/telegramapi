@@ -5406,8 +5406,8 @@ func (o *TLReqPQ) String() string {
 type TLReqDHParams struct {
 	Nonce                [16]byte // nonce:int128
 	ServerNonce          [16]byte // server_nonce:int128
-	P                    []byte   // p:bytes
-	Q                    []byte   // q:bytes
+	P                    *big.Int // p:bytes
+	Q                    *big.Int // q:bytes
 	PublicKeyFingerprint uint64   // public_key_fingerprint:long
 	EncryptedData        []byte   // encrypted_data:bytes
 }
@@ -5419,8 +5419,8 @@ func (o *TLReqDHParams) Cmd() uint32 {
 func (o *TLReqDHParams) ReadBareFrom(r *tl.Reader) {
 	r.ReadUint128(o.Nonce[:])
 	r.ReadUint128(o.ServerNonce[:])
-	o.P = r.ReadBlob()
-	o.Q = r.ReadBlob()
+	o.P = r.ReadBigInt()
+	o.Q = r.ReadBigInt()
 	o.PublicKeyFingerprint = r.ReadUint64()
 	o.EncryptedData = r.ReadBlob()
 }
@@ -5428,8 +5428,8 @@ func (o *TLReqDHParams) ReadBareFrom(r *tl.Reader) {
 func (o *TLReqDHParams) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(o.Nonce[:])
 	w.WriteUint128(o.ServerNonce[:])
-	w.WriteBlob(o.P)
-	w.WriteBlob(o.Q)
+	w.WriteBigInt(o.P)
+	w.WriteBigInt(o.Q)
 	w.WriteUint64(o.PublicKeyFingerprint)
 	w.WriteBlob(o.EncryptedData)
 }

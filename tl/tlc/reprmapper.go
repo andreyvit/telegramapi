@@ -40,6 +40,8 @@ func NewReprMapper(sch *tlschema.Schema) *ReprMapper {
 			"p_q_inner_data:pq":             "bigint_",
 			"p_q_inner_data:p":              "bigint_",
 			"p_q_inner_data:q":              "bigint_",
+			"req_DH_params:p":               "bigint_",
+			"req_DH_params:q":               "bigint_",
 			"server_DH_inner_data:dh_prime": "bigint_",
 			"server_DH_inner_data:g_a":      "bigint_",
 			"client_DH_inner_data:g_b":      "bigint_",
