@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// from mtproto.tl
+// from MTProto
 const (
 	TagResPQ                   uint32 = 0x05162463
 	TagPQInnerData                    = 0x83c95aec
@@ -54,7 +54,7 @@ const (
 	TagHttpWait                       = 0x9299359f
 )
 
-// from telegram.tl
+// from Telegram
 const (
 	TagError                                  uint32 = 0xc4b9f9bb
 	TagNull                                          = 0x56730bcc
@@ -820,7 +820,818 @@ const (
 	TagVector           = 0x1cb5c415
 )
 
-// TLResPQ represents ctor resPQ#05162463 nonce:int128 server_nonce:int128 pq:bytes server_public_key_fingerprints:Vector<long> = ResPQ from mtproto.tl
+type SchemaOrigin int
+
+const (
+	SchemaOriginMTProto SchemaOrigin = 1 + iota
+	SchemaOriginTelegram
+	SchemaOriginBuiltin
+)
+
+var combOrigins = map[uint32]SchemaOrigin{
+	TagResPQ:                                  SchemaOriginMTProto,
+	TagPQInnerData:                            SchemaOriginMTProto,
+	TagServerDHParamsFail:                     SchemaOriginMTProto,
+	TagServerDHParamsOK:                       SchemaOriginMTProto,
+	TagServerDHInnerData:                      SchemaOriginMTProto,
+	TagClientDHInnerData:                      SchemaOriginMTProto,
+	TagDHGenOK:                                SchemaOriginMTProto,
+	TagDHGenRetry:                             SchemaOriginMTProto,
+	TagDHGenFail:                              SchemaOriginMTProto,
+	TagRpcResult:                              SchemaOriginMTProto,
+	TagRpcError:                               SchemaOriginMTProto,
+	TagRpcAnswerUnknown:                       SchemaOriginMTProto,
+	TagRpcAnswerDroppedRunning:                SchemaOriginMTProto,
+	TagRpcAnswerDropped:                       SchemaOriginMTProto,
+	TagFutureSalt:                             SchemaOriginMTProto,
+	TagFutureSalts:                            SchemaOriginMTProto,
+	TagPong:                                   SchemaOriginMTProto,
+	TagDestroySessionOK:                       SchemaOriginMTProto,
+	TagDestroySessionNone:                     SchemaOriginMTProto,
+	TagNewSessionCreated:                      SchemaOriginMTProto,
+	TagMsgContainer:                           SchemaOriginMTProto,
+	TagProtoMessage:                           SchemaOriginMTProto,
+	TagMsgCopy:                                SchemaOriginMTProto,
+	TagGzipPacked:                             SchemaOriginMTProto,
+	TagMsgsAck:                                SchemaOriginMTProto,
+	TagBadMsgNotification:                     SchemaOriginMTProto,
+	TagBadServerSalt:                          SchemaOriginMTProto,
+	TagMsgResendReq:                           SchemaOriginMTProto,
+	TagMsgsStateReq:                           SchemaOriginMTProto,
+	TagMsgsStateInfo:                          SchemaOriginMTProto,
+	TagMsgsAllInfo:                            SchemaOriginMTProto,
+	TagMsgDetailedInfo:                        SchemaOriginMTProto,
+	TagMsgNewDetailedInfo:                     SchemaOriginMTProto,
+	TagReqPQ:                                  SchemaOriginMTProto,
+	TagReqDHParams:                            SchemaOriginMTProto,
+	TagSetClientDHParams:                      SchemaOriginMTProto,
+	TagRpcDropAnswer:                          SchemaOriginMTProto,
+	TagGetFutureSalts:                         SchemaOriginMTProto,
+	TagPing:                                   SchemaOriginMTProto,
+	TagPingDelayDisconnect:                    SchemaOriginMTProto,
+	TagDestroySession:                         SchemaOriginMTProto,
+	TagHttpWait:                               SchemaOriginMTProto,
+	TagError:                                  SchemaOriginTelegram,
+	TagNull:                                   SchemaOriginTelegram,
+	TagInputPeerEmpty:                         SchemaOriginTelegram,
+	TagInputPeerSelf:                          SchemaOriginTelegram,
+	TagInputPeerChat:                          SchemaOriginTelegram,
+	TagInputPeerUser:                          SchemaOriginTelegram,
+	TagInputPeerChannel:                       SchemaOriginTelegram,
+	TagInputUserEmpty:                         SchemaOriginTelegram,
+	TagInputUserSelf:                          SchemaOriginTelegram,
+	TagInputUser:                              SchemaOriginTelegram,
+	TagInputPhoneContact:                      SchemaOriginTelegram,
+	TagInputFile:                              SchemaOriginTelegram,
+	TagInputFileBig:                           SchemaOriginTelegram,
+	TagInputMediaEmpty:                        SchemaOriginTelegram,
+	TagInputMediaUploadedPhoto:                SchemaOriginTelegram,
+	TagInputMediaPhoto:                        SchemaOriginTelegram,
+	TagInputMediaGeoPoint:                     SchemaOriginTelegram,
+	TagInputMediaContact:                      SchemaOriginTelegram,
+	TagInputMediaUploadedDocument:             SchemaOriginTelegram,
+	TagInputMediaUploadedThumbDocument:        SchemaOriginTelegram,
+	TagInputMediaDocument:                     SchemaOriginTelegram,
+	TagInputMediaVenue:                        SchemaOriginTelegram,
+	TagInputMediaGifExternal:                  SchemaOriginTelegram,
+	TagInputMediaPhotoExternal:                SchemaOriginTelegram,
+	TagInputMediaDocumentExternal:             SchemaOriginTelegram,
+	TagInputMediaGame:                         SchemaOriginTelegram,
+	TagInputMediaInvoice:                      SchemaOriginTelegram,
+	TagInputChatPhotoEmpty:                    SchemaOriginTelegram,
+	TagInputChatUploadedPhoto:                 SchemaOriginTelegram,
+	TagInputChatPhoto:                         SchemaOriginTelegram,
+	TagInputGeoPointEmpty:                     SchemaOriginTelegram,
+	TagInputGeoPoint:                          SchemaOriginTelegram,
+	TagInputPhotoEmpty:                        SchemaOriginTelegram,
+	TagInputPhoto:                             SchemaOriginTelegram,
+	TagInputFileLocation:                      SchemaOriginTelegram,
+	TagInputEncryptedFileLocation:             SchemaOriginTelegram,
+	TagInputDocumentFileLocation:              SchemaOriginTelegram,
+	TagInputAppEvent:                          SchemaOriginTelegram,
+	TagPeerUser:                               SchemaOriginTelegram,
+	TagPeerChat:                               SchemaOriginTelegram,
+	TagPeerChannel:                            SchemaOriginTelegram,
+	TagStorageFileUnknown:                     SchemaOriginTelegram,
+	TagStorageFilePartial:                     SchemaOriginTelegram,
+	TagStorageFileJpeg:                        SchemaOriginTelegram,
+	TagStorageFileGif:                         SchemaOriginTelegram,
+	TagStorageFilePng:                         SchemaOriginTelegram,
+	TagStorageFilePdf:                         SchemaOriginTelegram,
+	TagStorageFileMp3:                         SchemaOriginTelegram,
+	TagStorageFileMov:                         SchemaOriginTelegram,
+	TagStorageFileMp4:                         SchemaOriginTelegram,
+	TagStorageFileWebp:                        SchemaOriginTelegram,
+	TagFileLocationUnavailable:                SchemaOriginTelegram,
+	TagFileLocation:                           SchemaOriginTelegram,
+	TagUserEmpty:                              SchemaOriginTelegram,
+	TagUser:                                   SchemaOriginTelegram,
+	TagUserProfilePhotoEmpty:                  SchemaOriginTelegram,
+	TagUserProfilePhoto:                       SchemaOriginTelegram,
+	TagUserStatusEmpty:                        SchemaOriginTelegram,
+	TagUserStatusOnline:                       SchemaOriginTelegram,
+	TagUserStatusOffline:                      SchemaOriginTelegram,
+	TagUserStatusRecently:                     SchemaOriginTelegram,
+	TagUserStatusLastWeek:                     SchemaOriginTelegram,
+	TagUserStatusLastMonth:                    SchemaOriginTelegram,
+	TagChatEmpty:                              SchemaOriginTelegram,
+	TagChat:                                   SchemaOriginTelegram,
+	TagChatForbidden:                          SchemaOriginTelegram,
+	TagChannel:                                SchemaOriginTelegram,
+	TagChannelForbidden:                       SchemaOriginTelegram,
+	TagChatFull:                               SchemaOriginTelegram,
+	TagChannelFull:                            SchemaOriginTelegram,
+	TagChatParticipant:                        SchemaOriginTelegram,
+	TagChatParticipantCreator:                 SchemaOriginTelegram,
+	TagChatParticipantAdmin:                   SchemaOriginTelegram,
+	TagChatParticipantsForbidden:              SchemaOriginTelegram,
+	TagChatParticipants:                       SchemaOriginTelegram,
+	TagChatPhotoEmpty:                         SchemaOriginTelegram,
+	TagChatPhoto:                              SchemaOriginTelegram,
+	TagMessageEmpty:                           SchemaOriginTelegram,
+	TagMessage:                                SchemaOriginTelegram,
+	TagMessageService:                         SchemaOriginTelegram,
+	TagMessageMediaEmpty:                      SchemaOriginTelegram,
+	TagMessageMediaPhoto:                      SchemaOriginTelegram,
+	TagMessageMediaGeo:                        SchemaOriginTelegram,
+	TagMessageMediaContact:                    SchemaOriginTelegram,
+	TagMessageMediaUnsupported:                SchemaOriginTelegram,
+	TagMessageMediaDocument:                   SchemaOriginTelegram,
+	TagMessageMediaWebPage:                    SchemaOriginTelegram,
+	TagMessageMediaVenue:                      SchemaOriginTelegram,
+	TagMessageMediaGame:                       SchemaOriginTelegram,
+	TagMessageMediaInvoice:                    SchemaOriginTelegram,
+	TagMessageActionEmpty:                     SchemaOriginTelegram,
+	TagMessageActionChatCreate:                SchemaOriginTelegram,
+	TagMessageActionChatEditTitle:             SchemaOriginTelegram,
+	TagMessageActionChatEditPhoto:             SchemaOriginTelegram,
+	TagMessageActionChatDeletePhoto:           SchemaOriginTelegram,
+	TagMessageActionChatAddUser:               SchemaOriginTelegram,
+	TagMessageActionChatDeleteUser:            SchemaOriginTelegram,
+	TagMessageActionChatJoinedByLink:          SchemaOriginTelegram,
+	TagMessageActionChannelCreate:             SchemaOriginTelegram,
+	TagMessageActionChatMigrateTo:             SchemaOriginTelegram,
+	TagMessageActionChannelMigrateFrom:        SchemaOriginTelegram,
+	TagMessageActionPinMessage:                SchemaOriginTelegram,
+	TagMessageActionHistoryClear:              SchemaOriginTelegram,
+	TagMessageActionGameScore:                 SchemaOriginTelegram,
+	TagMessageActionPaymentSentMe:             SchemaOriginTelegram,
+	TagMessageActionPaymentSent:               SchemaOriginTelegram,
+	TagMessageActionPhoneCall:                 SchemaOriginTelegram,
+	TagDialog:                                 SchemaOriginTelegram,
+	TagPhotoEmpty:                             SchemaOriginTelegram,
+	TagPhoto:                                  SchemaOriginTelegram,
+	TagPhotoSizeEmpty:                         SchemaOriginTelegram,
+	TagPhotoSize:                              SchemaOriginTelegram,
+	TagPhotoCachedSize:                        SchemaOriginTelegram,
+	TagGeoPointEmpty:                          SchemaOriginTelegram,
+	TagGeoPoint:                               SchemaOriginTelegram,
+	TagAuthCheckedPhone:                       SchemaOriginTelegram,
+	TagAuthSentCode:                           SchemaOriginTelegram,
+	TagAuthAuthorization:                      SchemaOriginTelegram,
+	TagAuthExportedAuthorization:              SchemaOriginTelegram,
+	TagInputNotifyPeer:                        SchemaOriginTelegram,
+	TagInputNotifyUsers:                       SchemaOriginTelegram,
+	TagInputNotifyChats:                       SchemaOriginTelegram,
+	TagInputNotifyAll:                         SchemaOriginTelegram,
+	TagInputPeerNotifyEventsEmpty:             SchemaOriginTelegram,
+	TagInputPeerNotifyEventsAll:               SchemaOriginTelegram,
+	TagInputPeerNotifySettings:                SchemaOriginTelegram,
+	TagPeerNotifyEventsEmpty:                  SchemaOriginTelegram,
+	TagPeerNotifyEventsAll:                    SchemaOriginTelegram,
+	TagPeerNotifySettingsEmpty:                SchemaOriginTelegram,
+	TagPeerNotifySettings:                     SchemaOriginTelegram,
+	TagPeerSettings:                           SchemaOriginTelegram,
+	TagWallPaper:                              SchemaOriginTelegram,
+	TagWallPaperSolid:                         SchemaOriginTelegram,
+	TagInputReportReasonSpam:                  SchemaOriginTelegram,
+	TagInputReportReasonViolence:              SchemaOriginTelegram,
+	TagInputReportReasonPornography:           SchemaOriginTelegram,
+	TagInputReportReasonOther:                 SchemaOriginTelegram,
+	TagUserFull:                               SchemaOriginTelegram,
+	TagContact:                                SchemaOriginTelegram,
+	TagImportedContact:                        SchemaOriginTelegram,
+	TagContactBlocked:                         SchemaOriginTelegram,
+	TagContactStatus:                          SchemaOriginTelegram,
+	TagContactsLink:                           SchemaOriginTelegram,
+	TagContactsContactsNotModified:            SchemaOriginTelegram,
+	TagContactsContacts:                       SchemaOriginTelegram,
+	TagContactsImportedContacts:               SchemaOriginTelegram,
+	TagContactsBlocked:                        SchemaOriginTelegram,
+	TagContactsBlockedSlice:                   SchemaOriginTelegram,
+	TagMessagesDialogs:                        SchemaOriginTelegram,
+	TagMessagesDialogsSlice:                   SchemaOriginTelegram,
+	TagMessagesMessages:                       SchemaOriginTelegram,
+	TagMessagesMessagesSlice:                  SchemaOriginTelegram,
+	TagMessagesChannelMessages:                SchemaOriginTelegram,
+	TagMessagesChats:                          SchemaOriginTelegram,
+	TagMessagesChatsSlice:                     SchemaOriginTelegram,
+	TagMessagesChatFull:                       SchemaOriginTelegram,
+	TagMessagesAffectedHistory:                SchemaOriginTelegram,
+	TagInputMessagesFilterEmpty:               SchemaOriginTelegram,
+	TagInputMessagesFilterPhotos:              SchemaOriginTelegram,
+	TagInputMessagesFilterVideo:               SchemaOriginTelegram,
+	TagInputMessagesFilterPhotoVideo:          SchemaOriginTelegram,
+	TagInputMessagesFilterPhotoVideoDocuments: SchemaOriginTelegram,
+	TagInputMessagesFilterDocument:            SchemaOriginTelegram,
+	TagInputMessagesFilterUrl:                 SchemaOriginTelegram,
+	TagInputMessagesFilterGif:                 SchemaOriginTelegram,
+	TagInputMessagesFilterVoice:               SchemaOriginTelegram,
+	TagInputMessagesFilterMusic:               SchemaOriginTelegram,
+	TagInputMessagesFilterChatPhotos:          SchemaOriginTelegram,
+	TagInputMessagesFilterPhoneCalls:          SchemaOriginTelegram,
+	TagUpdateNewMessage:                       SchemaOriginTelegram,
+	TagUpdateMessageID:                        SchemaOriginTelegram,
+	TagUpdateDeleteMessages:                   SchemaOriginTelegram,
+	TagUpdateUserTyping:                       SchemaOriginTelegram,
+	TagUpdateChatUserTyping:                   SchemaOriginTelegram,
+	TagUpdateChatParticipants:                 SchemaOriginTelegram,
+	TagUpdateUserStatus:                       SchemaOriginTelegram,
+	TagUpdateUserName:                         SchemaOriginTelegram,
+	TagUpdateUserPhoto:                        SchemaOriginTelegram,
+	TagUpdateContactRegistered:                SchemaOriginTelegram,
+	TagUpdateContactLink:                      SchemaOriginTelegram,
+	TagUpdateNewEncryptedMessage:              SchemaOriginTelegram,
+	TagUpdateEncryptedChatTyping:              SchemaOriginTelegram,
+	TagUpdateEncryption:                       SchemaOriginTelegram,
+	TagUpdateEncryptedMessagesRead:            SchemaOriginTelegram,
+	TagUpdateChatParticipantAdd:               SchemaOriginTelegram,
+	TagUpdateChatParticipantDelete:            SchemaOriginTelegram,
+	TagUpdateDcOptions:                        SchemaOriginTelegram,
+	TagUpdateUserBlocked:                      SchemaOriginTelegram,
+	TagUpdateNotifySettings:                   SchemaOriginTelegram,
+	TagUpdateServiceNotification:              SchemaOriginTelegram,
+	TagUpdatePrivacy:                          SchemaOriginTelegram,
+	TagUpdateUserPhone:                        SchemaOriginTelegram,
+	TagUpdateReadHistoryInbox:                 SchemaOriginTelegram,
+	TagUpdateReadHistoryOutbox:                SchemaOriginTelegram,
+	TagUpdateWebPage:                          SchemaOriginTelegram,
+	TagUpdateReadMessagesContents:             SchemaOriginTelegram,
+	TagUpdateChannelTooLong:                   SchemaOriginTelegram,
+	TagUpdateChannel:                          SchemaOriginTelegram,
+	TagUpdateNewChannelMessage:                SchemaOriginTelegram,
+	TagUpdateReadChannelInbox:                 SchemaOriginTelegram,
+	TagUpdateDeleteChannelMessages:            SchemaOriginTelegram,
+	TagUpdateChannelMessageViews:              SchemaOriginTelegram,
+	TagUpdateChatAdmins:                       SchemaOriginTelegram,
+	TagUpdateChatParticipantAdmin:             SchemaOriginTelegram,
+	TagUpdateNewStickerSet:                    SchemaOriginTelegram,
+	TagUpdateStickerSetsOrder:                 SchemaOriginTelegram,
+	TagUpdateStickerSets:                      SchemaOriginTelegram,
+	TagUpdateSavedGifs:                        SchemaOriginTelegram,
+	TagUpdateBotInlineQuery:                   SchemaOriginTelegram,
+	TagUpdateBotInlineSend:                    SchemaOriginTelegram,
+	TagUpdateEditChannelMessage:               SchemaOriginTelegram,
+	TagUpdateChannelPinnedMessage:             SchemaOriginTelegram,
+	TagUpdateBotCallbackQuery:                 SchemaOriginTelegram,
+	TagUpdateEditMessage:                      SchemaOriginTelegram,
+	TagUpdateInlineBotCallbackQuery:           SchemaOriginTelegram,
+	TagUpdateReadChannelOutbox:                SchemaOriginTelegram,
+	TagUpdateDraftMessage:                     SchemaOriginTelegram,
+	TagUpdateReadFeaturedStickers:             SchemaOriginTelegram,
+	TagUpdateRecentStickers:                   SchemaOriginTelegram,
+	TagUpdateConfig:                           SchemaOriginTelegram,
+	TagUpdatePtsChanged:                       SchemaOriginTelegram,
+	TagUpdateChannelWebPage:                   SchemaOriginTelegram,
+	TagUpdateDialogPinned:                     SchemaOriginTelegram,
+	TagUpdatePinnedDialogs:                    SchemaOriginTelegram,
+	TagUpdateBotWebhookJSON:                   SchemaOriginTelegram,
+	TagUpdateBotWebhookJSONQuery:              SchemaOriginTelegram,
+	TagUpdateBotShippingQuery:                 SchemaOriginTelegram,
+	TagUpdateBotPrecheckoutQuery:              SchemaOriginTelegram,
+	TagUpdatePhoneCall:                        SchemaOriginTelegram,
+	TagUpdatesState:                           SchemaOriginTelegram,
+	TagUpdatesDifferenceEmpty:                 SchemaOriginTelegram,
+	TagUpdatesDifference:                      SchemaOriginTelegram,
+	TagUpdatesDifferenceSlice:                 SchemaOriginTelegram,
+	TagUpdatesDifferenceTooLong:               SchemaOriginTelegram,
+	TagUpdatesTooLong:                         SchemaOriginTelegram,
+	TagUpdateShortMessage:                     SchemaOriginTelegram,
+	TagUpdateShortChatMessage:                 SchemaOriginTelegram,
+	TagUpdateShort:                            SchemaOriginTelegram,
+	TagUpdatesCombined:                        SchemaOriginTelegram,
+	TagUpdates:                                SchemaOriginTelegram,
+	TagUpdateShortSentMessage:                 SchemaOriginTelegram,
+	TagPhotosPhotos:                           SchemaOriginTelegram,
+	TagPhotosPhotosSlice:                      SchemaOriginTelegram,
+	TagPhotosPhoto:                            SchemaOriginTelegram,
+	TagUploadFile:                             SchemaOriginTelegram,
+	TagDcOption:                               SchemaOriginTelegram,
+	TagConfig:                                 SchemaOriginTelegram,
+	TagNearestDc:                              SchemaOriginTelegram,
+	TagHelpAppUpdate:                          SchemaOriginTelegram,
+	TagHelpNoAppUpdate:                        SchemaOriginTelegram,
+	TagHelpInviteText:                         SchemaOriginTelegram,
+	TagEncryptedChatEmpty:                     SchemaOriginTelegram,
+	TagEncryptedChatWaiting:                   SchemaOriginTelegram,
+	TagEncryptedChatRequested:                 SchemaOriginTelegram,
+	TagEncryptedChat:                          SchemaOriginTelegram,
+	TagEncryptedChatDiscarded:                 SchemaOriginTelegram,
+	TagInputEncryptedChat:                     SchemaOriginTelegram,
+	TagEncryptedFileEmpty:                     SchemaOriginTelegram,
+	TagEncryptedFile:                          SchemaOriginTelegram,
+	TagInputEncryptedFileEmpty:                SchemaOriginTelegram,
+	TagInputEncryptedFileUploaded:             SchemaOriginTelegram,
+	TagInputEncryptedFile:                     SchemaOriginTelegram,
+	TagInputEncryptedFileBigUploaded:          SchemaOriginTelegram,
+	TagEncryptedMessage:                       SchemaOriginTelegram,
+	TagEncryptedMessageService:                SchemaOriginTelegram,
+	TagMessagesDHConfigNotModified:            SchemaOriginTelegram,
+	TagMessagesDHConfig:                       SchemaOriginTelegram,
+	TagMessagesSentEncryptedMessage:           SchemaOriginTelegram,
+	TagMessagesSentEncryptedFile:              SchemaOriginTelegram,
+	TagInputDocumentEmpty:                     SchemaOriginTelegram,
+	TagInputDocument:                          SchemaOriginTelegram,
+	TagDocumentEmpty:                          SchemaOriginTelegram,
+	TagDocument:                               SchemaOriginTelegram,
+	TagHelpSupport:                            SchemaOriginTelegram,
+	TagNotifyPeer:                             SchemaOriginTelegram,
+	TagNotifyUsers:                            SchemaOriginTelegram,
+	TagNotifyChats:                            SchemaOriginTelegram,
+	TagNotifyAll:                              SchemaOriginTelegram,
+	TagSendMessageTypingAction:                SchemaOriginTelegram,
+	TagSendMessageCancelAction:                SchemaOriginTelegram,
+	TagSendMessageRecordVideoAction:           SchemaOriginTelegram,
+	TagSendMessageUploadVideoAction:           SchemaOriginTelegram,
+	TagSendMessageRecordAudioAction:           SchemaOriginTelegram,
+	TagSendMessageUploadAudioAction:           SchemaOriginTelegram,
+	TagSendMessageUploadPhotoAction:           SchemaOriginTelegram,
+	TagSendMessageUploadDocumentAction:        SchemaOriginTelegram,
+	TagSendMessageGeoLocationAction:           SchemaOriginTelegram,
+	TagSendMessageChooseContactAction:         SchemaOriginTelegram,
+	TagSendMessageGamePlayAction:              SchemaOriginTelegram,
+	TagContactsFound:                          SchemaOriginTelegram,
+	TagInputPrivacyKeyStatusTimestamp:         SchemaOriginTelegram,
+	TagInputPrivacyKeyChatInvite:              SchemaOriginTelegram,
+	TagInputPrivacyKeyPhoneCall:               SchemaOriginTelegram,
+	TagPrivacyKeyStatusTimestamp:              SchemaOriginTelegram,
+	TagPrivacyKeyChatInvite:                   SchemaOriginTelegram,
+	TagPrivacyKeyPhoneCall:                    SchemaOriginTelegram,
+	TagInputPrivacyValueAllowContacts:         SchemaOriginTelegram,
+	TagInputPrivacyValueAllowAll:              SchemaOriginTelegram,
+	TagInputPrivacyValueAllowUsers:            SchemaOriginTelegram,
+	TagInputPrivacyValueDisallowContacts:      SchemaOriginTelegram,
+	TagInputPrivacyValueDisallowAll:           SchemaOriginTelegram,
+	TagInputPrivacyValueDisallowUsers:         SchemaOriginTelegram,
+	TagPrivacyValueAllowContacts:              SchemaOriginTelegram,
+	TagPrivacyValueAllowAll:                   SchemaOriginTelegram,
+	TagPrivacyValueAllowUsers:                 SchemaOriginTelegram,
+	TagPrivacyValueDisallowContacts:           SchemaOriginTelegram,
+	TagPrivacyValueDisallowAll:                SchemaOriginTelegram,
+	TagPrivacyValueDisallowUsers:              SchemaOriginTelegram,
+	TagAccountPrivacyRules:                    SchemaOriginTelegram,
+	TagAccountDaysTTL:                         SchemaOriginTelegram,
+	TagDocumentAttributeImageSize:             SchemaOriginTelegram,
+	TagDocumentAttributeAnimated:              SchemaOriginTelegram,
+	TagDocumentAttributeSticker:               SchemaOriginTelegram,
+	TagDocumentAttributeVideo:                 SchemaOriginTelegram,
+	TagDocumentAttributeAudio:                 SchemaOriginTelegram,
+	TagDocumentAttributeFilename:              SchemaOriginTelegram,
+	TagDocumentAttributeHasStickers:           SchemaOriginTelegram,
+	TagMessagesStickersNotModified:            SchemaOriginTelegram,
+	TagMessagesStickers:                       SchemaOriginTelegram,
+	TagStickerPack:                            SchemaOriginTelegram,
+	TagMessagesAllStickersNotModified:         SchemaOriginTelegram,
+	TagMessagesAllStickers:                    SchemaOriginTelegram,
+	TagDisabledFeature:                        SchemaOriginTelegram,
+	TagMessagesAffectedMessages:               SchemaOriginTelegram,
+	TagContactLinkUnknown:                     SchemaOriginTelegram,
+	TagContactLinkNone:                        SchemaOriginTelegram,
+	TagContactLinkHasPhone:                    SchemaOriginTelegram,
+	TagContactLinkContact:                     SchemaOriginTelegram,
+	TagWebPageEmpty:                           SchemaOriginTelegram,
+	TagWebPagePending:                         SchemaOriginTelegram,
+	TagWebPage:                                SchemaOriginTelegram,
+	TagWebPageNotModified:                     SchemaOriginTelegram,
+	TagAuthorization:                          SchemaOriginTelegram,
+	TagAccountAuthorizations:                  SchemaOriginTelegram,
+	TagAccountNoPassword:                      SchemaOriginTelegram,
+	TagAccountPassword:                        SchemaOriginTelegram,
+	TagAccountPasswordSettings:                SchemaOriginTelegram,
+	TagAccountPasswordInputSettings:           SchemaOriginTelegram,
+	TagAuthPasswordRecovery:                   SchemaOriginTelegram,
+	TagReceivedNotifyMessage:                  SchemaOriginTelegram,
+	TagChatInviteEmpty:                        SchemaOriginTelegram,
+	TagChatInviteExported:                     SchemaOriginTelegram,
+	TagChatInviteAlready:                      SchemaOriginTelegram,
+	TagChatInvite:                             SchemaOriginTelegram,
+	TagInputStickerSetEmpty:                   SchemaOriginTelegram,
+	TagInputStickerSetID:                      SchemaOriginTelegram,
+	TagInputStickerSetShortName:               SchemaOriginTelegram,
+	TagStickerSet:                             SchemaOriginTelegram,
+	TagMessagesStickerSet:                     SchemaOriginTelegram,
+	TagBotCommand:                             SchemaOriginTelegram,
+	TagBotInfo:                                SchemaOriginTelegram,
+	TagKeyboardButton:                         SchemaOriginTelegram,
+	TagKeyboardButtonUrl:                      SchemaOriginTelegram,
+	TagKeyboardButtonCallback:                 SchemaOriginTelegram,
+	TagKeyboardButtonRequestPhone:             SchemaOriginTelegram,
+	TagKeyboardButtonRequestGeoLocation:       SchemaOriginTelegram,
+	TagKeyboardButtonSwitchInline:             SchemaOriginTelegram,
+	TagKeyboardButtonGame:                     SchemaOriginTelegram,
+	TagKeyboardButtonBuy:                      SchemaOriginTelegram,
+	TagKeyboardButtonRow:                      SchemaOriginTelegram,
+	TagReplyKeyboardHide:                      SchemaOriginTelegram,
+	TagReplyKeyboardForceReply:                SchemaOriginTelegram,
+	TagReplyKeyboardMarkup:                    SchemaOriginTelegram,
+	TagReplyInlineMarkup:                      SchemaOriginTelegram,
+	TagMessageEntityUnknown:                   SchemaOriginTelegram,
+	TagMessageEntityMention:                   SchemaOriginTelegram,
+	TagMessageEntityHashtag:                   SchemaOriginTelegram,
+	TagMessageEntityBotCommand:                SchemaOriginTelegram,
+	TagMessageEntityUrl:                       SchemaOriginTelegram,
+	TagMessageEntityEmail:                     SchemaOriginTelegram,
+	TagMessageEntityBold:                      SchemaOriginTelegram,
+	TagMessageEntityItalic:                    SchemaOriginTelegram,
+	TagMessageEntityCode:                      SchemaOriginTelegram,
+	TagMessageEntityPre:                       SchemaOriginTelegram,
+	TagMessageEntityTextUrl:                   SchemaOriginTelegram,
+	TagMessageEntityMentionName:               SchemaOriginTelegram,
+	TagInputMessageEntityMentionName:          SchemaOriginTelegram,
+	TagInputChannelEmpty:                      SchemaOriginTelegram,
+	TagInputChannel:                           SchemaOriginTelegram,
+	TagContactsResolvedPeer:                   SchemaOriginTelegram,
+	TagMessageRange:                           SchemaOriginTelegram,
+	TagUpdatesChannelDifferenceEmpty:          SchemaOriginTelegram,
+	TagUpdatesChannelDifferenceTooLong:        SchemaOriginTelegram,
+	TagUpdatesChannelDifference:               SchemaOriginTelegram,
+	TagChannelMessagesFilterEmpty:             SchemaOriginTelegram,
+	TagChannelMessagesFilter:                  SchemaOriginTelegram,
+	TagChannelParticipant:                     SchemaOriginTelegram,
+	TagChannelParticipantSelf:                 SchemaOriginTelegram,
+	TagChannelParticipantModerator:            SchemaOriginTelegram,
+	TagChannelParticipantEditor:               SchemaOriginTelegram,
+	TagChannelParticipantKicked:               SchemaOriginTelegram,
+	TagChannelParticipantCreator:              SchemaOriginTelegram,
+	TagChannelParticipantsRecent:              SchemaOriginTelegram,
+	TagChannelParticipantsAdmins:              SchemaOriginTelegram,
+	TagChannelParticipantsKicked:              SchemaOriginTelegram,
+	TagChannelParticipantsBots:                SchemaOriginTelegram,
+	TagChannelRoleEmpty:                       SchemaOriginTelegram,
+	TagChannelRoleModerator:                   SchemaOriginTelegram,
+	TagChannelRoleEditor:                      SchemaOriginTelegram,
+	TagChannelsChannelParticipants:            SchemaOriginTelegram,
+	TagChannelsChannelParticipant:             SchemaOriginTelegram,
+	TagHelpTermsOfService:                     SchemaOriginTelegram,
+	TagFoundGif:                               SchemaOriginTelegram,
+	TagFoundGifCached:                         SchemaOriginTelegram,
+	TagMessagesFoundGifs:                      SchemaOriginTelegram,
+	TagMessagesSavedGifsNotModified:           SchemaOriginTelegram,
+	TagMessagesSavedGifs:                      SchemaOriginTelegram,
+	TagInputBotInlineMessageMediaAuto:         SchemaOriginTelegram,
+	TagInputBotInlineMessageText:              SchemaOriginTelegram,
+	TagInputBotInlineMessageMediaGeo:          SchemaOriginTelegram,
+	TagInputBotInlineMessageMediaVenue:        SchemaOriginTelegram,
+	TagInputBotInlineMessageMediaContact:      SchemaOriginTelegram,
+	TagInputBotInlineMessageGame:              SchemaOriginTelegram,
+	TagInputBotInlineResult:                   SchemaOriginTelegram,
+	TagInputBotInlineResultPhoto:              SchemaOriginTelegram,
+	TagInputBotInlineResultDocument:           SchemaOriginTelegram,
+	TagInputBotInlineResultGame:               SchemaOriginTelegram,
+	TagBotInlineMessageMediaAuto:              SchemaOriginTelegram,
+	TagBotInlineMessageText:                   SchemaOriginTelegram,
+	TagBotInlineMessageMediaGeo:               SchemaOriginTelegram,
+	TagBotInlineMessageMediaVenue:             SchemaOriginTelegram,
+	TagBotInlineMessageMediaContact:           SchemaOriginTelegram,
+	TagBotInlineResult:                        SchemaOriginTelegram,
+	TagBotInlineMediaResult:                   SchemaOriginTelegram,
+	TagMessagesBotResults:                     SchemaOriginTelegram,
+	TagExportedMessageLink:                    SchemaOriginTelegram,
+	TagMessageFwdHeader:                       SchemaOriginTelegram,
+	TagAuthCodeTypeSms:                        SchemaOriginTelegram,
+	TagAuthCodeTypeCall:                       SchemaOriginTelegram,
+	TagAuthCodeTypeFlashCall:                  SchemaOriginTelegram,
+	TagAuthSentCodeTypeApp:                    SchemaOriginTelegram,
+	TagAuthSentCodeTypeSms:                    SchemaOriginTelegram,
+	TagAuthSentCodeTypeCall:                   SchemaOriginTelegram,
+	TagAuthSentCodeTypeFlashCall:              SchemaOriginTelegram,
+	TagMessagesBotCallbackAnswer:              SchemaOriginTelegram,
+	TagMessagesMessageEditData:                SchemaOriginTelegram,
+	TagInputBotInlineMessageID:                SchemaOriginTelegram,
+	TagInlineBotSwitchPM:                      SchemaOriginTelegram,
+	TagMessagesPeerDialogs:                    SchemaOriginTelegram,
+	TagTopPeer:                                SchemaOriginTelegram,
+	TagTopPeerCategoryBotsPM:                  SchemaOriginTelegram,
+	TagTopPeerCategoryBotsInline:              SchemaOriginTelegram,
+	TagTopPeerCategoryCorrespondents:          SchemaOriginTelegram,
+	TagTopPeerCategoryGroups:                  SchemaOriginTelegram,
+	TagTopPeerCategoryChannels:                SchemaOriginTelegram,
+	TagTopPeerCategoryPeers:                   SchemaOriginTelegram,
+	TagContactsTopPeersNotModified:            SchemaOriginTelegram,
+	TagContactsTopPeers:                       SchemaOriginTelegram,
+	TagDraftMessageEmpty:                      SchemaOriginTelegram,
+	TagDraftMessage:                           SchemaOriginTelegram,
+	TagMessagesFeaturedStickersNotModified:    SchemaOriginTelegram,
+	TagMessagesFeaturedStickers:               SchemaOriginTelegram,
+	TagMessagesRecentStickersNotModified:      SchemaOriginTelegram,
+	TagMessagesRecentStickers:                 SchemaOriginTelegram,
+	TagMessagesArchivedStickers:               SchemaOriginTelegram,
+	TagMessagesStickerSetInstallResultSuccess: SchemaOriginTelegram,
+	TagMessagesStickerSetInstallResultArchive: SchemaOriginTelegram,
+	TagStickerSetCovered:                      SchemaOriginTelegram,
+	TagStickerSetMultiCovered:                 SchemaOriginTelegram,
+	TagMaskCoords:                             SchemaOriginTelegram,
+	TagInputStickeredMediaPhoto:               SchemaOriginTelegram,
+	TagInputStickeredMediaDocument:            SchemaOriginTelegram,
+	TagGame:                             SchemaOriginTelegram,
+	TagInputGameID:                      SchemaOriginTelegram,
+	TagInputGameShortName:               SchemaOriginTelegram,
+	TagHighScore:                        SchemaOriginTelegram,
+	TagMessagesHighScores:               SchemaOriginTelegram,
+	TagTextEmpty:                        SchemaOriginTelegram,
+	TagTextPlain:                        SchemaOriginTelegram,
+	TagTextBold:                         SchemaOriginTelegram,
+	TagTextItalic:                       SchemaOriginTelegram,
+	TagTextUnderline:                    SchemaOriginTelegram,
+	TagTextStrike:                       SchemaOriginTelegram,
+	TagTextFixed:                        SchemaOriginTelegram,
+	TagTextUrl:                          SchemaOriginTelegram,
+	TagTextEmail:                        SchemaOriginTelegram,
+	TagTextConcat:                       SchemaOriginTelegram,
+	TagPageBlockUnsupported:             SchemaOriginTelegram,
+	TagPageBlockTitle:                   SchemaOriginTelegram,
+	TagPageBlockSubtitle:                SchemaOriginTelegram,
+	TagPageBlockAuthorDate:              SchemaOriginTelegram,
+	TagPageBlockHeader:                  SchemaOriginTelegram,
+	TagPageBlockSubheader:               SchemaOriginTelegram,
+	TagPageBlockParagraph:               SchemaOriginTelegram,
+	TagPageBlockPreformatted:            SchemaOriginTelegram,
+	TagPageBlockFooter:                  SchemaOriginTelegram,
+	TagPageBlockDivider:                 SchemaOriginTelegram,
+	TagPageBlockAnchor:                  SchemaOriginTelegram,
+	TagPageBlockList:                    SchemaOriginTelegram,
+	TagPageBlockBlockquote:              SchemaOriginTelegram,
+	TagPageBlockPullquote:               SchemaOriginTelegram,
+	TagPageBlockPhoto:                   SchemaOriginTelegram,
+	TagPageBlockVideo:                   SchemaOriginTelegram,
+	TagPageBlockCover:                   SchemaOriginTelegram,
+	TagPageBlockEmbed:                   SchemaOriginTelegram,
+	TagPageBlockEmbedPost:               SchemaOriginTelegram,
+	TagPageBlockCollage:                 SchemaOriginTelegram,
+	TagPageBlockSlideshow:               SchemaOriginTelegram,
+	TagPagePart:                         SchemaOriginTelegram,
+	TagPageFull:                         SchemaOriginTelegram,
+	TagPhoneCallDiscardReasonMissed:     SchemaOriginTelegram,
+	TagPhoneCallDiscardReasonDisconnect: SchemaOriginTelegram,
+	TagPhoneCallDiscardReasonHangup:     SchemaOriginTelegram,
+	TagPhoneCallDiscardReasonBusy:       SchemaOriginTelegram,
+	TagDataJSON:                         SchemaOriginTelegram,
+	TagLabeledPrice:                     SchemaOriginTelegram,
+	TagInvoice:                          SchemaOriginTelegram,
+	TagPaymentCharge:                    SchemaOriginTelegram,
+	TagPostAddress:                      SchemaOriginTelegram,
+	TagPaymentRequestedInfo:             SchemaOriginTelegram,
+	TagPaymentSavedCredentialsCard:      SchemaOriginTelegram,
+	TagWebDocument:                      SchemaOriginTelegram,
+	TagInputWebDocument:                 SchemaOriginTelegram,
+	TagInputWebFileLocation:             SchemaOriginTelegram,
+	TagUploadWebFile:                    SchemaOriginTelegram,
+	TagPaymentsPaymentForm:              SchemaOriginTelegram,
+	TagPaymentsValidatedRequestedInfo:   SchemaOriginTelegram,
+	TagPaymentsPaymentResult:            SchemaOriginTelegram,
+	TagPaymentsPaymentVerficationNeeded: SchemaOriginTelegram,
+	TagPaymentsPaymentReceipt:           SchemaOriginTelegram,
+	TagPaymentsSavedInfo:                SchemaOriginTelegram,
+	TagInputPaymentCredentialsSaved:     SchemaOriginTelegram,
+	TagInputPaymentCredentials:          SchemaOriginTelegram,
+	TagAccountTmpPassword:               SchemaOriginTelegram,
+	TagShippingOption:                   SchemaOriginTelegram,
+	TagInputPhoneCall:                   SchemaOriginTelegram,
+	TagPhoneCallEmpty:                   SchemaOriginTelegram,
+	TagPhoneCallWaiting:                 SchemaOriginTelegram,
+	TagPhoneCallRequested:               SchemaOriginTelegram,
+	TagPhoneCallAccepted:                SchemaOriginTelegram,
+	TagPhoneCall:                        SchemaOriginTelegram,
+	TagPhoneCallDiscarded:               SchemaOriginTelegram,
+	TagPhoneConnection:                  SchemaOriginTelegram,
+	TagPhoneCallProtocol:                SchemaOriginTelegram,
+	TagPhonePhoneCall:                   SchemaOriginTelegram,
+	TagInvokeAfterMsg:                   SchemaOriginTelegram,
+	TagInvokeAfterMsgs:                  SchemaOriginTelegram,
+	TagInitConnection:                   SchemaOriginTelegram,
+	TagInvokeWithLayer:                  SchemaOriginTelegram,
+	TagInvokeWithoutUpdates:             SchemaOriginTelegram,
+	TagAuthCheckPhone:                   SchemaOriginTelegram,
+	TagAuthSendCode:                     SchemaOriginTelegram,
+	TagAuthSignUp:                       SchemaOriginTelegram,
+	TagAuthSignIn:                       SchemaOriginTelegram,
+	TagAuthLogOut:                       SchemaOriginTelegram,
+	TagAuthResetAuthorizations:          SchemaOriginTelegram,
+	TagAuthSendInvites:                  SchemaOriginTelegram,
+	TagAuthExportAuthorization:          SchemaOriginTelegram,
+	TagAuthImportAuthorization:          SchemaOriginTelegram,
+	TagAuthBindTempAuthKey:              SchemaOriginTelegram,
+	TagAuthImportBotAuthorization:       SchemaOriginTelegram,
+	TagAuthCheckPassword:                SchemaOriginTelegram,
+	TagAuthRequestPasswordRecovery:      SchemaOriginTelegram,
+	TagAuthRecoverPassword:              SchemaOriginTelegram,
+	TagAuthResendCode:                   SchemaOriginTelegram,
+	TagAuthCancelCode:                   SchemaOriginTelegram,
+	TagAuthDropTempAuthKeys:             SchemaOriginTelegram,
+	TagAccountRegisterDevice:            SchemaOriginTelegram,
+	TagAccountUnregisterDevice:          SchemaOriginTelegram,
+	TagAccountUpdateNotifySettings:      SchemaOriginTelegram,
+	TagAccountGetNotifySettings:         SchemaOriginTelegram,
+	TagAccountResetNotifySettings:       SchemaOriginTelegram,
+	TagAccountUpdateProfile:             SchemaOriginTelegram,
+	TagAccountUpdateStatus:              SchemaOriginTelegram,
+	TagAccountGetWallPapers:             SchemaOriginTelegram,
+	TagAccountReportPeer:                SchemaOriginTelegram,
+	TagAccountCheckUsername:             SchemaOriginTelegram,
+	TagAccountUpdateUsername:            SchemaOriginTelegram,
+	TagAccountGetPrivacy:                SchemaOriginTelegram,
+	TagAccountSetPrivacy:                SchemaOriginTelegram,
+	TagAccountDeleteAccount:             SchemaOriginTelegram,
+	TagAccountGetAccountTTL:             SchemaOriginTelegram,
+	TagAccountSetAccountTTL:             SchemaOriginTelegram,
+	TagAccountSendChangePhoneCode:       SchemaOriginTelegram,
+	TagAccountChangePhone:               SchemaOriginTelegram,
+	TagAccountUpdateDeviceLocked:        SchemaOriginTelegram,
+	TagAccountGetAuthorizations:         SchemaOriginTelegram,
+	TagAccountResetAuthorization:        SchemaOriginTelegram,
+	TagAccountGetPassword:               SchemaOriginTelegram,
+	TagAccountGetPasswordSettings:       SchemaOriginTelegram,
+	TagAccountUpdatePasswordSettings:    SchemaOriginTelegram,
+	TagAccountSendConfirmPhoneCode:      SchemaOriginTelegram,
+	TagAccountConfirmPhone:              SchemaOriginTelegram,
+	TagAccountGetTmpPassword:            SchemaOriginTelegram,
+	TagUsersGetUsers:                    SchemaOriginTelegram,
+	TagUsersGetFullUser:                 SchemaOriginTelegram,
+	TagContactsGetStatuses:              SchemaOriginTelegram,
+	TagContactsGetContacts:              SchemaOriginTelegram,
+	TagContactsImportContacts:           SchemaOriginTelegram,
+	TagContactsDeleteContact:            SchemaOriginTelegram,
+	TagContactsDeleteContacts:           SchemaOriginTelegram,
+	TagContactsBlock:                    SchemaOriginTelegram,
+	TagContactsUnblock:                  SchemaOriginTelegram,
+	TagContactsGetBlocked:               SchemaOriginTelegram,
+	TagContactsExportCard:               SchemaOriginTelegram,
+	TagContactsImportCard:               SchemaOriginTelegram,
+	TagContactsSearch:                   SchemaOriginTelegram,
+	TagContactsResolveUsername:          SchemaOriginTelegram,
+	TagContactsGetTopPeers:              SchemaOriginTelegram,
+	TagContactsResetTopPeerRating:       SchemaOriginTelegram,
+	TagMessagesGetMessages:              SchemaOriginTelegram,
+	TagMessagesGetDialogs:               SchemaOriginTelegram,
+	TagMessagesGetHistory:               SchemaOriginTelegram,
+	TagMessagesSearch:                   SchemaOriginTelegram,
+	TagMessagesReadHistory:              SchemaOriginTelegram,
+	TagMessagesDeleteHistory:            SchemaOriginTelegram,
+	TagMessagesDeleteMessages:           SchemaOriginTelegram,
+	TagMessagesReceivedMessages:         SchemaOriginTelegram,
+	TagMessagesSetTyping:                SchemaOriginTelegram,
+	TagMessagesSendMessage:              SchemaOriginTelegram,
+	TagMessagesSendMedia:                SchemaOriginTelegram,
+	TagMessagesForwardMessages:          SchemaOriginTelegram,
+	TagMessagesReportSpam:               SchemaOriginTelegram,
+	TagMessagesHideReportSpam:           SchemaOriginTelegram,
+	TagMessagesGetPeerSettings:          SchemaOriginTelegram,
+	TagMessagesGetChats:                 SchemaOriginTelegram,
+	TagMessagesGetFullChat:              SchemaOriginTelegram,
+	TagMessagesEditChatTitle:            SchemaOriginTelegram,
+	TagMessagesEditChatPhoto:            SchemaOriginTelegram,
+	TagMessagesAddChatUser:              SchemaOriginTelegram,
+	TagMessagesDeleteChatUser:           SchemaOriginTelegram,
+	TagMessagesCreateChat:               SchemaOriginTelegram,
+	TagMessagesForwardMessage:           SchemaOriginTelegram,
+	TagMessagesGetDHConfig:              SchemaOriginTelegram,
+	TagMessagesRequestEncryption:        SchemaOriginTelegram,
+	TagMessagesAcceptEncryption:         SchemaOriginTelegram,
+	TagMessagesDiscardEncryption:        SchemaOriginTelegram,
+	TagMessagesSetEncryptedTyping:       SchemaOriginTelegram,
+	TagMessagesReadEncryptedHistory:     SchemaOriginTelegram,
+	TagMessagesSendEncrypted:            SchemaOriginTelegram,
+	TagMessagesSendEncryptedFile:        SchemaOriginTelegram,
+	TagMessagesSendEncryptedService:     SchemaOriginTelegram,
+	TagMessagesReceivedQueue:            SchemaOriginTelegram,
+	TagMessagesReportEncryptedSpam:      SchemaOriginTelegram,
+	TagMessagesReadMessageContents:      SchemaOriginTelegram,
+	TagMessagesGetAllStickers:           SchemaOriginTelegram,
+	TagMessagesGetWebPagePreview:        SchemaOriginTelegram,
+	TagMessagesExportChatInvite:         SchemaOriginTelegram,
+	TagMessagesCheckChatInvite:          SchemaOriginTelegram,
+	TagMessagesImportChatInvite:         SchemaOriginTelegram,
+	TagMessagesGetStickerSet:            SchemaOriginTelegram,
+	TagMessagesInstallStickerSet:        SchemaOriginTelegram,
+	TagMessagesUninstallStickerSet:      SchemaOriginTelegram,
+	TagMessagesStartBot:                 SchemaOriginTelegram,
+	TagMessagesGetMessagesViews:         SchemaOriginTelegram,
+	TagMessagesToggleChatAdmins:         SchemaOriginTelegram,
+	TagMessagesEditChatAdmin:            SchemaOriginTelegram,
+	TagMessagesMigrateChat:              SchemaOriginTelegram,
+	TagMessagesSearchGlobal:             SchemaOriginTelegram,
+	TagMessagesReorderStickerSets:       SchemaOriginTelegram,
+	TagMessagesGetDocumentByHash:        SchemaOriginTelegram,
+	TagMessagesSearchGifs:               SchemaOriginTelegram,
+	TagMessagesGetSavedGifs:             SchemaOriginTelegram,
+	TagMessagesSaveGif:                  SchemaOriginTelegram,
+	TagMessagesGetInlineBotResults:      SchemaOriginTelegram,
+	TagMessagesSetInlineBotResults:      SchemaOriginTelegram,
+	TagMessagesSendInlineBotResult:      SchemaOriginTelegram,
+	TagMessagesGetMessageEditData:       SchemaOriginTelegram,
+	TagMessagesEditMessage:              SchemaOriginTelegram,
+	TagMessagesEditInlineBotMessage:     SchemaOriginTelegram,
+	TagMessagesGetBotCallbackAnswer:     SchemaOriginTelegram,
+	TagMessagesSetBotCallbackAnswer:     SchemaOriginTelegram,
+	TagMessagesGetPeerDialogs:           SchemaOriginTelegram,
+	TagMessagesSaveDraft:                SchemaOriginTelegram,
+	TagMessagesGetAllDrafts:             SchemaOriginTelegram,
+	TagMessagesGetFeaturedStickers:      SchemaOriginTelegram,
+	TagMessagesReadFeaturedStickers:     SchemaOriginTelegram,
+	TagMessagesGetRecentStickers:        SchemaOriginTelegram,
+	TagMessagesSaveRecentSticker:        SchemaOriginTelegram,
+	TagMessagesClearRecentStickers:      SchemaOriginTelegram,
+	TagMessagesGetArchivedStickers:      SchemaOriginTelegram,
+	TagMessagesGetMaskStickers:          SchemaOriginTelegram,
+	TagMessagesGetAttachedStickers:      SchemaOriginTelegram,
+	TagMessagesSetGameScore:             SchemaOriginTelegram,
+	TagMessagesSetInlineGameScore:       SchemaOriginTelegram,
+	TagMessagesGetGameHighScores:        SchemaOriginTelegram,
+	TagMessagesGetInlineGameHighScores:  SchemaOriginTelegram,
+	TagMessagesGetCommonChats:           SchemaOriginTelegram,
+	TagMessagesGetAllChats:              SchemaOriginTelegram,
+	TagMessagesGetWebPage:               SchemaOriginTelegram,
+	TagMessagesToggleDialogPin:          SchemaOriginTelegram,
+	TagMessagesReorderPinnedDialogs:     SchemaOriginTelegram,
+	TagMessagesGetPinnedDialogs:         SchemaOriginTelegram,
+	TagMessagesSetBotShippingResults:    SchemaOriginTelegram,
+	TagMessagesSetBotPrecheckoutResults: SchemaOriginTelegram,
+	TagUpdatesGetState:                  SchemaOriginTelegram,
+	TagUpdatesGetDifference:             SchemaOriginTelegram,
+	TagUpdatesGetChannelDifference:      SchemaOriginTelegram,
+	TagPhotosUpdateProfilePhoto:         SchemaOriginTelegram,
+	TagPhotosUploadProfilePhoto:         SchemaOriginTelegram,
+	TagPhotosDeletePhotos:               SchemaOriginTelegram,
+	TagPhotosGetUserPhotos:              SchemaOriginTelegram,
+	TagUploadSaveFilePart:               SchemaOriginTelegram,
+	TagUploadGetFile:                    SchemaOriginTelegram,
+	TagUploadSaveBigFilePart:            SchemaOriginTelegram,
+	TagUploadGetWebFile:                 SchemaOriginTelegram,
+	TagHelpGetConfig:                    SchemaOriginTelegram,
+	TagHelpGetNearestDc:                 SchemaOriginTelegram,
+	TagHelpGetAppUpdate:                 SchemaOriginTelegram,
+	TagHelpSaveAppLog:                   SchemaOriginTelegram,
+	TagHelpGetInviteText:                SchemaOriginTelegram,
+	TagHelpGetSupport:                   SchemaOriginTelegram,
+	TagHelpGetAppChangelog:              SchemaOriginTelegram,
+	TagHelpGetTermsOfService:            SchemaOriginTelegram,
+	TagHelpSetBotUpdatesStatus:          SchemaOriginTelegram,
+	TagChannelsReadHistory:              SchemaOriginTelegram,
+	TagChannelsDeleteMessages:           SchemaOriginTelegram,
+	TagChannelsDeleteUserHistory:        SchemaOriginTelegram,
+	TagChannelsReportSpam:               SchemaOriginTelegram,
+	TagChannelsGetMessages:              SchemaOriginTelegram,
+	TagChannelsGetParticipants:          SchemaOriginTelegram,
+	TagChannelsGetParticipant:           SchemaOriginTelegram,
+	TagChannelsGetChannels:              SchemaOriginTelegram,
+	TagChannelsGetFullChannel:           SchemaOriginTelegram,
+	TagChannelsCreateChannel:            SchemaOriginTelegram,
+	TagChannelsEditAbout:                SchemaOriginTelegram,
+	TagChannelsEditAdmin:                SchemaOriginTelegram,
+	TagChannelsEditTitle:                SchemaOriginTelegram,
+	TagChannelsEditPhoto:                SchemaOriginTelegram,
+	TagChannelsCheckUsername:            SchemaOriginTelegram,
+	TagChannelsUpdateUsername:           SchemaOriginTelegram,
+	TagChannelsJoinChannel:              SchemaOriginTelegram,
+	TagChannelsLeaveChannel:             SchemaOriginTelegram,
+	TagChannelsInviteToChannel:          SchemaOriginTelegram,
+	TagChannelsKickFromChannel:          SchemaOriginTelegram,
+	TagChannelsExportInvite:             SchemaOriginTelegram,
+	TagChannelsDeleteChannel:            SchemaOriginTelegram,
+	TagChannelsToggleInvites:            SchemaOriginTelegram,
+	TagChannelsExportMessageLink:        SchemaOriginTelegram,
+	TagChannelsToggleSignatures:         SchemaOriginTelegram,
+	TagChannelsUpdatePinnedMessage:      SchemaOriginTelegram,
+	TagChannelsGetAdminedPublicChannels: SchemaOriginTelegram,
+	TagBotsSendCustomRequest:            SchemaOriginTelegram,
+	TagBotsAnswerWebhookJSONQuery:       SchemaOriginTelegram,
+	TagPaymentsGetPaymentForm:           SchemaOriginTelegram,
+	TagPaymentsGetPaymentReceipt:        SchemaOriginTelegram,
+	TagPaymentsValidateRequestedInfo:    SchemaOriginTelegram,
+	TagPaymentsSendPaymentForm:          SchemaOriginTelegram,
+	TagPaymentsGetSavedInfo:             SchemaOriginTelegram,
+	TagPaymentsClearSavedInfo:           SchemaOriginTelegram,
+	TagPhoneGetCallConfig:               SchemaOriginTelegram,
+	TagPhoneRequestCall:                 SchemaOriginTelegram,
+	TagPhoneAcceptCall:                  SchemaOriginTelegram,
+	TagPhoneConfirmCall:                 SchemaOriginTelegram,
+	TagPhoneReceivedCall:                SchemaOriginTelegram,
+	TagPhoneDiscardCall:                 SchemaOriginTelegram,
+	TagPhoneSetCallRating:               SchemaOriginTelegram,
+	TagPhoneSaveCallDebug:               SchemaOriginTelegram,
+	TagTrue:                             SchemaOriginBuiltin,
+	TagBoolFalse:                        SchemaOriginBuiltin,
+	TagBoolTrue:                         SchemaOriginBuiltin,
+	TagString:                           SchemaOriginBuiltin,
+	TagInt:                              SchemaOriginBuiltin,
+	TagLong:                             SchemaOriginBuiltin,
+	TagDouble:                           SchemaOriginBuiltin,
+	TagBytes:                            SchemaOriginBuiltin,
+	TagObject:                           SchemaOriginBuiltin,
+	TagVector:                           SchemaOriginBuiltin,
+}
+
+// TLResPQ represents ctor resPQ#05162463 nonce:int128 server_nonce:int128 pq:bytes server_public_key_fingerprints:Vector<long> = ResPQ from MTProto
 type TLResPQ struct {
 	Nonce                       [16]byte // nonce:int128
 	ServerNonce                 [16]byte // server_nonce:int128
@@ -860,7 +1671,7 @@ func (o *TLResPQ) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPQInnerData represents ctor p_q_inner_data#83c95aec pq:bytes p:bytes q:bytes nonce:int128 server_nonce:int128 new_nonce:int256 = P_Q_inner_data from mtproto.tl
+// TLPQInnerData represents ctor p_q_inner_data#83c95aec pq:bytes p:bytes q:bytes nonce:int128 server_nonce:int128 new_nonce:int256 = P_Q_inner_data from MTProto
 type TLPQInnerData struct {
 	PQ          *big.Int // pq:bytes
 	P           *big.Int // p:bytes
@@ -896,7 +1707,7 @@ func (o *TLPQInnerData) String() string {
 	return tl.Pretty(o)
 }
 
-// TLServerDHParamsType represents Server_DH_Params from mtproto.tl
+// TLServerDHParamsType represents Server_DH_Params from MTProto
 type TLServerDHParamsType interface {
 	IsTLServerDHParams()
 	Cmd() uint32
@@ -904,7 +1715,7 @@ type TLServerDHParamsType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLServerDHInnerData represents ctor server_DH_inner_data#b5890dba nonce:int128 server_nonce:int128 g:int dh_prime:bytes g_a:bytes server_time:int = Server_DH_inner_data from mtproto.tl
+// TLServerDHInnerData represents ctor server_DH_inner_data#b5890dba nonce:int128 server_nonce:int128 g:int dh_prime:bytes g_a:bytes server_time:int = Server_DH_inner_data from MTProto
 type TLServerDHInnerData struct {
 	Nonce       [16]byte  // nonce:int128
 	ServerNonce [16]byte  // server_nonce:int128
@@ -940,7 +1751,7 @@ func (o *TLServerDHInnerData) String() string {
 	return tl.Pretty(o)
 }
 
-// TLClientDHInnerData represents ctor client_DH_inner_data#6643b654 nonce:int128 server_nonce:int128 retry_id:long g_b:bytes = Client_DH_Inner_Data from mtproto.tl
+// TLClientDHInnerData represents ctor client_DH_inner_data#6643b654 nonce:int128 server_nonce:int128 retry_id:long g_b:bytes = Client_DH_Inner_Data from MTProto
 type TLClientDHInnerData struct {
 	Nonce       [16]byte // nonce:int128
 	ServerNonce [16]byte // server_nonce:int128
@@ -970,7 +1781,7 @@ func (o *TLClientDHInnerData) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSetClientDHParamsAnswerType represents Set_client_DH_params_answer from mtproto.tl
+// TLSetClientDHParamsAnswerType represents Set_client_DH_params_answer from MTProto
 type TLSetClientDHParamsAnswerType interface {
 	IsTLSetClientDHParamsAnswer()
 	Cmd() uint32
@@ -978,7 +1789,7 @@ type TLSetClientDHParamsAnswerType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLRpcResult represents ctor rpc_result#f35c6d01 req_msg_id:long result:Object = RpcResult from mtproto.tl
+// TLRpcResult represents ctor rpc_result#f35c6d01 req_msg_id:long result:Object = RpcResult from MTProto
 type TLRpcResult struct {
 	ReqMsgId uint64    // req_msg_id:long
 	Result   tl.Object // result:Object
@@ -1003,7 +1814,7 @@ func (o *TLRpcResult) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcError represents ctor rpc_error#2144ca19 error_code:int error_message:string = RpcError from mtproto.tl
+// TLRpcError represents ctor rpc_error#2144ca19 error_code:int error_message:string = RpcError from MTProto
 type TLRpcError struct {
 	ErrorCode    int    // error_code:int
 	ErrorMessage string // error_message:string
@@ -1027,7 +1838,7 @@ func (o *TLRpcError) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcDropAnswerType represents RpcDropAnswer from mtproto.tl
+// TLRpcDropAnswerType represents RpcDropAnswer from MTProto
 type TLRpcDropAnswerType interface {
 	IsTLRpcDropAnswer()
 	Cmd() uint32
@@ -1035,7 +1846,7 @@ type TLRpcDropAnswerType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLFutureSalt represents ctor future_salt#0949d9dc valid_since:int valid_until:int salt:long = FutureSalt from mtproto.tl
+// TLFutureSalt represents ctor future_salt#0949d9dc valid_since:int valid_until:int salt:long = FutureSalt from MTProto
 type TLFutureSalt struct {
 	ValidSince int    // valid_since:int
 	ValidUntil int    // valid_until:int
@@ -1062,7 +1873,7 @@ func (o *TLFutureSalt) String() string {
 	return tl.Pretty(o)
 }
 
-// TLFutureSalts represents ctor future_salts#ae500895 req_msg_id:long now:int salts:vector<future_salt> = FutureSalts from mtproto.tl
+// TLFutureSalts represents ctor future_salts#ae500895 req_msg_id:long now:int salts:vector<future_salt> = FutureSalts from MTProto
 type TLFutureSalts struct {
 	ReqMsgId uint64          // req_msg_id:long
 	Now      int             // now:int
@@ -1096,7 +1907,7 @@ func (o *TLFutureSalts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPong represents ctor pong#347773c5 msg_id:long ping_id:long = Pong from mtproto.tl
+// TLPong represents ctor pong#347773c5 msg_id:long ping_id:long = Pong from MTProto
 type TLPong struct {
 	MsgId  uint64 // msg_id:long
 	PingId uint64 // ping_id:long
@@ -1120,7 +1931,7 @@ func (o *TLPong) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDestroySessionResType represents DestroySessionRes from mtproto.tl
+// TLDestroySessionResType represents DestroySessionRes from MTProto
 type TLDestroySessionResType interface {
 	IsTLDestroySessionRes()
 	Cmd() uint32
@@ -1128,7 +1939,7 @@ type TLDestroySessionResType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLNewSessionCreated represents ctor new_session_created#9ec20908 first_msg_id:long unique_id:long server_salt:long = NewSession from mtproto.tl
+// TLNewSessionCreated represents ctor new_session_created#9ec20908 first_msg_id:long unique_id:long server_salt:long = NewSession from MTProto
 type TLNewSessionCreated struct {
 	FirstMsgId uint64 // first_msg_id:long
 	UniqueId   uint64 // unique_id:long
@@ -1155,7 +1966,7 @@ func (o *TLNewSessionCreated) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMsgContainer represents ctor msg_container#73f1f8dc messages:vector<%ProtoMessage> = MessageContainer from mtproto.tl
+// TLMsgContainer represents ctor msg_container#73f1f8dc messages:vector<%ProtoMessage> = MessageContainer from MTProto
 type TLMsgContainer struct {
 	Messages []*TLProtoMessage // messages:vector<%ProtoMessage>
 }
@@ -1183,7 +1994,7 @@ func (o *TLMsgContainer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLProtoMessage represents ctor proto_message#5bb8e511 msg_id:long seqno:int bytes:int body:Object = ProtoMessage from mtproto.tl
+// TLProtoMessage represents ctor proto_message#5bb8e511 msg_id:long seqno:int bytes:int body:Object = ProtoMessage from MTProto
 type TLProtoMessage struct {
 	MsgId uint64    // msg_id:long
 	Seqno int       // seqno:int
@@ -1214,7 +2025,7 @@ func (o *TLProtoMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMsgCopy represents ctor msg_copy#e06046b2 orig_message:Message = MessageCopy from mtproto.tl
+// TLMsgCopy represents ctor msg_copy#e06046b2 orig_message:Message = MessageCopy from MTProto
 type TLMsgCopy struct {
 	OrigMessage TLMessageType // orig_message:Message
 }
@@ -1236,7 +2047,7 @@ func (o *TLMsgCopy) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMsgsAck represents ctor msgs_ack#62d6b459 msg_ids:Vector<long> = MsgsAck from mtproto.tl
+// TLMsgsAck represents ctor msgs_ack#62d6b459 msg_ids:Vector<long> = MsgsAck from MTProto
 type TLMsgsAck struct {
 	MsgIds []uint64 // msg_ids:Vector<long>
 }
@@ -1267,7 +2078,7 @@ func (o *TLMsgsAck) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBadMsgNotificationType represents BadMsgNotification from mtproto.tl
+// TLBadMsgNotificationType represents BadMsgNotification from MTProto
 type TLBadMsgNotificationType interface {
 	IsTLBadMsgNotification()
 	Cmd() uint32
@@ -1275,7 +2086,7 @@ type TLBadMsgNotificationType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMsgResendReq represents ctor msg_resend_req#7d861a08 msg_ids:Vector<long> = MsgResendReq from mtproto.tl
+// TLMsgResendReq represents ctor msg_resend_req#7d861a08 msg_ids:Vector<long> = MsgResendReq from MTProto
 type TLMsgResendReq struct {
 	MsgIds []uint64 // msg_ids:Vector<long>
 }
@@ -1306,7 +2117,7 @@ func (o *TLMsgResendReq) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMsgsStateReq represents ctor msgs_state_req#da69fb52 msg_ids:Vector<long> = MsgsStateReq from mtproto.tl
+// TLMsgsStateReq represents ctor msgs_state_req#da69fb52 msg_ids:Vector<long> = MsgsStateReq from MTProto
 type TLMsgsStateReq struct {
 	MsgIds []uint64 // msg_ids:Vector<long>
 }
@@ -1337,7 +2148,7 @@ func (o *TLMsgsStateReq) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMsgsStateInfo represents ctor msgs_state_info#04deb57d req_msg_id:long info:bytes = MsgsStateInfo from mtproto.tl
+// TLMsgsStateInfo represents ctor msgs_state_info#04deb57d req_msg_id:long info:bytes = MsgsStateInfo from MTProto
 type TLMsgsStateInfo struct {
 	ReqMsgId uint64 // req_msg_id:long
 	Info     []byte // info:bytes
@@ -1361,7 +2172,7 @@ func (o *TLMsgsStateInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMsgsAllInfo represents ctor msgs_all_info#8cc0d131 msg_ids:Vector<long> info:bytes = MsgsAllInfo from mtproto.tl
+// TLMsgsAllInfo represents ctor msgs_all_info#8cc0d131 msg_ids:Vector<long> info:bytes = MsgsAllInfo from MTProto
 type TLMsgsAllInfo struct {
 	MsgIds []uint64 // msg_ids:Vector<long>
 	Info   []byte   // info:bytes
@@ -1395,7 +2206,7 @@ func (o *TLMsgsAllInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMsgDetailedInfoType represents MsgDetailedInfo from mtproto.tl
+// TLMsgDetailedInfoType represents MsgDetailedInfo from MTProto
 type TLMsgDetailedInfoType interface {
 	IsTLMsgDetailedInfo()
 	Cmd() uint32
@@ -1403,7 +2214,7 @@ type TLMsgDetailedInfoType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLError represents ctor error#c4b9f9bb code:int text:string = Error from telegram.tl
+// TLError represents ctor error#c4b9f9bb code:int text:string = Error from Telegram
 type TLError struct {
 	Code int    // code:int
 	Text string // text:string
@@ -1427,7 +2238,7 @@ func (o *TLError) String() string {
 	return tl.Pretty(o)
 }
 
-// TLNull represents ctor null#56730bcc = Null from telegram.tl
+// TLNull represents ctor null#56730bcc = Null from Telegram
 type TLNull struct {
 }
 
@@ -1445,7 +2256,7 @@ func (o *TLNull) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPeerType represents InputPeer from telegram.tl
+// TLInputPeerType represents InputPeer from Telegram
 type TLInputPeerType interface {
 	IsTLInputPeer()
 	Cmd() uint32
@@ -1453,7 +2264,7 @@ type TLInputPeerType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputUserType represents InputUser from telegram.tl
+// TLInputUserType represents InputUser from Telegram
 type TLInputUserType interface {
 	IsTLInputUser()
 	Cmd() uint32
@@ -1461,7 +2272,7 @@ type TLInputUserType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputPhoneContact represents ctor inputPhoneContact#f392b7f4 client_id:long phone:string first_name:string last_name:string = InputContact from telegram.tl
+// TLInputPhoneContact represents ctor inputPhoneContact#f392b7f4 client_id:long phone:string first_name:string last_name:string = InputContact from Telegram
 type TLInputPhoneContact struct {
 	ClientId  uint64 // client_id:long
 	Phone     string // phone:string
@@ -1491,7 +2302,7 @@ func (o *TLInputPhoneContact) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputFileType represents InputFile from telegram.tl
+// TLInputFileType represents InputFile from Telegram
 type TLInputFileType interface {
 	IsTLInputFile()
 	Cmd() uint32
@@ -1499,7 +2310,7 @@ type TLInputFileType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputMediaType represents InputMedia from telegram.tl
+// TLInputMediaType represents InputMedia from Telegram
 type TLInputMediaType interface {
 	IsTLInputMedia()
 	Cmd() uint32
@@ -1507,7 +2318,7 @@ type TLInputMediaType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputChatPhotoType represents InputChatPhoto from telegram.tl
+// TLInputChatPhotoType represents InputChatPhoto from Telegram
 type TLInputChatPhotoType interface {
 	IsTLInputChatPhoto()
 	Cmd() uint32
@@ -1515,7 +2326,7 @@ type TLInputChatPhotoType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputGeoPointType represents InputGeoPoint from telegram.tl
+// TLInputGeoPointType represents InputGeoPoint from Telegram
 type TLInputGeoPointType interface {
 	IsTLInputGeoPoint()
 	Cmd() uint32
@@ -1523,7 +2334,7 @@ type TLInputGeoPointType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputPhotoType represents InputPhoto from telegram.tl
+// TLInputPhotoType represents InputPhoto from Telegram
 type TLInputPhotoType interface {
 	IsTLInputPhoto()
 	Cmd() uint32
@@ -1531,7 +2342,7 @@ type TLInputPhotoType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputFileLocationType represents InputFileLocation from telegram.tl
+// TLInputFileLocationType represents InputFileLocation from Telegram
 type TLInputFileLocationType interface {
 	IsTLInputFileLocation()
 	Cmd() uint32
@@ -1539,7 +2350,7 @@ type TLInputFileLocationType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputAppEvent represents ctor inputAppEvent#770656a8 time:double type:string peer:long data:string = InputAppEvent from telegram.tl
+// TLInputAppEvent represents ctor inputAppEvent#770656a8 time:double type:string peer:long data:string = InputAppEvent from Telegram
 type TLInputAppEvent struct {
 	Time float64 // time:double
 	Type string  // type:string
@@ -1569,7 +2380,7 @@ func (o *TLInputAppEvent) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPeerType represents Peer from telegram.tl
+// TLPeerType represents Peer from Telegram
 type TLPeerType interface {
 	IsTLPeer()
 	Cmd() uint32
@@ -1577,7 +2388,7 @@ type TLPeerType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLStorageFileTypeType represents storage.FileType from telegram.tl
+// TLStorageFileTypeType represents storage.FileType from Telegram
 type TLStorageFileTypeType interface {
 	IsTLStorageFileType()
 	Cmd() uint32
@@ -1585,7 +2396,7 @@ type TLStorageFileTypeType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLFileLocationType represents FileLocation from telegram.tl
+// TLFileLocationType represents FileLocation from Telegram
 type TLFileLocationType interface {
 	IsTLFileLocation()
 	Cmd() uint32
@@ -1593,7 +2404,7 @@ type TLFileLocationType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLUserType represents User from telegram.tl
+// TLUserType represents User from Telegram
 type TLUserType interface {
 	IsTLUser()
 	Cmd() uint32
@@ -1601,7 +2412,7 @@ type TLUserType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLUserProfilePhotoType represents UserProfilePhoto from telegram.tl
+// TLUserProfilePhotoType represents UserProfilePhoto from Telegram
 type TLUserProfilePhotoType interface {
 	IsTLUserProfilePhoto()
 	Cmd() uint32
@@ -1609,7 +2420,7 @@ type TLUserProfilePhotoType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLUserStatusType represents UserStatus from telegram.tl
+// TLUserStatusType represents UserStatus from Telegram
 type TLUserStatusType interface {
 	IsTLUserStatus()
 	Cmd() uint32
@@ -1617,7 +2428,7 @@ type TLUserStatusType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChatType represents Chat from telegram.tl
+// TLChatType represents Chat from Telegram
 type TLChatType interface {
 	IsTLChat()
 	Cmd() uint32
@@ -1625,7 +2436,7 @@ type TLChatType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChatFullType represents ChatFull from telegram.tl
+// TLChatFullType represents ChatFull from Telegram
 type TLChatFullType interface {
 	IsTLChatFull()
 	Cmd() uint32
@@ -1633,7 +2444,7 @@ type TLChatFullType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChatParticipantType represents ChatParticipant from telegram.tl
+// TLChatParticipantType represents ChatParticipant from Telegram
 type TLChatParticipantType interface {
 	IsTLChatParticipant()
 	Cmd() uint32
@@ -1641,7 +2452,7 @@ type TLChatParticipantType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChatParticipantsType represents ChatParticipants from telegram.tl
+// TLChatParticipantsType represents ChatParticipants from Telegram
 type TLChatParticipantsType interface {
 	IsTLChatParticipants()
 	Cmd() uint32
@@ -1649,7 +2460,7 @@ type TLChatParticipantsType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChatPhotoType represents ChatPhoto from telegram.tl
+// TLChatPhotoType represents ChatPhoto from Telegram
 type TLChatPhotoType interface {
 	IsTLChatPhoto()
 	Cmd() uint32
@@ -1657,7 +2468,7 @@ type TLChatPhotoType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessageType represents Message from telegram.tl
+// TLMessageType represents Message from Telegram
 type TLMessageType interface {
 	IsTLMessage()
 	Cmd() uint32
@@ -1665,7 +2476,7 @@ type TLMessageType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessageMediaType represents MessageMedia from telegram.tl
+// TLMessageMediaType represents MessageMedia from Telegram
 type TLMessageMediaType interface {
 	IsTLMessageMedia()
 	Cmd() uint32
@@ -1673,7 +2484,7 @@ type TLMessageMediaType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessageActionType represents MessageAction from telegram.tl
+// TLMessageActionType represents MessageAction from Telegram
 type TLMessageActionType interface {
 	IsTLMessageAction()
 	Cmd() uint32
@@ -1681,7 +2492,7 @@ type TLMessageActionType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLDialog represents ctor dialog#66ffba14 flags:# flags.2?pinned:true peer:Peer top_message:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int notify_settings:PeerNotifySettings flags.0?pts:int flags.1?draft:DraftMessage = Dialog from telegram.tl
+// TLDialog represents ctor dialog#66ffba14 flags:# flags.2?pinned:true peer:Peer top_message:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int notify_settings:PeerNotifySettings flags.0?pts:int flags.1?draft:DraftMessage = Dialog from Telegram
 type TLDialog struct {
 	Flags           uint                     // flags:#
 	Pinned          bool                     // flags.2?pinned:true
@@ -1731,7 +2542,7 @@ func (o *TLDialog) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotoType represents Photo from telegram.tl
+// TLPhotoType represents Photo from Telegram
 type TLPhotoType interface {
 	IsTLPhoto()
 	Cmd() uint32
@@ -1739,7 +2550,7 @@ type TLPhotoType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPhotoSizeType represents PhotoSize from telegram.tl
+// TLPhotoSizeType represents PhotoSize from Telegram
 type TLPhotoSizeType interface {
 	IsTLPhotoSize()
 	Cmd() uint32
@@ -1747,7 +2558,7 @@ type TLPhotoSizeType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLGeoPointType represents GeoPoint from telegram.tl
+// TLGeoPointType represents GeoPoint from Telegram
 type TLGeoPointType interface {
 	IsTLGeoPoint()
 	Cmd() uint32
@@ -1755,7 +2566,7 @@ type TLGeoPointType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLAuthCheckedPhone represents ctor auth.checkedPhone#811ea28e phone_registered:Bool = auth.CheckedPhone from telegram.tl
+// TLAuthCheckedPhone represents ctor auth.checkedPhone#811ea28e phone_registered:Bool = auth.CheckedPhone from Telegram
 type TLAuthCheckedPhone struct {
 	PhoneRegistered bool // phone_registered:Bool
 }
@@ -1781,7 +2592,7 @@ func (o *TLAuthCheckedPhone) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthSentCode represents ctor auth.sentCode#5e002502 flags:# flags.0?phone_registered:true type:auth.SentCodeType phone_code_hash:string flags.1?next_type:auth.CodeType flags.2?timeout:int = auth.SentCode from telegram.tl
+// TLAuthSentCode represents ctor auth.sentCode#5e002502 flags:# flags.0?phone_registered:true type:auth.SentCodeType phone_code_hash:string flags.1?next_type:auth.CodeType flags.2?timeout:int = auth.SentCode from Telegram
 type TLAuthSentCode struct {
 	Flags           uint                   // flags:#
 	PhoneRegistered bool                   // flags.0?phone_registered:true
@@ -1818,7 +2629,7 @@ func (o *TLAuthSentCode) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthAuthorization represents ctor auth.authorization#cd050916 flags:# flags.0?tmp_sessions:int user:User = auth.Authorization from telegram.tl
+// TLAuthAuthorization represents ctor auth.authorization#cd050916 flags:# flags.0?tmp_sessions:int user:User = auth.Authorization from Telegram
 type TLAuthAuthorization struct {
 	Flags       uint       // flags:#
 	TmpSessions int        // flags.0?tmp_sessions:int
@@ -1846,7 +2657,7 @@ func (o *TLAuthAuthorization) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthExportedAuthorization represents ctor auth.exportedAuthorization#df969c2d id:int bytes:bytes = auth.ExportedAuthorization from telegram.tl
+// TLAuthExportedAuthorization represents ctor auth.exportedAuthorization#df969c2d id:int bytes:bytes = auth.ExportedAuthorization from Telegram
 type TLAuthExportedAuthorization struct {
 	Id    int    // id:int
 	Bytes []byte // bytes:bytes
@@ -1870,7 +2681,7 @@ func (o *TLAuthExportedAuthorization) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputNotifyPeerType represents InputNotifyPeer from telegram.tl
+// TLInputNotifyPeerType represents InputNotifyPeer from Telegram
 type TLInputNotifyPeerType interface {
 	IsTLInputNotifyPeer()
 	Cmd() uint32
@@ -1878,7 +2689,7 @@ type TLInputNotifyPeerType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputPeerNotifyEventsType represents InputPeerNotifyEvents from telegram.tl
+// TLInputPeerNotifyEventsType represents InputPeerNotifyEvents from Telegram
 type TLInputPeerNotifyEventsType interface {
 	IsTLInputPeerNotifyEvents()
 	Cmd() uint32
@@ -1886,7 +2697,7 @@ type TLInputPeerNotifyEventsType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputPeerNotifySettings represents ctor inputPeerNotifySettings#38935eb2 flags:# flags.0?show_previews:true flags.1?silent:true mute_until:int sound:string = InputPeerNotifySettings from telegram.tl
+// TLInputPeerNotifySettings represents ctor inputPeerNotifySettings#38935eb2 flags:# flags.0?show_previews:true flags.1?silent:true mute_until:int sound:string = InputPeerNotifySettings from Telegram
 type TLInputPeerNotifySettings struct {
 	Flags        uint   // flags:#
 	ShowPreviews bool   // flags.0?show_previews:true
@@ -1917,7 +2728,7 @@ func (o *TLInputPeerNotifySettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPeerNotifyEventsType represents PeerNotifyEvents from telegram.tl
+// TLPeerNotifyEventsType represents PeerNotifyEvents from Telegram
 type TLPeerNotifyEventsType interface {
 	IsTLPeerNotifyEvents()
 	Cmd() uint32
@@ -1925,7 +2736,7 @@ type TLPeerNotifyEventsType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPeerNotifySettingsType represents PeerNotifySettings from telegram.tl
+// TLPeerNotifySettingsType represents PeerNotifySettings from Telegram
 type TLPeerNotifySettingsType interface {
 	IsTLPeerNotifySettings()
 	Cmd() uint32
@@ -1933,7 +2744,7 @@ type TLPeerNotifySettingsType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPeerSettings represents ctor peerSettings#818426cd flags:# flags.0?report_spam:true = PeerSettings from telegram.tl
+// TLPeerSettings represents ctor peerSettings#818426cd flags:# flags.0?report_spam:true = PeerSettings from Telegram
 type TLPeerSettings struct {
 	Flags      uint // flags:#
 	ReportSpam bool // flags.0?report_spam:true
@@ -1956,7 +2767,7 @@ func (o *TLPeerSettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLWallPaperType represents WallPaper from telegram.tl
+// TLWallPaperType represents WallPaper from Telegram
 type TLWallPaperType interface {
 	IsTLWallPaper()
 	Cmd() uint32
@@ -1964,7 +2775,7 @@ type TLWallPaperType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLReportReasonType represents ReportReason from telegram.tl
+// TLReportReasonType represents ReportReason from Telegram
 type TLReportReasonType interface {
 	IsTLReportReason()
 	Cmd() uint32
@@ -1972,7 +2783,7 @@ type TLReportReasonType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLUserFull represents ctor userFull#0f220f3f flags:# flags.0?blocked:true flags.4?phone_calls_available:true flags.5?phone_calls_private:true user:User flags.1?about:string link:contacts.Link flags.2?profile_photo:Photo notify_settings:PeerNotifySettings flags.3?bot_info:BotInfo common_chats_count:int = UserFull from telegram.tl
+// TLUserFull represents ctor userFull#0f220f3f flags:# flags.0?blocked:true flags.4?phone_calls_available:true flags.5?phone_calls_private:true user:User flags.1?about:string link:contacts.Link flags.2?profile_photo:Photo notify_settings:PeerNotifySettings flags.3?bot_info:BotInfo common_chats_count:int = UserFull from Telegram
 type TLUserFull struct {
 	Flags               uint                     // flags:#
 	Blocked             bool                     // flags.0?blocked:true
@@ -2033,7 +2844,7 @@ func (o *TLUserFull) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContact represents ctor contact#f911c994 user_id:int mutual:Bool = Contact from telegram.tl
+// TLContact represents ctor contact#f911c994 user_id:int mutual:Bool = Contact from Telegram
 type TLContact struct {
 	UserId int  // user_id:int
 	Mutual bool // mutual:Bool
@@ -2062,7 +2873,7 @@ func (o *TLContact) String() string {
 	return tl.Pretty(o)
 }
 
-// TLImportedContact represents ctor importedContact#d0028438 user_id:int client_id:long = ImportedContact from telegram.tl
+// TLImportedContact represents ctor importedContact#d0028438 user_id:int client_id:long = ImportedContact from Telegram
 type TLImportedContact struct {
 	UserId   int    // user_id:int
 	ClientId uint64 // client_id:long
@@ -2086,7 +2897,7 @@ func (o *TLImportedContact) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactBlocked represents ctor contactBlocked#561bc879 user_id:int date:int = ContactBlocked from telegram.tl
+// TLContactBlocked represents ctor contactBlocked#561bc879 user_id:int date:int = ContactBlocked from Telegram
 type TLContactBlocked struct {
 	UserId int // user_id:int
 	Date   int // date:int
@@ -2110,7 +2921,7 @@ func (o *TLContactBlocked) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactStatus represents ctor contactStatus#d3680c61 user_id:int status:UserStatus = ContactStatus from telegram.tl
+// TLContactStatus represents ctor contactStatus#d3680c61 user_id:int status:UserStatus = ContactStatus from Telegram
 type TLContactStatus struct {
 	UserId int              // user_id:int
 	Status TLUserStatusType // status:UserStatus
@@ -2135,7 +2946,7 @@ func (o *TLContactStatus) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsLink represents ctor contacts.link#3ace484c my_link:ContactLink foreign_link:ContactLink user:User = contacts.Link from telegram.tl
+// TLContactsLink represents ctor contacts.link#3ace484c my_link:ContactLink foreign_link:ContactLink user:User = contacts.Link from Telegram
 type TLContactsLink struct {
 	MyLink      TLContactLinkType // my_link:ContactLink
 	ForeignLink TLContactLinkType // foreign_link:ContactLink
@@ -2165,7 +2976,7 @@ func (o *TLContactsLink) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsContactsType represents contacts.Contacts from telegram.tl
+// TLContactsContactsType represents contacts.Contacts from Telegram
 type TLContactsContactsType interface {
 	IsTLContactsContacts()
 	Cmd() uint32
@@ -2173,7 +2984,7 @@ type TLContactsContactsType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLContactsImportedContacts represents ctor contacts.importedContacts#ad524315 imported:Vector<ImportedContact> retry_contacts:Vector<long> users:Vector<User> = contacts.ImportedContacts from telegram.tl
+// TLContactsImportedContacts represents ctor contacts.importedContacts#ad524315 imported:Vector<ImportedContact> retry_contacts:Vector<long> users:Vector<User> = contacts.ImportedContacts from Telegram
 type TLContactsImportedContacts struct {
 	Imported      []*TLImportedContact // imported:Vector<ImportedContact>
 	RetryContacts []uint64             // retry_contacts:Vector<long>
@@ -2236,7 +3047,7 @@ func (o *TLContactsImportedContacts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsBlockedType represents contacts.Blocked from telegram.tl
+// TLContactsBlockedType represents contacts.Blocked from Telegram
 type TLContactsBlockedType interface {
 	IsTLContactsBlocked()
 	Cmd() uint32
@@ -2244,7 +3055,7 @@ type TLContactsBlockedType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesDialogsType represents messages.Dialogs from telegram.tl
+// TLMessagesDialogsType represents messages.Dialogs from Telegram
 type TLMessagesDialogsType interface {
 	IsTLMessagesDialogs()
 	Cmd() uint32
@@ -2252,7 +3063,7 @@ type TLMessagesDialogsType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesMessagesType represents messages.Messages from telegram.tl
+// TLMessagesMessagesType represents messages.Messages from Telegram
 type TLMessagesMessagesType interface {
 	IsTLMessagesMessages()
 	Cmd() uint32
@@ -2260,7 +3071,7 @@ type TLMessagesMessagesType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesChatsType represents messages.Chats from telegram.tl
+// TLMessagesChatsType represents messages.Chats from Telegram
 type TLMessagesChatsType interface {
 	IsTLMessagesChats()
 	Cmd() uint32
@@ -2268,7 +3079,7 @@ type TLMessagesChatsType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesChatFull represents ctor messages.chatFull#e5d7d19c full_chat:ChatFull chats:Vector<Chat> users:Vector<User> = messages.ChatFull from telegram.tl
+// TLMessagesChatFull represents ctor messages.chatFull#e5d7d19c full_chat:ChatFull chats:Vector<Chat> users:Vector<User> = messages.ChatFull from Telegram
 type TLMessagesChatFull struct {
 	FullChat TLChatFullType // full_chat:ChatFull
 	Chats    []TLChatType   // chats:Vector<Chat>
@@ -2318,7 +3129,7 @@ func (o *TLMessagesChatFull) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesAffectedHistory represents ctor messages.affectedHistory#b45c69d1 pts:int pts_count:int offset:int = messages.AffectedHistory from telegram.tl
+// TLMessagesAffectedHistory represents ctor messages.affectedHistory#b45c69d1 pts:int pts_count:int offset:int = messages.AffectedHistory from Telegram
 type TLMessagesAffectedHistory struct {
 	Pts      int // pts:int
 	PtsCount int // pts_count:int
@@ -2345,7 +3156,7 @@ func (o *TLMessagesAffectedHistory) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesFilterType represents MessagesFilter from telegram.tl
+// TLMessagesFilterType represents MessagesFilter from Telegram
 type TLMessagesFilterType interface {
 	IsTLMessagesFilter()
 	Cmd() uint32
@@ -2353,7 +3164,7 @@ type TLMessagesFilterType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLUpdateType represents Update from telegram.tl
+// TLUpdateType represents Update from Telegram
 type TLUpdateType interface {
 	IsTLUpdate()
 	Cmd() uint32
@@ -2361,7 +3172,7 @@ type TLUpdateType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLUpdatesState represents ctor updates.state#a56c2a3e pts:int qts:int date:int seq:int unread_count:int = updates.State from telegram.tl
+// TLUpdatesState represents ctor updates.state#a56c2a3e pts:int qts:int date:int seq:int unread_count:int = updates.State from Telegram
 type TLUpdatesState struct {
 	Pts         int // pts:int
 	Qts         int // qts:int
@@ -2394,7 +3205,7 @@ func (o *TLUpdatesState) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesDifferenceType represents updates.Difference from telegram.tl
+// TLUpdatesDifferenceType represents updates.Difference from Telegram
 type TLUpdatesDifferenceType interface {
 	IsTLUpdatesDifference()
 	Cmd() uint32
@@ -2402,7 +3213,7 @@ type TLUpdatesDifferenceType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLUpdatesType represents Updates from telegram.tl
+// TLUpdatesType represents Updates from Telegram
 type TLUpdatesType interface {
 	IsTLUpdates()
 	Cmd() uint32
@@ -2410,7 +3221,7 @@ type TLUpdatesType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPhotosPhotosType represents photos.Photos from telegram.tl
+// TLPhotosPhotosType represents photos.Photos from Telegram
 type TLPhotosPhotosType interface {
 	IsTLPhotosPhotos()
 	Cmd() uint32
@@ -2418,7 +3229,7 @@ type TLPhotosPhotosType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPhotosPhoto represents ctor photos.photo#20212ca8 photo:Photo users:Vector<User> = photos.Photo from telegram.tl
+// TLPhotosPhoto represents ctor photos.photo#20212ca8 photo:Photo users:Vector<User> = photos.Photo from Telegram
 type TLPhotosPhoto struct {
 	Photo TLPhotoType  // photo:Photo
 	Users []TLUserType // users:Vector<User>
@@ -2454,7 +3265,7 @@ func (o *TLPhotosPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUploadFile represents ctor upload.file#096a18d5 type:storage.FileType mtime:int bytes:bytes = upload.File from telegram.tl
+// TLUploadFile represents ctor upload.file#096a18d5 type:storage.FileType mtime:int bytes:bytes = upload.File from Telegram
 type TLUploadFile struct {
 	Type  TLStorageFileTypeType // type:storage.FileType
 	Mtime int                   // mtime:int
@@ -2482,7 +3293,7 @@ func (o *TLUploadFile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDcOption represents ctor dcOption#05d8c6cc flags:# flags.0?ipv6:true flags.1?media_only:true flags.2?tcpo_only:true id:int ip_address:string port:int = DcOption from telegram.tl
+// TLDcOption represents ctor dcOption#05d8c6cc flags:# flags.0?ipv6:true flags.1?media_only:true flags.2?tcpo_only:true id:int ip_address:string port:int = DcOption from Telegram
 type TLDcOption struct {
 	Flags     uint   // flags:#
 	Ipv6      bool   // flags.0?ipv6:true
@@ -2518,7 +3329,7 @@ func (o *TLDcOption) String() string {
 	return tl.Pretty(o)
 }
 
-// TLConfig represents ctor config#cb601684 flags:# flags.1?phonecalls_enabled:true date:int expires:int test_mode:Bool this_dc:int dc_options:Vector<DcOption> chat_size_max:int megagroup_size_max:int forwarded_count_max:int online_update_period_ms:int offline_blur_timeout_ms:int offline_idle_timeout_ms:int online_cloud_timeout_ms:int notify_cloud_delay_ms:int notify_default_delay_ms:int chat_big_size:int push_chat_period_ms:int push_chat_limit:int saved_gifs_limit:int edit_time_limit:int rating_e_decay:int stickers_recent_limit:int flags.0?tmp_sessions:int pinned_dialogs_count_max:int call_receive_timeout_ms:int call_ring_timeout_ms:int call_connect_timeout_ms:int call_packet_timeout_ms:int me_url_prefix:string disabled_features:Vector<DisabledFeature> = Config from telegram.tl
+// TLConfig represents ctor config#cb601684 flags:# flags.1?phonecalls_enabled:true date:int expires:int test_mode:Bool this_dc:int dc_options:Vector<DcOption> chat_size_max:int megagroup_size_max:int forwarded_count_max:int online_update_period_ms:int offline_blur_timeout_ms:int offline_idle_timeout_ms:int online_cloud_timeout_ms:int notify_cloud_delay_ms:int notify_default_delay_ms:int chat_big_size:int push_chat_period_ms:int push_chat_limit:int saved_gifs_limit:int edit_time_limit:int rating_e_decay:int stickers_recent_limit:int flags.0?tmp_sessions:int pinned_dialogs_count_max:int call_receive_timeout_ms:int call_ring_timeout_ms:int call_connect_timeout_ms:int call_packet_timeout_ms:int me_url_prefix:string disabled_features:Vector<DisabledFeature> = Config from Telegram
 type TLConfig struct {
 	Flags                 uint                 // flags:#
 	PhonecallsEnabled     bool                 // flags.1?phonecalls_enabled:true
@@ -2663,7 +3474,7 @@ func (o *TLConfig) String() string {
 	return tl.Pretty(o)
 }
 
-// TLNearestDc represents ctor nearestDc#8e1a1775 country:string this_dc:int nearest_dc:int = NearestDc from telegram.tl
+// TLNearestDc represents ctor nearestDc#8e1a1775 country:string this_dc:int nearest_dc:int = NearestDc from Telegram
 type TLNearestDc struct {
 	Country   string // country:string
 	ThisDc    int    // this_dc:int
@@ -2690,7 +3501,7 @@ func (o *TLNearestDc) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpAppUpdateType represents help.AppUpdate from telegram.tl
+// TLHelpAppUpdateType represents help.AppUpdate from Telegram
 type TLHelpAppUpdateType interface {
 	IsTLHelpAppUpdate()
 	Cmd() uint32
@@ -2698,7 +3509,7 @@ type TLHelpAppUpdateType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLHelpInviteText represents ctor help.inviteText#18cb9f78 message:string = help.InviteText from telegram.tl
+// TLHelpInviteText represents ctor help.inviteText#18cb9f78 message:string = help.InviteText from Telegram
 type TLHelpInviteText struct {
 	Message string // message:string
 }
@@ -2719,7 +3530,7 @@ func (o *TLHelpInviteText) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedChatType represents EncryptedChat from telegram.tl
+// TLEncryptedChatType represents EncryptedChat from Telegram
 type TLEncryptedChatType interface {
 	IsTLEncryptedChat()
 	Cmd() uint32
@@ -2727,7 +3538,7 @@ type TLEncryptedChatType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputEncryptedChat represents ctor inputEncryptedChat#f141b5e1 chat_id:int access_hash:long = InputEncryptedChat from telegram.tl
+// TLInputEncryptedChat represents ctor inputEncryptedChat#f141b5e1 chat_id:int access_hash:long = InputEncryptedChat from Telegram
 type TLInputEncryptedChat struct {
 	ChatId     int    // chat_id:int
 	AccessHash uint64 // access_hash:long
@@ -2751,7 +3562,7 @@ func (o *TLInputEncryptedChat) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedFileType represents EncryptedFile from telegram.tl
+// TLEncryptedFileType represents EncryptedFile from Telegram
 type TLEncryptedFileType interface {
 	IsTLEncryptedFile()
 	Cmd() uint32
@@ -2759,7 +3570,7 @@ type TLEncryptedFileType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputEncryptedFileType represents InputEncryptedFile from telegram.tl
+// TLInputEncryptedFileType represents InputEncryptedFile from Telegram
 type TLInputEncryptedFileType interface {
 	IsTLInputEncryptedFile()
 	Cmd() uint32
@@ -2767,7 +3578,7 @@ type TLInputEncryptedFileType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLEncryptedMessageType represents EncryptedMessage from telegram.tl
+// TLEncryptedMessageType represents EncryptedMessage from Telegram
 type TLEncryptedMessageType interface {
 	IsTLEncryptedMessage()
 	Cmd() uint32
@@ -2775,7 +3586,7 @@ type TLEncryptedMessageType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesDHConfigType represents messages.DhConfig from telegram.tl
+// TLMessagesDHConfigType represents messages.DhConfig from Telegram
 type TLMessagesDHConfigType interface {
 	IsTLMessagesDHConfig()
 	Cmd() uint32
@@ -2783,7 +3594,7 @@ type TLMessagesDHConfigType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesSentEncryptedMessageType represents messages.SentEncryptedMessage from telegram.tl
+// TLMessagesSentEncryptedMessageType represents messages.SentEncryptedMessage from Telegram
 type TLMessagesSentEncryptedMessageType interface {
 	IsTLMessagesSentEncryptedMessage()
 	Cmd() uint32
@@ -2791,7 +3602,7 @@ type TLMessagesSentEncryptedMessageType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputDocumentType represents InputDocument from telegram.tl
+// TLInputDocumentType represents InputDocument from Telegram
 type TLInputDocumentType interface {
 	IsTLInputDocument()
 	Cmd() uint32
@@ -2799,7 +3610,7 @@ type TLInputDocumentType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLDocumentType represents Document from telegram.tl
+// TLDocumentType represents Document from Telegram
 type TLDocumentType interface {
 	IsTLDocument()
 	Cmd() uint32
@@ -2807,7 +3618,7 @@ type TLDocumentType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLHelpSupport represents ctor help.support#17c6b5f6 phone_number:string user:User = help.Support from telegram.tl
+// TLHelpSupport represents ctor help.support#17c6b5f6 phone_number:string user:User = help.Support from Telegram
 type TLHelpSupport struct {
 	PhoneNumber string     // phone_number:string
 	User        TLUserType // user:User
@@ -2832,7 +3643,7 @@ func (o *TLHelpSupport) String() string {
 	return tl.Pretty(o)
 }
 
-// TLNotifyPeerType represents NotifyPeer from telegram.tl
+// TLNotifyPeerType represents NotifyPeer from Telegram
 type TLNotifyPeerType interface {
 	IsTLNotifyPeer()
 	Cmd() uint32
@@ -2840,7 +3651,7 @@ type TLNotifyPeerType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLSendMessageActionType represents SendMessageAction from telegram.tl
+// TLSendMessageActionType represents SendMessageAction from Telegram
 type TLSendMessageActionType interface {
 	IsTLSendMessageAction()
 	Cmd() uint32
@@ -2848,7 +3659,7 @@ type TLSendMessageActionType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLContactsFound represents ctor contacts.found#1aa1f784 results:Vector<Peer> chats:Vector<Chat> users:Vector<User> = contacts.Found from telegram.tl
+// TLContactsFound represents ctor contacts.found#1aa1f784 results:Vector<Peer> chats:Vector<Chat> users:Vector<User> = contacts.Found from Telegram
 type TLContactsFound struct {
 	Results []TLPeerType // results:Vector<Peer>
 	Chats   []TLChatType // chats:Vector<Chat>
@@ -2908,7 +3719,7 @@ func (o *TLContactsFound) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPrivacyKeyType represents InputPrivacyKey from telegram.tl
+// TLInputPrivacyKeyType represents InputPrivacyKey from Telegram
 type TLInputPrivacyKeyType interface {
 	IsTLInputPrivacyKey()
 	Cmd() uint32
@@ -2916,7 +3727,7 @@ type TLInputPrivacyKeyType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPrivacyKeyType represents PrivacyKey from telegram.tl
+// TLPrivacyKeyType represents PrivacyKey from Telegram
 type TLPrivacyKeyType interface {
 	IsTLPrivacyKey()
 	Cmd() uint32
@@ -2924,7 +3735,7 @@ type TLPrivacyKeyType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputPrivacyRuleType represents InputPrivacyRule from telegram.tl
+// TLInputPrivacyRuleType represents InputPrivacyRule from Telegram
 type TLInputPrivacyRuleType interface {
 	IsTLInputPrivacyRule()
 	Cmd() uint32
@@ -2932,7 +3743,7 @@ type TLInputPrivacyRuleType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPrivacyRuleType represents PrivacyRule from telegram.tl
+// TLPrivacyRuleType represents PrivacyRule from Telegram
 type TLPrivacyRuleType interface {
 	IsTLPrivacyRule()
 	Cmd() uint32
@@ -2940,7 +3751,7 @@ type TLPrivacyRuleType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLAccountPrivacyRules represents ctor account.privacyRules#554abb6f rules:Vector<PrivacyRule> users:Vector<User> = account.PrivacyRules from telegram.tl
+// TLAccountPrivacyRules represents ctor account.privacyRules#554abb6f rules:Vector<PrivacyRule> users:Vector<User> = account.PrivacyRules from Telegram
 type TLAccountPrivacyRules struct {
 	Rules []TLPrivacyRuleType // rules:Vector<PrivacyRule>
 	Users []TLUserType        // users:Vector<User>
@@ -2986,7 +3797,7 @@ func (o *TLAccountPrivacyRules) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountDaysTTL represents ctor accountDaysTTL#b8d0afdf days:int = AccountDaysTTL from telegram.tl
+// TLAccountDaysTTL represents ctor accountDaysTTL#b8d0afdf days:int = AccountDaysTTL from Telegram
 type TLAccountDaysTTL struct {
 	Days int // days:int
 }
@@ -3007,7 +3818,7 @@ func (o *TLAccountDaysTTL) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDocumentAttributeType represents DocumentAttribute from telegram.tl
+// TLDocumentAttributeType represents DocumentAttribute from Telegram
 type TLDocumentAttributeType interface {
 	IsTLDocumentAttribute()
 	Cmd() uint32
@@ -3015,7 +3826,7 @@ type TLDocumentAttributeType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesStickersType represents messages.Stickers from telegram.tl
+// TLMessagesStickersType represents messages.Stickers from Telegram
 type TLMessagesStickersType interface {
 	IsTLMessagesStickers()
 	Cmd() uint32
@@ -3023,7 +3834,7 @@ type TLMessagesStickersType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLStickerPack represents ctor stickerPack#12b299d4 emoticon:string documents:Vector<long> = StickerPack from telegram.tl
+// TLStickerPack represents ctor stickerPack#12b299d4 emoticon:string documents:Vector<long> = StickerPack from Telegram
 type TLStickerPack struct {
 	Emoticon  string   // emoticon:string
 	Documents []uint64 // documents:Vector<long>
@@ -3057,7 +3868,7 @@ func (o *TLStickerPack) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesAllStickersType represents messages.AllStickers from telegram.tl
+// TLMessagesAllStickersType represents messages.AllStickers from Telegram
 type TLMessagesAllStickersType interface {
 	IsTLMessagesAllStickers()
 	Cmd() uint32
@@ -3065,7 +3876,7 @@ type TLMessagesAllStickersType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLDisabledFeature represents ctor disabledFeature#ae636f24 feature:string description:string = DisabledFeature from telegram.tl
+// TLDisabledFeature represents ctor disabledFeature#ae636f24 feature:string description:string = DisabledFeature from Telegram
 type TLDisabledFeature struct {
 	Feature     string // feature:string
 	Description string // description:string
@@ -3089,7 +3900,7 @@ func (o *TLDisabledFeature) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesAffectedMessages represents ctor messages.affectedMessages#84d19185 pts:int pts_count:int = messages.AffectedMessages from telegram.tl
+// TLMessagesAffectedMessages represents ctor messages.affectedMessages#84d19185 pts:int pts_count:int = messages.AffectedMessages from Telegram
 type TLMessagesAffectedMessages struct {
 	Pts      int // pts:int
 	PtsCount int // pts_count:int
@@ -3113,7 +3924,7 @@ func (o *TLMessagesAffectedMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactLinkType represents ContactLink from telegram.tl
+// TLContactLinkType represents ContactLink from Telegram
 type TLContactLinkType interface {
 	IsTLContactLink()
 	Cmd() uint32
@@ -3121,7 +3932,7 @@ type TLContactLinkType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLWebPageType represents WebPage from telegram.tl
+// TLWebPageType represents WebPage from Telegram
 type TLWebPageType interface {
 	IsTLWebPage()
 	Cmd() uint32
@@ -3129,7 +3940,7 @@ type TLWebPageType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLAuthorization represents ctor authorization#7bf2e6f6 hash:long flags:int device_model:string platform:string system_version:string api_id:int app_name:string app_version:string date_created:int date_active:int ip:string country:string region:string = Authorization from telegram.tl
+// TLAuthorization represents ctor authorization#7bf2e6f6 hash:long flags:int device_model:string platform:string system_version:string api_id:int app_name:string app_version:string date_created:int date_active:int ip:string country:string region:string = Authorization from Telegram
 type TLAuthorization struct {
 	Hash          uint64 // hash:long
 	Flags         int    // flags:int
@@ -3186,7 +3997,7 @@ func (o *TLAuthorization) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountAuthorizations represents ctor account.authorizations#1250abde authorizations:Vector<Authorization> = account.Authorizations from telegram.tl
+// TLAccountAuthorizations represents ctor account.authorizations#1250abde authorizations:Vector<Authorization> = account.Authorizations from Telegram
 type TLAccountAuthorizations struct {
 	Authorizations []*TLAuthorization // authorizations:Vector<Authorization>
 }
@@ -3222,7 +4033,7 @@ func (o *TLAccountAuthorizations) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountPasswordType represents account.Password from telegram.tl
+// TLAccountPasswordType represents account.Password from Telegram
 type TLAccountPasswordType interface {
 	IsTLAccountPassword()
 	Cmd() uint32
@@ -3230,7 +4041,7 @@ type TLAccountPasswordType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLAccountPasswordSettings represents ctor account.passwordSettings#b7b72ab3 email:string = account.PasswordSettings from telegram.tl
+// TLAccountPasswordSettings represents ctor account.passwordSettings#b7b72ab3 email:string = account.PasswordSettings from Telegram
 type TLAccountPasswordSettings struct {
 	Email string // email:string
 }
@@ -3251,7 +4062,7 @@ func (o *TLAccountPasswordSettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountPasswordInputSettings represents ctor account.passwordInputSettings#86916deb flags:# flags.0?new_salt:bytes flags.0?new_password_hash:bytes flags.0?hint:string flags.1?email:string = account.PasswordInputSettings from telegram.tl
+// TLAccountPasswordInputSettings represents ctor account.passwordInputSettings#86916deb flags:# flags.0?new_salt:bytes flags.0?new_password_hash:bytes flags.0?hint:string flags.1?email:string = account.PasswordInputSettings from Telegram
 type TLAccountPasswordInputSettings struct {
 	Flags           uint   // flags:#
 	NewSalt         []byte // flags.0?new_salt:bytes
@@ -3284,7 +4095,7 @@ func (o *TLAccountPasswordInputSettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthPasswordRecovery represents ctor auth.passwordRecovery#137948a5 email_pattern:string = auth.PasswordRecovery from telegram.tl
+// TLAuthPasswordRecovery represents ctor auth.passwordRecovery#137948a5 email_pattern:string = auth.PasswordRecovery from Telegram
 type TLAuthPasswordRecovery struct {
 	EmailPattern string // email_pattern:string
 }
@@ -3305,7 +4116,7 @@ func (o *TLAuthPasswordRecovery) String() string {
 	return tl.Pretty(o)
 }
 
-// TLReceivedNotifyMessage represents ctor receivedNotifyMessage#a384b779 id:int flags:int = ReceivedNotifyMessage from telegram.tl
+// TLReceivedNotifyMessage represents ctor receivedNotifyMessage#a384b779 id:int flags:int = ReceivedNotifyMessage from Telegram
 type TLReceivedNotifyMessage struct {
 	Id    int // id:int
 	Flags int // flags:int
@@ -3329,7 +4140,7 @@ func (o *TLReceivedNotifyMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLExportedChatInviteType represents ExportedChatInvite from telegram.tl
+// TLExportedChatInviteType represents ExportedChatInvite from Telegram
 type TLExportedChatInviteType interface {
 	IsTLExportedChatInvite()
 	Cmd() uint32
@@ -3337,7 +4148,7 @@ type TLExportedChatInviteType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChatInviteType represents ChatInvite from telegram.tl
+// TLChatInviteType represents ChatInvite from Telegram
 type TLChatInviteType interface {
 	IsTLChatInvite()
 	Cmd() uint32
@@ -3345,7 +4156,7 @@ type TLChatInviteType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputStickerSetType represents InputStickerSet from telegram.tl
+// TLInputStickerSetType represents InputStickerSet from Telegram
 type TLInputStickerSetType interface {
 	IsTLInputStickerSet()
 	Cmd() uint32
@@ -3353,7 +4164,7 @@ type TLInputStickerSetType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLStickerSet represents ctor stickerSet#cd303b41 flags:# flags.0?installed:true flags.1?archived:true flags.2?official:true flags.3?masks:true id:long access_hash:long title:string short_name:string count:int hash:int = StickerSet from telegram.tl
+// TLStickerSet represents ctor stickerSet#cd303b41 flags:# flags.0?installed:true flags.1?archived:true flags.2?official:true flags.3?masks:true id:long access_hash:long title:string short_name:string count:int hash:int = StickerSet from Telegram
 type TLStickerSet struct {
 	Flags      uint   // flags:#
 	Installed  bool   // flags.0?installed:true
@@ -3400,7 +4211,7 @@ func (o *TLStickerSet) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesStickerSet represents ctor messages.stickerSet#b60a24a6 set:StickerSet packs:Vector<StickerPack> documents:Vector<Document> = messages.StickerSet from telegram.tl
+// TLMessagesStickerSet represents ctor messages.stickerSet#b60a24a6 set:StickerSet packs:Vector<StickerPack> documents:Vector<Document> = messages.StickerSet from Telegram
 type TLMessagesStickerSet struct {
 	Set       *TLStickerSet    // set:StickerSet
 	Packs     []*TLStickerPack // packs:Vector<StickerPack>
@@ -3458,7 +4269,7 @@ func (o *TLMessagesStickerSet) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotCommand represents ctor botCommand#c27ac8c7 command:string description:string = BotCommand from telegram.tl
+// TLBotCommand represents ctor botCommand#c27ac8c7 command:string description:string = BotCommand from Telegram
 type TLBotCommand struct {
 	Command     string // command:string
 	Description string // description:string
@@ -3482,7 +4293,7 @@ func (o *TLBotCommand) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotInfo represents ctor botInfo#98e81d3a user_id:int description:string commands:Vector<BotCommand> = BotInfo from telegram.tl
+// TLBotInfo represents ctor botInfo#98e81d3a user_id:int description:string commands:Vector<BotCommand> = BotInfo from Telegram
 type TLBotInfo struct {
 	UserId      int             // user_id:int
 	Description string          // description:string
@@ -3524,7 +4335,7 @@ func (o *TLBotInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLKeyboardButtonType represents KeyboardButton from telegram.tl
+// TLKeyboardButtonType represents KeyboardButton from Telegram
 type TLKeyboardButtonType interface {
 	IsTLKeyboardButton()
 	Cmd() uint32
@@ -3532,7 +4343,7 @@ type TLKeyboardButtonType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLKeyboardButtonRow represents ctor keyboardButtonRow#77608b83 buttons:Vector<KeyboardButton> = KeyboardButtonRow from telegram.tl
+// TLKeyboardButtonRow represents ctor keyboardButtonRow#77608b83 buttons:Vector<KeyboardButton> = KeyboardButtonRow from Telegram
 type TLKeyboardButtonRow struct {
 	Buttons []TLKeyboardButtonType // buttons:Vector<KeyboardButton>
 }
@@ -3564,7 +4375,7 @@ func (o *TLKeyboardButtonRow) String() string {
 	return tl.Pretty(o)
 }
 
-// TLReplyMarkupType represents ReplyMarkup from telegram.tl
+// TLReplyMarkupType represents ReplyMarkup from Telegram
 type TLReplyMarkupType interface {
 	IsTLReplyMarkup()
 	Cmd() uint32
@@ -3572,7 +4383,7 @@ type TLReplyMarkupType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessageEntityType represents MessageEntity from telegram.tl
+// TLMessageEntityType represents MessageEntity from Telegram
 type TLMessageEntityType interface {
 	IsTLMessageEntity()
 	Cmd() uint32
@@ -3580,7 +4391,7 @@ type TLMessageEntityType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputChannelType represents InputChannel from telegram.tl
+// TLInputChannelType represents InputChannel from Telegram
 type TLInputChannelType interface {
 	IsTLInputChannel()
 	Cmd() uint32
@@ -3588,7 +4399,7 @@ type TLInputChannelType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLContactsResolvedPeer represents ctor contacts.resolvedPeer#7f077ad9 peer:Peer chats:Vector<Chat> users:Vector<User> = contacts.ResolvedPeer from telegram.tl
+// TLContactsResolvedPeer represents ctor contacts.resolvedPeer#7f077ad9 peer:Peer chats:Vector<Chat> users:Vector<User> = contacts.ResolvedPeer from Telegram
 type TLContactsResolvedPeer struct {
 	Peer  TLPeerType   // peer:Peer
 	Chats []TLChatType // chats:Vector<Chat>
@@ -3638,7 +4449,7 @@ func (o *TLContactsResolvedPeer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageRange represents ctor messageRange#0ae30253 min_id:int max_id:int = MessageRange from telegram.tl
+// TLMessageRange represents ctor messageRange#0ae30253 min_id:int max_id:int = MessageRange from Telegram
 type TLMessageRange struct {
 	MinId int // min_id:int
 	MaxId int // max_id:int
@@ -3662,7 +4473,7 @@ func (o *TLMessageRange) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesChannelDifferenceType represents updates.ChannelDifference from telegram.tl
+// TLUpdatesChannelDifferenceType represents updates.ChannelDifference from Telegram
 type TLUpdatesChannelDifferenceType interface {
 	IsTLUpdatesChannelDifference()
 	Cmd() uint32
@@ -3670,7 +4481,7 @@ type TLUpdatesChannelDifferenceType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChannelMessagesFilterType represents ChannelMessagesFilter from telegram.tl
+// TLChannelMessagesFilterType represents ChannelMessagesFilter from Telegram
 type TLChannelMessagesFilterType interface {
 	IsTLChannelMessagesFilter()
 	Cmd() uint32
@@ -3678,7 +4489,7 @@ type TLChannelMessagesFilterType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChannelParticipantType represents ChannelParticipant from telegram.tl
+// TLChannelParticipantType represents ChannelParticipant from Telegram
 type TLChannelParticipantType interface {
 	IsTLChannelParticipant()
 	Cmd() uint32
@@ -3686,7 +4497,7 @@ type TLChannelParticipantType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChannelParticipantsFilterType represents ChannelParticipantsFilter from telegram.tl
+// TLChannelParticipantsFilterType represents ChannelParticipantsFilter from Telegram
 type TLChannelParticipantsFilterType interface {
 	IsTLChannelParticipantsFilter()
 	Cmd() uint32
@@ -3694,7 +4505,7 @@ type TLChannelParticipantsFilterType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChannelParticipantRoleType represents ChannelParticipantRole from telegram.tl
+// TLChannelParticipantRoleType represents ChannelParticipantRole from Telegram
 type TLChannelParticipantRoleType interface {
 	IsTLChannelParticipantRole()
 	Cmd() uint32
@@ -3702,7 +4513,7 @@ type TLChannelParticipantRoleType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLChannelsChannelParticipants represents ctor channels.channelParticipants#f56ee2a8 count:int participants:Vector<ChannelParticipant> users:Vector<User> = channels.ChannelParticipants from telegram.tl
+// TLChannelsChannelParticipants represents ctor channels.channelParticipants#f56ee2a8 count:int participants:Vector<ChannelParticipant> users:Vector<User> = channels.ChannelParticipants from Telegram
 type TLChannelsChannelParticipants struct {
 	Count        int                        // count:int
 	Participants []TLChannelParticipantType // participants:Vector<ChannelParticipant>
@@ -3751,7 +4562,7 @@ func (o *TLChannelsChannelParticipants) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsChannelParticipant represents ctor channels.channelParticipant#d0d9b163 participant:ChannelParticipant users:Vector<User> = channels.ChannelParticipant from telegram.tl
+// TLChannelsChannelParticipant represents ctor channels.channelParticipant#d0d9b163 participant:ChannelParticipant users:Vector<User> = channels.ChannelParticipant from Telegram
 type TLChannelsChannelParticipant struct {
 	Participant TLChannelParticipantType // participant:ChannelParticipant
 	Users       []TLUserType             // users:Vector<User>
@@ -3787,7 +4598,7 @@ func (o *TLChannelsChannelParticipant) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpTermsOfService represents ctor help.termsOfService#f1ee3e90 text:string = help.TermsOfService from telegram.tl
+// TLHelpTermsOfService represents ctor help.termsOfService#f1ee3e90 text:string = help.TermsOfService from Telegram
 type TLHelpTermsOfService struct {
 	Text string // text:string
 }
@@ -3808,7 +4619,7 @@ func (o *TLHelpTermsOfService) String() string {
 	return tl.Pretty(o)
 }
 
-// TLFoundGifType represents FoundGif from telegram.tl
+// TLFoundGifType represents FoundGif from Telegram
 type TLFoundGifType interface {
 	IsTLFoundGif()
 	Cmd() uint32
@@ -3816,7 +4627,7 @@ type TLFoundGifType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesFoundGifs represents ctor messages.foundGifs#450a1c0a next_offset:int results:Vector<FoundGif> = messages.FoundGifs from telegram.tl
+// TLMessagesFoundGifs represents ctor messages.foundGifs#450a1c0a next_offset:int results:Vector<FoundGif> = messages.FoundGifs from Telegram
 type TLMessagesFoundGifs struct {
 	NextOffset int              // next_offset:int
 	Results    []TLFoundGifType // results:Vector<FoundGif>
@@ -3851,7 +4662,7 @@ func (o *TLMessagesFoundGifs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSavedGifsType represents messages.SavedGifs from telegram.tl
+// TLMessagesSavedGifsType represents messages.SavedGifs from Telegram
 type TLMessagesSavedGifsType interface {
 	IsTLMessagesSavedGifs()
 	Cmd() uint32
@@ -3859,7 +4670,7 @@ type TLMessagesSavedGifsType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputBotInlineMessageType represents InputBotInlineMessage from telegram.tl
+// TLInputBotInlineMessageType represents InputBotInlineMessage from Telegram
 type TLInputBotInlineMessageType interface {
 	IsTLInputBotInlineMessage()
 	Cmd() uint32
@@ -3867,7 +4678,7 @@ type TLInputBotInlineMessageType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLInputBotInlineResultType represents InputBotInlineResult from telegram.tl
+// TLInputBotInlineResultType represents InputBotInlineResult from Telegram
 type TLInputBotInlineResultType interface {
 	IsTLInputBotInlineResult()
 	Cmd() uint32
@@ -3875,7 +4686,7 @@ type TLInputBotInlineResultType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLBotInlineMessageType represents BotInlineMessage from telegram.tl
+// TLBotInlineMessageType represents BotInlineMessage from Telegram
 type TLBotInlineMessageType interface {
 	IsTLBotInlineMessage()
 	Cmd() uint32
@@ -3883,7 +4694,7 @@ type TLBotInlineMessageType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLBotInlineResultType represents BotInlineResult from telegram.tl
+// TLBotInlineResultType represents BotInlineResult from Telegram
 type TLBotInlineResultType interface {
 	IsTLBotInlineResult()
 	Cmd() uint32
@@ -3891,7 +4702,7 @@ type TLBotInlineResultType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesBotResults represents ctor messages.botResults#ccd3563d flags:# flags.0?gallery:true query_id:long flags.1?next_offset:string flags.2?switch_pm:InlineBotSwitchPM results:Vector<BotInlineResult> cache_time:int = messages.BotResults from telegram.tl
+// TLMessagesBotResults represents ctor messages.botResults#ccd3563d flags:# flags.0?gallery:true query_id:long flags.1?next_offset:string flags.2?switch_pm:InlineBotSwitchPM results:Vector<BotInlineResult> cache_time:int = messages.BotResults from Telegram
 type TLMessagesBotResults struct {
 	Flags      uint                    // flags:#
 	Gallery    bool                    // flags.0?gallery:true
@@ -3945,7 +4756,7 @@ func (o *TLMessagesBotResults) String() string {
 	return tl.Pretty(o)
 }
 
-// TLExportedMessageLink represents ctor exportedMessageLink#1f486803 link:string = ExportedMessageLink from telegram.tl
+// TLExportedMessageLink represents ctor exportedMessageLink#1f486803 link:string = ExportedMessageLink from Telegram
 type TLExportedMessageLink struct {
 	Link string // link:string
 }
@@ -3966,7 +4777,7 @@ func (o *TLExportedMessageLink) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageFwdHeader represents ctor messageFwdHeader#c786ddcb flags:# flags.0?from_id:int date:int flags.1?channel_id:int flags.2?channel_post:int = MessageFwdHeader from telegram.tl
+// TLMessageFwdHeader represents ctor messageFwdHeader#c786ddcb flags:# flags.0?from_id:int date:int flags.1?channel_id:int flags.2?channel_post:int = MessageFwdHeader from Telegram
 type TLMessageFwdHeader struct {
 	Flags       uint // flags:#
 	FromId      int  // flags.0?from_id:int
@@ -3999,7 +4810,7 @@ func (o *TLMessageFwdHeader) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthCodeTypeType represents auth.CodeType from telegram.tl
+// TLAuthCodeTypeType represents auth.CodeType from Telegram
 type TLAuthCodeTypeType interface {
 	IsTLAuthCodeType()
 	Cmd() uint32
@@ -4007,7 +4818,7 @@ type TLAuthCodeTypeType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLAuthSentCodeTypeType represents auth.SentCodeType from telegram.tl
+// TLAuthSentCodeTypeType represents auth.SentCodeType from Telegram
 type TLAuthSentCodeTypeType interface {
 	IsTLAuthSentCodeType()
 	Cmd() uint32
@@ -4015,7 +4826,7 @@ type TLAuthSentCodeTypeType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesBotCallbackAnswer represents ctor messages.botCallbackAnswer#36585ea4 flags:# flags.1?alert:true flags.3?has_url:true flags.0?message:string flags.2?url:string cache_time:int = messages.BotCallbackAnswer from telegram.tl
+// TLMessagesBotCallbackAnswer represents ctor messages.botCallbackAnswer#36585ea4 flags:# flags.1?alert:true flags.3?has_url:true flags.0?message:string flags.2?url:string cache_time:int = messages.BotCallbackAnswer from Telegram
 type TLMessagesBotCallbackAnswer struct {
 	Flags     uint   // flags:#
 	Alert     bool   // flags.1?alert:true
@@ -4049,7 +4860,7 @@ func (o *TLMessagesBotCallbackAnswer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesMessageEditData represents ctor messages.messageEditData#26b5dde6 flags:# flags.0?caption:true = messages.MessageEditData from telegram.tl
+// TLMessagesMessageEditData represents ctor messages.messageEditData#26b5dde6 flags:# flags.0?caption:true = messages.MessageEditData from Telegram
 type TLMessagesMessageEditData struct {
 	Flags   uint // flags:#
 	Caption bool // flags.0?caption:true
@@ -4072,7 +4883,7 @@ func (o *TLMessagesMessageEditData) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineMessageID represents ctor inputBotInlineMessageID#890c3d89 dc_id:int id:long access_hash:long = InputBotInlineMessageID from telegram.tl
+// TLInputBotInlineMessageID represents ctor inputBotInlineMessageID#890c3d89 dc_id:int id:long access_hash:long = InputBotInlineMessageID from Telegram
 type TLInputBotInlineMessageID struct {
 	DcId       int    // dc_id:int
 	Id         uint64 // id:long
@@ -4099,7 +4910,7 @@ func (o *TLInputBotInlineMessageID) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInlineBotSwitchPM represents ctor inlineBotSwitchPM#3c20629f text:string start_param:string = InlineBotSwitchPM from telegram.tl
+// TLInlineBotSwitchPM represents ctor inlineBotSwitchPM#3c20629f text:string start_param:string = InlineBotSwitchPM from Telegram
 type TLInlineBotSwitchPM struct {
 	Text       string // text:string
 	StartParam string // start_param:string
@@ -4123,7 +4934,7 @@ func (o *TLInlineBotSwitchPM) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesPeerDialogs represents ctor messages.peerDialogs#3371c354 dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> state:updates.State = messages.PeerDialogs from telegram.tl
+// TLMessagesPeerDialogs represents ctor messages.peerDialogs#3371c354 dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> state:updates.State = messages.PeerDialogs from Telegram
 type TLMessagesPeerDialogs struct {
 	Dialogs  []*TLDialog     // dialogs:Vector<Dialog>
 	Messages []TLMessageType // messages:Vector<Message>
@@ -4209,7 +5020,7 @@ func (o *TLMessagesPeerDialogs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTopPeer represents ctor topPeer#edcdc05b peer:Peer rating:double = TopPeer from telegram.tl
+// TLTopPeer represents ctor topPeer#edcdc05b peer:Peer rating:double = TopPeer from Telegram
 type TLTopPeer struct {
 	Peer   TLPeerType // peer:Peer
 	Rating float64    // rating:double
@@ -4234,7 +5045,7 @@ func (o *TLTopPeer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTopPeerCategoryType represents TopPeerCategory from telegram.tl
+// TLTopPeerCategoryType represents TopPeerCategory from Telegram
 type TLTopPeerCategoryType interface {
 	IsTLTopPeerCategory()
 	Cmd() uint32
@@ -4242,7 +5053,7 @@ type TLTopPeerCategoryType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLTopPeerCategoryPeers represents ctor topPeerCategoryPeers#fb834291 category:TopPeerCategory count:int peers:Vector<TopPeer> = TopPeerCategoryPeers from telegram.tl
+// TLTopPeerCategoryPeers represents ctor topPeerCategoryPeers#fb834291 category:TopPeerCategory count:int peers:Vector<TopPeer> = TopPeerCategoryPeers from Telegram
 type TLTopPeerCategoryPeers struct {
 	Category TLTopPeerCategoryType // category:TopPeerCategory
 	Count    int                   // count:int
@@ -4285,7 +5096,7 @@ func (o *TLTopPeerCategoryPeers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsTopPeersType represents contacts.TopPeers from telegram.tl
+// TLContactsTopPeersType represents contacts.TopPeers from Telegram
 type TLContactsTopPeersType interface {
 	IsTLContactsTopPeers()
 	Cmd() uint32
@@ -4293,7 +5104,7 @@ type TLContactsTopPeersType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLDraftMessageType represents DraftMessage from telegram.tl
+// TLDraftMessageType represents DraftMessage from Telegram
 type TLDraftMessageType interface {
 	IsTLDraftMessage()
 	Cmd() uint32
@@ -4301,7 +5112,7 @@ type TLDraftMessageType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesFeaturedStickersType represents messages.FeaturedStickers from telegram.tl
+// TLMessagesFeaturedStickersType represents messages.FeaturedStickers from Telegram
 type TLMessagesFeaturedStickersType interface {
 	IsTLMessagesFeaturedStickers()
 	Cmd() uint32
@@ -4309,7 +5120,7 @@ type TLMessagesFeaturedStickersType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesRecentStickersType represents messages.RecentStickers from telegram.tl
+// TLMessagesRecentStickersType represents messages.RecentStickers from Telegram
 type TLMessagesRecentStickersType interface {
 	IsTLMessagesRecentStickers()
 	Cmd() uint32
@@ -4317,7 +5128,7 @@ type TLMessagesRecentStickersType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMessagesArchivedStickers represents ctor messages.archivedStickers#4fcba9c8 count:int sets:Vector<StickerSetCovered> = messages.ArchivedStickers from telegram.tl
+// TLMessagesArchivedStickers represents ctor messages.archivedStickers#4fcba9c8 count:int sets:Vector<StickerSetCovered> = messages.ArchivedStickers from Telegram
 type TLMessagesArchivedStickers struct {
 	Count int                       // count:int
 	Sets  []TLStickerSetCoveredType // sets:Vector<StickerSetCovered>
@@ -4352,7 +5163,7 @@ func (o *TLMessagesArchivedStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesStickerSetInstallResultType represents messages.StickerSetInstallResult from telegram.tl
+// TLMessagesStickerSetInstallResultType represents messages.StickerSetInstallResult from Telegram
 type TLMessagesStickerSetInstallResultType interface {
 	IsTLMessagesStickerSetInstallResult()
 	Cmd() uint32
@@ -4360,7 +5171,7 @@ type TLMessagesStickerSetInstallResultType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLStickerSetCoveredType represents StickerSetCovered from telegram.tl
+// TLStickerSetCoveredType represents StickerSetCovered from Telegram
 type TLStickerSetCoveredType interface {
 	IsTLStickerSetCovered()
 	Cmd() uint32
@@ -4368,7 +5179,7 @@ type TLStickerSetCoveredType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLMaskCoords represents ctor maskCoords#aed6dbb2 n:int x:double y:double zoom:double = MaskCoords from telegram.tl
+// TLMaskCoords represents ctor maskCoords#aed6dbb2 n:int x:double y:double zoom:double = MaskCoords from Telegram
 type TLMaskCoords struct {
 	N    int     // n:int
 	X    float64 // x:double
@@ -4398,7 +5209,7 @@ func (o *TLMaskCoords) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputStickeredMediaType represents InputStickeredMedia from telegram.tl
+// TLInputStickeredMediaType represents InputStickeredMedia from Telegram
 type TLInputStickeredMediaType interface {
 	IsTLInputStickeredMedia()
 	Cmd() uint32
@@ -4406,7 +5217,7 @@ type TLInputStickeredMediaType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLGame represents ctor game#bdf9653b flags:# id:long access_hash:long short_name:string title:string description:string photo:Photo flags.0?document:Document = Game from telegram.tl
+// TLGame represents ctor game#bdf9653b flags:# id:long access_hash:long short_name:string title:string description:string photo:Photo flags.0?document:Document = Game from Telegram
 type TLGame struct {
 	Flags       uint           // flags:#
 	Id          uint64         // id:long
@@ -4450,7 +5261,7 @@ func (o *TLGame) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputGameType represents InputGame from telegram.tl
+// TLInputGameType represents InputGame from Telegram
 type TLInputGameType interface {
 	IsTLInputGame()
 	Cmd() uint32
@@ -4458,7 +5269,7 @@ type TLInputGameType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLHighScore represents ctor highScore#58fffcd0 pos:int user_id:int score:int = HighScore from telegram.tl
+// TLHighScore represents ctor highScore#58fffcd0 pos:int user_id:int score:int = HighScore from Telegram
 type TLHighScore struct {
 	Pos    int // pos:int
 	UserId int // user_id:int
@@ -4485,7 +5296,7 @@ func (o *TLHighScore) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesHighScores represents ctor messages.highScores#9a3bfd99 scores:Vector<HighScore> users:Vector<User> = messages.HighScores from telegram.tl
+// TLMessagesHighScores represents ctor messages.highScores#9a3bfd99 scores:Vector<HighScore> users:Vector<User> = messages.HighScores from Telegram
 type TLMessagesHighScores struct {
 	Scores []*TLHighScore // scores:Vector<HighScore>
 	Users  []TLUserType   // users:Vector<User>
@@ -4535,7 +5346,7 @@ func (o *TLMessagesHighScores) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRichTextType represents RichText from telegram.tl
+// TLRichTextType represents RichText from Telegram
 type TLRichTextType interface {
 	IsTLRichText()
 	Cmd() uint32
@@ -4543,7 +5354,7 @@ type TLRichTextType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPageBlockType represents PageBlock from telegram.tl
+// TLPageBlockType represents PageBlock from Telegram
 type TLPageBlockType interface {
 	IsTLPageBlock()
 	Cmd() uint32
@@ -4551,7 +5362,7 @@ type TLPageBlockType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPageType represents Page from telegram.tl
+// TLPageType represents Page from Telegram
 type TLPageType interface {
 	IsTLPage()
 	Cmd() uint32
@@ -4559,7 +5370,7 @@ type TLPageType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPhoneCallDiscardReasonType represents PhoneCallDiscardReason from telegram.tl
+// TLPhoneCallDiscardReasonType represents PhoneCallDiscardReason from Telegram
 type TLPhoneCallDiscardReasonType interface {
 	IsTLPhoneCallDiscardReason()
 	Cmd() uint32
@@ -4567,7 +5378,7 @@ type TLPhoneCallDiscardReasonType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLDataJSON represents ctor dataJSON#7d748d04 data:string = DataJSON from telegram.tl
+// TLDataJSON represents ctor dataJSON#7d748d04 data:string = DataJSON from Telegram
 type TLDataJSON struct {
 	Data string // data:string
 }
@@ -4588,7 +5399,7 @@ func (o *TLDataJSON) String() string {
 	return tl.Pretty(o)
 }
 
-// TLLabeledPrice represents ctor labeledPrice#cb296bf8 label:string amount:long = LabeledPrice from telegram.tl
+// TLLabeledPrice represents ctor labeledPrice#cb296bf8 label:string amount:long = LabeledPrice from Telegram
 type TLLabeledPrice struct {
 	Label  string // label:string
 	Amount uint64 // amount:long
@@ -4612,7 +5423,7 @@ func (o *TLLabeledPrice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInvoice represents ctor invoice#c30aa358 flags:# flags.0?test:true flags.1?name_requested:true flags.2?phone_requested:true flags.3?email_requested:true flags.4?shipping_address_requested:true flags.5?flexible:true currency:string prices:Vector<LabeledPrice> = Invoice from telegram.tl
+// TLInvoice represents ctor invoice#c30aa358 flags:# flags.0?test:true flags.1?name_requested:true flags.2?phone_requested:true flags.3?email_requested:true flags.4?shipping_address_requested:true flags.5?flexible:true currency:string prices:Vector<LabeledPrice> = Invoice from Telegram
 type TLInvoice struct {
 	Flags                    uint              // flags:#
 	Test                     bool              // flags.0?test:true
@@ -4666,7 +5477,7 @@ func (o *TLInvoice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentCharge represents ctor paymentCharge#ea02c27e id:string provider_charge_id:string = PaymentCharge from telegram.tl
+// TLPaymentCharge represents ctor paymentCharge#ea02c27e id:string provider_charge_id:string = PaymentCharge from Telegram
 type TLPaymentCharge struct {
 	Id               string // id:string
 	ProviderChargeId string // provider_charge_id:string
@@ -4690,7 +5501,7 @@ func (o *TLPaymentCharge) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPostAddress represents ctor postAddress#1e8caaeb street_line1:string street_line2:string city:string state:string country_iso2:string post_code:string = PostAddress from telegram.tl
+// TLPostAddress represents ctor postAddress#1e8caaeb street_line1:string street_line2:string city:string state:string country_iso2:string post_code:string = PostAddress from Telegram
 type TLPostAddress struct {
 	StreetLine1 string // street_line1:string
 	StreetLine2 string // street_line2:string
@@ -4726,7 +5537,7 @@ func (o *TLPostAddress) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentRequestedInfo represents ctor paymentRequestedInfo#909c3f94 flags:# flags.0?name:string flags.1?phone:string flags.2?email:string flags.3?shipping_address:PostAddress = PaymentRequestedInfo from telegram.tl
+// TLPaymentRequestedInfo represents ctor paymentRequestedInfo#909c3f94 flags:# flags.0?name:string flags.1?phone:string flags.2?email:string flags.3?shipping_address:PostAddress = PaymentRequestedInfo from Telegram
 type TLPaymentRequestedInfo struct {
 	Flags           uint           // flags:#
 	Name            string         // flags.0?name:string
@@ -4764,7 +5575,7 @@ func (o *TLPaymentRequestedInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentSavedCredentialsCard represents ctor paymentSavedCredentialsCard#cdc27a1f id:string title:string = PaymentSavedCredentials from telegram.tl
+// TLPaymentSavedCredentialsCard represents ctor paymentSavedCredentialsCard#cdc27a1f id:string title:string = PaymentSavedCredentials from Telegram
 type TLPaymentSavedCredentialsCard struct {
 	Id    string // id:string
 	Title string // title:string
@@ -4788,7 +5599,7 @@ func (o *TLPaymentSavedCredentialsCard) String() string {
 	return tl.Pretty(o)
 }
 
-// TLWebDocument represents ctor webDocument#c61acbd8 url:string access_hash:long size:int mime_type:string attributes:Vector<DocumentAttribute> dc_id:int = WebDocument from telegram.tl
+// TLWebDocument represents ctor webDocument#c61acbd8 url:string access_hash:long size:int mime_type:string attributes:Vector<DocumentAttribute> dc_id:int = WebDocument from Telegram
 type TLWebDocument struct {
 	Url        string                    // url:string
 	AccessHash uint64                    // access_hash:long
@@ -4835,7 +5646,7 @@ func (o *TLWebDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputWebDocument represents ctor inputWebDocument#9bed434d url:string size:int mime_type:string attributes:Vector<DocumentAttribute> = InputWebDocument from telegram.tl
+// TLInputWebDocument represents ctor inputWebDocument#9bed434d url:string size:int mime_type:string attributes:Vector<DocumentAttribute> = InputWebDocument from Telegram
 type TLInputWebDocument struct {
 	Url        string                    // url:string
 	Size       int                       // size:int
@@ -4876,7 +5687,7 @@ func (o *TLInputWebDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputWebFileLocation represents ctor inputWebFileLocation#c239d686 url:string access_hash:long = InputWebFileLocation from telegram.tl
+// TLInputWebFileLocation represents ctor inputWebFileLocation#c239d686 url:string access_hash:long = InputWebFileLocation from Telegram
 type TLInputWebFileLocation struct {
 	Url        string // url:string
 	AccessHash uint64 // access_hash:long
@@ -4900,7 +5711,7 @@ func (o *TLInputWebFileLocation) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUploadWebFile represents ctor upload.webFile#21e753bc size:int mime_type:string file_type:storage.FileType mtime:int bytes:bytes = upload.WebFile from telegram.tl
+// TLUploadWebFile represents ctor upload.webFile#21e753bc size:int mime_type:string file_type:storage.FileType mtime:int bytes:bytes = upload.WebFile from Telegram
 type TLUploadWebFile struct {
 	Size     int                   // size:int
 	MimeType string                // mime_type:string
@@ -4934,7 +5745,7 @@ func (o *TLUploadWebFile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsPaymentForm represents ctor payments.paymentForm#3f56aea3 flags:# flags.2?can_save_credentials:true flags.3?password_missing:true bot_id:int invoice:Invoice provider_id:int url:string flags.4?native_provider:string flags.4?native_params:DataJSON flags.0?saved_info:PaymentRequestedInfo flags.1?saved_credentials:PaymentSavedCredentials users:Vector<User> = payments.PaymentForm from telegram.tl
+// TLPaymentsPaymentForm represents ctor payments.paymentForm#3f56aea3 flags:# flags.2?can_save_credentials:true flags.3?password_missing:true bot_id:int invoice:Invoice provider_id:int url:string flags.4?native_provider:string flags.4?native_params:DataJSON flags.0?saved_info:PaymentRequestedInfo flags.1?saved_credentials:PaymentSavedCredentials users:Vector<User> = payments.PaymentForm from Telegram
 type TLPaymentsPaymentForm struct {
 	Flags              uint                           // flags:#
 	CanSaveCredentials bool                           // flags.2?can_save_credentials:true
@@ -5017,7 +5828,7 @@ func (o *TLPaymentsPaymentForm) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsValidatedRequestedInfo represents ctor payments.validatedRequestedInfo#d1451883 flags:# flags.0?id:string flags.1?shipping_options:Vector<ShippingOption> = payments.ValidatedRequestedInfo from telegram.tl
+// TLPaymentsValidatedRequestedInfo represents ctor payments.validatedRequestedInfo#d1451883 flags:# flags.0?id:string flags.1?shipping_options:Vector<ShippingOption> = payments.ValidatedRequestedInfo from Telegram
 type TLPaymentsValidatedRequestedInfo struct {
 	Flags           uint                // flags:#
 	Id              string              // flags.0?id:string
@@ -5059,7 +5870,7 @@ func (o *TLPaymentsValidatedRequestedInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsPaymentResultType represents payments.PaymentResult from telegram.tl
+// TLPaymentsPaymentResultType represents payments.PaymentResult from Telegram
 type TLPaymentsPaymentResultType interface {
 	IsTLPaymentsPaymentResult()
 	Cmd() uint32
@@ -5067,7 +5878,7 @@ type TLPaymentsPaymentResultType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPaymentsPaymentReceipt represents ctor payments.paymentReceipt#500911e1 flags:# date:int bot_id:int invoice:Invoice provider_id:int flags.0?info:PaymentRequestedInfo flags.1?shipping:ShippingOption currency:string total_amount:long credentials_title:string users:Vector<User> = payments.PaymentReceipt from telegram.tl
+// TLPaymentsPaymentReceipt represents ctor payments.paymentReceipt#500911e1 flags:# date:int bot_id:int invoice:Invoice provider_id:int flags.0?info:PaymentRequestedInfo flags.1?shipping:ShippingOption currency:string total_amount:long credentials_title:string users:Vector<User> = payments.PaymentReceipt from Telegram
 type TLPaymentsPaymentReceipt struct {
 	Flags            uint                    // flags:#
 	Date             int                     // date:int
@@ -5144,7 +5955,7 @@ func (o *TLPaymentsPaymentReceipt) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsSavedInfo represents ctor payments.savedInfo#fb8fe43c flags:# flags.1?has_saved_credentials:true flags.0?saved_info:PaymentRequestedInfo = payments.SavedInfo from telegram.tl
+// TLPaymentsSavedInfo represents ctor payments.savedInfo#fb8fe43c flags:# flags.1?has_saved_credentials:true flags.0?saved_info:PaymentRequestedInfo = payments.SavedInfo from Telegram
 type TLPaymentsSavedInfo struct {
 	Flags               uint                    // flags:#
 	HasSavedCredentials bool                    // flags.1?has_saved_credentials:true
@@ -5175,7 +5986,7 @@ func (o *TLPaymentsSavedInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPaymentCredentialsType represents InputPaymentCredentials from telegram.tl
+// TLInputPaymentCredentialsType represents InputPaymentCredentials from Telegram
 type TLInputPaymentCredentialsType interface {
 	IsTLInputPaymentCredentials()
 	Cmd() uint32
@@ -5183,7 +5994,7 @@ type TLInputPaymentCredentialsType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLAccountTmpPassword represents ctor account.tmpPassword#db64fd34 tmp_password:bytes valid_until:int = account.TmpPassword from telegram.tl
+// TLAccountTmpPassword represents ctor account.tmpPassword#db64fd34 tmp_password:bytes valid_until:int = account.TmpPassword from Telegram
 type TLAccountTmpPassword struct {
 	TmpPassword []byte // tmp_password:bytes
 	ValidUntil  int    // valid_until:int
@@ -5207,7 +6018,7 @@ func (o *TLAccountTmpPassword) String() string {
 	return tl.Pretty(o)
 }
 
-// TLShippingOption represents ctor shippingOption#b6213cdf id:string title:string prices:Vector<LabeledPrice> = ShippingOption from telegram.tl
+// TLShippingOption represents ctor shippingOption#b6213cdf id:string title:string prices:Vector<LabeledPrice> = ShippingOption from Telegram
 type TLShippingOption struct {
 	Id     string            // id:string
 	Title  string            // title:string
@@ -5249,7 +6060,7 @@ func (o *TLShippingOption) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPhoneCall represents ctor inputPhoneCall#1e36fded id:long access_hash:long = InputPhoneCall from telegram.tl
+// TLInputPhoneCall represents ctor inputPhoneCall#1e36fded id:long access_hash:long = InputPhoneCall from Telegram
 type TLInputPhoneCall struct {
 	Id         uint64 // id:long
 	AccessHash uint64 // access_hash:long
@@ -5273,7 +6084,7 @@ func (o *TLInputPhoneCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallType represents PhoneCall from telegram.tl
+// TLPhoneCallType represents PhoneCall from Telegram
 type TLPhoneCallType interface {
 	IsTLPhoneCall()
 	Cmd() uint32
@@ -5281,7 +6092,7 @@ type TLPhoneCallType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLPhoneConnection represents ctor phoneConnection#9d4c17c0 id:long ip:string ipv6:string port:int peer_tag:bytes = PhoneConnection from telegram.tl
+// TLPhoneConnection represents ctor phoneConnection#9d4c17c0 id:long ip:string ipv6:string port:int peer_tag:bytes = PhoneConnection from Telegram
 type TLPhoneConnection struct {
 	Id      uint64 // id:long
 	IP      string // ip:string
@@ -5314,7 +6125,7 @@ func (o *TLPhoneConnection) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallProtocol represents ctor phoneCallProtocol#a2bb35cb flags:# flags.0?udp_p2p:true flags.1?udp_reflector:true min_layer:int max_layer:int = PhoneCallProtocol from telegram.tl
+// TLPhoneCallProtocol represents ctor phoneCallProtocol#a2bb35cb flags:# flags.0?udp_p2p:true flags.1?udp_reflector:true min_layer:int max_layer:int = PhoneCallProtocol from Telegram
 type TLPhoneCallProtocol struct {
 	Flags        uint // flags:#
 	UdpP2p       bool // flags.0?udp_p2p:true
@@ -5345,7 +6156,7 @@ func (o *TLPhoneCallProtocol) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhonePhoneCall represents ctor phone.phoneCall#ec82e140 phone_call:PhoneCall users:Vector<User> = phone.PhoneCall from telegram.tl
+// TLPhonePhoneCall represents ctor phone.phoneCall#ec82e140 phone_call:PhoneCall users:Vector<User> = phone.PhoneCall from Telegram
 type TLPhonePhoneCall struct {
 	PhoneCall TLPhoneCallType // phone_call:PhoneCall
 	Users     []TLUserType    // users:Vector<User>
@@ -5381,7 +6192,7 @@ func (o *TLPhonePhoneCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLReqPQ represents func req_pq#60469778 nonce:int128 = ResPQ from mtproto.tl
+// TLReqPQ represents func req_pq#60469778 nonce:int128 = ResPQ from MTProto
 type TLReqPQ struct {
 	Nonce [16]byte // nonce:int128
 }
@@ -5402,7 +6213,7 @@ func (o *TLReqPQ) String() string {
 	return tl.Pretty(o)
 }
 
-// TLReqDHParams represents func req_DH_params#d712e4be nonce:int128 server_nonce:int128 p:bytes q:bytes public_key_fingerprint:long encrypted_data:bytes = Server_DH_Params from mtproto.tl
+// TLReqDHParams represents func req_DH_params#d712e4be nonce:int128 server_nonce:int128 p:bytes q:bytes public_key_fingerprint:long encrypted_data:bytes = Server_DH_Params from MTProto
 type TLReqDHParams struct {
 	Nonce                [16]byte // nonce:int128
 	ServerNonce          [16]byte // server_nonce:int128
@@ -5438,7 +6249,7 @@ func (o *TLReqDHParams) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSetClientDHParams represents func set_client_DH_params#f5045f1f nonce:int128 server_nonce:int128 encrypted_data:bytes = Set_client_DH_params_answer from mtproto.tl
+// TLSetClientDHParams represents func set_client_DH_params#f5045f1f nonce:int128 server_nonce:int128 encrypted_data:bytes = Set_client_DH_params_answer from MTProto
 type TLSetClientDHParams struct {
 	Nonce         [16]byte // nonce:int128
 	ServerNonce   [16]byte // server_nonce:int128
@@ -5465,7 +6276,7 @@ func (o *TLSetClientDHParams) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcDropAnswer represents func rpc_drop_answer#58e4a740 req_msg_id:long = RpcDropAnswer from mtproto.tl
+// TLRpcDropAnswer represents func rpc_drop_answer#58e4a740 req_msg_id:long = RpcDropAnswer from MTProto
 type TLRpcDropAnswer struct {
 	ReqMsgId uint64 // req_msg_id:long
 }
@@ -5486,7 +6297,7 @@ func (o *TLRpcDropAnswer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLGetFutureSalts represents func get_future_salts#b921bd04 num:int = FutureSalts from mtproto.tl
+// TLGetFutureSalts represents func get_future_salts#b921bd04 num:int = FutureSalts from MTProto
 type TLGetFutureSalts struct {
 	Num int // num:int
 }
@@ -5507,7 +6318,7 @@ func (o *TLGetFutureSalts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPing represents func ping#7abe77ec ping_id:long = Pong from mtproto.tl
+// TLPing represents func ping#7abe77ec ping_id:long = Pong from MTProto
 type TLPing struct {
 	PingId uint64 // ping_id:long
 }
@@ -5528,7 +6339,7 @@ func (o *TLPing) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPingDelayDisconnect represents func ping_delay_disconnect#f3427b8c ping_id:long disconnect_delay:int = Pong from mtproto.tl
+// TLPingDelayDisconnect represents func ping_delay_disconnect#f3427b8c ping_id:long disconnect_delay:int = Pong from MTProto
 type TLPingDelayDisconnect struct {
 	PingId          uint64 // ping_id:long
 	DisconnectDelay int    // disconnect_delay:int
@@ -5552,7 +6363,7 @@ func (o *TLPingDelayDisconnect) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDestroySession represents func destroy_session#e7512126 session_id:long = DestroySessionRes from mtproto.tl
+// TLDestroySession represents func destroy_session#e7512126 session_id:long = DestroySessionRes from MTProto
 type TLDestroySession struct {
 	SessionId uint64 // session_id:long
 }
@@ -5573,7 +6384,7 @@ func (o *TLDestroySession) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHttpWait represents func http_wait#9299359f max_delay:int wait_after:int max_wait:int = HttpWait from mtproto.tl
+// TLHttpWait represents func http_wait#9299359f max_delay:int wait_after:int max_wait:int = HttpWait from MTProto
 type TLHttpWait struct {
 	MaxDelay  int // max_delay:int
 	WaitAfter int // wait_after:int
@@ -5600,7 +6411,7 @@ func (o *TLHttpWait) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInvokeAfterMsg represents func invokeAfterMsg#cb9f372d {X:Type} msg_id:long query:Object = Object from telegram.tl
+// TLInvokeAfterMsg represents func invokeAfterMsg#cb9f372d {X:Type} msg_id:long query:Object = Object from Telegram
 type TLInvokeAfterMsg struct {
 	MsgId uint64    // msg_id:long
 	Query tl.Object // query:Object
@@ -5625,7 +6436,7 @@ func (o *TLInvokeAfterMsg) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInvokeAfterMsgs represents func invokeAfterMsgs#3dc4b4f0 {X:Type} msg_ids:Vector<long> query:Object = Object from telegram.tl
+// TLInvokeAfterMsgs represents func invokeAfterMsgs#3dc4b4f0 {X:Type} msg_ids:Vector<long> query:Object = Object from Telegram
 type TLInvokeAfterMsgs struct {
 	MsgIds []uint64  // msg_ids:Vector<long>
 	Query  tl.Object // query:Object
@@ -5660,7 +6471,7 @@ func (o *TLInvokeAfterMsgs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInitConnection represents func initConnection#69796de9 {X:Type} api_id:int device_model:string system_version:string app_version:string lang_code:string query:Object = Object from telegram.tl
+// TLInitConnection represents func initConnection#69796de9 {X:Type} api_id:int device_model:string system_version:string app_version:string lang_code:string query:Object = Object from Telegram
 type TLInitConnection struct {
 	ApiId         int       // api_id:int
 	DeviceModel   string    // device_model:string
@@ -5697,7 +6508,7 @@ func (o *TLInitConnection) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInvokeWithLayer represents func invokeWithLayer#da9b0d0d {X:Type} layer:int query:Object = Object from telegram.tl
+// TLInvokeWithLayer represents func invokeWithLayer#da9b0d0d {X:Type} layer:int query:Object = Object from Telegram
 type TLInvokeWithLayer struct {
 	Layer int       // layer:int
 	Query tl.Object // query:Object
@@ -5722,7 +6533,7 @@ func (o *TLInvokeWithLayer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInvokeWithoutUpdates represents func invokeWithoutUpdates#bf9459b7 {X:Type} query:Object = Object from telegram.tl
+// TLInvokeWithoutUpdates represents func invokeWithoutUpdates#bf9459b7 {X:Type} query:Object = Object from Telegram
 type TLInvokeWithoutUpdates struct {
 	Query tl.Object // query:Object
 }
@@ -5744,7 +6555,7 @@ func (o *TLInvokeWithoutUpdates) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthCheckPhone represents func auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone from telegram.tl
+// TLAuthCheckPhone represents func auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone from Telegram
 type TLAuthCheckPhone struct {
 	PhoneNumber string // phone_number:string
 }
@@ -5765,7 +6576,7 @@ func (o *TLAuthCheckPhone) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthSendCode represents func auth.sendCode#86aef0ec flags:# flags.0?allow_flashcall:true phone_number:string flags.0?current_number:Bool api_id:int api_hash:string = auth.SentCode from telegram.tl
+// TLAuthSendCode represents func auth.sendCode#86aef0ec flags:# flags.0?allow_flashcall:true phone_number:string flags.0?current_number:Bool api_id:int api_hash:string = auth.SentCode from Telegram
 type TLAuthSendCode struct {
 	Flags          uint   // flags:#
 	AllowFlashcall bool   // flags.0?allow_flashcall:true
@@ -5805,7 +6616,7 @@ func (o *TLAuthSendCode) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthSignUp represents func auth.signUp#1b067634 phone_number:string phone_code_hash:string phone_code:string first_name:string last_name:string = auth.Authorization from telegram.tl
+// TLAuthSignUp represents func auth.signUp#1b067634 phone_number:string phone_code_hash:string phone_code:string first_name:string last_name:string = auth.Authorization from Telegram
 type TLAuthSignUp struct {
 	PhoneNumber   string // phone_number:string
 	PhoneCodeHash string // phone_code_hash:string
@@ -5838,7 +6649,7 @@ func (o *TLAuthSignUp) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthSignIn represents func auth.signIn#bcd51581 phone_number:string phone_code_hash:string phone_code:string = auth.Authorization from telegram.tl
+// TLAuthSignIn represents func auth.signIn#bcd51581 phone_number:string phone_code_hash:string phone_code:string = auth.Authorization from Telegram
 type TLAuthSignIn struct {
 	PhoneNumber   string // phone_number:string
 	PhoneCodeHash string // phone_code_hash:string
@@ -5865,7 +6676,7 @@ func (o *TLAuthSignIn) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthLogOut represents func auth.logOut#5717da40 = Bool from telegram.tl
+// TLAuthLogOut represents func auth.logOut#5717da40 = Bool from Telegram
 type TLAuthLogOut struct {
 }
 
@@ -5883,7 +6694,7 @@ func (o *TLAuthLogOut) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthResetAuthorizations represents func auth.resetAuthorizations#9fab0d1a = Bool from telegram.tl
+// TLAuthResetAuthorizations represents func auth.resetAuthorizations#9fab0d1a = Bool from Telegram
 type TLAuthResetAuthorizations struct {
 }
 
@@ -5901,7 +6712,7 @@ func (o *TLAuthResetAuthorizations) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthSendInvites represents func auth.sendInvites#771c1d97 phone_numbers:Vector<string> message:string = Bool from telegram.tl
+// TLAuthSendInvites represents func auth.sendInvites#771c1d97 phone_numbers:Vector<string> message:string = Bool from Telegram
 type TLAuthSendInvites struct {
 	PhoneNumbers []string // phone_numbers:Vector<string>
 	Message      string   // message:string
@@ -5935,7 +6746,7 @@ func (o *TLAuthSendInvites) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthExportAuthorization represents func auth.exportAuthorization#e5bfffcd dc_id:int = auth.ExportedAuthorization from telegram.tl
+// TLAuthExportAuthorization represents func auth.exportAuthorization#e5bfffcd dc_id:int = auth.ExportedAuthorization from Telegram
 type TLAuthExportAuthorization struct {
 	DcId int // dc_id:int
 }
@@ -5956,7 +6767,7 @@ func (o *TLAuthExportAuthorization) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthImportAuthorization represents func auth.importAuthorization#e3ef9613 id:int bytes:bytes = auth.Authorization from telegram.tl
+// TLAuthImportAuthorization represents func auth.importAuthorization#e3ef9613 id:int bytes:bytes = auth.Authorization from Telegram
 type TLAuthImportAuthorization struct {
 	Id    int    // id:int
 	Bytes []byte // bytes:bytes
@@ -5980,7 +6791,7 @@ func (o *TLAuthImportAuthorization) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthBindTempAuthKey represents func auth.bindTempAuthKey#cdd42a05 perm_auth_key_id:long nonce:long expires_at:int encrypted_message:bytes = Bool from telegram.tl
+// TLAuthBindTempAuthKey represents func auth.bindTempAuthKey#cdd42a05 perm_auth_key_id:long nonce:long expires_at:int encrypted_message:bytes = Bool from Telegram
 type TLAuthBindTempAuthKey struct {
 	PermAuthKeyId    uint64 // perm_auth_key_id:long
 	Nonce            uint64 // nonce:long
@@ -6010,7 +6821,7 @@ func (o *TLAuthBindTempAuthKey) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthImportBotAuthorization represents func auth.importBotAuthorization#67a3ff2c flags:int api_id:int api_hash:string bot_auth_token:string = auth.Authorization from telegram.tl
+// TLAuthImportBotAuthorization represents func auth.importBotAuthorization#67a3ff2c flags:int api_id:int api_hash:string bot_auth_token:string = auth.Authorization from Telegram
 type TLAuthImportBotAuthorization struct {
 	Flags        int    // flags:int
 	ApiId        int    // api_id:int
@@ -6040,7 +6851,7 @@ func (o *TLAuthImportBotAuthorization) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthCheckPassword represents func auth.checkPassword#0a63011e password_hash:bytes = auth.Authorization from telegram.tl
+// TLAuthCheckPassword represents func auth.checkPassword#0a63011e password_hash:bytes = auth.Authorization from Telegram
 type TLAuthCheckPassword struct {
 	PasswordHash []byte // password_hash:bytes
 }
@@ -6061,7 +6872,7 @@ func (o *TLAuthCheckPassword) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthRequestPasswordRecovery represents func auth.requestPasswordRecovery#d897bc66 = auth.PasswordRecovery from telegram.tl
+// TLAuthRequestPasswordRecovery represents func auth.requestPasswordRecovery#d897bc66 = auth.PasswordRecovery from Telegram
 type TLAuthRequestPasswordRecovery struct {
 }
 
@@ -6079,7 +6890,7 @@ func (o *TLAuthRequestPasswordRecovery) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthRecoverPassword represents func auth.recoverPassword#4ea56e92 code:string = auth.Authorization from telegram.tl
+// TLAuthRecoverPassword represents func auth.recoverPassword#4ea56e92 code:string = auth.Authorization from Telegram
 type TLAuthRecoverPassword struct {
 	Code string // code:string
 }
@@ -6100,7 +6911,7 @@ func (o *TLAuthRecoverPassword) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthResendCode represents func auth.resendCode#3ef1a9bf phone_number:string phone_code_hash:string = auth.SentCode from telegram.tl
+// TLAuthResendCode represents func auth.resendCode#3ef1a9bf phone_number:string phone_code_hash:string = auth.SentCode from Telegram
 type TLAuthResendCode struct {
 	PhoneNumber   string // phone_number:string
 	PhoneCodeHash string // phone_code_hash:string
@@ -6124,7 +6935,7 @@ func (o *TLAuthResendCode) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthCancelCode represents func auth.cancelCode#1f040578 phone_number:string phone_code_hash:string = Bool from telegram.tl
+// TLAuthCancelCode represents func auth.cancelCode#1f040578 phone_number:string phone_code_hash:string = Bool from Telegram
 type TLAuthCancelCode struct {
 	PhoneNumber   string // phone_number:string
 	PhoneCodeHash string // phone_code_hash:string
@@ -6148,7 +6959,7 @@ func (o *TLAuthCancelCode) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthDropTempAuthKeys represents func auth.dropTempAuthKeys#8e48a188 except_auth_keys:Vector<long> = Bool from telegram.tl
+// TLAuthDropTempAuthKeys represents func auth.dropTempAuthKeys#8e48a188 except_auth_keys:Vector<long> = Bool from Telegram
 type TLAuthDropTempAuthKeys struct {
 	ExceptAuthKeys []uint64 // except_auth_keys:Vector<long>
 }
@@ -6179,7 +6990,7 @@ func (o *TLAuthDropTempAuthKeys) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountRegisterDevice represents func account.registerDevice#637ea878 token_type:int token:string = Bool from telegram.tl
+// TLAccountRegisterDevice represents func account.registerDevice#637ea878 token_type:int token:string = Bool from Telegram
 type TLAccountRegisterDevice struct {
 	TokenType int    // token_type:int
 	Token     string // token:string
@@ -6203,7 +7014,7 @@ func (o *TLAccountRegisterDevice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountUnregisterDevice represents func account.unregisterDevice#65c55b40 token_type:int token:string = Bool from telegram.tl
+// TLAccountUnregisterDevice represents func account.unregisterDevice#65c55b40 token_type:int token:string = Bool from Telegram
 type TLAccountUnregisterDevice struct {
 	TokenType int    // token_type:int
 	Token     string // token:string
@@ -6227,7 +7038,7 @@ func (o *TLAccountUnregisterDevice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountUpdateNotifySettings represents func account.updateNotifySettings#84be5b93 peer:InputNotifyPeer settings:InputPeerNotifySettings = Bool from telegram.tl
+// TLAccountUpdateNotifySettings represents func account.updateNotifySettings#84be5b93 peer:InputNotifyPeer settings:InputPeerNotifySettings = Bool from Telegram
 type TLAccountUpdateNotifySettings struct {
 	Peer     TLInputNotifyPeerType      // peer:InputNotifyPeer
 	Settings *TLInputPeerNotifySettings // settings:InputPeerNotifySettings
@@ -6257,7 +7068,7 @@ func (o *TLAccountUpdateNotifySettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountGetNotifySettings represents func account.getNotifySettings#12b3ad31 peer:InputNotifyPeer = PeerNotifySettings from telegram.tl
+// TLAccountGetNotifySettings represents func account.getNotifySettings#12b3ad31 peer:InputNotifyPeer = PeerNotifySettings from Telegram
 type TLAccountGetNotifySettings struct {
 	Peer TLInputNotifyPeerType // peer:InputNotifyPeer
 }
@@ -6279,7 +7090,7 @@ func (o *TLAccountGetNotifySettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountResetNotifySettings represents func account.resetNotifySettings#db7e1747 = Bool from telegram.tl
+// TLAccountResetNotifySettings represents func account.resetNotifySettings#db7e1747 = Bool from Telegram
 type TLAccountResetNotifySettings struct {
 }
 
@@ -6297,7 +7108,7 @@ func (o *TLAccountResetNotifySettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountUpdateProfile represents func account.updateProfile#78515775 flags:# flags.0?first_name:string flags.1?last_name:string flags.2?about:string = User from telegram.tl
+// TLAccountUpdateProfile represents func account.updateProfile#78515775 flags:# flags.0?first_name:string flags.1?last_name:string flags.2?about:string = User from Telegram
 type TLAccountUpdateProfile struct {
 	Flags     uint   // flags:#
 	FirstName string // flags.0?first_name:string
@@ -6327,7 +7138,7 @@ func (o *TLAccountUpdateProfile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountUpdateStatus represents func account.updateStatus#6628562c offline:Bool = Bool from telegram.tl
+// TLAccountUpdateStatus represents func account.updateStatus#6628562c offline:Bool = Bool from Telegram
 type TLAccountUpdateStatus struct {
 	Offline bool // offline:Bool
 }
@@ -6353,7 +7164,7 @@ func (o *TLAccountUpdateStatus) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountGetWallPapers represents func account.getWallPapers#c04cfac2 = Vector<WallPaper> from telegram.tl
+// TLAccountGetWallPapers represents func account.getWallPapers#c04cfac2 = Vector<WallPaper> from Telegram
 type TLAccountGetWallPapers struct {
 }
 
@@ -6371,7 +7182,7 @@ func (o *TLAccountGetWallPapers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountReportPeer represents func account.reportPeer#ae189d5f peer:InputPeer reason:ReportReason = Bool from telegram.tl
+// TLAccountReportPeer represents func account.reportPeer#ae189d5f peer:InputPeer reason:ReportReason = Bool from Telegram
 type TLAccountReportPeer struct {
 	Peer   TLInputPeerType    // peer:InputPeer
 	Reason TLReportReasonType // reason:ReportReason
@@ -6397,7 +7208,7 @@ func (o *TLAccountReportPeer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountCheckUsername represents func account.checkUsername#2714d86c username:string = Bool from telegram.tl
+// TLAccountCheckUsername represents func account.checkUsername#2714d86c username:string = Bool from Telegram
 type TLAccountCheckUsername struct {
 	Username string // username:string
 }
@@ -6418,7 +7229,7 @@ func (o *TLAccountCheckUsername) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountUpdateUsername represents func account.updateUsername#3e0bdd7c username:string = User from telegram.tl
+// TLAccountUpdateUsername represents func account.updateUsername#3e0bdd7c username:string = User from Telegram
 type TLAccountUpdateUsername struct {
 	Username string // username:string
 }
@@ -6439,7 +7250,7 @@ func (o *TLAccountUpdateUsername) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountGetPrivacy represents func account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules from telegram.tl
+// TLAccountGetPrivacy represents func account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules from Telegram
 type TLAccountGetPrivacy struct {
 	Key TLInputPrivacyKeyType // key:InputPrivacyKey
 }
@@ -6461,7 +7272,7 @@ func (o *TLAccountGetPrivacy) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountSetPrivacy represents func account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules from telegram.tl
+// TLAccountSetPrivacy represents func account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules from Telegram
 type TLAccountSetPrivacy struct {
 	Key   TLInputPrivacyKeyType    // key:InputPrivacyKey
 	Rules []TLInputPrivacyRuleType // rules:Vector<InputPrivacyRule>
@@ -6497,7 +7308,7 @@ func (o *TLAccountSetPrivacy) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountDeleteAccount represents func account.deleteAccount#418d4e0b reason:string = Bool from telegram.tl
+// TLAccountDeleteAccount represents func account.deleteAccount#418d4e0b reason:string = Bool from Telegram
 type TLAccountDeleteAccount struct {
 	Reason string // reason:string
 }
@@ -6518,7 +7329,7 @@ func (o *TLAccountDeleteAccount) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountGetAccountTTL represents func account.getAccountTTL#08fc711d = AccountDaysTTL from telegram.tl
+// TLAccountGetAccountTTL represents func account.getAccountTTL#08fc711d = AccountDaysTTL from Telegram
 type TLAccountGetAccountTTL struct {
 }
 
@@ -6536,7 +7347,7 @@ func (o *TLAccountGetAccountTTL) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountSetAccountTTL represents func account.setAccountTTL#2442485e ttl:AccountDaysTTL = Bool from telegram.tl
+// TLAccountSetAccountTTL represents func account.setAccountTTL#2442485e ttl:AccountDaysTTL = Bool from Telegram
 type TLAccountSetAccountTTL struct {
 	Ttl *TLAccountDaysTTL // ttl:AccountDaysTTL
 }
@@ -6562,7 +7373,7 @@ func (o *TLAccountSetAccountTTL) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountSendChangePhoneCode represents func account.sendChangePhoneCode#08e57deb flags:# flags.0?allow_flashcall:true phone_number:string flags.0?current_number:Bool = auth.SentCode from telegram.tl
+// TLAccountSendChangePhoneCode represents func account.sendChangePhoneCode#08e57deb flags:# flags.0?allow_flashcall:true phone_number:string flags.0?current_number:Bool = auth.SentCode from Telegram
 type TLAccountSendChangePhoneCode struct {
 	Flags          uint   // flags:#
 	AllowFlashcall bool   // flags.0?allow_flashcall:true
@@ -6596,7 +7407,7 @@ func (o *TLAccountSendChangePhoneCode) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountChangePhone represents func account.changePhone#70c32edb phone_number:string phone_code_hash:string phone_code:string = User from telegram.tl
+// TLAccountChangePhone represents func account.changePhone#70c32edb phone_number:string phone_code_hash:string phone_code:string = User from Telegram
 type TLAccountChangePhone struct {
 	PhoneNumber   string // phone_number:string
 	PhoneCodeHash string // phone_code_hash:string
@@ -6623,7 +7434,7 @@ func (o *TLAccountChangePhone) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountUpdateDeviceLocked represents func account.updateDeviceLocked#38df3532 period:int = Bool from telegram.tl
+// TLAccountUpdateDeviceLocked represents func account.updateDeviceLocked#38df3532 period:int = Bool from Telegram
 type TLAccountUpdateDeviceLocked struct {
 	Period int // period:int
 }
@@ -6644,7 +7455,7 @@ func (o *TLAccountUpdateDeviceLocked) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountGetAuthorizations represents func account.getAuthorizations#e320c158 = account.Authorizations from telegram.tl
+// TLAccountGetAuthorizations represents func account.getAuthorizations#e320c158 = account.Authorizations from Telegram
 type TLAccountGetAuthorizations struct {
 }
 
@@ -6662,7 +7473,7 @@ func (o *TLAccountGetAuthorizations) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountResetAuthorization represents func account.resetAuthorization#df77f3bc hash:long = Bool from telegram.tl
+// TLAccountResetAuthorization represents func account.resetAuthorization#df77f3bc hash:long = Bool from Telegram
 type TLAccountResetAuthorization struct {
 	Hash uint64 // hash:long
 }
@@ -6683,7 +7494,7 @@ func (o *TLAccountResetAuthorization) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountGetPassword represents func account.getPassword#548a30f5 = account.Password from telegram.tl
+// TLAccountGetPassword represents func account.getPassword#548a30f5 = account.Password from Telegram
 type TLAccountGetPassword struct {
 }
 
@@ -6701,7 +7512,7 @@ func (o *TLAccountGetPassword) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountGetPasswordSettings represents func account.getPasswordSettings#bc8d11bb current_password_hash:bytes = account.PasswordSettings from telegram.tl
+// TLAccountGetPasswordSettings represents func account.getPasswordSettings#bc8d11bb current_password_hash:bytes = account.PasswordSettings from Telegram
 type TLAccountGetPasswordSettings struct {
 	CurrentPasswordHash []byte // current_password_hash:bytes
 }
@@ -6722,7 +7533,7 @@ func (o *TLAccountGetPasswordSettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountUpdatePasswordSettings represents func account.updatePasswordSettings#fa7c4b86 current_password_hash:bytes new_settings:account.PasswordInputSettings = Bool from telegram.tl
+// TLAccountUpdatePasswordSettings represents func account.updatePasswordSettings#fa7c4b86 current_password_hash:bytes new_settings:account.PasswordInputSettings = Bool from Telegram
 type TLAccountUpdatePasswordSettings struct {
 	CurrentPasswordHash []byte                          // current_password_hash:bytes
 	NewSettings         *TLAccountPasswordInputSettings // new_settings:account.PasswordInputSettings
@@ -6751,7 +7562,7 @@ func (o *TLAccountUpdatePasswordSettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountSendConfirmPhoneCode represents func account.sendConfirmPhoneCode#1516d7bd flags:# flags.0?allow_flashcall:true hash:string flags.0?current_number:Bool = auth.SentCode from telegram.tl
+// TLAccountSendConfirmPhoneCode represents func account.sendConfirmPhoneCode#1516d7bd flags:# flags.0?allow_flashcall:true hash:string flags.0?current_number:Bool = auth.SentCode from Telegram
 type TLAccountSendConfirmPhoneCode struct {
 	Flags          uint   // flags:#
 	AllowFlashcall bool   // flags.0?allow_flashcall:true
@@ -6785,7 +7596,7 @@ func (o *TLAccountSendConfirmPhoneCode) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountConfirmPhone represents func account.confirmPhone#5f2178c3 phone_code_hash:string phone_code:string = Bool from telegram.tl
+// TLAccountConfirmPhone represents func account.confirmPhone#5f2178c3 phone_code_hash:string phone_code:string = Bool from Telegram
 type TLAccountConfirmPhone struct {
 	PhoneCodeHash string // phone_code_hash:string
 	PhoneCode     string // phone_code:string
@@ -6809,7 +7620,7 @@ func (o *TLAccountConfirmPhone) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountGetTmpPassword represents func account.getTmpPassword#4a82327e password_hash:bytes period:int = account.TmpPassword from telegram.tl
+// TLAccountGetTmpPassword represents func account.getTmpPassword#4a82327e password_hash:bytes period:int = account.TmpPassword from Telegram
 type TLAccountGetTmpPassword struct {
 	PasswordHash []byte // password_hash:bytes
 	Period       int    // period:int
@@ -6833,7 +7644,7 @@ func (o *TLAccountGetTmpPassword) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUsersGetUsers represents func users.getUsers#0d91a548 id:Vector<InputUser> = Vector<User> from telegram.tl
+// TLUsersGetUsers represents func users.getUsers#0d91a548 id:Vector<InputUser> = Vector<User> from Telegram
 type TLUsersGetUsers struct {
 	Id []TLInputUserType // id:Vector<InputUser>
 }
@@ -6865,7 +7676,7 @@ func (o *TLUsersGetUsers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUsersGetFullUser represents func users.getFullUser#ca30a5b1 id:InputUser = UserFull from telegram.tl
+// TLUsersGetFullUser represents func users.getFullUser#ca30a5b1 id:InputUser = UserFull from Telegram
 type TLUsersGetFullUser struct {
 	Id TLInputUserType // id:InputUser
 }
@@ -6887,7 +7698,7 @@ func (o *TLUsersGetFullUser) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsGetStatuses represents func contacts.getStatuses#c4a353ee = Vector<ContactStatus> from telegram.tl
+// TLContactsGetStatuses represents func contacts.getStatuses#c4a353ee = Vector<ContactStatus> from Telegram
 type TLContactsGetStatuses struct {
 }
 
@@ -6905,7 +7716,7 @@ func (o *TLContactsGetStatuses) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsGetContacts represents func contacts.getContacts#22c6aa08 hash:string = contacts.Contacts from telegram.tl
+// TLContactsGetContacts represents func contacts.getContacts#22c6aa08 hash:string = contacts.Contacts from Telegram
 type TLContactsGetContacts struct {
 	Hash string // hash:string
 }
@@ -6926,7 +7737,7 @@ func (o *TLContactsGetContacts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsImportContacts represents func contacts.importContacts#da30b32d contacts:Vector<InputContact> replace:Bool = contacts.ImportedContacts from telegram.tl
+// TLContactsImportContacts represents func contacts.importContacts#da30b32d contacts:Vector<InputContact> replace:Bool = contacts.ImportedContacts from Telegram
 type TLContactsImportContacts struct {
 	Contacts []*TLInputPhoneContact // contacts:Vector<InputContact>
 	Replace  bool                   // replace:Bool
@@ -6970,7 +7781,7 @@ func (o *TLContactsImportContacts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsDeleteContact represents func contacts.deleteContact#8e953744 id:InputUser = contacts.Link from telegram.tl
+// TLContactsDeleteContact represents func contacts.deleteContact#8e953744 id:InputUser = contacts.Link from Telegram
 type TLContactsDeleteContact struct {
 	Id TLInputUserType // id:InputUser
 }
@@ -6992,7 +7803,7 @@ func (o *TLContactsDeleteContact) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsDeleteContacts represents func contacts.deleteContacts#59ab389e id:Vector<InputUser> = Bool from telegram.tl
+// TLContactsDeleteContacts represents func contacts.deleteContacts#59ab389e id:Vector<InputUser> = Bool from Telegram
 type TLContactsDeleteContacts struct {
 	Id []TLInputUserType // id:Vector<InputUser>
 }
@@ -7024,7 +7835,7 @@ func (o *TLContactsDeleteContacts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsBlock represents func contacts.block#332b49fc id:InputUser = Bool from telegram.tl
+// TLContactsBlock represents func contacts.block#332b49fc id:InputUser = Bool from Telegram
 type TLContactsBlock struct {
 	Id TLInputUserType // id:InputUser
 }
@@ -7046,7 +7857,7 @@ func (o *TLContactsBlock) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsUnblock represents func contacts.unblock#e54100bd id:InputUser = Bool from telegram.tl
+// TLContactsUnblock represents func contacts.unblock#e54100bd id:InputUser = Bool from Telegram
 type TLContactsUnblock struct {
 	Id TLInputUserType // id:InputUser
 }
@@ -7068,7 +7879,7 @@ func (o *TLContactsUnblock) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsGetBlocked represents func contacts.getBlocked#f57c350f offset:int limit:int = contacts.Blocked from telegram.tl
+// TLContactsGetBlocked represents func contacts.getBlocked#f57c350f offset:int limit:int = contacts.Blocked from Telegram
 type TLContactsGetBlocked struct {
 	Offset int // offset:int
 	Limit  int // limit:int
@@ -7092,7 +7903,7 @@ func (o *TLContactsGetBlocked) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsExportCard represents func contacts.exportCard#84e53737 = Vector<int> from telegram.tl
+// TLContactsExportCard represents func contacts.exportCard#84e53737 = Vector<int> from Telegram
 type TLContactsExportCard struct {
 }
 
@@ -7110,7 +7921,7 @@ func (o *TLContactsExportCard) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsImportCard represents func contacts.importCard#4fe196fe export_card:Vector<int> = User from telegram.tl
+// TLContactsImportCard represents func contacts.importCard#4fe196fe export_card:Vector<int> = User from Telegram
 type TLContactsImportCard struct {
 	ExportCard []int // export_card:Vector<int>
 }
@@ -7141,7 +7952,7 @@ func (o *TLContactsImportCard) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsSearch represents func contacts.search#11f812d8 q:string limit:int = contacts.Found from telegram.tl
+// TLContactsSearch represents func contacts.search#11f812d8 q:string limit:int = contacts.Found from Telegram
 type TLContactsSearch struct {
 	Q     string // q:string
 	Limit int    // limit:int
@@ -7165,7 +7976,7 @@ func (o *TLContactsSearch) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsResolveUsername represents func contacts.resolveUsername#f93ccba3 username:string = contacts.ResolvedPeer from telegram.tl
+// TLContactsResolveUsername represents func contacts.resolveUsername#f93ccba3 username:string = contacts.ResolvedPeer from Telegram
 type TLContactsResolveUsername struct {
 	Username string // username:string
 }
@@ -7186,7 +7997,7 @@ func (o *TLContactsResolveUsername) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsGetTopPeers represents func contacts.getTopPeers#d4982db5 flags:# flags.0?correspondents:true flags.1?bots_pm:true flags.2?bots_inline:true flags.10?groups:true flags.15?channels:true offset:int limit:int hash:int = contacts.TopPeers from telegram.tl
+// TLContactsGetTopPeers represents func contacts.getTopPeers#d4982db5 flags:# flags.0?correspondents:true flags.1?bots_pm:true flags.2?bots_inline:true flags.10?groups:true flags.15?channels:true offset:int limit:int hash:int = contacts.TopPeers from Telegram
 type TLContactsGetTopPeers struct {
 	Flags          uint // flags:#
 	Correspondents bool // flags.0?correspondents:true
@@ -7226,7 +8037,7 @@ func (o *TLContactsGetTopPeers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsResetTopPeerRating represents func contacts.resetTopPeerRating#1ae373ac category:TopPeerCategory peer:InputPeer = Bool from telegram.tl
+// TLContactsResetTopPeerRating represents func contacts.resetTopPeerRating#1ae373ac category:TopPeerCategory peer:InputPeer = Bool from Telegram
 type TLContactsResetTopPeerRating struct {
 	Category TLTopPeerCategoryType // category:TopPeerCategory
 	Peer     TLInputPeerType       // peer:InputPeer
@@ -7252,7 +8063,7 @@ func (o *TLContactsResetTopPeerRating) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetMessages represents func messages.getMessages#4222fa74 id:Vector<int> = messages.Messages from telegram.tl
+// TLMessagesGetMessages represents func messages.getMessages#4222fa74 id:Vector<int> = messages.Messages from Telegram
 type TLMessagesGetMessages struct {
 	Id []int // id:Vector<int>
 }
@@ -7283,7 +8094,7 @@ func (o *TLMessagesGetMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetDialogs represents func messages.getDialogs#191ba9c5 flags:# flags.0?exclude_pinned:true offset_date:int offset_id:int offset_peer:InputPeer limit:int = messages.Dialogs from telegram.tl
+// TLMessagesGetDialogs represents func messages.getDialogs#191ba9c5 flags:# flags.0?exclude_pinned:true offset_date:int offset_id:int offset_peer:InputPeer limit:int = messages.Dialogs from Telegram
 type TLMessagesGetDialogs struct {
 	Flags         uint            // flags:#
 	ExcludePinned bool            // flags.0?exclude_pinned:true
@@ -7319,7 +8130,7 @@ func (o *TLMessagesGetDialogs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetHistory represents func messages.getHistory#afa92846 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int = messages.Messages from telegram.tl
+// TLMessagesGetHistory represents func messages.getHistory#afa92846 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int = messages.Messages from Telegram
 type TLMessagesGetHistory struct {
 	Peer       TLInputPeerType // peer:InputPeer
 	OffsetId   int             // offset_id:int
@@ -7359,7 +8170,7 @@ func (o *TLMessagesGetHistory) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSearch represents func messages.search#d4569248 flags:# peer:InputPeer q:string filter:MessagesFilter min_date:int max_date:int offset:int max_id:int limit:int = messages.Messages from telegram.tl
+// TLMessagesSearch represents func messages.search#d4569248 flags:# peer:InputPeer q:string filter:MessagesFilter min_date:int max_date:int offset:int max_id:int limit:int = messages.Messages from Telegram
 type TLMessagesSearch struct {
 	Flags   uint                 // flags:#
 	Peer    TLInputPeerType      // peer:InputPeer
@@ -7406,7 +8217,7 @@ func (o *TLMessagesSearch) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesReadHistory represents func messages.readHistory#0e306d3a peer:InputPeer max_id:int = messages.AffectedMessages from telegram.tl
+// TLMessagesReadHistory represents func messages.readHistory#0e306d3a peer:InputPeer max_id:int = messages.AffectedMessages from Telegram
 type TLMessagesReadHistory struct {
 	Peer  TLInputPeerType // peer:InputPeer
 	MaxId int             // max_id:int
@@ -7431,7 +8242,7 @@ func (o *TLMessagesReadHistory) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesDeleteHistory represents func messages.deleteHistory#1c015b09 flags:# flags.0?just_clear:true peer:InputPeer max_id:int = messages.AffectedHistory from telegram.tl
+// TLMessagesDeleteHistory represents func messages.deleteHistory#1c015b09 flags:# flags.0?just_clear:true peer:InputPeer max_id:int = messages.AffectedHistory from Telegram
 type TLMessagesDeleteHistory struct {
 	Flags     uint            // flags:#
 	JustClear bool            // flags.0?just_clear:true
@@ -7461,7 +8272,7 @@ func (o *TLMessagesDeleteHistory) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesDeleteMessages represents func messages.deleteMessages#e58e95d2 flags:# flags.0?revoke:true id:Vector<int> = messages.AffectedMessages from telegram.tl
+// TLMessagesDeleteMessages represents func messages.deleteMessages#e58e95d2 flags:# flags.0?revoke:true id:Vector<int> = messages.AffectedMessages from Telegram
 type TLMessagesDeleteMessages struct {
 	Flags  uint  // flags:#
 	Revoke bool  // flags.0?revoke:true
@@ -7497,7 +8308,7 @@ func (o *TLMessagesDeleteMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesReceivedMessages represents func messages.receivedMessages#05a954c0 max_id:int = Vector<ReceivedNotifyMessage> from telegram.tl
+// TLMessagesReceivedMessages represents func messages.receivedMessages#05a954c0 max_id:int = Vector<ReceivedNotifyMessage> from Telegram
 type TLMessagesReceivedMessages struct {
 	MaxId int // max_id:int
 }
@@ -7518,7 +8329,7 @@ func (o *TLMessagesReceivedMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSetTyping represents func messages.setTyping#a3825e50 peer:InputPeer action:SendMessageAction = Bool from telegram.tl
+// TLMessagesSetTyping represents func messages.setTyping#a3825e50 peer:InputPeer action:SendMessageAction = Bool from Telegram
 type TLMessagesSetTyping struct {
 	Peer   TLInputPeerType         // peer:InputPeer
 	Action TLSendMessageActionType // action:SendMessageAction
@@ -7544,7 +8355,7 @@ func (o *TLMessagesSetTyping) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSendMessage represents func messages.sendMessage#fa88427a flags:# flags.1?no_webpage:true flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int message:string random_id:long flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Updates from telegram.tl
+// TLMessagesSendMessage represents func messages.sendMessage#fa88427a flags:# flags.1?no_webpage:true flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int message:string random_id:long flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Updates from Telegram
 type TLMessagesSendMessage struct {
 	Flags        uint                  // flags:#
 	NoWebpage    bool                  // flags.1?no_webpage:true
@@ -7604,7 +8415,7 @@ func (o *TLMessagesSendMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSendMedia represents func messages.sendMedia#c8f16791 flags:# flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int media:InputMedia random_id:long flags.2?reply_markup:ReplyMarkup = Updates from telegram.tl
+// TLMessagesSendMedia represents func messages.sendMedia#c8f16791 flags:# flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int media:InputMedia random_id:long flags.2?reply_markup:ReplyMarkup = Updates from Telegram
 type TLMessagesSendMedia struct {
 	Flags        uint              // flags:#
 	Silent       bool              // flags.5?silent:true
@@ -7649,7 +8460,7 @@ func (o *TLMessagesSendMedia) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesForwardMessages represents func messages.forwardMessages#708e0195 flags:# flags.5?silent:true flags.6?background:true flags.8?with_my_score:true from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer = Updates from telegram.tl
+// TLMessagesForwardMessages represents func messages.forwardMessages#708e0195 flags:# flags.5?silent:true flags.6?background:true flags.8?with_my_score:true from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer = Updates from Telegram
 type TLMessagesForwardMessages struct {
 	Flags       uint            // flags:#
 	Silent      bool            // flags.5?silent:true
@@ -7710,7 +8521,7 @@ func (o *TLMessagesForwardMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesReportSpam represents func messages.reportSpam#cf1592db peer:InputPeer = Bool from telegram.tl
+// TLMessagesReportSpam represents func messages.reportSpam#cf1592db peer:InputPeer = Bool from Telegram
 type TLMessagesReportSpam struct {
 	Peer TLInputPeerType // peer:InputPeer
 }
@@ -7732,7 +8543,7 @@ func (o *TLMessagesReportSpam) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesHideReportSpam represents func messages.hideReportSpam#a8f1709b peer:InputPeer = Bool from telegram.tl
+// TLMessagesHideReportSpam represents func messages.hideReportSpam#a8f1709b peer:InputPeer = Bool from Telegram
 type TLMessagesHideReportSpam struct {
 	Peer TLInputPeerType // peer:InputPeer
 }
@@ -7754,7 +8565,7 @@ func (o *TLMessagesHideReportSpam) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetPeerSettings represents func messages.getPeerSettings#3672e09c peer:InputPeer = PeerSettings from telegram.tl
+// TLMessagesGetPeerSettings represents func messages.getPeerSettings#3672e09c peer:InputPeer = PeerSettings from Telegram
 type TLMessagesGetPeerSettings struct {
 	Peer TLInputPeerType // peer:InputPeer
 }
@@ -7776,7 +8587,7 @@ func (o *TLMessagesGetPeerSettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetChats represents func messages.getChats#3c6aa187 id:Vector<int> = messages.Chats from telegram.tl
+// TLMessagesGetChats represents func messages.getChats#3c6aa187 id:Vector<int> = messages.Chats from Telegram
 type TLMessagesGetChats struct {
 	Id []int // id:Vector<int>
 }
@@ -7807,7 +8618,7 @@ func (o *TLMessagesGetChats) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetFullChat represents func messages.getFullChat#3b831c66 chat_id:int = messages.ChatFull from telegram.tl
+// TLMessagesGetFullChat represents func messages.getFullChat#3b831c66 chat_id:int = messages.ChatFull from Telegram
 type TLMessagesGetFullChat struct {
 	ChatId int // chat_id:int
 }
@@ -7828,7 +8639,7 @@ func (o *TLMessagesGetFullChat) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesEditChatTitle represents func messages.editChatTitle#dc452855 chat_id:int title:string = Updates from telegram.tl
+// TLMessagesEditChatTitle represents func messages.editChatTitle#dc452855 chat_id:int title:string = Updates from Telegram
 type TLMessagesEditChatTitle struct {
 	ChatId int    // chat_id:int
 	Title  string // title:string
@@ -7852,7 +8663,7 @@ func (o *TLMessagesEditChatTitle) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesEditChatPhoto represents func messages.editChatPhoto#ca4c79d8 chat_id:int photo:InputChatPhoto = Updates from telegram.tl
+// TLMessagesEditChatPhoto represents func messages.editChatPhoto#ca4c79d8 chat_id:int photo:InputChatPhoto = Updates from Telegram
 type TLMessagesEditChatPhoto struct {
 	ChatId int                  // chat_id:int
 	Photo  TLInputChatPhotoType // photo:InputChatPhoto
@@ -7877,7 +8688,7 @@ func (o *TLMessagesEditChatPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesAddChatUser represents func messages.addChatUser#f9a0aa09 chat_id:int user_id:InputUser fwd_limit:int = Updates from telegram.tl
+// TLMessagesAddChatUser represents func messages.addChatUser#f9a0aa09 chat_id:int user_id:InputUser fwd_limit:int = Updates from Telegram
 type TLMessagesAddChatUser struct {
 	ChatId   int             // chat_id:int
 	UserId   TLInputUserType // user_id:InputUser
@@ -7905,7 +8716,7 @@ func (o *TLMessagesAddChatUser) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesDeleteChatUser represents func messages.deleteChatUser#e0611f16 chat_id:int user_id:InputUser = Updates from telegram.tl
+// TLMessagesDeleteChatUser represents func messages.deleteChatUser#e0611f16 chat_id:int user_id:InputUser = Updates from Telegram
 type TLMessagesDeleteChatUser struct {
 	ChatId int             // chat_id:int
 	UserId TLInputUserType // user_id:InputUser
@@ -7930,7 +8741,7 @@ func (o *TLMessagesDeleteChatUser) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesCreateChat represents func messages.createChat#09cb126e users:Vector<InputUser> title:string = Updates from telegram.tl
+// TLMessagesCreateChat represents func messages.createChat#09cb126e users:Vector<InputUser> title:string = Updates from Telegram
 type TLMessagesCreateChat struct {
 	Users []TLInputUserType // users:Vector<InputUser>
 	Title string            // title:string
@@ -7965,7 +8776,7 @@ func (o *TLMessagesCreateChat) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesForwardMessage represents func messages.forwardMessage#33963bf9 peer:InputPeer id:int random_id:long = Updates from telegram.tl
+// TLMessagesForwardMessage represents func messages.forwardMessage#33963bf9 peer:InputPeer id:int random_id:long = Updates from Telegram
 type TLMessagesForwardMessage struct {
 	Peer     TLInputPeerType // peer:InputPeer
 	Id       int             // id:int
@@ -7993,7 +8804,7 @@ func (o *TLMessagesForwardMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetDHConfig represents func messages.getDhConfig#26cf8950 version:int random_length:int = messages.DhConfig from telegram.tl
+// TLMessagesGetDHConfig represents func messages.getDhConfig#26cf8950 version:int random_length:int = messages.DhConfig from Telegram
 type TLMessagesGetDHConfig struct {
 	Version      int // version:int
 	RandomLength int // random_length:int
@@ -8017,7 +8828,7 @@ func (o *TLMessagesGetDHConfig) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesRequestEncryption represents func messages.requestEncryption#f64daf43 user_id:InputUser random_id:int g_a:bytes = EncryptedChat from telegram.tl
+// TLMessagesRequestEncryption represents func messages.requestEncryption#f64daf43 user_id:InputUser random_id:int g_a:bytes = EncryptedChat from Telegram
 type TLMessagesRequestEncryption struct {
 	UserId   TLInputUserType // user_id:InputUser
 	RandomId int             // random_id:int
@@ -8045,7 +8856,7 @@ func (o *TLMessagesRequestEncryption) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesAcceptEncryption represents func messages.acceptEncryption#3dbc0415 peer:InputEncryptedChat g_b:bytes key_fingerprint:long = EncryptedChat from telegram.tl
+// TLMessagesAcceptEncryption represents func messages.acceptEncryption#3dbc0415 peer:InputEncryptedChat g_b:bytes key_fingerprint:long = EncryptedChat from Telegram
 type TLMessagesAcceptEncryption struct {
 	Peer           *TLInputEncryptedChat // peer:InputEncryptedChat
 	GB             []byte                // g_b:bytes
@@ -8077,7 +8888,7 @@ func (o *TLMessagesAcceptEncryption) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesDiscardEncryption represents func messages.discardEncryption#edd923c5 chat_id:int = Bool from telegram.tl
+// TLMessagesDiscardEncryption represents func messages.discardEncryption#edd923c5 chat_id:int = Bool from Telegram
 type TLMessagesDiscardEncryption struct {
 	ChatId int // chat_id:int
 }
@@ -8098,7 +8909,7 @@ func (o *TLMessagesDiscardEncryption) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSetEncryptedTyping represents func messages.setEncryptedTyping#791451ed peer:InputEncryptedChat typing:Bool = Bool from telegram.tl
+// TLMessagesSetEncryptedTyping represents func messages.setEncryptedTyping#791451ed peer:InputEncryptedChat typing:Bool = Bool from Telegram
 type TLMessagesSetEncryptedTyping struct {
 	Peer   *TLInputEncryptedChat // peer:InputEncryptedChat
 	Typing bool                  // typing:Bool
@@ -8132,7 +8943,7 @@ func (o *TLMessagesSetEncryptedTyping) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesReadEncryptedHistory represents func messages.readEncryptedHistory#7f4b690a peer:InputEncryptedChat max_date:int = Bool from telegram.tl
+// TLMessagesReadEncryptedHistory represents func messages.readEncryptedHistory#7f4b690a peer:InputEncryptedChat max_date:int = Bool from Telegram
 type TLMessagesReadEncryptedHistory struct {
 	Peer    *TLInputEncryptedChat // peer:InputEncryptedChat
 	MaxDate int                   // max_date:int
@@ -8161,7 +8972,7 @@ func (o *TLMessagesReadEncryptedHistory) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSendEncrypted represents func messages.sendEncrypted#a9776773 peer:InputEncryptedChat random_id:long data:bytes = messages.SentEncryptedMessage from telegram.tl
+// TLMessagesSendEncrypted represents func messages.sendEncrypted#a9776773 peer:InputEncryptedChat random_id:long data:bytes = messages.SentEncryptedMessage from Telegram
 type TLMessagesSendEncrypted struct {
 	Peer     *TLInputEncryptedChat // peer:InputEncryptedChat
 	RandomId uint64                // random_id:long
@@ -8193,7 +9004,7 @@ func (o *TLMessagesSendEncrypted) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSendEncryptedFile represents func messages.sendEncryptedFile#9a901b66 peer:InputEncryptedChat random_id:long data:bytes file:InputEncryptedFile = messages.SentEncryptedMessage from telegram.tl
+// TLMessagesSendEncryptedFile represents func messages.sendEncryptedFile#9a901b66 peer:InputEncryptedChat random_id:long data:bytes file:InputEncryptedFile = messages.SentEncryptedMessage from Telegram
 type TLMessagesSendEncryptedFile struct {
 	Peer     *TLInputEncryptedChat    // peer:InputEncryptedChat
 	RandomId uint64                   // random_id:long
@@ -8229,7 +9040,7 @@ func (o *TLMessagesSendEncryptedFile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSendEncryptedService represents func messages.sendEncryptedService#32d439a4 peer:InputEncryptedChat random_id:long data:bytes = messages.SentEncryptedMessage from telegram.tl
+// TLMessagesSendEncryptedService represents func messages.sendEncryptedService#32d439a4 peer:InputEncryptedChat random_id:long data:bytes = messages.SentEncryptedMessage from Telegram
 type TLMessagesSendEncryptedService struct {
 	Peer     *TLInputEncryptedChat // peer:InputEncryptedChat
 	RandomId uint64                // random_id:long
@@ -8261,7 +9072,7 @@ func (o *TLMessagesSendEncryptedService) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesReceivedQueue represents func messages.receivedQueue#55a5bb66 max_qts:int = Vector<long> from telegram.tl
+// TLMessagesReceivedQueue represents func messages.receivedQueue#55a5bb66 max_qts:int = Vector<long> from Telegram
 type TLMessagesReceivedQueue struct {
 	MaxQts int // max_qts:int
 }
@@ -8282,7 +9093,7 @@ func (o *TLMessagesReceivedQueue) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesReportEncryptedSpam represents func messages.reportEncryptedSpam#4b0c8c0f peer:InputEncryptedChat = Bool from telegram.tl
+// TLMessagesReportEncryptedSpam represents func messages.reportEncryptedSpam#4b0c8c0f peer:InputEncryptedChat = Bool from Telegram
 type TLMessagesReportEncryptedSpam struct {
 	Peer *TLInputEncryptedChat // peer:InputEncryptedChat
 }
@@ -8308,7 +9119,7 @@ func (o *TLMessagesReportEncryptedSpam) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesReadMessageContents represents func messages.readMessageContents#36a73f77 id:Vector<int> = messages.AffectedMessages from telegram.tl
+// TLMessagesReadMessageContents represents func messages.readMessageContents#36a73f77 id:Vector<int> = messages.AffectedMessages from Telegram
 type TLMessagesReadMessageContents struct {
 	Id []int // id:Vector<int>
 }
@@ -8339,7 +9150,7 @@ func (o *TLMessagesReadMessageContents) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetAllStickers represents func messages.getAllStickers#1c9618b1 hash:int = messages.AllStickers from telegram.tl
+// TLMessagesGetAllStickers represents func messages.getAllStickers#1c9618b1 hash:int = messages.AllStickers from Telegram
 type TLMessagesGetAllStickers struct {
 	Hash int // hash:int
 }
@@ -8360,7 +9171,7 @@ func (o *TLMessagesGetAllStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetWebPagePreview represents func messages.getWebPagePreview#25223e24 message:string = MessageMedia from telegram.tl
+// TLMessagesGetWebPagePreview represents func messages.getWebPagePreview#25223e24 message:string = MessageMedia from Telegram
 type TLMessagesGetWebPagePreview struct {
 	Message string // message:string
 }
@@ -8381,7 +9192,7 @@ func (o *TLMessagesGetWebPagePreview) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesExportChatInvite represents func messages.exportChatInvite#7d885289 chat_id:int = ExportedChatInvite from telegram.tl
+// TLMessagesExportChatInvite represents func messages.exportChatInvite#7d885289 chat_id:int = ExportedChatInvite from Telegram
 type TLMessagesExportChatInvite struct {
 	ChatId int // chat_id:int
 }
@@ -8402,7 +9213,7 @@ func (o *TLMessagesExportChatInvite) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesCheckChatInvite represents func messages.checkChatInvite#3eadb1bb hash:string = ChatInvite from telegram.tl
+// TLMessagesCheckChatInvite represents func messages.checkChatInvite#3eadb1bb hash:string = ChatInvite from Telegram
 type TLMessagesCheckChatInvite struct {
 	Hash string // hash:string
 }
@@ -8423,7 +9234,7 @@ func (o *TLMessagesCheckChatInvite) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesImportChatInvite represents func messages.importChatInvite#6c50051c hash:string = Updates from telegram.tl
+// TLMessagesImportChatInvite represents func messages.importChatInvite#6c50051c hash:string = Updates from Telegram
 type TLMessagesImportChatInvite struct {
 	Hash string // hash:string
 }
@@ -8444,7 +9255,7 @@ func (o *TLMessagesImportChatInvite) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetStickerSet represents func messages.getStickerSet#2619a90e stickerset:InputStickerSet = messages.StickerSet from telegram.tl
+// TLMessagesGetStickerSet represents func messages.getStickerSet#2619a90e stickerset:InputStickerSet = messages.StickerSet from Telegram
 type TLMessagesGetStickerSet struct {
 	Stickerset TLInputStickerSetType // stickerset:InputStickerSet
 }
@@ -8466,7 +9277,7 @@ func (o *TLMessagesGetStickerSet) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesInstallStickerSet represents func messages.installStickerSet#c78fe460 stickerset:InputStickerSet archived:Bool = messages.StickerSetInstallResult from telegram.tl
+// TLMessagesInstallStickerSet represents func messages.installStickerSet#c78fe460 stickerset:InputStickerSet archived:Bool = messages.StickerSetInstallResult from Telegram
 type TLMessagesInstallStickerSet struct {
 	Stickerset TLInputStickerSetType // stickerset:InputStickerSet
 	Archived   bool                  // archived:Bool
@@ -8496,7 +9307,7 @@ func (o *TLMessagesInstallStickerSet) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesUninstallStickerSet represents func messages.uninstallStickerSet#f96e55de stickerset:InputStickerSet = Bool from telegram.tl
+// TLMessagesUninstallStickerSet represents func messages.uninstallStickerSet#f96e55de stickerset:InputStickerSet = Bool from Telegram
 type TLMessagesUninstallStickerSet struct {
 	Stickerset TLInputStickerSetType // stickerset:InputStickerSet
 }
@@ -8518,7 +9329,7 @@ func (o *TLMessagesUninstallStickerSet) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesStartBot represents func messages.startBot#e6df7378 bot:InputUser peer:InputPeer random_id:long start_param:string = Updates from telegram.tl
+// TLMessagesStartBot represents func messages.startBot#e6df7378 bot:InputUser peer:InputPeer random_id:long start_param:string = Updates from Telegram
 type TLMessagesStartBot struct {
 	Bot        TLInputUserType // bot:InputUser
 	Peer       TLInputPeerType // peer:InputPeer
@@ -8550,7 +9361,7 @@ func (o *TLMessagesStartBot) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetMessagesViews represents func messages.getMessagesViews#c4c8a55d peer:InputPeer id:Vector<int> increment:Bool = Vector<int> from telegram.tl
+// TLMessagesGetMessagesViews represents func messages.getMessagesViews#c4c8a55d peer:InputPeer id:Vector<int> increment:Bool = Vector<int> from Telegram
 type TLMessagesGetMessagesViews struct {
 	Peer      TLInputPeerType // peer:InputPeer
 	Id        []int           // id:Vector<int>
@@ -8593,7 +9404,7 @@ func (o *TLMessagesGetMessagesViews) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesToggleChatAdmins represents func messages.toggleChatAdmins#ec8bd9e1 chat_id:int enabled:Bool = Updates from telegram.tl
+// TLMessagesToggleChatAdmins represents func messages.toggleChatAdmins#ec8bd9e1 chat_id:int enabled:Bool = Updates from Telegram
 type TLMessagesToggleChatAdmins struct {
 	ChatId  int  // chat_id:int
 	Enabled bool // enabled:Bool
@@ -8622,7 +9433,7 @@ func (o *TLMessagesToggleChatAdmins) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesEditChatAdmin represents func messages.editChatAdmin#a9e69f2e chat_id:int user_id:InputUser is_admin:Bool = Bool from telegram.tl
+// TLMessagesEditChatAdmin represents func messages.editChatAdmin#a9e69f2e chat_id:int user_id:InputUser is_admin:Bool = Bool from Telegram
 type TLMessagesEditChatAdmin struct {
 	ChatId  int             // chat_id:int
 	UserId  TLInputUserType // user_id:InputUser
@@ -8655,7 +9466,7 @@ func (o *TLMessagesEditChatAdmin) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesMigrateChat represents func messages.migrateChat#15a3b8e3 chat_id:int = Updates from telegram.tl
+// TLMessagesMigrateChat represents func messages.migrateChat#15a3b8e3 chat_id:int = Updates from Telegram
 type TLMessagesMigrateChat struct {
 	ChatId int // chat_id:int
 }
@@ -8676,7 +9487,7 @@ func (o *TLMessagesMigrateChat) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSearchGlobal represents func messages.searchGlobal#9e3cacb0 q:string offset_date:int offset_peer:InputPeer offset_id:int limit:int = messages.Messages from telegram.tl
+// TLMessagesSearchGlobal represents func messages.searchGlobal#9e3cacb0 q:string offset_date:int offset_peer:InputPeer offset_id:int limit:int = messages.Messages from Telegram
 type TLMessagesSearchGlobal struct {
 	Q          string          // q:string
 	OffsetDate int             // offset_date:int
@@ -8710,7 +9521,7 @@ func (o *TLMessagesSearchGlobal) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesReorderStickerSets represents func messages.reorderStickerSets#78337739 flags:# flags.0?masks:true order:Vector<long> = Bool from telegram.tl
+// TLMessagesReorderStickerSets represents func messages.reorderStickerSets#78337739 flags:# flags.0?masks:true order:Vector<long> = Bool from Telegram
 type TLMessagesReorderStickerSets struct {
 	Flags uint     // flags:#
 	Masks bool     // flags.0?masks:true
@@ -8746,7 +9557,7 @@ func (o *TLMessagesReorderStickerSets) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetDocumentByHash represents func messages.getDocumentByHash#338e2464 sha256:bytes size:int mime_type:string = Document from telegram.tl
+// TLMessagesGetDocumentByHash represents func messages.getDocumentByHash#338e2464 sha256:bytes size:int mime_type:string = Document from Telegram
 type TLMessagesGetDocumentByHash struct {
 	Sha256   []byte // sha256:bytes
 	Size     int    // size:int
@@ -8773,7 +9584,7 @@ func (o *TLMessagesGetDocumentByHash) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSearchGifs represents func messages.searchGifs#bf9a776b q:string offset:int = messages.FoundGifs from telegram.tl
+// TLMessagesSearchGifs represents func messages.searchGifs#bf9a776b q:string offset:int = messages.FoundGifs from Telegram
 type TLMessagesSearchGifs struct {
 	Q      string // q:string
 	Offset int    // offset:int
@@ -8797,7 +9608,7 @@ func (o *TLMessagesSearchGifs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetSavedGifs represents func messages.getSavedGifs#83bf3d52 hash:int = messages.SavedGifs from telegram.tl
+// TLMessagesGetSavedGifs represents func messages.getSavedGifs#83bf3d52 hash:int = messages.SavedGifs from Telegram
 type TLMessagesGetSavedGifs struct {
 	Hash int // hash:int
 }
@@ -8818,7 +9629,7 @@ func (o *TLMessagesGetSavedGifs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSaveGif represents func messages.saveGif#327a30cb id:InputDocument unsave:Bool = Bool from telegram.tl
+// TLMessagesSaveGif represents func messages.saveGif#327a30cb id:InputDocument unsave:Bool = Bool from Telegram
 type TLMessagesSaveGif struct {
 	Id     TLInputDocumentType // id:InputDocument
 	Unsave bool                // unsave:Bool
@@ -8848,7 +9659,7 @@ func (o *TLMessagesSaveGif) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetInlineBotResults represents func messages.getInlineBotResults#514e999d flags:# bot:InputUser peer:InputPeer flags.0?geo_point:InputGeoPoint query:string offset:string = messages.BotResults from telegram.tl
+// TLMessagesGetInlineBotResults represents func messages.getInlineBotResults#514e999d flags:# bot:InputUser peer:InputPeer flags.0?geo_point:InputGeoPoint query:string offset:string = messages.BotResults from Telegram
 type TLMessagesGetInlineBotResults struct {
 	Flags    uint                // flags:#
 	Bot      TLInputUserType     // bot:InputUser
@@ -8887,7 +9698,7 @@ func (o *TLMessagesGetInlineBotResults) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSetInlineBotResults represents func messages.setInlineBotResults#eb5ea206 flags:# flags.0?gallery:true flags.1?private:true query_id:long results:Vector<InputBotInlineResult> cache_time:int flags.2?next_offset:string flags.3?switch_pm:InlineBotSwitchPM = Bool from telegram.tl
+// TLMessagesSetInlineBotResults represents func messages.setInlineBotResults#eb5ea206 flags:# flags.0?gallery:true flags.1?private:true query_id:long results:Vector<InputBotInlineResult> cache_time:int flags.2?next_offset:string flags.3?switch_pm:InlineBotSwitchPM = Bool from Telegram
 type TLMessagesSetInlineBotResults struct {
 	Flags      uint                         // flags:#
 	Gallery    bool                         // flags.0?gallery:true
@@ -8943,7 +9754,7 @@ func (o *TLMessagesSetInlineBotResults) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSendInlineBotResult represents func messages.sendInlineBotResult#b16e06fe flags:# flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int random_id:long query_id:long id:string = Updates from telegram.tl
+// TLMessagesSendInlineBotResult represents func messages.sendInlineBotResult#b16e06fe flags:# flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int random_id:long query_id:long id:string = Updates from Telegram
 type TLMessagesSendInlineBotResult struct {
 	Flags        uint            // flags:#
 	Silent       bool            // flags.5?silent:true
@@ -8986,7 +9797,7 @@ func (o *TLMessagesSendInlineBotResult) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetMessageEditData represents func messages.getMessageEditData#fda68d36 peer:InputPeer id:int = messages.MessageEditData from telegram.tl
+// TLMessagesGetMessageEditData represents func messages.getMessageEditData#fda68d36 peer:InputPeer id:int = messages.MessageEditData from Telegram
 type TLMessagesGetMessageEditData struct {
 	Peer TLInputPeerType // peer:InputPeer
 	Id   int             // id:int
@@ -9011,7 +9822,7 @@ func (o *TLMessagesGetMessageEditData) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesEditMessage represents func messages.editMessage#ce91e4ca flags:# flags.1?no_webpage:true peer:InputPeer id:int flags.11?message:string flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Updates from telegram.tl
+// TLMessagesEditMessage represents func messages.editMessage#ce91e4ca flags:# flags.1?no_webpage:true peer:InputPeer id:int flags.11?message:string flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Updates from Telegram
 type TLMessagesEditMessage struct {
 	Flags       uint                  // flags:#
 	NoWebpage   bool                  // flags.1?no_webpage:true
@@ -9062,7 +9873,7 @@ func (o *TLMessagesEditMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesEditInlineBotMessage represents func messages.editInlineBotMessage#130c2c85 flags:# flags.1?no_webpage:true id:InputBotInlineMessageID flags.11?message:string flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Bool from telegram.tl
+// TLMessagesEditInlineBotMessage represents func messages.editInlineBotMessage#130c2c85 flags:# flags.1?no_webpage:true id:InputBotInlineMessageID flags.11?message:string flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Bool from Telegram
 type TLMessagesEditInlineBotMessage struct {
 	Flags       uint                       // flags:#
 	NoWebpage   bool                       // flags.1?no_webpage:true
@@ -9114,7 +9925,7 @@ func (o *TLMessagesEditInlineBotMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetBotCallbackAnswer represents func messages.getBotCallbackAnswer#810a9fec flags:# flags.1?game:true peer:InputPeer msg_id:int flags.0?data:bytes = messages.BotCallbackAnswer from telegram.tl
+// TLMessagesGetBotCallbackAnswer represents func messages.getBotCallbackAnswer#810a9fec flags:# flags.1?game:true peer:InputPeer msg_id:int flags.0?data:bytes = messages.BotCallbackAnswer from Telegram
 type TLMessagesGetBotCallbackAnswer struct {
 	Flags uint            // flags:#
 	Game  bool            // flags.1?game:true
@@ -9147,7 +9958,7 @@ func (o *TLMessagesGetBotCallbackAnswer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSetBotCallbackAnswer represents func messages.setBotCallbackAnswer#d58f130a flags:# flags.1?alert:true query_id:long flags.0?message:string flags.2?url:string cache_time:int = Bool from telegram.tl
+// TLMessagesSetBotCallbackAnswer represents func messages.setBotCallbackAnswer#d58f130a flags:# flags.1?alert:true query_id:long flags.0?message:string flags.2?url:string cache_time:int = Bool from Telegram
 type TLMessagesSetBotCallbackAnswer struct {
 	Flags     uint   // flags:#
 	Alert     bool   // flags.1?alert:true
@@ -9182,7 +9993,7 @@ func (o *TLMessagesSetBotCallbackAnswer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetPeerDialogs represents func messages.getPeerDialogs#2d9776b9 peers:Vector<InputPeer> = messages.PeerDialogs from telegram.tl
+// TLMessagesGetPeerDialogs represents func messages.getPeerDialogs#2d9776b9 peers:Vector<InputPeer> = messages.PeerDialogs from Telegram
 type TLMessagesGetPeerDialogs struct {
 	Peers []TLInputPeerType // peers:Vector<InputPeer>
 }
@@ -9214,7 +10025,7 @@ func (o *TLMessagesGetPeerDialogs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSaveDraft represents func messages.saveDraft#bc39e14b flags:# flags.1?no_webpage:true flags.0?reply_to_msg_id:int peer:InputPeer message:string flags.3?entities:Vector<MessageEntity> = Bool from telegram.tl
+// TLMessagesSaveDraft represents func messages.saveDraft#bc39e14b flags:# flags.1?no_webpage:true flags.0?reply_to_msg_id:int peer:InputPeer message:string flags.3?entities:Vector<MessageEntity> = Bool from Telegram
 type TLMessagesSaveDraft struct {
 	Flags        uint                  // flags:#
 	NoWebpage    bool                  // flags.1?no_webpage:true
@@ -9261,7 +10072,7 @@ func (o *TLMessagesSaveDraft) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetAllDrafts represents func messages.getAllDrafts#6a3f8d65 = Updates from telegram.tl
+// TLMessagesGetAllDrafts represents func messages.getAllDrafts#6a3f8d65 = Updates from Telegram
 type TLMessagesGetAllDrafts struct {
 }
 
@@ -9279,7 +10090,7 @@ func (o *TLMessagesGetAllDrafts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetFeaturedStickers represents func messages.getFeaturedStickers#2dacca4f hash:int = messages.FeaturedStickers from telegram.tl
+// TLMessagesGetFeaturedStickers represents func messages.getFeaturedStickers#2dacca4f hash:int = messages.FeaturedStickers from Telegram
 type TLMessagesGetFeaturedStickers struct {
 	Hash int // hash:int
 }
@@ -9300,7 +10111,7 @@ func (o *TLMessagesGetFeaturedStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesReadFeaturedStickers represents func messages.readFeaturedStickers#5b118126 id:Vector<long> = Bool from telegram.tl
+// TLMessagesReadFeaturedStickers represents func messages.readFeaturedStickers#5b118126 id:Vector<long> = Bool from Telegram
 type TLMessagesReadFeaturedStickers struct {
 	Id []uint64 // id:Vector<long>
 }
@@ -9331,7 +10142,7 @@ func (o *TLMessagesReadFeaturedStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetRecentStickers represents func messages.getRecentStickers#5ea192c9 flags:# flags.0?attached:true hash:int = messages.RecentStickers from telegram.tl
+// TLMessagesGetRecentStickers represents func messages.getRecentStickers#5ea192c9 flags:# flags.0?attached:true hash:int = messages.RecentStickers from Telegram
 type TLMessagesGetRecentStickers struct {
 	Flags    uint // flags:#
 	Attached bool // flags.0?attached:true
@@ -9357,7 +10168,7 @@ func (o *TLMessagesGetRecentStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSaveRecentSticker represents func messages.saveRecentSticker#392718f8 flags:# flags.0?attached:true id:InputDocument unsave:Bool = Bool from telegram.tl
+// TLMessagesSaveRecentSticker represents func messages.saveRecentSticker#392718f8 flags:# flags.0?attached:true id:InputDocument unsave:Bool = Bool from Telegram
 type TLMessagesSaveRecentSticker struct {
 	Flags    uint                // flags:#
 	Attached bool                // flags.0?attached:true
@@ -9392,7 +10203,7 @@ func (o *TLMessagesSaveRecentSticker) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesClearRecentStickers represents func messages.clearRecentStickers#8999602d flags:# flags.0?attached:true = Bool from telegram.tl
+// TLMessagesClearRecentStickers represents func messages.clearRecentStickers#8999602d flags:# flags.0?attached:true = Bool from Telegram
 type TLMessagesClearRecentStickers struct {
 	Flags    uint // flags:#
 	Attached bool // flags.0?attached:true
@@ -9415,7 +10226,7 @@ func (o *TLMessagesClearRecentStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetArchivedStickers represents func messages.getArchivedStickers#57f17692 flags:# flags.0?masks:true offset_id:long limit:int = messages.ArchivedStickers from telegram.tl
+// TLMessagesGetArchivedStickers represents func messages.getArchivedStickers#57f17692 flags:# flags.0?masks:true offset_id:long limit:int = messages.ArchivedStickers from Telegram
 type TLMessagesGetArchivedStickers struct {
 	Flags    uint   // flags:#
 	Masks    bool   // flags.0?masks:true
@@ -9444,7 +10255,7 @@ func (o *TLMessagesGetArchivedStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetMaskStickers represents func messages.getMaskStickers#65b8c79f hash:int = messages.AllStickers from telegram.tl
+// TLMessagesGetMaskStickers represents func messages.getMaskStickers#65b8c79f hash:int = messages.AllStickers from Telegram
 type TLMessagesGetMaskStickers struct {
 	Hash int // hash:int
 }
@@ -9465,7 +10276,7 @@ func (o *TLMessagesGetMaskStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetAttachedStickers represents func messages.getAttachedStickers#cc5b67cc media:InputStickeredMedia = Vector<StickerSetCovered> from telegram.tl
+// TLMessagesGetAttachedStickers represents func messages.getAttachedStickers#cc5b67cc media:InputStickeredMedia = Vector<StickerSetCovered> from Telegram
 type TLMessagesGetAttachedStickers struct {
 	Media TLInputStickeredMediaType // media:InputStickeredMedia
 }
@@ -9487,7 +10298,7 @@ func (o *TLMessagesGetAttachedStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSetGameScore represents func messages.setGameScore#8ef8ecc0 flags:# flags.0?edit_message:true flags.1?force:true peer:InputPeer id:int user_id:InputUser score:int = Updates from telegram.tl
+// TLMessagesSetGameScore represents func messages.setGameScore#8ef8ecc0 flags:# flags.0?edit_message:true flags.1?force:true peer:InputPeer id:int user_id:InputUser score:int = Updates from Telegram
 type TLMessagesSetGameScore struct {
 	Flags       uint            // flags:#
 	EditMessage bool            // flags.0?edit_message:true
@@ -9526,7 +10337,7 @@ func (o *TLMessagesSetGameScore) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSetInlineGameScore represents func messages.setInlineGameScore#15ad9f64 flags:# flags.0?edit_message:true flags.1?force:true id:InputBotInlineMessageID user_id:InputUser score:int = Bool from telegram.tl
+// TLMessagesSetInlineGameScore represents func messages.setInlineGameScore#15ad9f64 flags:# flags.0?edit_message:true flags.1?force:true id:InputBotInlineMessageID user_id:InputUser score:int = Bool from Telegram
 type TLMessagesSetInlineGameScore struct {
 	Flags       uint                       // flags:#
 	EditMessage bool                       // flags.0?edit_message:true
@@ -9566,7 +10377,7 @@ func (o *TLMessagesSetInlineGameScore) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetGameHighScores represents func messages.getGameHighScores#e822649d peer:InputPeer id:int user_id:InputUser = messages.HighScores from telegram.tl
+// TLMessagesGetGameHighScores represents func messages.getGameHighScores#e822649d peer:InputPeer id:int user_id:InputUser = messages.HighScores from Telegram
 type TLMessagesGetGameHighScores struct {
 	Peer   TLInputPeerType // peer:InputPeer
 	Id     int             // id:int
@@ -9595,7 +10406,7 @@ func (o *TLMessagesGetGameHighScores) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetInlineGameHighScores represents func messages.getInlineGameHighScores#0f635e1b id:InputBotInlineMessageID user_id:InputUser = messages.HighScores from telegram.tl
+// TLMessagesGetInlineGameHighScores represents func messages.getInlineGameHighScores#0f635e1b id:InputBotInlineMessageID user_id:InputUser = messages.HighScores from Telegram
 type TLMessagesGetInlineGameHighScores struct {
 	Id     *TLInputBotInlineMessageID // id:InputBotInlineMessageID
 	UserId TLInputUserType            // user_id:InputUser
@@ -9625,7 +10436,7 @@ func (o *TLMessagesGetInlineGameHighScores) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetCommonChats represents func messages.getCommonChats#0d0a48c4 user_id:InputUser max_id:int limit:int = messages.Chats from telegram.tl
+// TLMessagesGetCommonChats represents func messages.getCommonChats#0d0a48c4 user_id:InputUser max_id:int limit:int = messages.Chats from Telegram
 type TLMessagesGetCommonChats struct {
 	UserId TLInputUserType // user_id:InputUser
 	MaxId  int             // max_id:int
@@ -9653,7 +10464,7 @@ func (o *TLMessagesGetCommonChats) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetAllChats represents func messages.getAllChats#eba80ff0 except_ids:Vector<int> = messages.Chats from telegram.tl
+// TLMessagesGetAllChats represents func messages.getAllChats#eba80ff0 except_ids:Vector<int> = messages.Chats from Telegram
 type TLMessagesGetAllChats struct {
 	ExceptIds []int // except_ids:Vector<int>
 }
@@ -9684,7 +10495,7 @@ func (o *TLMessagesGetAllChats) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetWebPage represents func messages.getWebPage#32ca8f91 url:string hash:int = WebPage from telegram.tl
+// TLMessagesGetWebPage represents func messages.getWebPage#32ca8f91 url:string hash:int = WebPage from Telegram
 type TLMessagesGetWebPage struct {
 	Url  string // url:string
 	Hash int    // hash:int
@@ -9708,7 +10519,7 @@ func (o *TLMessagesGetWebPage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesToggleDialogPin represents func messages.toggleDialogPin#3289be6a flags:# flags.0?pinned:true peer:InputPeer = Bool from telegram.tl
+// TLMessagesToggleDialogPin represents func messages.toggleDialogPin#3289be6a flags:# flags.0?pinned:true peer:InputPeer = Bool from Telegram
 type TLMessagesToggleDialogPin struct {
 	Flags  uint            // flags:#
 	Pinned bool            // flags.0?pinned:true
@@ -9735,7 +10546,7 @@ func (o *TLMessagesToggleDialogPin) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesReorderPinnedDialogs represents func messages.reorderPinnedDialogs#959ff644 flags:# flags.0?force:true order:Vector<InputPeer> = Bool from telegram.tl
+// TLMessagesReorderPinnedDialogs represents func messages.reorderPinnedDialogs#959ff644 flags:# flags.0?force:true order:Vector<InputPeer> = Bool from Telegram
 type TLMessagesReorderPinnedDialogs struct {
 	Flags uint              // flags:#
 	Force bool              // flags.0?force:true
@@ -9772,7 +10583,7 @@ func (o *TLMessagesReorderPinnedDialogs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesGetPinnedDialogs represents func messages.getPinnedDialogs#e254d64e = messages.PeerDialogs from telegram.tl
+// TLMessagesGetPinnedDialogs represents func messages.getPinnedDialogs#e254d64e = messages.PeerDialogs from Telegram
 type TLMessagesGetPinnedDialogs struct {
 }
 
@@ -9790,7 +10601,7 @@ func (o *TLMessagesGetPinnedDialogs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSetBotShippingResults represents func messages.setBotShippingResults#e5f672fa flags:# query_id:long flags.0?error:string flags.1?shipping_options:Vector<ShippingOption> = Bool from telegram.tl
+// TLMessagesSetBotShippingResults represents func messages.setBotShippingResults#e5f672fa flags:# query_id:long flags.0?error:string flags.1?shipping_options:Vector<ShippingOption> = Bool from Telegram
 type TLMessagesSetBotShippingResults struct {
 	Flags           uint                // flags:#
 	QueryId         uint64              // query_id:long
@@ -9835,7 +10646,7 @@ func (o *TLMessagesSetBotShippingResults) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSetBotPrecheckoutResults represents func messages.setBotPrecheckoutResults#09c2dd95 flags:# flags.1?success:true query_id:long flags.0?error:string = Bool from telegram.tl
+// TLMessagesSetBotPrecheckoutResults represents func messages.setBotPrecheckoutResults#09c2dd95 flags:# flags.1?success:true query_id:long flags.0?error:string = Bool from Telegram
 type TLMessagesSetBotPrecheckoutResults struct {
 	Flags   uint   // flags:#
 	Success bool   // flags.1?success:true
@@ -9864,7 +10675,7 @@ func (o *TLMessagesSetBotPrecheckoutResults) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesGetState represents func updates.getState#edd4882a = updates.State from telegram.tl
+// TLUpdatesGetState represents func updates.getState#edd4882a = updates.State from Telegram
 type TLUpdatesGetState struct {
 }
 
@@ -9882,7 +10693,7 @@ func (o *TLUpdatesGetState) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesGetDifference represents func updates.getDifference#25939651 flags:# pts:int flags.0?pts_total_limit:int date:int qts:int = updates.Difference from telegram.tl
+// TLUpdatesGetDifference represents func updates.getDifference#25939651 flags:# pts:int flags.0?pts_total_limit:int date:int qts:int = updates.Difference from Telegram
 type TLUpdatesGetDifference struct {
 	Flags         uint // flags:#
 	Pts           int  // pts:int
@@ -9915,7 +10726,7 @@ func (o *TLUpdatesGetDifference) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesGetChannelDifference represents func updates.getChannelDifference#03173d78 flags:# flags.0?force:true channel:InputChannel filter:ChannelMessagesFilter pts:int limit:int = updates.ChannelDifference from telegram.tl
+// TLUpdatesGetChannelDifference represents func updates.getChannelDifference#03173d78 flags:# flags.0?force:true channel:InputChannel filter:ChannelMessagesFilter pts:int limit:int = updates.ChannelDifference from Telegram
 type TLUpdatesGetChannelDifference struct {
 	Flags   uint                        // flags:#
 	Force   bool                        // flags.0?force:true
@@ -9952,7 +10763,7 @@ func (o *TLUpdatesGetChannelDifference) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotosUpdateProfilePhoto represents func photos.updateProfilePhoto#f0bb5152 id:InputPhoto = UserProfilePhoto from telegram.tl
+// TLPhotosUpdateProfilePhoto represents func photos.updateProfilePhoto#f0bb5152 id:InputPhoto = UserProfilePhoto from Telegram
 type TLPhotosUpdateProfilePhoto struct {
 	Id TLInputPhotoType // id:InputPhoto
 }
@@ -9974,7 +10785,7 @@ func (o *TLPhotosUpdateProfilePhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotosUploadProfilePhoto represents func photos.uploadProfilePhoto#4f32c098 file:InputFile = photos.Photo from telegram.tl
+// TLPhotosUploadProfilePhoto represents func photos.uploadProfilePhoto#4f32c098 file:InputFile = photos.Photo from Telegram
 type TLPhotosUploadProfilePhoto struct {
 	File TLInputFileType // file:InputFile
 }
@@ -9996,7 +10807,7 @@ func (o *TLPhotosUploadProfilePhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotosDeletePhotos represents func photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long> from telegram.tl
+// TLPhotosDeletePhotos represents func photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long> from Telegram
 type TLPhotosDeletePhotos struct {
 	Id []TLInputPhotoType // id:Vector<InputPhoto>
 }
@@ -10028,7 +10839,7 @@ func (o *TLPhotosDeletePhotos) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotosGetUserPhotos represents func photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos from telegram.tl
+// TLPhotosGetUserPhotos represents func photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos from Telegram
 type TLPhotosGetUserPhotos struct {
 	UserId TLInputUserType // user_id:InputUser
 	Offset int             // offset:int
@@ -10059,7 +10870,7 @@ func (o *TLPhotosGetUserPhotos) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUploadSaveFilePart represents func upload.saveFilePart#b304a621 file_id:long file_part:int bytes:bytes = Bool from telegram.tl
+// TLUploadSaveFilePart represents func upload.saveFilePart#b304a621 file_id:long file_part:int bytes:bytes = Bool from Telegram
 type TLUploadSaveFilePart struct {
 	FileId   uint64 // file_id:long
 	FilePart int    // file_part:int
@@ -10086,7 +10897,7 @@ func (o *TLUploadSaveFilePart) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUploadGetFile represents func upload.getFile#e3a6cfb5 location:InputFileLocation offset:int limit:int = upload.File from telegram.tl
+// TLUploadGetFile represents func upload.getFile#e3a6cfb5 location:InputFileLocation offset:int limit:int = upload.File from Telegram
 type TLUploadGetFile struct {
 	Location TLInputFileLocationType // location:InputFileLocation
 	Offset   int                     // offset:int
@@ -10114,7 +10925,7 @@ func (o *TLUploadGetFile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUploadSaveBigFilePart represents func upload.saveBigFilePart#de7b673d file_id:long file_part:int file_total_parts:int bytes:bytes = Bool from telegram.tl
+// TLUploadSaveBigFilePart represents func upload.saveBigFilePart#de7b673d file_id:long file_part:int file_total_parts:int bytes:bytes = Bool from Telegram
 type TLUploadSaveBigFilePart struct {
 	FileId         uint64 // file_id:long
 	FilePart       int    // file_part:int
@@ -10144,7 +10955,7 @@ func (o *TLUploadSaveBigFilePart) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUploadGetWebFile represents func upload.getWebFile#24e6818d location:InputWebFileLocation offset:int limit:int = upload.WebFile from telegram.tl
+// TLUploadGetWebFile represents func upload.getWebFile#24e6818d location:InputWebFileLocation offset:int limit:int = upload.WebFile from Telegram
 type TLUploadGetWebFile struct {
 	Location *TLInputWebFileLocation // location:InputWebFileLocation
 	Offset   int                     // offset:int
@@ -10176,7 +10987,7 @@ func (o *TLUploadGetWebFile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpGetConfig represents func help.getConfig#c4f9186b = Config from telegram.tl
+// TLHelpGetConfig represents func help.getConfig#c4f9186b = Config from Telegram
 type TLHelpGetConfig struct {
 }
 
@@ -10194,7 +11005,7 @@ func (o *TLHelpGetConfig) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpGetNearestDc represents func help.getNearestDc#1fb33026 = NearestDc from telegram.tl
+// TLHelpGetNearestDc represents func help.getNearestDc#1fb33026 = NearestDc from Telegram
 type TLHelpGetNearestDc struct {
 }
 
@@ -10212,7 +11023,7 @@ func (o *TLHelpGetNearestDc) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpGetAppUpdate represents func help.getAppUpdate#ae2de196 = help.AppUpdate from telegram.tl
+// TLHelpGetAppUpdate represents func help.getAppUpdate#ae2de196 = help.AppUpdate from Telegram
 type TLHelpGetAppUpdate struct {
 }
 
@@ -10230,7 +11041,7 @@ func (o *TLHelpGetAppUpdate) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpSaveAppLog represents func help.saveAppLog#6f02f748 events:Vector<InputAppEvent> = Bool from telegram.tl
+// TLHelpSaveAppLog represents func help.saveAppLog#6f02f748 events:Vector<InputAppEvent> = Bool from Telegram
 type TLHelpSaveAppLog struct {
 	Events []*TLInputAppEvent // events:Vector<InputAppEvent>
 }
@@ -10266,7 +11077,7 @@ func (o *TLHelpSaveAppLog) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpGetInviteText represents func help.getInviteText#4d392343 = help.InviteText from telegram.tl
+// TLHelpGetInviteText represents func help.getInviteText#4d392343 = help.InviteText from Telegram
 type TLHelpGetInviteText struct {
 }
 
@@ -10284,7 +11095,7 @@ func (o *TLHelpGetInviteText) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpGetSupport represents func help.getSupport#9cdf08cd = help.Support from telegram.tl
+// TLHelpGetSupport represents func help.getSupport#9cdf08cd = help.Support from Telegram
 type TLHelpGetSupport struct {
 }
 
@@ -10302,7 +11113,7 @@ func (o *TLHelpGetSupport) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpGetAppChangelog represents func help.getAppChangelog#9010ef6f prev_app_version:string = Updates from telegram.tl
+// TLHelpGetAppChangelog represents func help.getAppChangelog#9010ef6f prev_app_version:string = Updates from Telegram
 type TLHelpGetAppChangelog struct {
 	PrevAppVersion string // prev_app_version:string
 }
@@ -10323,7 +11134,7 @@ func (o *TLHelpGetAppChangelog) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpGetTermsOfService represents func help.getTermsOfService#350170f3 = help.TermsOfService from telegram.tl
+// TLHelpGetTermsOfService represents func help.getTermsOfService#350170f3 = help.TermsOfService from Telegram
 type TLHelpGetTermsOfService struct {
 }
 
@@ -10341,7 +11152,7 @@ func (o *TLHelpGetTermsOfService) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpSetBotUpdatesStatus represents func help.setBotUpdatesStatus#ec22cfcd pending_updates_count:int message:string = Bool from telegram.tl
+// TLHelpSetBotUpdatesStatus represents func help.setBotUpdatesStatus#ec22cfcd pending_updates_count:int message:string = Bool from Telegram
 type TLHelpSetBotUpdatesStatus struct {
 	PendingUpdatesCount int    // pending_updates_count:int
 	Message             string // message:string
@@ -10365,7 +11176,7 @@ func (o *TLHelpSetBotUpdatesStatus) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsReadHistory represents func channels.readHistory#cc104937 channel:InputChannel max_id:int = Bool from telegram.tl
+// TLChannelsReadHistory represents func channels.readHistory#cc104937 channel:InputChannel max_id:int = Bool from Telegram
 type TLChannelsReadHistory struct {
 	Channel TLInputChannelType // channel:InputChannel
 	MaxId   int                // max_id:int
@@ -10390,7 +11201,7 @@ func (o *TLChannelsReadHistory) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsDeleteMessages represents func channels.deleteMessages#84c1fd4e channel:InputChannel id:Vector<int> = messages.AffectedMessages from telegram.tl
+// TLChannelsDeleteMessages represents func channels.deleteMessages#84c1fd4e channel:InputChannel id:Vector<int> = messages.AffectedMessages from Telegram
 type TLChannelsDeleteMessages struct {
 	Channel TLInputChannelType // channel:InputChannel
 	Id      []int              // id:Vector<int>
@@ -10425,7 +11236,7 @@ func (o *TLChannelsDeleteMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsDeleteUserHistory represents func channels.deleteUserHistory#d10dd71b channel:InputChannel user_id:InputUser = messages.AffectedHistory from telegram.tl
+// TLChannelsDeleteUserHistory represents func channels.deleteUserHistory#d10dd71b channel:InputChannel user_id:InputUser = messages.AffectedHistory from Telegram
 type TLChannelsDeleteUserHistory struct {
 	Channel TLInputChannelType // channel:InputChannel
 	UserId  TLInputUserType    // user_id:InputUser
@@ -10451,7 +11262,7 @@ func (o *TLChannelsDeleteUserHistory) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsReportSpam represents func channels.reportSpam#fe087810 channel:InputChannel user_id:InputUser id:Vector<int> = Bool from telegram.tl
+// TLChannelsReportSpam represents func channels.reportSpam#fe087810 channel:InputChannel user_id:InputUser id:Vector<int> = Bool from Telegram
 type TLChannelsReportSpam struct {
 	Channel TLInputChannelType // channel:InputChannel
 	UserId  TLInputUserType    // user_id:InputUser
@@ -10490,7 +11301,7 @@ func (o *TLChannelsReportSpam) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsGetMessages represents func channels.getMessages#93d7b347 channel:InputChannel id:Vector<int> = messages.Messages from telegram.tl
+// TLChannelsGetMessages represents func channels.getMessages#93d7b347 channel:InputChannel id:Vector<int> = messages.Messages from Telegram
 type TLChannelsGetMessages struct {
 	Channel TLInputChannelType // channel:InputChannel
 	Id      []int              // id:Vector<int>
@@ -10525,7 +11336,7 @@ func (o *TLChannelsGetMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsGetParticipants represents func channels.getParticipants#24d98f92 channel:InputChannel filter:ChannelParticipantsFilter offset:int limit:int = channels.ChannelParticipants from telegram.tl
+// TLChannelsGetParticipants represents func channels.getParticipants#24d98f92 channel:InputChannel filter:ChannelParticipantsFilter offset:int limit:int = channels.ChannelParticipants from Telegram
 type TLChannelsGetParticipants struct {
 	Channel TLInputChannelType              // channel:InputChannel
 	Filter  TLChannelParticipantsFilterType // filter:ChannelParticipantsFilter
@@ -10557,7 +11368,7 @@ func (o *TLChannelsGetParticipants) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsGetParticipant represents func channels.getParticipant#546dd7a6 channel:InputChannel user_id:InputUser = channels.ChannelParticipant from telegram.tl
+// TLChannelsGetParticipant represents func channels.getParticipant#546dd7a6 channel:InputChannel user_id:InputUser = channels.ChannelParticipant from Telegram
 type TLChannelsGetParticipant struct {
 	Channel TLInputChannelType // channel:InputChannel
 	UserId  TLInputUserType    // user_id:InputUser
@@ -10583,7 +11394,7 @@ func (o *TLChannelsGetParticipant) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsGetChannels represents func channels.getChannels#0a7f6bbb id:Vector<InputChannel> = messages.Chats from telegram.tl
+// TLChannelsGetChannels represents func channels.getChannels#0a7f6bbb id:Vector<InputChannel> = messages.Chats from Telegram
 type TLChannelsGetChannels struct {
 	Id []TLInputChannelType // id:Vector<InputChannel>
 }
@@ -10615,7 +11426,7 @@ func (o *TLChannelsGetChannels) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsGetFullChannel represents func channels.getFullChannel#08736a09 channel:InputChannel = messages.ChatFull from telegram.tl
+// TLChannelsGetFullChannel represents func channels.getFullChannel#08736a09 channel:InputChannel = messages.ChatFull from Telegram
 type TLChannelsGetFullChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
 }
@@ -10637,7 +11448,7 @@ func (o *TLChannelsGetFullChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsCreateChannel represents func channels.createChannel#f4893d7f flags:# flags.0?broadcast:true flags.1?megagroup:true title:string about:string = Updates from telegram.tl
+// TLChannelsCreateChannel represents func channels.createChannel#f4893d7f flags:# flags.0?broadcast:true flags.1?megagroup:true title:string about:string = Updates from Telegram
 type TLChannelsCreateChannel struct {
 	Flags     uint   // flags:#
 	Broadcast bool   // flags.0?broadcast:true
@@ -10668,7 +11479,7 @@ func (o *TLChannelsCreateChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsEditAbout represents func channels.editAbout#13e27f1e channel:InputChannel about:string = Bool from telegram.tl
+// TLChannelsEditAbout represents func channels.editAbout#13e27f1e channel:InputChannel about:string = Bool from Telegram
 type TLChannelsEditAbout struct {
 	Channel TLInputChannelType // channel:InputChannel
 	About   string             // about:string
@@ -10693,7 +11504,7 @@ func (o *TLChannelsEditAbout) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsEditAdmin represents func channels.editAdmin#eb7611d0 channel:InputChannel user_id:InputUser role:ChannelParticipantRole = Updates from telegram.tl
+// TLChannelsEditAdmin represents func channels.editAdmin#eb7611d0 channel:InputChannel user_id:InputUser role:ChannelParticipantRole = Updates from Telegram
 type TLChannelsEditAdmin struct {
 	Channel TLInputChannelType           // channel:InputChannel
 	UserId  TLInputUserType              // user_id:InputUser
@@ -10723,7 +11534,7 @@ func (o *TLChannelsEditAdmin) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsEditTitle represents func channels.editTitle#566decd0 channel:InputChannel title:string = Updates from telegram.tl
+// TLChannelsEditTitle represents func channels.editTitle#566decd0 channel:InputChannel title:string = Updates from Telegram
 type TLChannelsEditTitle struct {
 	Channel TLInputChannelType // channel:InputChannel
 	Title   string             // title:string
@@ -10748,7 +11559,7 @@ func (o *TLChannelsEditTitle) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsEditPhoto represents func channels.editPhoto#f12e57c9 channel:InputChannel photo:InputChatPhoto = Updates from telegram.tl
+// TLChannelsEditPhoto represents func channels.editPhoto#f12e57c9 channel:InputChannel photo:InputChatPhoto = Updates from Telegram
 type TLChannelsEditPhoto struct {
 	Channel TLInputChannelType   // channel:InputChannel
 	Photo   TLInputChatPhotoType // photo:InputChatPhoto
@@ -10774,7 +11585,7 @@ func (o *TLChannelsEditPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsCheckUsername represents func channels.checkUsername#10e6bd2c channel:InputChannel username:string = Bool from telegram.tl
+// TLChannelsCheckUsername represents func channels.checkUsername#10e6bd2c channel:InputChannel username:string = Bool from Telegram
 type TLChannelsCheckUsername struct {
 	Channel  TLInputChannelType // channel:InputChannel
 	Username string             // username:string
@@ -10799,7 +11610,7 @@ func (o *TLChannelsCheckUsername) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsUpdateUsername represents func channels.updateUsername#3514b3de channel:InputChannel username:string = Bool from telegram.tl
+// TLChannelsUpdateUsername represents func channels.updateUsername#3514b3de channel:InputChannel username:string = Bool from Telegram
 type TLChannelsUpdateUsername struct {
 	Channel  TLInputChannelType // channel:InputChannel
 	Username string             // username:string
@@ -10824,7 +11635,7 @@ func (o *TLChannelsUpdateUsername) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsJoinChannel represents func channels.joinChannel#24b524c5 channel:InputChannel = Updates from telegram.tl
+// TLChannelsJoinChannel represents func channels.joinChannel#24b524c5 channel:InputChannel = Updates from Telegram
 type TLChannelsJoinChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
 }
@@ -10846,7 +11657,7 @@ func (o *TLChannelsJoinChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsLeaveChannel represents func channels.leaveChannel#f836aa95 channel:InputChannel = Updates from telegram.tl
+// TLChannelsLeaveChannel represents func channels.leaveChannel#f836aa95 channel:InputChannel = Updates from Telegram
 type TLChannelsLeaveChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
 }
@@ -10868,7 +11679,7 @@ func (o *TLChannelsLeaveChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsInviteToChannel represents func channels.inviteToChannel#199f3a6c channel:InputChannel users:Vector<InputUser> = Updates from telegram.tl
+// TLChannelsInviteToChannel represents func channels.inviteToChannel#199f3a6c channel:InputChannel users:Vector<InputUser> = Updates from Telegram
 type TLChannelsInviteToChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
 	Users   []TLInputUserType  // users:Vector<InputUser>
@@ -10904,7 +11715,7 @@ func (o *TLChannelsInviteToChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsKickFromChannel represents func channels.kickFromChannel#a672de14 channel:InputChannel user_id:InputUser kicked:Bool = Updates from telegram.tl
+// TLChannelsKickFromChannel represents func channels.kickFromChannel#a672de14 channel:InputChannel user_id:InputUser kicked:Bool = Updates from Telegram
 type TLChannelsKickFromChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
 	UserId  TLInputUserType    // user_id:InputUser
@@ -10938,7 +11749,7 @@ func (o *TLChannelsKickFromChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsExportInvite represents func channels.exportInvite#c7560885 channel:InputChannel = ExportedChatInvite from telegram.tl
+// TLChannelsExportInvite represents func channels.exportInvite#c7560885 channel:InputChannel = ExportedChatInvite from Telegram
 type TLChannelsExportInvite struct {
 	Channel TLInputChannelType // channel:InputChannel
 }
@@ -10960,7 +11771,7 @@ func (o *TLChannelsExportInvite) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsDeleteChannel represents func channels.deleteChannel#c0111fe3 channel:InputChannel = Updates from telegram.tl
+// TLChannelsDeleteChannel represents func channels.deleteChannel#c0111fe3 channel:InputChannel = Updates from Telegram
 type TLChannelsDeleteChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
 }
@@ -10982,7 +11793,7 @@ func (o *TLChannelsDeleteChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsToggleInvites represents func channels.toggleInvites#49609307 channel:InputChannel enabled:Bool = Updates from telegram.tl
+// TLChannelsToggleInvites represents func channels.toggleInvites#49609307 channel:InputChannel enabled:Bool = Updates from Telegram
 type TLChannelsToggleInvites struct {
 	Channel TLInputChannelType // channel:InputChannel
 	Enabled bool               // enabled:Bool
@@ -11012,7 +11823,7 @@ func (o *TLChannelsToggleInvites) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsExportMessageLink represents func channels.exportMessageLink#c846d22d channel:InputChannel id:int = ExportedMessageLink from telegram.tl
+// TLChannelsExportMessageLink represents func channels.exportMessageLink#c846d22d channel:InputChannel id:int = ExportedMessageLink from Telegram
 type TLChannelsExportMessageLink struct {
 	Channel TLInputChannelType // channel:InputChannel
 	Id      int                // id:int
@@ -11037,7 +11848,7 @@ func (o *TLChannelsExportMessageLink) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsToggleSignatures represents func channels.toggleSignatures#1f69b606 channel:InputChannel enabled:Bool = Updates from telegram.tl
+// TLChannelsToggleSignatures represents func channels.toggleSignatures#1f69b606 channel:InputChannel enabled:Bool = Updates from Telegram
 type TLChannelsToggleSignatures struct {
 	Channel TLInputChannelType // channel:InputChannel
 	Enabled bool               // enabled:Bool
@@ -11067,7 +11878,7 @@ func (o *TLChannelsToggleSignatures) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsUpdatePinnedMessage represents func channels.updatePinnedMessage#a72ded52 flags:# flags.0?silent:true channel:InputChannel id:int = Updates from telegram.tl
+// TLChannelsUpdatePinnedMessage represents func channels.updatePinnedMessage#a72ded52 flags:# flags.0?silent:true channel:InputChannel id:int = Updates from Telegram
 type TLChannelsUpdatePinnedMessage struct {
 	Flags   uint               // flags:#
 	Silent  bool               // flags.0?silent:true
@@ -11097,7 +11908,7 @@ func (o *TLChannelsUpdatePinnedMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelsGetAdminedPublicChannels represents func channels.getAdminedPublicChannels#8d8d82d7 = messages.Chats from telegram.tl
+// TLChannelsGetAdminedPublicChannels represents func channels.getAdminedPublicChannels#8d8d82d7 = messages.Chats from Telegram
 type TLChannelsGetAdminedPublicChannels struct {
 }
 
@@ -11115,7 +11926,7 @@ func (o *TLChannelsGetAdminedPublicChannels) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotsSendCustomRequest represents func bots.sendCustomRequest#aa2769ed custom_method:string params:DataJSON = DataJSON from telegram.tl
+// TLBotsSendCustomRequest represents func bots.sendCustomRequest#aa2769ed custom_method:string params:DataJSON = DataJSON from Telegram
 type TLBotsSendCustomRequest struct {
 	CustomMethod string      // custom_method:string
 	Params       *TLDataJSON // params:DataJSON
@@ -11144,7 +11955,7 @@ func (o *TLBotsSendCustomRequest) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotsAnswerWebhookJSONQuery represents func bots.answerWebhookJSONQuery#e6213f4d query_id:long data:DataJSON = Bool from telegram.tl
+// TLBotsAnswerWebhookJSONQuery represents func bots.answerWebhookJSONQuery#e6213f4d query_id:long data:DataJSON = Bool from Telegram
 type TLBotsAnswerWebhookJSONQuery struct {
 	QueryId uint64      // query_id:long
 	Data    *TLDataJSON // data:DataJSON
@@ -11173,7 +11984,7 @@ func (o *TLBotsAnswerWebhookJSONQuery) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsGetPaymentForm represents func payments.getPaymentForm#99f09745 msg_id:int = payments.PaymentForm from telegram.tl
+// TLPaymentsGetPaymentForm represents func payments.getPaymentForm#99f09745 msg_id:int = payments.PaymentForm from Telegram
 type TLPaymentsGetPaymentForm struct {
 	MsgId int // msg_id:int
 }
@@ -11194,7 +12005,7 @@ func (o *TLPaymentsGetPaymentForm) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsGetPaymentReceipt represents func payments.getPaymentReceipt#a092a980 msg_id:int = payments.PaymentReceipt from telegram.tl
+// TLPaymentsGetPaymentReceipt represents func payments.getPaymentReceipt#a092a980 msg_id:int = payments.PaymentReceipt from Telegram
 type TLPaymentsGetPaymentReceipt struct {
 	MsgId int // msg_id:int
 }
@@ -11215,7 +12026,7 @@ func (o *TLPaymentsGetPaymentReceipt) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsValidateRequestedInfo represents func payments.validateRequestedInfo#770a8e74 flags:# flags.0?save:true msg_id:int info:PaymentRequestedInfo = payments.ValidatedRequestedInfo from telegram.tl
+// TLPaymentsValidateRequestedInfo represents func payments.validateRequestedInfo#770a8e74 flags:# flags.0?save:true msg_id:int info:PaymentRequestedInfo = payments.ValidatedRequestedInfo from Telegram
 type TLPaymentsValidateRequestedInfo struct {
 	Flags uint                    // flags:#
 	Save  bool                    // flags.0?save:true
@@ -11249,7 +12060,7 @@ func (o *TLPaymentsValidateRequestedInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsSendPaymentForm represents func payments.sendPaymentForm#2b8879b3 flags:# msg_id:int flags.0?requested_info_id:string flags.1?shipping_option_id:string credentials:InputPaymentCredentials = payments.PaymentResult from telegram.tl
+// TLPaymentsSendPaymentForm represents func payments.sendPaymentForm#2b8879b3 flags:# msg_id:int flags.0?requested_info_id:string flags.1?shipping_option_id:string credentials:InputPaymentCredentials = payments.PaymentResult from Telegram
 type TLPaymentsSendPaymentForm struct {
 	Flags            uint                          // flags:#
 	MsgId            int                           // msg_id:int
@@ -11283,7 +12094,7 @@ func (o *TLPaymentsSendPaymentForm) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsGetSavedInfo represents func payments.getSavedInfo#227d824b = payments.SavedInfo from telegram.tl
+// TLPaymentsGetSavedInfo represents func payments.getSavedInfo#227d824b = payments.SavedInfo from Telegram
 type TLPaymentsGetSavedInfo struct {
 }
 
@@ -11301,7 +12112,7 @@ func (o *TLPaymentsGetSavedInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsClearSavedInfo represents func payments.clearSavedInfo#d83d70c1 flags:# flags.0?credentials:true flags.1?info:true = Bool from telegram.tl
+// TLPaymentsClearSavedInfo represents func payments.clearSavedInfo#d83d70c1 flags:# flags.0?credentials:true flags.1?info:true = Bool from Telegram
 type TLPaymentsClearSavedInfo struct {
 	Flags       uint // flags:#
 	Credentials bool // flags.0?credentials:true
@@ -11326,7 +12137,7 @@ func (o *TLPaymentsClearSavedInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneGetCallConfig represents func phone.getCallConfig#55451fa9 = DataJSON from telegram.tl
+// TLPhoneGetCallConfig represents func phone.getCallConfig#55451fa9 = DataJSON from Telegram
 type TLPhoneGetCallConfig struct {
 }
 
@@ -11344,7 +12155,7 @@ func (o *TLPhoneGetCallConfig) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneRequestCall represents func phone.requestCall#5b95b3d4 user_id:InputUser random_id:int g_a_hash:bytes protocol:PhoneCallProtocol = phone.PhoneCall from telegram.tl
+// TLPhoneRequestCall represents func phone.requestCall#5b95b3d4 user_id:InputUser random_id:int g_a_hash:bytes protocol:PhoneCallProtocol = phone.PhoneCall from Telegram
 type TLPhoneRequestCall struct {
 	UserId   TLInputUserType      // user_id:InputUser
 	RandomId int                  // random_id:int
@@ -11380,7 +12191,7 @@ func (o *TLPhoneRequestCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneAcceptCall represents func phone.acceptCall#3bd2b4a0 peer:InputPhoneCall g_b:bytes protocol:PhoneCallProtocol = phone.PhoneCall from telegram.tl
+// TLPhoneAcceptCall represents func phone.acceptCall#3bd2b4a0 peer:InputPhoneCall g_b:bytes protocol:PhoneCallProtocol = phone.PhoneCall from Telegram
 type TLPhoneAcceptCall struct {
 	Peer     *TLInputPhoneCall    // peer:InputPhoneCall
 	GB       []byte               // g_b:bytes
@@ -11417,7 +12228,7 @@ func (o *TLPhoneAcceptCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneConfirmCall represents func phone.confirmCall#2efe1722 peer:InputPhoneCall g_a:bytes key_fingerprint:long protocol:PhoneCallProtocol = phone.PhoneCall from telegram.tl
+// TLPhoneConfirmCall represents func phone.confirmCall#2efe1722 peer:InputPhoneCall g_a:bytes key_fingerprint:long protocol:PhoneCallProtocol = phone.PhoneCall from Telegram
 type TLPhoneConfirmCall struct {
 	Peer           *TLInputPhoneCall    // peer:InputPhoneCall
 	GA             []byte               // g_a:bytes
@@ -11457,7 +12268,7 @@ func (o *TLPhoneConfirmCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneReceivedCall represents func phone.receivedCall#17d54f61 peer:InputPhoneCall = Bool from telegram.tl
+// TLPhoneReceivedCall represents func phone.receivedCall#17d54f61 peer:InputPhoneCall = Bool from Telegram
 type TLPhoneReceivedCall struct {
 	Peer *TLInputPhoneCall // peer:InputPhoneCall
 }
@@ -11483,7 +12294,7 @@ func (o *TLPhoneReceivedCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneDiscardCall represents func phone.discardCall#78d413a6 peer:InputPhoneCall duration:int reason:PhoneCallDiscardReason connection_id:long = Updates from telegram.tl
+// TLPhoneDiscardCall represents func phone.discardCall#78d413a6 peer:InputPhoneCall duration:int reason:PhoneCallDiscardReason connection_id:long = Updates from Telegram
 type TLPhoneDiscardCall struct {
 	Peer         *TLInputPhoneCall            // peer:InputPhoneCall
 	Duration     int                          // duration:int
@@ -11519,7 +12330,7 @@ func (o *TLPhoneDiscardCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneSetCallRating represents func phone.setCallRating#1c536a34 peer:InputPhoneCall rating:int comment:string = Updates from telegram.tl
+// TLPhoneSetCallRating represents func phone.setCallRating#1c536a34 peer:InputPhoneCall rating:int comment:string = Updates from Telegram
 type TLPhoneSetCallRating struct {
 	Peer    *TLInputPhoneCall // peer:InputPhoneCall
 	Rating  int               // rating:int
@@ -11551,7 +12362,7 @@ func (o *TLPhoneSetCallRating) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneSaveCallDebug represents func phone.saveCallDebug#277add7e peer:InputPhoneCall debug:DataJSON = Bool from telegram.tl
+// TLPhoneSaveCallDebug represents func phone.saveCallDebug#277add7e peer:InputPhoneCall debug:DataJSON = Bool from Telegram
 type TLPhoneSaveCallDebug struct {
 	Peer  *TLInputPhoneCall // peer:InputPhoneCall
 	Debug *TLDataJSON       // debug:DataJSON
@@ -11585,7 +12396,7 @@ func (o *TLPhoneSaveCallDebug) String() string {
 	return tl.Pretty(o)
 }
 
-// TLServerDHParamsFail represents ctor server_DH_params_fail#79cb045d nonce:int128 server_nonce:int128 new_nonce_hash:int128 = Server_DH_Params from mtproto.tl
+// TLServerDHParamsFail represents ctor server_DH_params_fail#79cb045d nonce:int128 server_nonce:int128 new_nonce_hash:int128 = Server_DH_Params from MTProto
 type TLServerDHParamsFail struct {
 	Nonce        [16]byte // nonce:int128
 	ServerNonce  [16]byte // server_nonce:int128
@@ -11614,7 +12425,7 @@ func (o *TLServerDHParamsFail) String() string {
 	return tl.Pretty(o)
 }
 
-// TLServerDHParamsOK represents ctor server_DH_params_ok#d0e8075c nonce:int128 server_nonce:int128 encrypted_answer:bytes = Server_DH_Params from mtproto.tl
+// TLServerDHParamsOK represents ctor server_DH_params_ok#d0e8075c nonce:int128 server_nonce:int128 encrypted_answer:bytes = Server_DH_Params from MTProto
 type TLServerDHParamsOK struct {
 	Nonce           [16]byte // nonce:int128
 	ServerNonce     [16]byte // server_nonce:int128
@@ -11643,7 +12454,7 @@ func (o *TLServerDHParamsOK) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDHGenOK represents ctor dh_gen_ok#3bcbf734 nonce:int128 server_nonce:int128 new_nonce_hash1:int128 = Set_client_DH_params_answer from mtproto.tl
+// TLDHGenOK represents ctor dh_gen_ok#3bcbf734 nonce:int128 server_nonce:int128 new_nonce_hash1:int128 = Set_client_DH_params_answer from MTProto
 type TLDHGenOK struct {
 	Nonce         [16]byte // nonce:int128
 	ServerNonce   [16]byte // server_nonce:int128
@@ -11672,7 +12483,7 @@ func (o *TLDHGenOK) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDHGenRetry represents ctor dh_gen_retry#46dc1fb9 nonce:int128 server_nonce:int128 new_nonce_hash2:int128 = Set_client_DH_params_answer from mtproto.tl
+// TLDHGenRetry represents ctor dh_gen_retry#46dc1fb9 nonce:int128 server_nonce:int128 new_nonce_hash2:int128 = Set_client_DH_params_answer from MTProto
 type TLDHGenRetry struct {
 	Nonce         [16]byte // nonce:int128
 	ServerNonce   [16]byte // server_nonce:int128
@@ -11701,7 +12512,7 @@ func (o *TLDHGenRetry) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDHGenFail represents ctor dh_gen_fail#a69dae02 nonce:int128 server_nonce:int128 new_nonce_hash3:int128 = Set_client_DH_params_answer from mtproto.tl
+// TLDHGenFail represents ctor dh_gen_fail#a69dae02 nonce:int128 server_nonce:int128 new_nonce_hash3:int128 = Set_client_DH_params_answer from MTProto
 type TLDHGenFail struct {
 	Nonce         [16]byte // nonce:int128
 	ServerNonce   [16]byte // server_nonce:int128
@@ -11730,7 +12541,7 @@ func (o *TLDHGenFail) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcAnswerUnknown represents ctor rpc_answer_unknown#5e2ad36e = RpcDropAnswer from mtproto.tl
+// TLRpcAnswerUnknown represents ctor rpc_answer_unknown#5e2ad36e = RpcDropAnswer from MTProto
 type TLRpcAnswerUnknown struct {
 }
 
@@ -11750,7 +12561,7 @@ func (o *TLRpcAnswerUnknown) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcAnswerDroppedRunning represents ctor rpc_answer_dropped_running#cd78e586 = RpcDropAnswer from mtproto.tl
+// TLRpcAnswerDroppedRunning represents ctor rpc_answer_dropped_running#cd78e586 = RpcDropAnswer from MTProto
 type TLRpcAnswerDroppedRunning struct {
 }
 
@@ -11770,7 +12581,7 @@ func (o *TLRpcAnswerDroppedRunning) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcAnswerDropped represents ctor rpc_answer_dropped#a43ad8b7 msg_id:long seq_no:int bytes:int = RpcDropAnswer from mtproto.tl
+// TLRpcAnswerDropped represents ctor rpc_answer_dropped#a43ad8b7 msg_id:long seq_no:int bytes:int = RpcDropAnswer from MTProto
 type TLRpcAnswerDropped struct {
 	MsgId uint64 // msg_id:long
 	SeqNo int    // seq_no:int
@@ -11799,7 +12610,7 @@ func (o *TLRpcAnswerDropped) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDestroySessionOK represents ctor destroy_session_ok#e22045fc session_id:long = DestroySessionRes from mtproto.tl
+// TLDestroySessionOK represents ctor destroy_session_ok#e22045fc session_id:long = DestroySessionRes from MTProto
 type TLDestroySessionOK struct {
 	SessionId uint64 // session_id:long
 }
@@ -11822,7 +12633,7 @@ func (o *TLDestroySessionOK) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDestroySessionNone represents ctor destroy_session_none#62d350c9 session_id:long = DestroySessionRes from mtproto.tl
+// TLDestroySessionNone represents ctor destroy_session_none#62d350c9 session_id:long = DestroySessionRes from MTProto
 type TLDestroySessionNone struct {
 	SessionId uint64 // session_id:long
 }
@@ -11845,7 +12656,7 @@ func (o *TLDestroySessionNone) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEmpty represents ctor messageEmpty#83e5de54 id:int = Message from telegram.tl
+// TLMessageEmpty represents ctor messageEmpty#83e5de54 id:int = Message from Telegram
 type TLMessageEmpty struct {
 	Id int // id:int
 }
@@ -11868,7 +12679,7 @@ func (o *TLMessageEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessage represents ctor message#c09be45f flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true flags.14?post:true id:int flags.8?from_id:int to_id:Peer flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int date:int message:string flags.9?media:MessageMedia flags.6?reply_markup:ReplyMarkup flags.7?entities:Vector<MessageEntity> flags.10?views:int flags.15?edit_date:int = Message from telegram.tl
+// TLMessage represents ctor message#c09be45f flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true flags.14?post:true id:int flags.8?from_id:int to_id:Peer flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int date:int message:string flags.9?media:MessageMedia flags.6?reply_markup:ReplyMarkup flags.7?entities:Vector<MessageEntity> flags.10?views:int flags.15?edit_date:int = Message from Telegram
 type TLMessage struct {
 	Flags        uint                  // flags:#
 	Out          bool                  // flags.1?out:true
@@ -11959,7 +12770,7 @@ func (o *TLMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageService represents ctor messageService#9e19a1f6 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true flags.14?post:true id:int flags.8?from_id:int to_id:Peer flags.3?reply_to_msg_id:int date:int action:MessageAction = Message from telegram.tl
+// TLMessageService represents ctor messageService#9e19a1f6 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true flags.14?post:true id:int flags.8?from_id:int to_id:Peer flags.3?reply_to_msg_id:int date:int action:MessageAction = Message from Telegram
 type TLMessageService struct {
 	Flags        uint                // flags:#
 	Out          bool                // flags.1?out:true
@@ -12012,7 +12823,7 @@ func (o *TLMessageService) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBadMsgNotification represents ctor bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int = BadMsgNotification from mtproto.tl
+// TLBadMsgNotification represents ctor bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int = BadMsgNotification from MTProto
 type TLBadMsgNotification struct {
 	BadMsgId    uint64 // bad_msg_id:long
 	BadMsgSeqno int    // bad_msg_seqno:int
@@ -12041,7 +12852,7 @@ func (o *TLBadMsgNotification) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBadServerSalt represents ctor bad_server_salt#edab447b bad_msg_id:long bad_msg_seqno:int error_code:int new_server_salt:long = BadMsgNotification from mtproto.tl
+// TLBadServerSalt represents ctor bad_server_salt#edab447b bad_msg_id:long bad_msg_seqno:int error_code:int new_server_salt:long = BadMsgNotification from MTProto
 type TLBadServerSalt struct {
 	BadMsgId      uint64 // bad_msg_id:long
 	BadMsgSeqno   int    // bad_msg_seqno:int
@@ -12073,7 +12884,7 @@ func (o *TLBadServerSalt) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMsgDetailedInfo represents ctor msg_detailed_info#276d3ec6 msg_id:long answer_msg_id:long bytes:int status:int = MsgDetailedInfo from mtproto.tl
+// TLMsgDetailedInfo represents ctor msg_detailed_info#276d3ec6 msg_id:long answer_msg_id:long bytes:int status:int = MsgDetailedInfo from MTProto
 type TLMsgDetailedInfo struct {
 	MsgId       uint64 // msg_id:long
 	AnswerMsgId uint64 // answer_msg_id:long
@@ -12105,7 +12916,7 @@ func (o *TLMsgDetailedInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMsgNewDetailedInfo represents ctor msg_new_detailed_info#809db6df answer_msg_id:long bytes:int status:int = MsgDetailedInfo from mtproto.tl
+// TLMsgNewDetailedInfo represents ctor msg_new_detailed_info#809db6df answer_msg_id:long bytes:int status:int = MsgDetailedInfo from MTProto
 type TLMsgNewDetailedInfo struct {
 	AnswerMsgId uint64 // answer_msg_id:long
 	Bytes       int    // bytes:int
@@ -12134,7 +12945,7 @@ func (o *TLMsgNewDetailedInfo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPeerEmpty represents ctor inputPeerEmpty#7f3b18ea = InputPeer from telegram.tl
+// TLInputPeerEmpty represents ctor inputPeerEmpty#7f3b18ea = InputPeer from Telegram
 type TLInputPeerEmpty struct {
 }
 
@@ -12154,7 +12965,7 @@ func (o *TLInputPeerEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPeerSelf represents ctor inputPeerSelf#7da07ec9 = InputPeer from telegram.tl
+// TLInputPeerSelf represents ctor inputPeerSelf#7da07ec9 = InputPeer from Telegram
 type TLInputPeerSelf struct {
 }
 
@@ -12174,7 +12985,7 @@ func (o *TLInputPeerSelf) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPeerChat represents ctor inputPeerChat#179be863 chat_id:int = InputPeer from telegram.tl
+// TLInputPeerChat represents ctor inputPeerChat#179be863 chat_id:int = InputPeer from Telegram
 type TLInputPeerChat struct {
 	ChatId int // chat_id:int
 }
@@ -12197,7 +13008,7 @@ func (o *TLInputPeerChat) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPeerUser represents ctor inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer from telegram.tl
+// TLInputPeerUser represents ctor inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer from Telegram
 type TLInputPeerUser struct {
 	UserId     int    // user_id:int
 	AccessHash uint64 // access_hash:long
@@ -12223,7 +13034,7 @@ func (o *TLInputPeerUser) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPeerChannel represents ctor inputPeerChannel#20adaef8 channel_id:int access_hash:long = InputPeer from telegram.tl
+// TLInputPeerChannel represents ctor inputPeerChannel#20adaef8 channel_id:int access_hash:long = InputPeer from Telegram
 type TLInputPeerChannel struct {
 	ChannelId  int    // channel_id:int
 	AccessHash uint64 // access_hash:long
@@ -12249,7 +13060,7 @@ func (o *TLInputPeerChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputUserEmpty represents ctor inputUserEmpty#b98886cf = InputUser from telegram.tl
+// TLInputUserEmpty represents ctor inputUserEmpty#b98886cf = InputUser from Telegram
 type TLInputUserEmpty struct {
 }
 
@@ -12269,7 +13080,7 @@ func (o *TLInputUserEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputUserSelf represents ctor inputUserSelf#f7c1b13f = InputUser from telegram.tl
+// TLInputUserSelf represents ctor inputUserSelf#f7c1b13f = InputUser from Telegram
 type TLInputUserSelf struct {
 }
 
@@ -12289,7 +13100,7 @@ func (o *TLInputUserSelf) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputUser represents ctor inputUser#d8292816 user_id:int access_hash:long = InputUser from telegram.tl
+// TLInputUser represents ctor inputUser#d8292816 user_id:int access_hash:long = InputUser from Telegram
 type TLInputUser struct {
 	UserId     int    // user_id:int
 	AccessHash uint64 // access_hash:long
@@ -12315,7 +13126,7 @@ func (o *TLInputUser) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputFile represents ctor inputFile#f52ff27f id:long parts:int name:string md5_checksum:string = InputFile from telegram.tl
+// TLInputFile represents ctor inputFile#f52ff27f id:long parts:int name:string md5_checksum:string = InputFile from Telegram
 type TLInputFile struct {
 	Id          uint64 // id:long
 	Parts       int    // parts:int
@@ -12347,7 +13158,7 @@ func (o *TLInputFile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputFileBig represents ctor inputFileBig#fa4f0bb5 id:long parts:int name:string = InputFile from telegram.tl
+// TLInputFileBig represents ctor inputFileBig#fa4f0bb5 id:long parts:int name:string = InputFile from Telegram
 type TLInputFileBig struct {
 	Id    uint64 // id:long
 	Parts int    // parts:int
@@ -12376,7 +13187,7 @@ func (o *TLInputFileBig) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaEmpty represents ctor inputMediaEmpty#9664f57f = InputMedia from telegram.tl
+// TLInputMediaEmpty represents ctor inputMediaEmpty#9664f57f = InputMedia from Telegram
 type TLInputMediaEmpty struct {
 }
 
@@ -12396,7 +13207,7 @@ func (o *TLInputMediaEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaUploadedPhoto represents ctor inputMediaUploadedPhoto#630c9af1 flags:# file:InputFile caption:string flags.0?stickers:Vector<InputDocument> = InputMedia from telegram.tl
+// TLInputMediaUploadedPhoto represents ctor inputMediaUploadedPhoto#630c9af1 flags:# file:InputFile caption:string flags.0?stickers:Vector<InputDocument> = InputMedia from Telegram
 type TLInputMediaUploadedPhoto struct {
 	Flags    uint                  // flags:#
 	File     TLInputFileType       // file:InputFile
@@ -12440,7 +13251,7 @@ func (o *TLInputMediaUploadedPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaPhoto represents ctor inputMediaPhoto#e9bfb4f3 id:InputPhoto caption:string = InputMedia from telegram.tl
+// TLInputMediaPhoto represents ctor inputMediaPhoto#e9bfb4f3 id:InputPhoto caption:string = InputMedia from Telegram
 type TLInputMediaPhoto struct {
 	Id      TLInputPhotoType // id:InputPhoto
 	Caption string           // caption:string
@@ -12467,7 +13278,7 @@ func (o *TLInputMediaPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaGeoPoint represents ctor inputMediaGeoPoint#f9c44144 geo_point:InputGeoPoint = InputMedia from telegram.tl
+// TLInputMediaGeoPoint represents ctor inputMediaGeoPoint#f9c44144 geo_point:InputGeoPoint = InputMedia from Telegram
 type TLInputMediaGeoPoint struct {
 	GeoPoint TLInputGeoPointType // geo_point:InputGeoPoint
 }
@@ -12491,7 +13302,7 @@ func (o *TLInputMediaGeoPoint) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaContact represents ctor inputMediaContact#a6e45987 phone_number:string first_name:string last_name:string = InputMedia from telegram.tl
+// TLInputMediaContact represents ctor inputMediaContact#a6e45987 phone_number:string first_name:string last_name:string = InputMedia from Telegram
 type TLInputMediaContact struct {
 	PhoneNumber string // phone_number:string
 	FirstName   string // first_name:string
@@ -12520,7 +13331,7 @@ func (o *TLInputMediaContact) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaUploadedDocument represents ctor inputMediaUploadedDocument#d070f1e9 flags:# file:InputFile mime_type:string attributes:Vector<DocumentAttribute> caption:string flags.0?stickers:Vector<InputDocument> = InputMedia from telegram.tl
+// TLInputMediaUploadedDocument represents ctor inputMediaUploadedDocument#d070f1e9 flags:# file:InputFile mime_type:string attributes:Vector<DocumentAttribute> caption:string flags.0?stickers:Vector<InputDocument> = InputMedia from Telegram
 type TLInputMediaUploadedDocument struct {
 	Flags      uint                      // flags:#
 	File       TLInputFileType           // file:InputFile
@@ -12581,7 +13392,7 @@ func (o *TLInputMediaUploadedDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaUploadedThumbDocument represents ctor inputMediaUploadedThumbDocument#50d88cae flags:# file:InputFile thumb:InputFile mime_type:string attributes:Vector<DocumentAttribute> caption:string flags.0?stickers:Vector<InputDocument> = InputMedia from telegram.tl
+// TLInputMediaUploadedThumbDocument represents ctor inputMediaUploadedThumbDocument#50d88cae flags:# file:InputFile thumb:InputFile mime_type:string attributes:Vector<DocumentAttribute> caption:string flags.0?stickers:Vector<InputDocument> = InputMedia from Telegram
 type TLInputMediaUploadedThumbDocument struct {
 	Flags      uint                      // flags:#
 	File       TLInputFileType           // file:InputFile
@@ -12646,7 +13457,7 @@ func (o *TLInputMediaUploadedThumbDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaDocument represents ctor inputMediaDocument#1a77f29c id:InputDocument caption:string = InputMedia from telegram.tl
+// TLInputMediaDocument represents ctor inputMediaDocument#1a77f29c id:InputDocument caption:string = InputMedia from Telegram
 type TLInputMediaDocument struct {
 	Id      TLInputDocumentType // id:InputDocument
 	Caption string              // caption:string
@@ -12673,7 +13484,7 @@ func (o *TLInputMediaDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaVenue represents ctor inputMediaVenue#2827a81a geo_point:InputGeoPoint title:string address:string provider:string venue_id:string = InputMedia from telegram.tl
+// TLInputMediaVenue represents ctor inputMediaVenue#2827a81a geo_point:InputGeoPoint title:string address:string provider:string venue_id:string = InputMedia from Telegram
 type TLInputMediaVenue struct {
 	GeoPoint TLInputGeoPointType // geo_point:InputGeoPoint
 	Title    string              // title:string
@@ -12709,7 +13520,7 @@ func (o *TLInputMediaVenue) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaGifExternal represents ctor inputMediaGifExternal#4843b0fd url:string q:string = InputMedia from telegram.tl
+// TLInputMediaGifExternal represents ctor inputMediaGifExternal#4843b0fd url:string q:string = InputMedia from Telegram
 type TLInputMediaGifExternal struct {
 	Url string // url:string
 	Q   string // q:string
@@ -12735,7 +13546,7 @@ func (o *TLInputMediaGifExternal) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaPhotoExternal represents ctor inputMediaPhotoExternal#b55f4f18 url:string caption:string = InputMedia from telegram.tl
+// TLInputMediaPhotoExternal represents ctor inputMediaPhotoExternal#b55f4f18 url:string caption:string = InputMedia from Telegram
 type TLInputMediaPhotoExternal struct {
 	Url     string // url:string
 	Caption string // caption:string
@@ -12761,7 +13572,7 @@ func (o *TLInputMediaPhotoExternal) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaDocumentExternal represents ctor inputMediaDocumentExternal#e5e9607c url:string caption:string = InputMedia from telegram.tl
+// TLInputMediaDocumentExternal represents ctor inputMediaDocumentExternal#e5e9607c url:string caption:string = InputMedia from Telegram
 type TLInputMediaDocumentExternal struct {
 	Url     string // url:string
 	Caption string // caption:string
@@ -12787,7 +13598,7 @@ func (o *TLInputMediaDocumentExternal) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaGame represents ctor inputMediaGame#d33f43f3 id:InputGame = InputMedia from telegram.tl
+// TLInputMediaGame represents ctor inputMediaGame#d33f43f3 id:InputGame = InputMedia from Telegram
 type TLInputMediaGame struct {
 	Id TLInputGameType // id:InputGame
 }
@@ -12811,7 +13622,7 @@ func (o *TLInputMediaGame) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMediaInvoice represents ctor inputMediaInvoice#92153685 flags:# title:string description:string flags.0?photo:InputWebDocument invoice:Invoice payload:bytes provider:string start_param:string = InputMedia from telegram.tl
+// TLInputMediaInvoice represents ctor inputMediaInvoice#92153685 flags:# title:string description:string flags.0?photo:InputWebDocument invoice:Invoice payload:bytes provider:string start_param:string = InputMedia from Telegram
 type TLInputMediaInvoice struct {
 	Flags       uint                // flags:#
 	Title       string              // title:string
@@ -12865,7 +13676,7 @@ func (o *TLInputMediaInvoice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputChatPhotoEmpty represents ctor inputChatPhotoEmpty#1ca48f57 = InputChatPhoto from telegram.tl
+// TLInputChatPhotoEmpty represents ctor inputChatPhotoEmpty#1ca48f57 = InputChatPhoto from Telegram
 type TLInputChatPhotoEmpty struct {
 }
 
@@ -12885,7 +13696,7 @@ func (o *TLInputChatPhotoEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputChatUploadedPhoto represents ctor inputChatUploadedPhoto#927c55b4 file:InputFile = InputChatPhoto from telegram.tl
+// TLInputChatUploadedPhoto represents ctor inputChatUploadedPhoto#927c55b4 file:InputFile = InputChatPhoto from Telegram
 type TLInputChatUploadedPhoto struct {
 	File TLInputFileType // file:InputFile
 }
@@ -12909,7 +13720,7 @@ func (o *TLInputChatUploadedPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputChatPhoto represents ctor inputChatPhoto#8953ad37 id:InputPhoto = InputChatPhoto from telegram.tl
+// TLInputChatPhoto represents ctor inputChatPhoto#8953ad37 id:InputPhoto = InputChatPhoto from Telegram
 type TLInputChatPhoto struct {
 	Id TLInputPhotoType // id:InputPhoto
 }
@@ -12933,7 +13744,7 @@ func (o *TLInputChatPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputGeoPointEmpty represents ctor inputGeoPointEmpty#e4c123d6 = InputGeoPoint from telegram.tl
+// TLInputGeoPointEmpty represents ctor inputGeoPointEmpty#e4c123d6 = InputGeoPoint from Telegram
 type TLInputGeoPointEmpty struct {
 }
 
@@ -12953,7 +13764,7 @@ func (o *TLInputGeoPointEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputGeoPoint represents ctor inputGeoPoint#f3b7acc9 lat:double long:double = InputGeoPoint from telegram.tl
+// TLInputGeoPoint represents ctor inputGeoPoint#f3b7acc9 lat:double long:double = InputGeoPoint from Telegram
 type TLInputGeoPoint struct {
 	Lat  float64 // lat:double
 	Long float64 // long:double
@@ -12979,7 +13790,7 @@ func (o *TLInputGeoPoint) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPhotoEmpty represents ctor inputPhotoEmpty#1cd7bf0d = InputPhoto from telegram.tl
+// TLInputPhotoEmpty represents ctor inputPhotoEmpty#1cd7bf0d = InputPhoto from Telegram
 type TLInputPhotoEmpty struct {
 }
 
@@ -12999,7 +13810,7 @@ func (o *TLInputPhotoEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPhoto represents ctor inputPhoto#fb95c6c4 id:long access_hash:long = InputPhoto from telegram.tl
+// TLInputPhoto represents ctor inputPhoto#fb95c6c4 id:long access_hash:long = InputPhoto from Telegram
 type TLInputPhoto struct {
 	Id         uint64 // id:long
 	AccessHash uint64 // access_hash:long
@@ -13025,7 +13836,7 @@ func (o *TLInputPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputFileLocation represents ctor inputFileLocation#14637196 volume_id:long local_id:int secret:long = InputFileLocation from telegram.tl
+// TLInputFileLocation represents ctor inputFileLocation#14637196 volume_id:long local_id:int secret:long = InputFileLocation from Telegram
 type TLInputFileLocation struct {
 	VolumeId uint64 // volume_id:long
 	LocalId  int    // local_id:int
@@ -13054,7 +13865,7 @@ func (o *TLInputFileLocation) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputEncryptedFileLocation represents ctor inputEncryptedFileLocation#f5235d55 id:long access_hash:long = InputFileLocation from telegram.tl
+// TLInputEncryptedFileLocation represents ctor inputEncryptedFileLocation#f5235d55 id:long access_hash:long = InputFileLocation from Telegram
 type TLInputEncryptedFileLocation struct {
 	Id         uint64 // id:long
 	AccessHash uint64 // access_hash:long
@@ -13080,7 +13891,7 @@ func (o *TLInputEncryptedFileLocation) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputDocumentFileLocation represents ctor inputDocumentFileLocation#430f0724 id:long access_hash:long version:int = InputFileLocation from telegram.tl
+// TLInputDocumentFileLocation represents ctor inputDocumentFileLocation#430f0724 id:long access_hash:long version:int = InputFileLocation from Telegram
 type TLInputDocumentFileLocation struct {
 	Id         uint64 // id:long
 	AccessHash uint64 // access_hash:long
@@ -13109,7 +13920,7 @@ func (o *TLInputDocumentFileLocation) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPeerUser represents ctor peerUser#9db1bc6d user_id:int = Peer from telegram.tl
+// TLPeerUser represents ctor peerUser#9db1bc6d user_id:int = Peer from Telegram
 type TLPeerUser struct {
 	UserId int // user_id:int
 }
@@ -13132,7 +13943,7 @@ func (o *TLPeerUser) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPeerChat represents ctor peerChat#bad0e5bb chat_id:int = Peer from telegram.tl
+// TLPeerChat represents ctor peerChat#bad0e5bb chat_id:int = Peer from Telegram
 type TLPeerChat struct {
 	ChatId int // chat_id:int
 }
@@ -13155,7 +13966,7 @@ func (o *TLPeerChat) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPeerChannel represents ctor peerChannel#bddde532 channel_id:int = Peer from telegram.tl
+// TLPeerChannel represents ctor peerChannel#bddde532 channel_id:int = Peer from Telegram
 type TLPeerChannel struct {
 	ChannelId int // channel_id:int
 }
@@ -13178,7 +13989,7 @@ func (o *TLPeerChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStorageFileUnknown represents ctor storage.fileUnknown#aa963b05 = storage.FileType from telegram.tl
+// TLStorageFileUnknown represents ctor storage.fileUnknown#aa963b05 = storage.FileType from Telegram
 type TLStorageFileUnknown struct {
 }
 
@@ -13198,7 +14009,7 @@ func (o *TLStorageFileUnknown) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStorageFilePartial represents ctor storage.filePartial#40bc6f52 = storage.FileType from telegram.tl
+// TLStorageFilePartial represents ctor storage.filePartial#40bc6f52 = storage.FileType from Telegram
 type TLStorageFilePartial struct {
 }
 
@@ -13218,7 +14029,7 @@ func (o *TLStorageFilePartial) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStorageFileJpeg represents ctor storage.fileJpeg#007efe0e = storage.FileType from telegram.tl
+// TLStorageFileJpeg represents ctor storage.fileJpeg#007efe0e = storage.FileType from Telegram
 type TLStorageFileJpeg struct {
 }
 
@@ -13238,7 +14049,7 @@ func (o *TLStorageFileJpeg) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStorageFileGif represents ctor storage.fileGif#cae1aadf = storage.FileType from telegram.tl
+// TLStorageFileGif represents ctor storage.fileGif#cae1aadf = storage.FileType from Telegram
 type TLStorageFileGif struct {
 }
 
@@ -13258,7 +14069,7 @@ func (o *TLStorageFileGif) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStorageFilePng represents ctor storage.filePng#0a4f63c0 = storage.FileType from telegram.tl
+// TLStorageFilePng represents ctor storage.filePng#0a4f63c0 = storage.FileType from Telegram
 type TLStorageFilePng struct {
 }
 
@@ -13278,7 +14089,7 @@ func (o *TLStorageFilePng) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStorageFilePdf represents ctor storage.filePdf#ae1e508d = storage.FileType from telegram.tl
+// TLStorageFilePdf represents ctor storage.filePdf#ae1e508d = storage.FileType from Telegram
 type TLStorageFilePdf struct {
 }
 
@@ -13298,7 +14109,7 @@ func (o *TLStorageFilePdf) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStorageFileMp3 represents ctor storage.fileMp3#528a0677 = storage.FileType from telegram.tl
+// TLStorageFileMp3 represents ctor storage.fileMp3#528a0677 = storage.FileType from Telegram
 type TLStorageFileMp3 struct {
 }
 
@@ -13318,7 +14129,7 @@ func (o *TLStorageFileMp3) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStorageFileMov represents ctor storage.fileMov#4b09ebbc = storage.FileType from telegram.tl
+// TLStorageFileMov represents ctor storage.fileMov#4b09ebbc = storage.FileType from Telegram
 type TLStorageFileMov struct {
 }
 
@@ -13338,7 +14149,7 @@ func (o *TLStorageFileMov) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStorageFileMp4 represents ctor storage.fileMp4#b3cea0e4 = storage.FileType from telegram.tl
+// TLStorageFileMp4 represents ctor storage.fileMp4#b3cea0e4 = storage.FileType from Telegram
 type TLStorageFileMp4 struct {
 }
 
@@ -13358,7 +14169,7 @@ func (o *TLStorageFileMp4) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStorageFileWebp represents ctor storage.fileWebp#1081464c = storage.FileType from telegram.tl
+// TLStorageFileWebp represents ctor storage.fileWebp#1081464c = storage.FileType from Telegram
 type TLStorageFileWebp struct {
 }
 
@@ -13378,7 +14189,7 @@ func (o *TLStorageFileWebp) String() string {
 	return tl.Pretty(o)
 }
 
-// TLFileLocationUnavailable represents ctor fileLocationUnavailable#7c596b46 volume_id:long local_id:int secret:long = FileLocation from telegram.tl
+// TLFileLocationUnavailable represents ctor fileLocationUnavailable#7c596b46 volume_id:long local_id:int secret:long = FileLocation from Telegram
 type TLFileLocationUnavailable struct {
 	VolumeId uint64 // volume_id:long
 	LocalId  int    // local_id:int
@@ -13407,7 +14218,7 @@ func (o *TLFileLocationUnavailable) String() string {
 	return tl.Pretty(o)
 }
 
-// TLFileLocation represents ctor fileLocation#53d69076 dc_id:int volume_id:long local_id:int secret:long = FileLocation from telegram.tl
+// TLFileLocation represents ctor fileLocation#53d69076 dc_id:int volume_id:long local_id:int secret:long = FileLocation from Telegram
 type TLFileLocation struct {
 	DcId     int    // dc_id:int
 	VolumeId uint64 // volume_id:long
@@ -13439,7 +14250,7 @@ func (o *TLFileLocation) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUserEmpty represents ctor userEmpty#200250ba id:int = User from telegram.tl
+// TLUserEmpty represents ctor userEmpty#200250ba id:int = User from Telegram
 type TLUserEmpty struct {
 	Id int // id:int
 }
@@ -13462,7 +14273,7 @@ func (o *TLUserEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUser represents ctor user#d10d979a flags:# flags.10?self:true flags.11?contact:true flags.12?mutual_contact:true flags.13?deleted:true flags.14?bot:true flags.15?bot_chat_history:true flags.16?bot_nochats:true flags.17?verified:true flags.18?restricted:true flags.20?min:true flags.21?bot_inline_geo:true id:int flags.0?access_hash:long flags.1?first_name:string flags.2?last_name:string flags.3?username:string flags.4?phone:string flags.5?photo:UserProfilePhoto flags.6?status:UserStatus flags.14?bot_info_version:int flags.18?restriction_reason:string flags.19?bot_inline_placeholder:string = User from telegram.tl
+// TLUser represents ctor user#d10d979a flags:# flags.10?self:true flags.11?contact:true flags.12?mutual_contact:true flags.13?deleted:true flags.14?bot:true flags.15?bot_chat_history:true flags.16?bot_nochats:true flags.17?verified:true flags.18?restricted:true flags.20?min:true flags.21?bot_inline_geo:true id:int flags.0?access_hash:long flags.1?first_name:string flags.2?last_name:string flags.3?username:string flags.4?phone:string flags.5?photo:UserProfilePhoto flags.6?status:UserStatus flags.14?bot_info_version:int flags.18?restriction_reason:string flags.19?bot_inline_placeholder:string = User from Telegram
 type TLUser struct {
 	Flags                uint                   // flags:#
 	Self                 bool                   // flags.10?self:true
@@ -13542,7 +14353,7 @@ func (o *TLUser) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUserProfilePhotoEmpty represents ctor userProfilePhotoEmpty#4f11bae1 = UserProfilePhoto from telegram.tl
+// TLUserProfilePhotoEmpty represents ctor userProfilePhotoEmpty#4f11bae1 = UserProfilePhoto from Telegram
 type TLUserProfilePhotoEmpty struct {
 }
 
@@ -13562,7 +14373,7 @@ func (o *TLUserProfilePhotoEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUserProfilePhoto represents ctor userProfilePhoto#d559d8c8 photo_id:long photo_small:FileLocation photo_big:FileLocation = UserProfilePhoto from telegram.tl
+// TLUserProfilePhoto represents ctor userProfilePhoto#d559d8c8 photo_id:long photo_small:FileLocation photo_big:FileLocation = UserProfilePhoto from Telegram
 type TLUserProfilePhoto struct {
 	PhotoId    uint64             // photo_id:long
 	PhotoSmall TLFileLocationType // photo_small:FileLocation
@@ -13593,7 +14404,7 @@ func (o *TLUserProfilePhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUserStatusEmpty represents ctor userStatusEmpty#09d05049 = UserStatus from telegram.tl
+// TLUserStatusEmpty represents ctor userStatusEmpty#09d05049 = UserStatus from Telegram
 type TLUserStatusEmpty struct {
 }
 
@@ -13613,7 +14424,7 @@ func (o *TLUserStatusEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUserStatusOnline represents ctor userStatusOnline#edb93949 expires:int = UserStatus from telegram.tl
+// TLUserStatusOnline represents ctor userStatusOnline#edb93949 expires:int = UserStatus from Telegram
 type TLUserStatusOnline struct {
 	Expires int // expires:int
 }
@@ -13636,7 +14447,7 @@ func (o *TLUserStatusOnline) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUserStatusOffline represents ctor userStatusOffline#008c703f was_online:int = UserStatus from telegram.tl
+// TLUserStatusOffline represents ctor userStatusOffline#008c703f was_online:int = UserStatus from Telegram
 type TLUserStatusOffline struct {
 	WasOnline int // was_online:int
 }
@@ -13659,7 +14470,7 @@ func (o *TLUserStatusOffline) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUserStatusRecently represents ctor userStatusRecently#e26f42f1 = UserStatus from telegram.tl
+// TLUserStatusRecently represents ctor userStatusRecently#e26f42f1 = UserStatus from Telegram
 type TLUserStatusRecently struct {
 }
 
@@ -13679,7 +14490,7 @@ func (o *TLUserStatusRecently) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUserStatusLastWeek represents ctor userStatusLastWeek#07bf09fc = UserStatus from telegram.tl
+// TLUserStatusLastWeek represents ctor userStatusLastWeek#07bf09fc = UserStatus from Telegram
 type TLUserStatusLastWeek struct {
 }
 
@@ -13699,7 +14510,7 @@ func (o *TLUserStatusLastWeek) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUserStatusLastMonth represents ctor userStatusLastMonth#77ebc742 = UserStatus from telegram.tl
+// TLUserStatusLastMonth represents ctor userStatusLastMonth#77ebc742 = UserStatus from Telegram
 type TLUserStatusLastMonth struct {
 }
 
@@ -13719,7 +14530,7 @@ func (o *TLUserStatusLastMonth) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatEmpty represents ctor chatEmpty#9ba2d800 id:int = Chat from telegram.tl
+// TLChatEmpty represents ctor chatEmpty#9ba2d800 id:int = Chat from Telegram
 type TLChatEmpty struct {
 	Id int // id:int
 }
@@ -13742,7 +14553,7 @@ func (o *TLChatEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChat represents ctor chat#d91cdd54 flags:# flags.0?creator:true flags.1?kicked:true flags.2?left:true flags.3?admins_enabled:true flags.4?admin:true flags.5?deactivated:true id:int title:string photo:ChatPhoto participants_count:int date:int version:int flags.6?migrated_to:InputChannel = Chat from telegram.tl
+// TLChat represents ctor chat#d91cdd54 flags:# flags.0?creator:true flags.1?kicked:true flags.2?left:true flags.3?admins_enabled:true flags.4?admin:true flags.5?deactivated:true id:int title:string photo:ChatPhoto participants_count:int date:int version:int flags.6?migrated_to:InputChannel = Chat from Telegram
 type TLChat struct {
 	Flags             uint               // flags:#
 	Creator           bool               // flags.0?creator:true
@@ -13800,7 +14611,7 @@ func (o *TLChat) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatForbidden represents ctor chatForbidden#07328bdb id:int title:string = Chat from telegram.tl
+// TLChatForbidden represents ctor chatForbidden#07328bdb id:int title:string = Chat from Telegram
 type TLChatForbidden struct {
 	Id    int    // id:int
 	Title string // title:string
@@ -13826,7 +14637,7 @@ func (o *TLChatForbidden) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannel represents ctor channel#a14dca52 flags:# flags.0?creator:true flags.1?kicked:true flags.2?left:true flags.3?editor:true flags.4?moderator:true flags.5?broadcast:true flags.7?verified:true flags.8?megagroup:true flags.9?restricted:true flags.10?democracy:true flags.11?signatures:true flags.12?min:true id:int flags.13?access_hash:long title:string flags.6?username:string photo:ChatPhoto date:int version:int flags.9?restriction_reason:string = Chat from telegram.tl
+// TLChannel represents ctor channel#a14dca52 flags:# flags.0?creator:true flags.1?kicked:true flags.2?left:true flags.3?editor:true flags.4?moderator:true flags.5?broadcast:true flags.7?verified:true flags.8?megagroup:true flags.9?restricted:true flags.10?democracy:true flags.11?signatures:true flags.12?min:true id:int flags.13?access_hash:long title:string flags.6?username:string photo:ChatPhoto date:int version:int flags.9?restriction_reason:string = Chat from Telegram
 type TLChannel struct {
 	Flags             uint            // flags:#
 	Creator           bool            // flags.0?creator:true
@@ -13898,7 +14709,7 @@ func (o *TLChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelForbidden represents ctor channelForbidden#8537784f flags:# flags.5?broadcast:true flags.8?megagroup:true id:int access_hash:long title:string = Chat from telegram.tl
+// TLChannelForbidden represents ctor channelForbidden#8537784f flags:# flags.5?broadcast:true flags.8?megagroup:true id:int access_hash:long title:string = Chat from Telegram
 type TLChannelForbidden struct {
 	Flags      uint   // flags:#
 	Broadcast  bool   // flags.5?broadcast:true
@@ -13934,7 +14745,7 @@ func (o *TLChannelForbidden) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatFull represents ctor chatFull#2e02a614 id:int participants:ChatParticipants chat_photo:Photo notify_settings:PeerNotifySettings exported_invite:ExportedChatInvite bot_info:Vector<BotInfo> = ChatFull from telegram.tl
+// TLChatFull represents ctor chatFull#2e02a614 id:int participants:ChatParticipants chat_photo:Photo notify_settings:PeerNotifySettings exported_invite:ExportedChatInvite bot_info:Vector<BotInfo> = ChatFull from Telegram
 type TLChatFull struct {
 	Id             int                      // id:int
 	Participants   TLChatParticipantsType   // participants:ChatParticipants
@@ -13991,7 +14802,7 @@ func (o *TLChatFull) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelFull represents ctor channelFull#c3d5512f flags:# flags.3?can_view_participants:true flags.6?can_set_username:true id:int about:string flags.0?participants_count:int flags.1?admins_count:int flags.2?kicked_count:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int chat_photo:Photo notify_settings:PeerNotifySettings exported_invite:ExportedChatInvite bot_info:Vector<BotInfo> flags.4?migrated_from_chat_id:int flags.4?migrated_from_max_id:int flags.5?pinned_msg_id:int = ChatFull from telegram.tl
+// TLChannelFull represents ctor channelFull#c3d5512f flags:# flags.3?can_view_participants:true flags.6?can_set_username:true id:int about:string flags.0?participants_count:int flags.1?admins_count:int flags.2?kicked_count:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int chat_photo:Photo notify_settings:PeerNotifySettings exported_invite:ExportedChatInvite bot_info:Vector<BotInfo> flags.4?migrated_from_chat_id:int flags.4?migrated_from_max_id:int flags.5?pinned_msg_id:int = ChatFull from Telegram
 type TLChannelFull struct {
 	Flags               uint                     // flags:#
 	CanViewParticipants bool                     // flags.3?can_view_participants:true
@@ -14081,7 +14892,7 @@ func (o *TLChannelFull) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatParticipant represents ctor chatParticipant#c8d7493e user_id:int inviter_id:int date:int = ChatParticipant from telegram.tl
+// TLChatParticipant represents ctor chatParticipant#c8d7493e user_id:int inviter_id:int date:int = ChatParticipant from Telegram
 type TLChatParticipant struct {
 	UserId    int // user_id:int
 	InviterId int // inviter_id:int
@@ -14110,7 +14921,7 @@ func (o *TLChatParticipant) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatParticipantCreator represents ctor chatParticipantCreator#da13538a user_id:int = ChatParticipant from telegram.tl
+// TLChatParticipantCreator represents ctor chatParticipantCreator#da13538a user_id:int = ChatParticipant from Telegram
 type TLChatParticipantCreator struct {
 	UserId int // user_id:int
 }
@@ -14133,7 +14944,7 @@ func (o *TLChatParticipantCreator) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatParticipantAdmin represents ctor chatParticipantAdmin#e2d6e436 user_id:int inviter_id:int date:int = ChatParticipant from telegram.tl
+// TLChatParticipantAdmin represents ctor chatParticipantAdmin#e2d6e436 user_id:int inviter_id:int date:int = ChatParticipant from Telegram
 type TLChatParticipantAdmin struct {
 	UserId    int // user_id:int
 	InviterId int // inviter_id:int
@@ -14162,7 +14973,7 @@ func (o *TLChatParticipantAdmin) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatParticipantsForbidden represents ctor chatParticipantsForbidden#fc900c2b flags:# chat_id:int flags.0?self_participant:ChatParticipant = ChatParticipants from telegram.tl
+// TLChatParticipantsForbidden represents ctor chatParticipantsForbidden#fc900c2b flags:# chat_id:int flags.0?self_participant:ChatParticipant = ChatParticipants from Telegram
 type TLChatParticipantsForbidden struct {
 	Flags           uint                  // flags:#
 	ChatId          int                   // chat_id:int
@@ -14192,7 +15003,7 @@ func (o *TLChatParticipantsForbidden) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatParticipants represents ctor chatParticipants#3f460fed chat_id:int participants:Vector<ChatParticipant> version:int = ChatParticipants from telegram.tl
+// TLChatParticipants represents ctor chatParticipants#3f460fed chat_id:int participants:Vector<ChatParticipant> version:int = ChatParticipants from Telegram
 type TLChatParticipants struct {
 	ChatId       int                     // chat_id:int
 	Participants []TLChatParticipantType // participants:Vector<ChatParticipant>
@@ -14232,7 +15043,7 @@ func (o *TLChatParticipants) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatPhotoEmpty represents ctor chatPhotoEmpty#37c1011c = ChatPhoto from telegram.tl
+// TLChatPhotoEmpty represents ctor chatPhotoEmpty#37c1011c = ChatPhoto from Telegram
 type TLChatPhotoEmpty struct {
 }
 
@@ -14252,7 +15063,7 @@ func (o *TLChatPhotoEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatPhoto represents ctor chatPhoto#6153276a photo_small:FileLocation photo_big:FileLocation = ChatPhoto from telegram.tl
+// TLChatPhoto represents ctor chatPhoto#6153276a photo_small:FileLocation photo_big:FileLocation = ChatPhoto from Telegram
 type TLChatPhoto struct {
 	PhotoSmall TLFileLocationType // photo_small:FileLocation
 	PhotoBig   TLFileLocationType // photo_big:FileLocation
@@ -14280,7 +15091,7 @@ func (o *TLChatPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageMediaEmpty represents ctor messageMediaEmpty#3ded6320 = MessageMedia from telegram.tl
+// TLMessageMediaEmpty represents ctor messageMediaEmpty#3ded6320 = MessageMedia from Telegram
 type TLMessageMediaEmpty struct {
 }
 
@@ -14300,7 +15111,7 @@ func (o *TLMessageMediaEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageMediaPhoto represents ctor messageMediaPhoto#3d8ce53d photo:Photo caption:string = MessageMedia from telegram.tl
+// TLMessageMediaPhoto represents ctor messageMediaPhoto#3d8ce53d photo:Photo caption:string = MessageMedia from Telegram
 type TLMessageMediaPhoto struct {
 	Photo   TLPhotoType // photo:Photo
 	Caption string      // caption:string
@@ -14327,7 +15138,7 @@ func (o *TLMessageMediaPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageMediaGeo represents ctor messageMediaGeo#56e0d474 geo:GeoPoint = MessageMedia from telegram.tl
+// TLMessageMediaGeo represents ctor messageMediaGeo#56e0d474 geo:GeoPoint = MessageMedia from Telegram
 type TLMessageMediaGeo struct {
 	Geo TLGeoPointType // geo:GeoPoint
 }
@@ -14351,7 +15162,7 @@ func (o *TLMessageMediaGeo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageMediaContact represents ctor messageMediaContact#5e7d2f39 phone_number:string first_name:string last_name:string user_id:int = MessageMedia from telegram.tl
+// TLMessageMediaContact represents ctor messageMediaContact#5e7d2f39 phone_number:string first_name:string last_name:string user_id:int = MessageMedia from Telegram
 type TLMessageMediaContact struct {
 	PhoneNumber string // phone_number:string
 	FirstName   string // first_name:string
@@ -14383,7 +15194,7 @@ func (o *TLMessageMediaContact) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageMediaUnsupported represents ctor messageMediaUnsupported#9f84f49e = MessageMedia from telegram.tl
+// TLMessageMediaUnsupported represents ctor messageMediaUnsupported#9f84f49e = MessageMedia from Telegram
 type TLMessageMediaUnsupported struct {
 }
 
@@ -14403,7 +15214,7 @@ func (o *TLMessageMediaUnsupported) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageMediaDocument represents ctor messageMediaDocument#f3e02ea8 document:Document caption:string = MessageMedia from telegram.tl
+// TLMessageMediaDocument represents ctor messageMediaDocument#f3e02ea8 document:Document caption:string = MessageMedia from Telegram
 type TLMessageMediaDocument struct {
 	Document TLDocumentType // document:Document
 	Caption  string         // caption:string
@@ -14430,7 +15241,7 @@ func (o *TLMessageMediaDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageMediaWebPage represents ctor messageMediaWebPage#a32dd600 webpage:WebPage = MessageMedia from telegram.tl
+// TLMessageMediaWebPage represents ctor messageMediaWebPage#a32dd600 webpage:WebPage = MessageMedia from Telegram
 type TLMessageMediaWebPage struct {
 	Webpage TLWebPageType // webpage:WebPage
 }
@@ -14454,7 +15265,7 @@ func (o *TLMessageMediaWebPage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageMediaVenue represents ctor messageMediaVenue#7912b71f geo:GeoPoint title:string address:string provider:string venue_id:string = MessageMedia from telegram.tl
+// TLMessageMediaVenue represents ctor messageMediaVenue#7912b71f geo:GeoPoint title:string address:string provider:string venue_id:string = MessageMedia from Telegram
 type TLMessageMediaVenue struct {
 	Geo      TLGeoPointType // geo:GeoPoint
 	Title    string         // title:string
@@ -14490,7 +15301,7 @@ func (o *TLMessageMediaVenue) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageMediaGame represents ctor messageMediaGame#fdb19008 game:Game = MessageMedia from telegram.tl
+// TLMessageMediaGame represents ctor messageMediaGame#fdb19008 game:Game = MessageMedia from Telegram
 type TLMessageMediaGame struct {
 	Game *TLGame // game:Game
 }
@@ -14518,7 +15329,7 @@ func (o *TLMessageMediaGame) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageMediaInvoice represents ctor messageMediaInvoice#84551347 flags:# flags.1?shipping_address_requested:true flags.3?test:true title:string description:string flags.0?photo:WebDocument flags.2?receipt_msg_id:int currency:string total_amount:long start_param:string = MessageMedia from telegram.tl
+// TLMessageMediaInvoice represents ctor messageMediaInvoice#84551347 flags:# flags.1?shipping_address_requested:true flags.3?test:true title:string description:string flags.0?photo:WebDocument flags.2?receipt_msg_id:int currency:string total_amount:long start_param:string = MessageMedia from Telegram
 type TLMessageMediaInvoice struct {
 	Flags                    uint           // flags:#
 	ShippingAddressRequested bool           // flags.1?shipping_address_requested:true
@@ -14571,7 +15382,7 @@ func (o *TLMessageMediaInvoice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionEmpty represents ctor messageActionEmpty#b6aef7b0 = MessageAction from telegram.tl
+// TLMessageActionEmpty represents ctor messageActionEmpty#b6aef7b0 = MessageAction from Telegram
 type TLMessageActionEmpty struct {
 }
 
@@ -14591,7 +15402,7 @@ func (o *TLMessageActionEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionChatCreate represents ctor messageActionChatCreate#a6638b9a title:string users:Vector<int> = MessageAction from telegram.tl
+// TLMessageActionChatCreate represents ctor messageActionChatCreate#a6638b9a title:string users:Vector<int> = MessageAction from Telegram
 type TLMessageActionChatCreate struct {
 	Title string // title:string
 	Users []int  // users:Vector<int>
@@ -14627,7 +15438,7 @@ func (o *TLMessageActionChatCreate) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionChatEditTitle represents ctor messageActionChatEditTitle#b5a1ce5a title:string = MessageAction from telegram.tl
+// TLMessageActionChatEditTitle represents ctor messageActionChatEditTitle#b5a1ce5a title:string = MessageAction from Telegram
 type TLMessageActionChatEditTitle struct {
 	Title string // title:string
 }
@@ -14650,7 +15461,7 @@ func (o *TLMessageActionChatEditTitle) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionChatEditPhoto represents ctor messageActionChatEditPhoto#7fcb13a8 photo:Photo = MessageAction from telegram.tl
+// TLMessageActionChatEditPhoto represents ctor messageActionChatEditPhoto#7fcb13a8 photo:Photo = MessageAction from Telegram
 type TLMessageActionChatEditPhoto struct {
 	Photo TLPhotoType // photo:Photo
 }
@@ -14674,7 +15485,7 @@ func (o *TLMessageActionChatEditPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionChatDeletePhoto represents ctor messageActionChatDeletePhoto#95e3fbef = MessageAction from telegram.tl
+// TLMessageActionChatDeletePhoto represents ctor messageActionChatDeletePhoto#95e3fbef = MessageAction from Telegram
 type TLMessageActionChatDeletePhoto struct {
 }
 
@@ -14694,7 +15505,7 @@ func (o *TLMessageActionChatDeletePhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionChatAddUser represents ctor messageActionChatAddUser#488a7337 users:Vector<int> = MessageAction from telegram.tl
+// TLMessageActionChatAddUser represents ctor messageActionChatAddUser#488a7337 users:Vector<int> = MessageAction from Telegram
 type TLMessageActionChatAddUser struct {
 	Users []int // users:Vector<int>
 }
@@ -14727,7 +15538,7 @@ func (o *TLMessageActionChatAddUser) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionChatDeleteUser represents ctor messageActionChatDeleteUser#b2ae9b0c user_id:int = MessageAction from telegram.tl
+// TLMessageActionChatDeleteUser represents ctor messageActionChatDeleteUser#b2ae9b0c user_id:int = MessageAction from Telegram
 type TLMessageActionChatDeleteUser struct {
 	UserId int // user_id:int
 }
@@ -14750,7 +15561,7 @@ func (o *TLMessageActionChatDeleteUser) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionChatJoinedByLink represents ctor messageActionChatJoinedByLink#f89cf5e8 inviter_id:int = MessageAction from telegram.tl
+// TLMessageActionChatJoinedByLink represents ctor messageActionChatJoinedByLink#f89cf5e8 inviter_id:int = MessageAction from Telegram
 type TLMessageActionChatJoinedByLink struct {
 	InviterId int // inviter_id:int
 }
@@ -14773,7 +15584,7 @@ func (o *TLMessageActionChatJoinedByLink) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionChannelCreate represents ctor messageActionChannelCreate#95d2ac92 title:string = MessageAction from telegram.tl
+// TLMessageActionChannelCreate represents ctor messageActionChannelCreate#95d2ac92 title:string = MessageAction from Telegram
 type TLMessageActionChannelCreate struct {
 	Title string // title:string
 }
@@ -14796,7 +15607,7 @@ func (o *TLMessageActionChannelCreate) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionChatMigrateTo represents ctor messageActionChatMigrateTo#51bdb021 channel_id:int = MessageAction from telegram.tl
+// TLMessageActionChatMigrateTo represents ctor messageActionChatMigrateTo#51bdb021 channel_id:int = MessageAction from Telegram
 type TLMessageActionChatMigrateTo struct {
 	ChannelId int // channel_id:int
 }
@@ -14819,7 +15630,7 @@ func (o *TLMessageActionChatMigrateTo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionChannelMigrateFrom represents ctor messageActionChannelMigrateFrom#b055eaee title:string chat_id:int = MessageAction from telegram.tl
+// TLMessageActionChannelMigrateFrom represents ctor messageActionChannelMigrateFrom#b055eaee title:string chat_id:int = MessageAction from Telegram
 type TLMessageActionChannelMigrateFrom struct {
 	Title  string // title:string
 	ChatId int    // chat_id:int
@@ -14845,7 +15656,7 @@ func (o *TLMessageActionChannelMigrateFrom) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionPinMessage represents ctor messageActionPinMessage#94bd38ed = MessageAction from telegram.tl
+// TLMessageActionPinMessage represents ctor messageActionPinMessage#94bd38ed = MessageAction from Telegram
 type TLMessageActionPinMessage struct {
 }
 
@@ -14865,7 +15676,7 @@ func (o *TLMessageActionPinMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionHistoryClear represents ctor messageActionHistoryClear#9fbab604 = MessageAction from telegram.tl
+// TLMessageActionHistoryClear represents ctor messageActionHistoryClear#9fbab604 = MessageAction from Telegram
 type TLMessageActionHistoryClear struct {
 }
 
@@ -14885,7 +15696,7 @@ func (o *TLMessageActionHistoryClear) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionGameScore represents ctor messageActionGameScore#92a72876 game_id:long score:int = MessageAction from telegram.tl
+// TLMessageActionGameScore represents ctor messageActionGameScore#92a72876 game_id:long score:int = MessageAction from Telegram
 type TLMessageActionGameScore struct {
 	GameId uint64 // game_id:long
 	Score  int    // score:int
@@ -14911,7 +15722,7 @@ func (o *TLMessageActionGameScore) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionPaymentSentMe represents ctor messageActionPaymentSentMe#8f31b327 flags:# currency:string total_amount:long payload:bytes flags.0?info:PaymentRequestedInfo flags.1?shipping_option_id:string charge:PaymentCharge = MessageAction from telegram.tl
+// TLMessageActionPaymentSentMe represents ctor messageActionPaymentSentMe#8f31b327 flags:# currency:string total_amount:long payload:bytes flags.0?info:PaymentRequestedInfo flags.1?shipping_option_id:string charge:PaymentCharge = MessageAction from Telegram
 type TLMessageActionPaymentSentMe struct {
 	Flags            uint                    // flags:#
 	Currency         string                  // currency:string
@@ -14962,7 +15773,7 @@ func (o *TLMessageActionPaymentSentMe) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionPaymentSent represents ctor messageActionPaymentSent#40699cd0 currency:string total_amount:long = MessageAction from telegram.tl
+// TLMessageActionPaymentSent represents ctor messageActionPaymentSent#40699cd0 currency:string total_amount:long = MessageAction from Telegram
 type TLMessageActionPaymentSent struct {
 	Currency    string // currency:string
 	TotalAmount uint64 // total_amount:long
@@ -14988,7 +15799,7 @@ func (o *TLMessageActionPaymentSent) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageActionPhoneCall represents ctor messageActionPhoneCall#80e11a7f flags:# call_id:long flags.0?reason:PhoneCallDiscardReason flags.1?duration:int = MessageAction from telegram.tl
+// TLMessageActionPhoneCall represents ctor messageActionPhoneCall#80e11a7f flags:# call_id:long flags.0?reason:PhoneCallDiscardReason flags.1?duration:int = MessageAction from Telegram
 type TLMessageActionPhoneCall struct {
 	Flags    uint                         // flags:#
 	CallId   uint64                       // call_id:long
@@ -15021,7 +15832,7 @@ func (o *TLMessageActionPhoneCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPeerNotifySettingsEmpty represents ctor peerNotifySettingsEmpty#70a68512 = PeerNotifySettings from telegram.tl
+// TLPeerNotifySettingsEmpty represents ctor peerNotifySettingsEmpty#70a68512 = PeerNotifySettings from Telegram
 type TLPeerNotifySettingsEmpty struct {
 }
 
@@ -15041,7 +15852,7 @@ func (o *TLPeerNotifySettingsEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPeerNotifySettings represents ctor peerNotifySettings#9acda4c0 flags:# flags.0?show_previews:true flags.1?silent:true mute_until:int sound:string = PeerNotifySettings from telegram.tl
+// TLPeerNotifySettings represents ctor peerNotifySettings#9acda4c0 flags:# flags.0?show_previews:true flags.1?silent:true mute_until:int sound:string = PeerNotifySettings from Telegram
 type TLPeerNotifySettings struct {
 	Flags        uint   // flags:#
 	ShowPreviews bool   // flags.0?show_previews:true
@@ -15074,7 +15885,7 @@ func (o *TLPeerNotifySettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDraftMessageEmpty represents ctor draftMessageEmpty#ba4baec5 = DraftMessage from telegram.tl
+// TLDraftMessageEmpty represents ctor draftMessageEmpty#ba4baec5 = DraftMessage from Telegram
 type TLDraftMessageEmpty struct {
 }
 
@@ -15094,7 +15905,7 @@ func (o *TLDraftMessageEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDraftMessage represents ctor draftMessage#fd8e711f flags:# flags.1?no_webpage:true flags.0?reply_to_msg_id:int message:string flags.3?entities:Vector<MessageEntity> date:int = DraftMessage from telegram.tl
+// TLDraftMessage represents ctor draftMessage#fd8e711f flags:# flags.1?no_webpage:true flags.0?reply_to_msg_id:int message:string flags.3?entities:Vector<MessageEntity> date:int = DraftMessage from Telegram
 type TLDraftMessage struct {
 	Flags        uint                  // flags:#
 	NoWebpage    bool                  // flags.1?no_webpage:true
@@ -15142,7 +15953,7 @@ func (o *TLDraftMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotoEmpty represents ctor photoEmpty#2331b22d id:long = Photo from telegram.tl
+// TLPhotoEmpty represents ctor photoEmpty#2331b22d id:long = Photo from Telegram
 type TLPhotoEmpty struct {
 	Id uint64 // id:long
 }
@@ -15165,7 +15976,7 @@ func (o *TLPhotoEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoto represents ctor photo#9288dd29 flags:# flags.0?has_stickers:true id:long access_hash:long date:int sizes:Vector<PhotoSize> = Photo from telegram.tl
+// TLPhoto represents ctor photo#9288dd29 flags:# flags.0?has_stickers:true id:long access_hash:long date:int sizes:Vector<PhotoSize> = Photo from Telegram
 type TLPhoto struct {
 	Flags       uint              // flags:#
 	HasStickers bool              // flags.0?has_stickers:true
@@ -15213,7 +16024,7 @@ func (o *TLPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotoSizeEmpty represents ctor photoSizeEmpty#0e17e23c type:string = PhotoSize from telegram.tl
+// TLPhotoSizeEmpty represents ctor photoSizeEmpty#0e17e23c type:string = PhotoSize from Telegram
 type TLPhotoSizeEmpty struct {
 	Type string // type:string
 }
@@ -15236,7 +16047,7 @@ func (o *TLPhotoSizeEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotoSize represents ctor photoSize#77bfb61b type:string location:FileLocation w:int h:int size:int = PhotoSize from telegram.tl
+// TLPhotoSize represents ctor photoSize#77bfb61b type:string location:FileLocation w:int h:int size:int = PhotoSize from Telegram
 type TLPhotoSize struct {
 	Type     string             // type:string
 	Location TLFileLocationType // location:FileLocation
@@ -15272,7 +16083,7 @@ func (o *TLPhotoSize) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotoCachedSize represents ctor photoCachedSize#e9a734fa type:string location:FileLocation w:int h:int bytes:bytes = PhotoSize from telegram.tl
+// TLPhotoCachedSize represents ctor photoCachedSize#e9a734fa type:string location:FileLocation w:int h:int bytes:bytes = PhotoSize from Telegram
 type TLPhotoCachedSize struct {
 	Type     string             // type:string
 	Location TLFileLocationType // location:FileLocation
@@ -15308,7 +16119,7 @@ func (o *TLPhotoCachedSize) String() string {
 	return tl.Pretty(o)
 }
 
-// TLGeoPointEmpty represents ctor geoPointEmpty#1117dd5f = GeoPoint from telegram.tl
+// TLGeoPointEmpty represents ctor geoPointEmpty#1117dd5f = GeoPoint from Telegram
 type TLGeoPointEmpty struct {
 }
 
@@ -15328,7 +16139,7 @@ func (o *TLGeoPointEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLGeoPoint represents ctor geoPoint#2049d70c long:double lat:double = GeoPoint from telegram.tl
+// TLGeoPoint represents ctor geoPoint#2049d70c long:double lat:double = GeoPoint from Telegram
 type TLGeoPoint struct {
 	Long float64 // long:double
 	Lat  float64 // lat:double
@@ -15354,7 +16165,7 @@ func (o *TLGeoPoint) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthSentCodeTypeApp represents ctor auth.sentCodeTypeApp#3dbb5986 length:int = auth.SentCodeType from telegram.tl
+// TLAuthSentCodeTypeApp represents ctor auth.sentCodeTypeApp#3dbb5986 length:int = auth.SentCodeType from Telegram
 type TLAuthSentCodeTypeApp struct {
 	Length int // length:int
 }
@@ -15377,7 +16188,7 @@ func (o *TLAuthSentCodeTypeApp) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthSentCodeTypeSms represents ctor auth.sentCodeTypeSms#c000bba2 length:int = auth.SentCodeType from telegram.tl
+// TLAuthSentCodeTypeSms represents ctor auth.sentCodeTypeSms#c000bba2 length:int = auth.SentCodeType from Telegram
 type TLAuthSentCodeTypeSms struct {
 	Length int // length:int
 }
@@ -15400,7 +16211,7 @@ func (o *TLAuthSentCodeTypeSms) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthSentCodeTypeCall represents ctor auth.sentCodeTypeCall#5353e5a7 length:int = auth.SentCodeType from telegram.tl
+// TLAuthSentCodeTypeCall represents ctor auth.sentCodeTypeCall#5353e5a7 length:int = auth.SentCodeType from Telegram
 type TLAuthSentCodeTypeCall struct {
 	Length int // length:int
 }
@@ -15423,7 +16234,7 @@ func (o *TLAuthSentCodeTypeCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthSentCodeTypeFlashCall represents ctor auth.sentCodeTypeFlashCall#ab03c6d9 pattern:string = auth.SentCodeType from telegram.tl
+// TLAuthSentCodeTypeFlashCall represents ctor auth.sentCodeTypeFlashCall#ab03c6d9 pattern:string = auth.SentCodeType from Telegram
 type TLAuthSentCodeTypeFlashCall struct {
 	Pattern string // pattern:string
 }
@@ -15446,7 +16257,7 @@ func (o *TLAuthSentCodeTypeFlashCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthCodeTypeSms represents ctor auth.codeTypeSms#72a3158c = auth.CodeType from telegram.tl
+// TLAuthCodeTypeSms represents ctor auth.codeTypeSms#72a3158c = auth.CodeType from Telegram
 type TLAuthCodeTypeSms struct {
 }
 
@@ -15466,7 +16277,7 @@ func (o *TLAuthCodeTypeSms) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthCodeTypeCall represents ctor auth.codeTypeCall#741cd3e3 = auth.CodeType from telegram.tl
+// TLAuthCodeTypeCall represents ctor auth.codeTypeCall#741cd3e3 = auth.CodeType from Telegram
 type TLAuthCodeTypeCall struct {
 }
 
@@ -15486,7 +16297,7 @@ func (o *TLAuthCodeTypeCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAuthCodeTypeFlashCall represents ctor auth.codeTypeFlashCall#226ccefb = auth.CodeType from telegram.tl
+// TLAuthCodeTypeFlashCall represents ctor auth.codeTypeFlashCall#226ccefb = auth.CodeType from Telegram
 type TLAuthCodeTypeFlashCall struct {
 }
 
@@ -15506,7 +16317,7 @@ func (o *TLAuthCodeTypeFlashCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputNotifyPeer represents ctor inputNotifyPeer#b8bc5b0c peer:InputPeer = InputNotifyPeer from telegram.tl
+// TLInputNotifyPeer represents ctor inputNotifyPeer#b8bc5b0c peer:InputPeer = InputNotifyPeer from Telegram
 type TLInputNotifyPeer struct {
 	Peer TLInputPeerType // peer:InputPeer
 }
@@ -15530,7 +16341,7 @@ func (o *TLInputNotifyPeer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputNotifyUsers represents ctor inputNotifyUsers#193b4417 = InputNotifyPeer from telegram.tl
+// TLInputNotifyUsers represents ctor inputNotifyUsers#193b4417 = InputNotifyPeer from Telegram
 type TLInputNotifyUsers struct {
 }
 
@@ -15550,7 +16361,7 @@ func (o *TLInputNotifyUsers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputNotifyChats represents ctor inputNotifyChats#4a95e84e = InputNotifyPeer from telegram.tl
+// TLInputNotifyChats represents ctor inputNotifyChats#4a95e84e = InputNotifyPeer from Telegram
 type TLInputNotifyChats struct {
 }
 
@@ -15570,7 +16381,7 @@ func (o *TLInputNotifyChats) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputNotifyAll represents ctor inputNotifyAll#a429b886 = InputNotifyPeer from telegram.tl
+// TLInputNotifyAll represents ctor inputNotifyAll#a429b886 = InputNotifyPeer from Telegram
 type TLInputNotifyAll struct {
 }
 
@@ -15590,7 +16401,7 @@ func (o *TLInputNotifyAll) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPeerNotifyEventsEmpty represents ctor inputPeerNotifyEventsEmpty#f03064d8 = InputPeerNotifyEvents from telegram.tl
+// TLInputPeerNotifyEventsEmpty represents ctor inputPeerNotifyEventsEmpty#f03064d8 = InputPeerNotifyEvents from Telegram
 type TLInputPeerNotifyEventsEmpty struct {
 }
 
@@ -15610,7 +16421,7 @@ func (o *TLInputPeerNotifyEventsEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPeerNotifyEventsAll represents ctor inputPeerNotifyEventsAll#e86a2c74 = InputPeerNotifyEvents from telegram.tl
+// TLInputPeerNotifyEventsAll represents ctor inputPeerNotifyEventsAll#e86a2c74 = InputPeerNotifyEvents from Telegram
 type TLInputPeerNotifyEventsAll struct {
 }
 
@@ -15630,7 +16441,7 @@ func (o *TLInputPeerNotifyEventsAll) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPeerNotifyEventsEmpty represents ctor peerNotifyEventsEmpty#add53cb3 = PeerNotifyEvents from telegram.tl
+// TLPeerNotifyEventsEmpty represents ctor peerNotifyEventsEmpty#add53cb3 = PeerNotifyEvents from Telegram
 type TLPeerNotifyEventsEmpty struct {
 }
 
@@ -15650,7 +16461,7 @@ func (o *TLPeerNotifyEventsEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPeerNotifyEventsAll represents ctor peerNotifyEventsAll#6d1ded88 = PeerNotifyEvents from telegram.tl
+// TLPeerNotifyEventsAll represents ctor peerNotifyEventsAll#6d1ded88 = PeerNotifyEvents from Telegram
 type TLPeerNotifyEventsAll struct {
 }
 
@@ -15670,7 +16481,7 @@ func (o *TLPeerNotifyEventsAll) String() string {
 	return tl.Pretty(o)
 }
 
-// TLWallPaper represents ctor wallPaper#ccb03657 id:int title:string sizes:Vector<PhotoSize> color:int = WallPaper from telegram.tl
+// TLWallPaper represents ctor wallPaper#ccb03657 id:int title:string sizes:Vector<PhotoSize> color:int = WallPaper from Telegram
 type TLWallPaper struct {
 	Id    int               // id:int
 	Title string            // title:string
@@ -15713,7 +16524,7 @@ func (o *TLWallPaper) String() string {
 	return tl.Pretty(o)
 }
 
-// TLWallPaperSolid represents ctor wallPaperSolid#63117f24 id:int title:string bg_color:int color:int = WallPaper from telegram.tl
+// TLWallPaperSolid represents ctor wallPaperSolid#63117f24 id:int title:string bg_color:int color:int = WallPaper from Telegram
 type TLWallPaperSolid struct {
 	Id      int    // id:int
 	Title   string // title:string
@@ -15745,7 +16556,7 @@ func (o *TLWallPaperSolid) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputReportReasonSpam represents ctor inputReportReasonSpam#58dbcab8 = ReportReason from telegram.tl
+// TLInputReportReasonSpam represents ctor inputReportReasonSpam#58dbcab8 = ReportReason from Telegram
 type TLInputReportReasonSpam struct {
 }
 
@@ -15765,7 +16576,7 @@ func (o *TLInputReportReasonSpam) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputReportReasonViolence represents ctor inputReportReasonViolence#1e22c78d = ReportReason from telegram.tl
+// TLInputReportReasonViolence represents ctor inputReportReasonViolence#1e22c78d = ReportReason from Telegram
 type TLInputReportReasonViolence struct {
 }
 
@@ -15785,7 +16596,7 @@ func (o *TLInputReportReasonViolence) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputReportReasonPornography represents ctor inputReportReasonPornography#2e59d922 = ReportReason from telegram.tl
+// TLInputReportReasonPornography represents ctor inputReportReasonPornography#2e59d922 = ReportReason from Telegram
 type TLInputReportReasonPornography struct {
 }
 
@@ -15805,7 +16616,7 @@ func (o *TLInputReportReasonPornography) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputReportReasonOther represents ctor inputReportReasonOther#e1746d0a text:string = ReportReason from telegram.tl
+// TLInputReportReasonOther represents ctor inputReportReasonOther#e1746d0a text:string = ReportReason from Telegram
 type TLInputReportReasonOther struct {
 	Text string // text:string
 }
@@ -15828,7 +16639,7 @@ func (o *TLInputReportReasonOther) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactLinkUnknown represents ctor contactLinkUnknown#5f4f9247 = ContactLink from telegram.tl
+// TLContactLinkUnknown represents ctor contactLinkUnknown#5f4f9247 = ContactLink from Telegram
 type TLContactLinkUnknown struct {
 }
 
@@ -15848,7 +16659,7 @@ func (o *TLContactLinkUnknown) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactLinkNone represents ctor contactLinkNone#feedd3ad = ContactLink from telegram.tl
+// TLContactLinkNone represents ctor contactLinkNone#feedd3ad = ContactLink from Telegram
 type TLContactLinkNone struct {
 }
 
@@ -15868,7 +16679,7 @@ func (o *TLContactLinkNone) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactLinkHasPhone represents ctor contactLinkHasPhone#268f3f59 = ContactLink from telegram.tl
+// TLContactLinkHasPhone represents ctor contactLinkHasPhone#268f3f59 = ContactLink from Telegram
 type TLContactLinkHasPhone struct {
 }
 
@@ -15888,7 +16699,7 @@ func (o *TLContactLinkHasPhone) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactLinkContact represents ctor contactLinkContact#d502c2d0 = ContactLink from telegram.tl
+// TLContactLinkContact represents ctor contactLinkContact#d502c2d0 = ContactLink from Telegram
 type TLContactLinkContact struct {
 }
 
@@ -15908,7 +16719,7 @@ func (o *TLContactLinkContact) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsContactsNotModified represents ctor contacts.contactsNotModified#b74ba9d2 = contacts.Contacts from telegram.tl
+// TLContactsContactsNotModified represents ctor contacts.contactsNotModified#b74ba9d2 = contacts.Contacts from Telegram
 type TLContactsContactsNotModified struct {
 }
 
@@ -15928,7 +16739,7 @@ func (o *TLContactsContactsNotModified) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsContacts represents ctor contacts.contacts#6f8b8cb2 contacts:Vector<Contact> users:Vector<User> = contacts.Contacts from telegram.tl
+// TLContactsContacts represents ctor contacts.contacts#6f8b8cb2 contacts:Vector<Contact> users:Vector<User> = contacts.Contacts from Telegram
 type TLContactsContacts struct {
 	Contacts []*TLContact // contacts:Vector<Contact>
 	Users    []TLUserType // users:Vector<User>
@@ -15980,7 +16791,7 @@ func (o *TLContactsContacts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsBlocked represents ctor contacts.blocked#1c138d15 blocked:Vector<ContactBlocked> users:Vector<User> = contacts.Blocked from telegram.tl
+// TLContactsBlocked represents ctor contacts.blocked#1c138d15 blocked:Vector<ContactBlocked> users:Vector<User> = contacts.Blocked from Telegram
 type TLContactsBlocked struct {
 	Blocked []*TLContactBlocked // blocked:Vector<ContactBlocked>
 	Users   []TLUserType        // users:Vector<User>
@@ -16032,7 +16843,7 @@ func (o *TLContactsBlocked) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsBlockedSlice represents ctor contacts.blockedSlice#900802a1 count:int blocked:Vector<ContactBlocked> users:Vector<User> = contacts.Blocked from telegram.tl
+// TLContactsBlockedSlice represents ctor contacts.blockedSlice#900802a1 count:int blocked:Vector<ContactBlocked> users:Vector<User> = contacts.Blocked from Telegram
 type TLContactsBlockedSlice struct {
 	Count   int                 // count:int
 	Blocked []*TLContactBlocked // blocked:Vector<ContactBlocked>
@@ -16087,7 +16898,7 @@ func (o *TLContactsBlockedSlice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesDialogs represents ctor messages.dialogs#15ba6c40 dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Dialogs from telegram.tl
+// TLMessagesDialogs represents ctor messages.dialogs#15ba6c40 dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Dialogs from Telegram
 type TLMessagesDialogs struct {
 	Dialogs  []*TLDialog     // dialogs:Vector<Dialog>
 	Messages []TLMessageType // messages:Vector<Message>
@@ -16167,7 +16978,7 @@ func (o *TLMessagesDialogs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesDialogsSlice represents ctor messages.dialogsSlice#71e094f3 count:int dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Dialogs from telegram.tl
+// TLMessagesDialogsSlice represents ctor messages.dialogsSlice#71e094f3 count:int dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Dialogs from Telegram
 type TLMessagesDialogsSlice struct {
 	Count    int             // count:int
 	Dialogs  []*TLDialog     // dialogs:Vector<Dialog>
@@ -16250,7 +17061,7 @@ func (o *TLMessagesDialogsSlice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesMessages represents ctor messages.messages#8c718e87 messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Messages from telegram.tl
+// TLMessagesMessages represents ctor messages.messages#8c718e87 messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Messages from Telegram
 type TLMessagesMessages struct {
 	Messages []TLMessageType // messages:Vector<Message>
 	Chats    []TLChatType    // chats:Vector<Chat>
@@ -16312,7 +17123,7 @@ func (o *TLMessagesMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesMessagesSlice represents ctor messages.messagesSlice#0b446ae3 count:int messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Messages from telegram.tl
+// TLMessagesMessagesSlice represents ctor messages.messagesSlice#0b446ae3 count:int messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Messages from Telegram
 type TLMessagesMessagesSlice struct {
 	Count    int             // count:int
 	Messages []TLMessageType // messages:Vector<Message>
@@ -16377,7 +17188,7 @@ func (o *TLMessagesMessagesSlice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesChannelMessages represents ctor messages.channelMessages#99262e37 flags:# pts:int count:int messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Messages from telegram.tl
+// TLMessagesChannelMessages represents ctor messages.channelMessages#99262e37 flags:# pts:int count:int messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Messages from Telegram
 type TLMessagesChannelMessages struct {
 	Flags    uint            // flags:#
 	Pts      int             // pts:int
@@ -16448,7 +17259,7 @@ func (o *TLMessagesChannelMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesChats represents ctor messages.chats#64ff9fd5 chats:Vector<Chat> = messages.Chats from telegram.tl
+// TLMessagesChats represents ctor messages.chats#64ff9fd5 chats:Vector<Chat> = messages.Chats from Telegram
 type TLMessagesChats struct {
 	Chats []TLChatType // chats:Vector<Chat>
 }
@@ -16482,7 +17293,7 @@ func (o *TLMessagesChats) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesChatsSlice represents ctor messages.chatsSlice#9cd81144 count:int chats:Vector<Chat> = messages.Chats from telegram.tl
+// TLMessagesChatsSlice represents ctor messages.chatsSlice#9cd81144 count:int chats:Vector<Chat> = messages.Chats from Telegram
 type TLMessagesChatsSlice struct {
 	Count int          // count:int
 	Chats []TLChatType // chats:Vector<Chat>
@@ -16519,7 +17330,7 @@ func (o *TLMessagesChatsSlice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterEmpty represents ctor inputMessagesFilterEmpty#57e2f66c = MessagesFilter from telegram.tl
+// TLInputMessagesFilterEmpty represents ctor inputMessagesFilterEmpty#57e2f66c = MessagesFilter from Telegram
 type TLInputMessagesFilterEmpty struct {
 }
 
@@ -16539,7 +17350,7 @@ func (o *TLInputMessagesFilterEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterPhotos represents ctor inputMessagesFilterPhotos#9609a51c = MessagesFilter from telegram.tl
+// TLInputMessagesFilterPhotos represents ctor inputMessagesFilterPhotos#9609a51c = MessagesFilter from Telegram
 type TLInputMessagesFilterPhotos struct {
 }
 
@@ -16559,7 +17370,7 @@ func (o *TLInputMessagesFilterPhotos) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterVideo represents ctor inputMessagesFilterVideo#9fc00e65 = MessagesFilter from telegram.tl
+// TLInputMessagesFilterVideo represents ctor inputMessagesFilterVideo#9fc00e65 = MessagesFilter from Telegram
 type TLInputMessagesFilterVideo struct {
 }
 
@@ -16579,7 +17390,7 @@ func (o *TLInputMessagesFilterVideo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterPhotoVideo represents ctor inputMessagesFilterPhotoVideo#56e9f0e4 = MessagesFilter from telegram.tl
+// TLInputMessagesFilterPhotoVideo represents ctor inputMessagesFilterPhotoVideo#56e9f0e4 = MessagesFilter from Telegram
 type TLInputMessagesFilterPhotoVideo struct {
 }
 
@@ -16599,7 +17410,7 @@ func (o *TLInputMessagesFilterPhotoVideo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterPhotoVideoDocuments represents ctor inputMessagesFilterPhotoVideoDocuments#d95e73bb = MessagesFilter from telegram.tl
+// TLInputMessagesFilterPhotoVideoDocuments represents ctor inputMessagesFilterPhotoVideoDocuments#d95e73bb = MessagesFilter from Telegram
 type TLInputMessagesFilterPhotoVideoDocuments struct {
 }
 
@@ -16619,7 +17430,7 @@ func (o *TLInputMessagesFilterPhotoVideoDocuments) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterDocument represents ctor inputMessagesFilterDocument#9eddf188 = MessagesFilter from telegram.tl
+// TLInputMessagesFilterDocument represents ctor inputMessagesFilterDocument#9eddf188 = MessagesFilter from Telegram
 type TLInputMessagesFilterDocument struct {
 }
 
@@ -16639,7 +17450,7 @@ func (o *TLInputMessagesFilterDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterUrl represents ctor inputMessagesFilterUrl#7ef0dd87 = MessagesFilter from telegram.tl
+// TLInputMessagesFilterUrl represents ctor inputMessagesFilterUrl#7ef0dd87 = MessagesFilter from Telegram
 type TLInputMessagesFilterUrl struct {
 }
 
@@ -16659,7 +17470,7 @@ func (o *TLInputMessagesFilterUrl) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterGif represents ctor inputMessagesFilterGif#ffc86587 = MessagesFilter from telegram.tl
+// TLInputMessagesFilterGif represents ctor inputMessagesFilterGif#ffc86587 = MessagesFilter from Telegram
 type TLInputMessagesFilterGif struct {
 }
 
@@ -16679,7 +17490,7 @@ func (o *TLInputMessagesFilterGif) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterVoice represents ctor inputMessagesFilterVoice#50f5c392 = MessagesFilter from telegram.tl
+// TLInputMessagesFilterVoice represents ctor inputMessagesFilterVoice#50f5c392 = MessagesFilter from Telegram
 type TLInputMessagesFilterVoice struct {
 }
 
@@ -16699,7 +17510,7 @@ func (o *TLInputMessagesFilterVoice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterMusic represents ctor inputMessagesFilterMusic#3751b49e = MessagesFilter from telegram.tl
+// TLInputMessagesFilterMusic represents ctor inputMessagesFilterMusic#3751b49e = MessagesFilter from Telegram
 type TLInputMessagesFilterMusic struct {
 }
 
@@ -16719,7 +17530,7 @@ func (o *TLInputMessagesFilterMusic) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterChatPhotos represents ctor inputMessagesFilterChatPhotos#3a20ecb8 = MessagesFilter from telegram.tl
+// TLInputMessagesFilterChatPhotos represents ctor inputMessagesFilterChatPhotos#3a20ecb8 = MessagesFilter from Telegram
 type TLInputMessagesFilterChatPhotos struct {
 }
 
@@ -16739,7 +17550,7 @@ func (o *TLInputMessagesFilterChatPhotos) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterPhoneCalls represents ctor inputMessagesFilterPhoneCalls#80c99768 flags:# flags.0?missed:true = MessagesFilter from telegram.tl
+// TLInputMessagesFilterPhoneCalls represents ctor inputMessagesFilterPhoneCalls#80c99768 flags:# flags.0?missed:true = MessagesFilter from Telegram
 type TLInputMessagesFilterPhoneCalls struct {
 	Flags  uint // flags:#
 	Missed bool // flags.0?missed:true
@@ -16764,7 +17575,7 @@ func (o *TLInputMessagesFilterPhoneCalls) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateNewMessage represents ctor updateNewMessage#1f2b0afd message:Message pts:int pts_count:int = Update from telegram.tl
+// TLUpdateNewMessage represents ctor updateNewMessage#1f2b0afd message:Message pts:int pts_count:int = Update from Telegram
 type TLUpdateNewMessage struct {
 	Message  TLMessageType // message:Message
 	Pts      int           // pts:int
@@ -16794,7 +17605,7 @@ func (o *TLUpdateNewMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateMessageID represents ctor updateMessageID#4e90bfd6 id:int random_id:long = Update from telegram.tl
+// TLUpdateMessageID represents ctor updateMessageID#4e90bfd6 id:int random_id:long = Update from Telegram
 type TLUpdateMessageID struct {
 	Id       int    // id:int
 	RandomId uint64 // random_id:long
@@ -16820,7 +17631,7 @@ func (o *TLUpdateMessageID) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateDeleteMessages represents ctor updateDeleteMessages#a20db0e5 messages:Vector<int> pts:int pts_count:int = Update from telegram.tl
+// TLUpdateDeleteMessages represents ctor updateDeleteMessages#a20db0e5 messages:Vector<int> pts:int pts_count:int = Update from Telegram
 type TLUpdateDeleteMessages struct {
 	Messages []int // messages:Vector<int>
 	Pts      int   // pts:int
@@ -16859,7 +17670,7 @@ func (o *TLUpdateDeleteMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateUserTyping represents ctor updateUserTyping#5c486927 user_id:int action:SendMessageAction = Update from telegram.tl
+// TLUpdateUserTyping represents ctor updateUserTyping#5c486927 user_id:int action:SendMessageAction = Update from Telegram
 type TLUpdateUserTyping struct {
 	UserId int                     // user_id:int
 	Action TLSendMessageActionType // action:SendMessageAction
@@ -16886,7 +17697,7 @@ func (o *TLUpdateUserTyping) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChatUserTyping represents ctor updateChatUserTyping#9a65ea1f chat_id:int user_id:int action:SendMessageAction = Update from telegram.tl
+// TLUpdateChatUserTyping represents ctor updateChatUserTyping#9a65ea1f chat_id:int user_id:int action:SendMessageAction = Update from Telegram
 type TLUpdateChatUserTyping struct {
 	ChatId int                     // chat_id:int
 	UserId int                     // user_id:int
@@ -16916,7 +17727,7 @@ func (o *TLUpdateChatUserTyping) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChatParticipants represents ctor updateChatParticipants#07761198 participants:ChatParticipants = Update from telegram.tl
+// TLUpdateChatParticipants represents ctor updateChatParticipants#07761198 participants:ChatParticipants = Update from Telegram
 type TLUpdateChatParticipants struct {
 	Participants TLChatParticipantsType // participants:ChatParticipants
 }
@@ -16940,7 +17751,7 @@ func (o *TLUpdateChatParticipants) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateUserStatus represents ctor updateUserStatus#1bfbd823 user_id:int status:UserStatus = Update from telegram.tl
+// TLUpdateUserStatus represents ctor updateUserStatus#1bfbd823 user_id:int status:UserStatus = Update from Telegram
 type TLUpdateUserStatus struct {
 	UserId int              // user_id:int
 	Status TLUserStatusType // status:UserStatus
@@ -16967,7 +17778,7 @@ func (o *TLUpdateUserStatus) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateUserName represents ctor updateUserName#a7332b73 user_id:int first_name:string last_name:string username:string = Update from telegram.tl
+// TLUpdateUserName represents ctor updateUserName#a7332b73 user_id:int first_name:string last_name:string username:string = Update from Telegram
 type TLUpdateUserName struct {
 	UserId    int    // user_id:int
 	FirstName string // first_name:string
@@ -16999,7 +17810,7 @@ func (o *TLUpdateUserName) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateUserPhoto represents ctor updateUserPhoto#95313b0c user_id:int date:int photo:UserProfilePhoto previous:Bool = Update from telegram.tl
+// TLUpdateUserPhoto represents ctor updateUserPhoto#95313b0c user_id:int date:int photo:UserProfilePhoto previous:Bool = Update from Telegram
 type TLUpdateUserPhoto struct {
 	UserId   int                    // user_id:int
 	Date     int                    // date:int
@@ -17037,7 +17848,7 @@ func (o *TLUpdateUserPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateContactRegistered represents ctor updateContactRegistered#2575bbb9 user_id:int date:int = Update from telegram.tl
+// TLUpdateContactRegistered represents ctor updateContactRegistered#2575bbb9 user_id:int date:int = Update from Telegram
 type TLUpdateContactRegistered struct {
 	UserId int // user_id:int
 	Date   int // date:int
@@ -17063,7 +17874,7 @@ func (o *TLUpdateContactRegistered) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateContactLink represents ctor updateContactLink#9d2e67c5 user_id:int my_link:ContactLink foreign_link:ContactLink = Update from telegram.tl
+// TLUpdateContactLink represents ctor updateContactLink#9d2e67c5 user_id:int my_link:ContactLink foreign_link:ContactLink = Update from Telegram
 type TLUpdateContactLink struct {
 	UserId      int               // user_id:int
 	MyLink      TLContactLinkType // my_link:ContactLink
@@ -17094,7 +17905,7 @@ func (o *TLUpdateContactLink) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateNewEncryptedMessage represents ctor updateNewEncryptedMessage#12bcbd9a message:EncryptedMessage qts:int = Update from telegram.tl
+// TLUpdateNewEncryptedMessage represents ctor updateNewEncryptedMessage#12bcbd9a message:EncryptedMessage qts:int = Update from Telegram
 type TLUpdateNewEncryptedMessage struct {
 	Message TLEncryptedMessageType // message:EncryptedMessage
 	Qts     int                    // qts:int
@@ -17121,7 +17932,7 @@ func (o *TLUpdateNewEncryptedMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateEncryptedChatTyping represents ctor updateEncryptedChatTyping#1710f156 chat_id:int = Update from telegram.tl
+// TLUpdateEncryptedChatTyping represents ctor updateEncryptedChatTyping#1710f156 chat_id:int = Update from Telegram
 type TLUpdateEncryptedChatTyping struct {
 	ChatId int // chat_id:int
 }
@@ -17144,7 +17955,7 @@ func (o *TLUpdateEncryptedChatTyping) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateEncryption represents ctor updateEncryption#b4a2e88d chat:EncryptedChat date:int = Update from telegram.tl
+// TLUpdateEncryption represents ctor updateEncryption#b4a2e88d chat:EncryptedChat date:int = Update from Telegram
 type TLUpdateEncryption struct {
 	Chat TLEncryptedChatType // chat:EncryptedChat
 	Date int                 // date:int
@@ -17171,7 +17982,7 @@ func (o *TLUpdateEncryption) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateEncryptedMessagesRead represents ctor updateEncryptedMessagesRead#38fe25b7 chat_id:int max_date:int date:int = Update from telegram.tl
+// TLUpdateEncryptedMessagesRead represents ctor updateEncryptedMessagesRead#38fe25b7 chat_id:int max_date:int date:int = Update from Telegram
 type TLUpdateEncryptedMessagesRead struct {
 	ChatId  int // chat_id:int
 	MaxDate int // max_date:int
@@ -17200,7 +18011,7 @@ func (o *TLUpdateEncryptedMessagesRead) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChatParticipantAdd represents ctor updateChatParticipantAdd#ea4b0e5c chat_id:int user_id:int inviter_id:int date:int version:int = Update from telegram.tl
+// TLUpdateChatParticipantAdd represents ctor updateChatParticipantAdd#ea4b0e5c chat_id:int user_id:int inviter_id:int date:int version:int = Update from Telegram
 type TLUpdateChatParticipantAdd struct {
 	ChatId    int // chat_id:int
 	UserId    int // user_id:int
@@ -17235,7 +18046,7 @@ func (o *TLUpdateChatParticipantAdd) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChatParticipantDelete represents ctor updateChatParticipantDelete#6e5f8c22 chat_id:int user_id:int version:int = Update from telegram.tl
+// TLUpdateChatParticipantDelete represents ctor updateChatParticipantDelete#6e5f8c22 chat_id:int user_id:int version:int = Update from Telegram
 type TLUpdateChatParticipantDelete struct {
 	ChatId  int // chat_id:int
 	UserId  int // user_id:int
@@ -17264,7 +18075,7 @@ func (o *TLUpdateChatParticipantDelete) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateDcOptions represents ctor updateDcOptions#8e5e9873 dc_options:Vector<DcOption> = Update from telegram.tl
+// TLUpdateDcOptions represents ctor updateDcOptions#8e5e9873 dc_options:Vector<DcOption> = Update from Telegram
 type TLUpdateDcOptions struct {
 	DcOptions []*TLDcOption // dc_options:Vector<DcOption>
 }
@@ -17302,7 +18113,7 @@ func (o *TLUpdateDcOptions) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateUserBlocked represents ctor updateUserBlocked#80ece81a user_id:int blocked:Bool = Update from telegram.tl
+// TLUpdateUserBlocked represents ctor updateUserBlocked#80ece81a user_id:int blocked:Bool = Update from Telegram
 type TLUpdateUserBlocked struct {
 	UserId  int  // user_id:int
 	Blocked bool // blocked:Bool
@@ -17333,7 +18144,7 @@ func (o *TLUpdateUserBlocked) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateNotifySettings represents ctor updateNotifySettings#bec268ef peer:NotifyPeer notify_settings:PeerNotifySettings = Update from telegram.tl
+// TLUpdateNotifySettings represents ctor updateNotifySettings#bec268ef peer:NotifyPeer notify_settings:PeerNotifySettings = Update from Telegram
 type TLUpdateNotifySettings struct {
 	Peer           TLNotifyPeerType         // peer:NotifyPeer
 	NotifySettings TLPeerNotifySettingsType // notify_settings:PeerNotifySettings
@@ -17361,7 +18172,7 @@ func (o *TLUpdateNotifySettings) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateServiceNotification represents ctor updateServiceNotification#ebe46819 flags:# flags.0?popup:true flags.1?inbox_date:int type:string message:string media:MessageMedia entities:Vector<MessageEntity> = Update from telegram.tl
+// TLUpdateServiceNotification represents ctor updateServiceNotification#ebe46819 flags:# flags.0?popup:true flags.1?inbox_date:int type:string message:string media:MessageMedia entities:Vector<MessageEntity> = Update from Telegram
 type TLUpdateServiceNotification struct {
 	Flags     uint                  // flags:#
 	Popup     bool                  // flags.0?popup:true
@@ -17413,7 +18224,7 @@ func (o *TLUpdateServiceNotification) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatePrivacy represents ctor updatePrivacy#ee3b272a key:PrivacyKey rules:Vector<PrivacyRule> = Update from telegram.tl
+// TLUpdatePrivacy represents ctor updatePrivacy#ee3b272a key:PrivacyKey rules:Vector<PrivacyRule> = Update from Telegram
 type TLUpdatePrivacy struct {
 	Key   TLPrivacyKeyType    // key:PrivacyKey
 	Rules []TLPrivacyRuleType // rules:Vector<PrivacyRule>
@@ -17451,7 +18262,7 @@ func (o *TLUpdatePrivacy) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateUserPhone represents ctor updateUserPhone#12b9417b user_id:int phone:string = Update from telegram.tl
+// TLUpdateUserPhone represents ctor updateUserPhone#12b9417b user_id:int phone:string = Update from Telegram
 type TLUpdateUserPhone struct {
 	UserId int    // user_id:int
 	Phone  string // phone:string
@@ -17477,7 +18288,7 @@ func (o *TLUpdateUserPhone) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateReadHistoryInbox represents ctor updateReadHistoryInbox#9961fd5c peer:Peer max_id:int pts:int pts_count:int = Update from telegram.tl
+// TLUpdateReadHistoryInbox represents ctor updateReadHistoryInbox#9961fd5c peer:Peer max_id:int pts:int pts_count:int = Update from Telegram
 type TLUpdateReadHistoryInbox struct {
 	Peer     TLPeerType // peer:Peer
 	MaxId    int        // max_id:int
@@ -17510,7 +18321,7 @@ func (o *TLUpdateReadHistoryInbox) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateReadHistoryOutbox represents ctor updateReadHistoryOutbox#2f2f21bf peer:Peer max_id:int pts:int pts_count:int = Update from telegram.tl
+// TLUpdateReadHistoryOutbox represents ctor updateReadHistoryOutbox#2f2f21bf peer:Peer max_id:int pts:int pts_count:int = Update from Telegram
 type TLUpdateReadHistoryOutbox struct {
 	Peer     TLPeerType // peer:Peer
 	MaxId    int        // max_id:int
@@ -17543,7 +18354,7 @@ func (o *TLUpdateReadHistoryOutbox) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateWebPage represents ctor updateWebPage#7f891213 webpage:WebPage pts:int pts_count:int = Update from telegram.tl
+// TLUpdateWebPage represents ctor updateWebPage#7f891213 webpage:WebPage pts:int pts_count:int = Update from Telegram
 type TLUpdateWebPage struct {
 	Webpage  TLWebPageType // webpage:WebPage
 	Pts      int           // pts:int
@@ -17573,7 +18384,7 @@ func (o *TLUpdateWebPage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateReadMessagesContents represents ctor updateReadMessagesContents#68c13933 messages:Vector<int> pts:int pts_count:int = Update from telegram.tl
+// TLUpdateReadMessagesContents represents ctor updateReadMessagesContents#68c13933 messages:Vector<int> pts:int pts_count:int = Update from Telegram
 type TLUpdateReadMessagesContents struct {
 	Messages []int // messages:Vector<int>
 	Pts      int   // pts:int
@@ -17612,7 +18423,7 @@ func (o *TLUpdateReadMessagesContents) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChannelTooLong represents ctor updateChannelTooLong#eb0467fb flags:# channel_id:int flags.0?pts:int = Update from telegram.tl
+// TLUpdateChannelTooLong represents ctor updateChannelTooLong#eb0467fb flags:# channel_id:int flags.0?pts:int = Update from Telegram
 type TLUpdateChannelTooLong struct {
 	Flags     uint // flags:#
 	ChannelId int  // channel_id:int
@@ -17641,7 +18452,7 @@ func (o *TLUpdateChannelTooLong) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChannel represents ctor updateChannel#b6d45656 channel_id:int = Update from telegram.tl
+// TLUpdateChannel represents ctor updateChannel#b6d45656 channel_id:int = Update from Telegram
 type TLUpdateChannel struct {
 	ChannelId int // channel_id:int
 }
@@ -17664,7 +18475,7 @@ func (o *TLUpdateChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateNewChannelMessage represents ctor updateNewChannelMessage#62ba04d9 message:Message pts:int pts_count:int = Update from telegram.tl
+// TLUpdateNewChannelMessage represents ctor updateNewChannelMessage#62ba04d9 message:Message pts:int pts_count:int = Update from Telegram
 type TLUpdateNewChannelMessage struct {
 	Message  TLMessageType // message:Message
 	Pts      int           // pts:int
@@ -17694,7 +18505,7 @@ func (o *TLUpdateNewChannelMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateReadChannelInbox represents ctor updateReadChannelInbox#4214f37f channel_id:int max_id:int = Update from telegram.tl
+// TLUpdateReadChannelInbox represents ctor updateReadChannelInbox#4214f37f channel_id:int max_id:int = Update from Telegram
 type TLUpdateReadChannelInbox struct {
 	ChannelId int // channel_id:int
 	MaxId     int // max_id:int
@@ -17720,7 +18531,7 @@ func (o *TLUpdateReadChannelInbox) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateDeleteChannelMessages represents ctor updateDeleteChannelMessages#c37521c9 channel_id:int messages:Vector<int> pts:int pts_count:int = Update from telegram.tl
+// TLUpdateDeleteChannelMessages represents ctor updateDeleteChannelMessages#c37521c9 channel_id:int messages:Vector<int> pts:int pts_count:int = Update from Telegram
 type TLUpdateDeleteChannelMessages struct {
 	ChannelId int   // channel_id:int
 	Messages  []int // messages:Vector<int>
@@ -17762,7 +18573,7 @@ func (o *TLUpdateDeleteChannelMessages) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChannelMessageViews represents ctor updateChannelMessageViews#98a12b4b channel_id:int id:int views:int = Update from telegram.tl
+// TLUpdateChannelMessageViews represents ctor updateChannelMessageViews#98a12b4b channel_id:int id:int views:int = Update from Telegram
 type TLUpdateChannelMessageViews struct {
 	ChannelId int // channel_id:int
 	Id        int // id:int
@@ -17791,7 +18602,7 @@ func (o *TLUpdateChannelMessageViews) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChatAdmins represents ctor updateChatAdmins#6e947941 chat_id:int enabled:Bool version:int = Update from telegram.tl
+// TLUpdateChatAdmins represents ctor updateChatAdmins#6e947941 chat_id:int enabled:Bool version:int = Update from Telegram
 type TLUpdateChatAdmins struct {
 	ChatId  int  // chat_id:int
 	Enabled bool // enabled:Bool
@@ -17825,7 +18636,7 @@ func (o *TLUpdateChatAdmins) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChatParticipantAdmin represents ctor updateChatParticipantAdmin#b6901959 chat_id:int user_id:int is_admin:Bool version:int = Update from telegram.tl
+// TLUpdateChatParticipantAdmin represents ctor updateChatParticipantAdmin#b6901959 chat_id:int user_id:int is_admin:Bool version:int = Update from Telegram
 type TLUpdateChatParticipantAdmin struct {
 	ChatId  int  // chat_id:int
 	UserId  int  // user_id:int
@@ -17862,7 +18673,7 @@ func (o *TLUpdateChatParticipantAdmin) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateNewStickerSet represents ctor updateNewStickerSet#688a30aa stickerset:messages.StickerSet = Update from telegram.tl
+// TLUpdateNewStickerSet represents ctor updateNewStickerSet#688a30aa stickerset:messages.StickerSet = Update from Telegram
 type TLUpdateNewStickerSet struct {
 	Stickerset *TLMessagesStickerSet // stickerset:messages.StickerSet
 }
@@ -17890,7 +18701,7 @@ func (o *TLUpdateNewStickerSet) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateStickerSetsOrder represents ctor updateStickerSetsOrder#0bb2d201 flags:# flags.0?masks:true order:Vector<long> = Update from telegram.tl
+// TLUpdateStickerSetsOrder represents ctor updateStickerSetsOrder#0bb2d201 flags:# flags.0?masks:true order:Vector<long> = Update from Telegram
 type TLUpdateStickerSetsOrder struct {
 	Flags uint     // flags:#
 	Masks bool     // flags.0?masks:true
@@ -17928,7 +18739,7 @@ func (o *TLUpdateStickerSetsOrder) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateStickerSets represents ctor updateStickerSets#43ae3dec = Update from telegram.tl
+// TLUpdateStickerSets represents ctor updateStickerSets#43ae3dec = Update from Telegram
 type TLUpdateStickerSets struct {
 }
 
@@ -17948,7 +18759,7 @@ func (o *TLUpdateStickerSets) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateSavedGifs represents ctor updateSavedGifs#9375341e = Update from telegram.tl
+// TLUpdateSavedGifs represents ctor updateSavedGifs#9375341e = Update from Telegram
 type TLUpdateSavedGifs struct {
 }
 
@@ -17968,7 +18779,7 @@ func (o *TLUpdateSavedGifs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateBotInlineQuery represents ctor updateBotInlineQuery#54826690 flags:# query_id:long user_id:int query:string flags.0?geo:GeoPoint offset:string = Update from telegram.tl
+// TLUpdateBotInlineQuery represents ctor updateBotInlineQuery#54826690 flags:# query_id:long user_id:int query:string flags.0?geo:GeoPoint offset:string = Update from Telegram
 type TLUpdateBotInlineQuery struct {
 	Flags   uint           // flags:#
 	QueryId uint64         // query_id:long
@@ -18007,7 +18818,7 @@ func (o *TLUpdateBotInlineQuery) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateBotInlineSend represents ctor updateBotInlineSend#0e48f964 flags:# user_id:int query:string flags.0?geo:GeoPoint id:string flags.1?msg_id:InputBotInlineMessageID = Update from telegram.tl
+// TLUpdateBotInlineSend represents ctor updateBotInlineSend#0e48f964 flags:# user_id:int query:string flags.0?geo:GeoPoint id:string flags.1?msg_id:InputBotInlineMessageID = Update from Telegram
 type TLUpdateBotInlineSend struct {
 	Flags  uint                       // flags:#
 	UserId int                        // user_id:int
@@ -18051,7 +18862,7 @@ func (o *TLUpdateBotInlineSend) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateEditChannelMessage represents ctor updateEditChannelMessage#1b3f4df7 message:Message pts:int pts_count:int = Update from telegram.tl
+// TLUpdateEditChannelMessage represents ctor updateEditChannelMessage#1b3f4df7 message:Message pts:int pts_count:int = Update from Telegram
 type TLUpdateEditChannelMessage struct {
 	Message  TLMessageType // message:Message
 	Pts      int           // pts:int
@@ -18081,7 +18892,7 @@ func (o *TLUpdateEditChannelMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChannelPinnedMessage represents ctor updateChannelPinnedMessage#98592475 channel_id:int id:int = Update from telegram.tl
+// TLUpdateChannelPinnedMessage represents ctor updateChannelPinnedMessage#98592475 channel_id:int id:int = Update from Telegram
 type TLUpdateChannelPinnedMessage struct {
 	ChannelId int // channel_id:int
 	Id        int // id:int
@@ -18107,7 +18918,7 @@ func (o *TLUpdateChannelPinnedMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateBotCallbackQuery represents ctor updateBotCallbackQuery#e73547e1 flags:# query_id:long user_id:int peer:Peer msg_id:int chat_instance:long flags.0?data:bytes flags.1?game_short_name:string = Update from telegram.tl
+// TLUpdateBotCallbackQuery represents ctor updateBotCallbackQuery#e73547e1 flags:# query_id:long user_id:int peer:Peer msg_id:int chat_instance:long flags.0?data:bytes flags.1?game_short_name:string = Update from Telegram
 type TLUpdateBotCallbackQuery struct {
 	Flags         uint       // flags:#
 	QueryId       uint64     // query_id:long
@@ -18152,7 +18963,7 @@ func (o *TLUpdateBotCallbackQuery) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateEditMessage represents ctor updateEditMessage#e40370a3 message:Message pts:int pts_count:int = Update from telegram.tl
+// TLUpdateEditMessage represents ctor updateEditMessage#e40370a3 message:Message pts:int pts_count:int = Update from Telegram
 type TLUpdateEditMessage struct {
 	Message  TLMessageType // message:Message
 	Pts      int           // pts:int
@@ -18182,7 +18993,7 @@ func (o *TLUpdateEditMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateInlineBotCallbackQuery represents ctor updateInlineBotCallbackQuery#f9d27a5a flags:# query_id:long user_id:int msg_id:InputBotInlineMessageID chat_instance:long flags.0?data:bytes flags.1?game_short_name:string = Update from telegram.tl
+// TLUpdateInlineBotCallbackQuery represents ctor updateInlineBotCallbackQuery#f9d27a5a flags:# query_id:long user_id:int msg_id:InputBotInlineMessageID chat_instance:long flags.0?data:bytes flags.1?game_short_name:string = Update from Telegram
 type TLUpdateInlineBotCallbackQuery struct {
 	Flags         uint                       // flags:#
 	QueryId       uint64                     // query_id:long
@@ -18228,7 +19039,7 @@ func (o *TLUpdateInlineBotCallbackQuery) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateReadChannelOutbox represents ctor updateReadChannelOutbox#25d6c9c7 channel_id:int max_id:int = Update from telegram.tl
+// TLUpdateReadChannelOutbox represents ctor updateReadChannelOutbox#25d6c9c7 channel_id:int max_id:int = Update from Telegram
 type TLUpdateReadChannelOutbox struct {
 	ChannelId int // channel_id:int
 	MaxId     int // max_id:int
@@ -18254,7 +19065,7 @@ func (o *TLUpdateReadChannelOutbox) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateDraftMessage represents ctor updateDraftMessage#ee2bb969 peer:Peer draft:DraftMessage = Update from telegram.tl
+// TLUpdateDraftMessage represents ctor updateDraftMessage#ee2bb969 peer:Peer draft:DraftMessage = Update from Telegram
 type TLUpdateDraftMessage struct {
 	Peer  TLPeerType         // peer:Peer
 	Draft TLDraftMessageType // draft:DraftMessage
@@ -18282,7 +19093,7 @@ func (o *TLUpdateDraftMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateReadFeaturedStickers represents ctor updateReadFeaturedStickers#571d2742 = Update from telegram.tl
+// TLUpdateReadFeaturedStickers represents ctor updateReadFeaturedStickers#571d2742 = Update from Telegram
 type TLUpdateReadFeaturedStickers struct {
 }
 
@@ -18302,7 +19113,7 @@ func (o *TLUpdateReadFeaturedStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateRecentStickers represents ctor updateRecentStickers#9a422c20 = Update from telegram.tl
+// TLUpdateRecentStickers represents ctor updateRecentStickers#9a422c20 = Update from Telegram
 type TLUpdateRecentStickers struct {
 }
 
@@ -18322,7 +19133,7 @@ func (o *TLUpdateRecentStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateConfig represents ctor updateConfig#a229dd06 = Update from telegram.tl
+// TLUpdateConfig represents ctor updateConfig#a229dd06 = Update from Telegram
 type TLUpdateConfig struct {
 }
 
@@ -18342,7 +19153,7 @@ func (o *TLUpdateConfig) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatePtsChanged represents ctor updatePtsChanged#3354678f = Update from telegram.tl
+// TLUpdatePtsChanged represents ctor updatePtsChanged#3354678f = Update from Telegram
 type TLUpdatePtsChanged struct {
 }
 
@@ -18362,7 +19173,7 @@ func (o *TLUpdatePtsChanged) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateChannelWebPage represents ctor updateChannelWebPage#40771900 channel_id:int webpage:WebPage pts:int pts_count:int = Update from telegram.tl
+// TLUpdateChannelWebPage represents ctor updateChannelWebPage#40771900 channel_id:int webpage:WebPage pts:int pts_count:int = Update from Telegram
 type TLUpdateChannelWebPage struct {
 	ChannelId int           // channel_id:int
 	Webpage   TLWebPageType // webpage:WebPage
@@ -18395,7 +19206,7 @@ func (o *TLUpdateChannelWebPage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateDialogPinned represents ctor updateDialogPinned#d711a2cc flags:# flags.0?pinned:true peer:Peer = Update from telegram.tl
+// TLUpdateDialogPinned represents ctor updateDialogPinned#d711a2cc flags:# flags.0?pinned:true peer:Peer = Update from Telegram
 type TLUpdateDialogPinned struct {
 	Flags  uint       // flags:#
 	Pinned bool       // flags.0?pinned:true
@@ -18424,7 +19235,7 @@ func (o *TLUpdateDialogPinned) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatePinnedDialogs represents ctor updatePinnedDialogs#d8caf68d flags:# flags.0?order:Vector<Peer> = Update from telegram.tl
+// TLUpdatePinnedDialogs represents ctor updatePinnedDialogs#d8caf68d flags:# flags.0?order:Vector<Peer> = Update from Telegram
 type TLUpdatePinnedDialogs struct {
 	Flags uint         // flags:#
 	Order []TLPeerType // flags.0?order:Vector<Peer>
@@ -18461,7 +19272,7 @@ func (o *TLUpdatePinnedDialogs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateBotWebhookJSON represents ctor updateBotWebhookJSON#8317c0c3 data:DataJSON = Update from telegram.tl
+// TLUpdateBotWebhookJSON represents ctor updateBotWebhookJSON#8317c0c3 data:DataJSON = Update from Telegram
 type TLUpdateBotWebhookJSON struct {
 	Data *TLDataJSON // data:DataJSON
 }
@@ -18489,7 +19300,7 @@ func (o *TLUpdateBotWebhookJSON) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateBotWebhookJSONQuery represents ctor updateBotWebhookJSONQuery#9b9240a6 query_id:long data:DataJSON timeout:int = Update from telegram.tl
+// TLUpdateBotWebhookJSONQuery represents ctor updateBotWebhookJSONQuery#9b9240a6 query_id:long data:DataJSON timeout:int = Update from Telegram
 type TLUpdateBotWebhookJSONQuery struct {
 	QueryId uint64      // query_id:long
 	Data    *TLDataJSON // data:DataJSON
@@ -18523,7 +19334,7 @@ func (o *TLUpdateBotWebhookJSONQuery) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateBotShippingQuery represents ctor updateBotShippingQuery#e0cdc940 query_id:long user_id:int payload:bytes shipping_address:PostAddress = Update from telegram.tl
+// TLUpdateBotShippingQuery represents ctor updateBotShippingQuery#e0cdc940 query_id:long user_id:int payload:bytes shipping_address:PostAddress = Update from Telegram
 type TLUpdateBotShippingQuery struct {
 	QueryId         uint64         // query_id:long
 	UserId          int            // user_id:int
@@ -18560,7 +19371,7 @@ func (o *TLUpdateBotShippingQuery) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateBotPrecheckoutQuery represents ctor updateBotPrecheckoutQuery#5d2f3aa9 flags:# query_id:long user_id:int payload:bytes flags.0?info:PaymentRequestedInfo flags.1?shipping_option_id:string currency:string total_amount:long = Update from telegram.tl
+// TLUpdateBotPrecheckoutQuery represents ctor updateBotPrecheckoutQuery#5d2f3aa9 flags:# query_id:long user_id:int payload:bytes flags.0?info:PaymentRequestedInfo flags.1?shipping_option_id:string currency:string total_amount:long = Update from Telegram
 type TLUpdateBotPrecheckoutQuery struct {
 	Flags            uint                    // flags:#
 	QueryId          uint64                  // query_id:long
@@ -18609,7 +19420,7 @@ func (o *TLUpdateBotPrecheckoutQuery) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatePhoneCall represents ctor updatePhoneCall#ab0f6b1e phone_call:PhoneCall = Update from telegram.tl
+// TLUpdatePhoneCall represents ctor updatePhoneCall#ab0f6b1e phone_call:PhoneCall = Update from Telegram
 type TLUpdatePhoneCall struct {
 	PhoneCall TLPhoneCallType // phone_call:PhoneCall
 }
@@ -18633,7 +19444,7 @@ func (o *TLUpdatePhoneCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesDifferenceEmpty represents ctor updates.differenceEmpty#5d75a138 date:int seq:int = updates.Difference from telegram.tl
+// TLUpdatesDifferenceEmpty represents ctor updates.differenceEmpty#5d75a138 date:int seq:int = updates.Difference from Telegram
 type TLUpdatesDifferenceEmpty struct {
 	Date int // date:int
 	Seq  int // seq:int
@@ -18659,7 +19470,7 @@ func (o *TLUpdatesDifferenceEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesDifference represents ctor updates.difference#00f49ca0 new_messages:Vector<Message> new_encrypted_messages:Vector<EncryptedMessage> other_updates:Vector<Update> chats:Vector<Chat> users:Vector<User> state:updates.State = updates.Difference from telegram.tl
+// TLUpdatesDifference represents ctor updates.difference#00f49ca0 new_messages:Vector<Message> new_encrypted_messages:Vector<EncryptedMessage> other_updates:Vector<Update> chats:Vector<Chat> users:Vector<User> state:updates.State = updates.Difference from Telegram
 type TLUpdatesDifference struct {
 	NewMessages          []TLMessageType          // new_messages:Vector<Message>
 	NewEncryptedMessages []TLEncryptedMessageType // new_encrypted_messages:Vector<EncryptedMessage>
@@ -18757,7 +19568,7 @@ func (o *TLUpdatesDifference) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesDifferenceSlice represents ctor updates.differenceSlice#a8fb1981 new_messages:Vector<Message> new_encrypted_messages:Vector<EncryptedMessage> other_updates:Vector<Update> chats:Vector<Chat> users:Vector<User> intermediate_state:updates.State = updates.Difference from telegram.tl
+// TLUpdatesDifferenceSlice represents ctor updates.differenceSlice#a8fb1981 new_messages:Vector<Message> new_encrypted_messages:Vector<EncryptedMessage> other_updates:Vector<Update> chats:Vector<Chat> users:Vector<User> intermediate_state:updates.State = updates.Difference from Telegram
 type TLUpdatesDifferenceSlice struct {
 	NewMessages          []TLMessageType          // new_messages:Vector<Message>
 	NewEncryptedMessages []TLEncryptedMessageType // new_encrypted_messages:Vector<EncryptedMessage>
@@ -18855,7 +19666,7 @@ func (o *TLUpdatesDifferenceSlice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesDifferenceTooLong represents ctor updates.differenceTooLong#4afe8f6d pts:int = updates.Difference from telegram.tl
+// TLUpdatesDifferenceTooLong represents ctor updates.differenceTooLong#4afe8f6d pts:int = updates.Difference from Telegram
 type TLUpdatesDifferenceTooLong struct {
 	Pts int // pts:int
 }
@@ -18878,7 +19689,7 @@ func (o *TLUpdatesDifferenceTooLong) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesTooLong represents ctor updatesTooLong#e317af7e = Updates from telegram.tl
+// TLUpdatesTooLong represents ctor updatesTooLong#e317af7e = Updates from Telegram
 type TLUpdatesTooLong struct {
 }
 
@@ -18898,7 +19709,7 @@ func (o *TLUpdatesTooLong) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateShortMessage represents ctor updateShortMessage#914fbf11 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true id:int user_id:int message:string pts:int pts_count:int date:int flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int flags.7?entities:Vector<MessageEntity> = Updates from telegram.tl
+// TLUpdateShortMessage represents ctor updateShortMessage#914fbf11 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true id:int user_id:int message:string pts:int pts_count:int date:int flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int flags.7?entities:Vector<MessageEntity> = Updates from Telegram
 type TLUpdateShortMessage struct {
 	Flags        uint                  // flags:#
 	Out          bool                  // flags.1?out:true
@@ -18975,7 +19786,7 @@ func (o *TLUpdateShortMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateShortChatMessage represents ctor updateShortChatMessage#16812688 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true id:int from_id:int chat_id:int message:string pts:int pts_count:int date:int flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int flags.7?entities:Vector<MessageEntity> = Updates from telegram.tl
+// TLUpdateShortChatMessage represents ctor updateShortChatMessage#16812688 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true id:int from_id:int chat_id:int message:string pts:int pts_count:int date:int flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int flags.7?entities:Vector<MessageEntity> = Updates from Telegram
 type TLUpdateShortChatMessage struct {
 	Flags        uint                  // flags:#
 	Out          bool                  // flags.1?out:true
@@ -19055,7 +19866,7 @@ func (o *TLUpdateShortChatMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateShort represents ctor updateShort#78d4dec1 update:Update date:int = Updates from telegram.tl
+// TLUpdateShort represents ctor updateShort#78d4dec1 update:Update date:int = Updates from Telegram
 type TLUpdateShort struct {
 	Update TLUpdateType // update:Update
 	Date   int          // date:int
@@ -19082,7 +19893,7 @@ func (o *TLUpdateShort) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesCombined represents ctor updatesCombined#725b04c3 updates:Vector<Update> users:Vector<User> chats:Vector<Chat> date:int seq_start:int seq:int = Updates from telegram.tl
+// TLUpdatesCombined represents ctor updatesCombined#725b04c3 updates:Vector<Update> users:Vector<User> chats:Vector<Chat> date:int seq_start:int seq:int = Updates from Telegram
 type TLUpdatesCombined struct {
 	Updates  []TLUpdateType // updates:Vector<Update>
 	Users    []TLUserType   // users:Vector<User>
@@ -19153,7 +19964,7 @@ func (o *TLUpdatesCombined) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdates represents ctor updates#74ae4240 updates:Vector<Update> users:Vector<User> chats:Vector<Chat> date:int seq:int = Updates from telegram.tl
+// TLUpdates represents ctor updates#74ae4240 updates:Vector<Update> users:Vector<User> chats:Vector<Chat> date:int seq:int = Updates from Telegram
 type TLUpdates struct {
 	Updates []TLUpdateType // updates:Vector<Update>
 	Users   []TLUserType   // users:Vector<User>
@@ -19221,7 +20032,7 @@ func (o *TLUpdates) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateShortSentMessage represents ctor updateShortSentMessage#11f1331c flags:# flags.1?out:true id:int pts:int pts_count:int date:int flags.9?media:MessageMedia flags.7?entities:Vector<MessageEntity> = Updates from telegram.tl
+// TLUpdateShortSentMessage represents ctor updateShortSentMessage#11f1331c flags:# flags.1?out:true id:int pts:int pts_count:int date:int flags.9?media:MessageMedia flags.7?entities:Vector<MessageEntity> = Updates from Telegram
 type TLUpdateShortSentMessage struct {
 	Flags    uint                  // flags:#
 	Out      bool                  // flags.1?out:true
@@ -19276,7 +20087,7 @@ func (o *TLUpdateShortSentMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotosPhotos represents ctor photos.photos#8dca6aa5 photos:Vector<Photo> users:Vector<User> = photos.Photos from telegram.tl
+// TLPhotosPhotos represents ctor photos.photos#8dca6aa5 photos:Vector<Photo> users:Vector<User> = photos.Photos from Telegram
 type TLPhotosPhotos struct {
 	Photos []TLPhotoType // photos:Vector<Photo>
 	Users  []TLUserType  // users:Vector<User>
@@ -19324,7 +20135,7 @@ func (o *TLPhotosPhotos) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhotosPhotosSlice represents ctor photos.photosSlice#15051f54 count:int photos:Vector<Photo> users:Vector<User> = photos.Photos from telegram.tl
+// TLPhotosPhotosSlice represents ctor photos.photosSlice#15051f54 count:int photos:Vector<Photo> users:Vector<User> = photos.Photos from Telegram
 type TLPhotosPhotosSlice struct {
 	Count  int           // count:int
 	Photos []TLPhotoType // photos:Vector<Photo>
@@ -19375,7 +20186,7 @@ func (o *TLPhotosPhotosSlice) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpAppUpdate represents ctor help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate from telegram.tl
+// TLHelpAppUpdate represents ctor help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate from Telegram
 type TLHelpAppUpdate struct {
 	Id       int    // id:int
 	Critical bool   // critical:Bool
@@ -19412,7 +20223,7 @@ func (o *TLHelpAppUpdate) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpNoAppUpdate represents ctor help.noAppUpdate#c45a6536 = help.AppUpdate from telegram.tl
+// TLHelpNoAppUpdate represents ctor help.noAppUpdate#c45a6536 = help.AppUpdate from Telegram
 type TLHelpNoAppUpdate struct {
 }
 
@@ -19432,7 +20243,7 @@ func (o *TLHelpNoAppUpdate) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedChatEmpty represents ctor encryptedChatEmpty#ab7ec0a0 id:int = EncryptedChat from telegram.tl
+// TLEncryptedChatEmpty represents ctor encryptedChatEmpty#ab7ec0a0 id:int = EncryptedChat from Telegram
 type TLEncryptedChatEmpty struct {
 	Id int // id:int
 }
@@ -19455,7 +20266,7 @@ func (o *TLEncryptedChatEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedChatWaiting represents ctor encryptedChatWaiting#3bf703dc id:int access_hash:long date:int admin_id:int participant_id:int = EncryptedChat from telegram.tl
+// TLEncryptedChatWaiting represents ctor encryptedChatWaiting#3bf703dc id:int access_hash:long date:int admin_id:int participant_id:int = EncryptedChat from Telegram
 type TLEncryptedChatWaiting struct {
 	Id            int    // id:int
 	AccessHash    uint64 // access_hash:long
@@ -19490,7 +20301,7 @@ func (o *TLEncryptedChatWaiting) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedChatRequested represents ctor encryptedChatRequested#c878527e id:int access_hash:long date:int admin_id:int participant_id:int g_a:bytes = EncryptedChat from telegram.tl
+// TLEncryptedChatRequested represents ctor encryptedChatRequested#c878527e id:int access_hash:long date:int admin_id:int participant_id:int g_a:bytes = EncryptedChat from Telegram
 type TLEncryptedChatRequested struct {
 	Id            int    // id:int
 	AccessHash    uint64 // access_hash:long
@@ -19528,7 +20339,7 @@ func (o *TLEncryptedChatRequested) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedChat represents ctor encryptedChat#fa56ce36 id:int access_hash:long date:int admin_id:int participant_id:int g_a_or_b:bytes key_fingerprint:long = EncryptedChat from telegram.tl
+// TLEncryptedChat represents ctor encryptedChat#fa56ce36 id:int access_hash:long date:int admin_id:int participant_id:int g_a_or_b:bytes key_fingerprint:long = EncryptedChat from Telegram
 type TLEncryptedChat struct {
 	Id             int    // id:int
 	AccessHash     uint64 // access_hash:long
@@ -19569,7 +20380,7 @@ func (o *TLEncryptedChat) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedChatDiscarded represents ctor encryptedChatDiscarded#13d6dd27 id:int = EncryptedChat from telegram.tl
+// TLEncryptedChatDiscarded represents ctor encryptedChatDiscarded#13d6dd27 id:int = EncryptedChat from Telegram
 type TLEncryptedChatDiscarded struct {
 	Id int // id:int
 }
@@ -19592,7 +20403,7 @@ func (o *TLEncryptedChatDiscarded) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedFileEmpty represents ctor encryptedFileEmpty#c21f497e = EncryptedFile from telegram.tl
+// TLEncryptedFileEmpty represents ctor encryptedFileEmpty#c21f497e = EncryptedFile from Telegram
 type TLEncryptedFileEmpty struct {
 }
 
@@ -19612,7 +20423,7 @@ func (o *TLEncryptedFileEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedFile represents ctor encryptedFile#4a70994c id:long access_hash:long size:int dc_id:int key_fingerprint:int = EncryptedFile from telegram.tl
+// TLEncryptedFile represents ctor encryptedFile#4a70994c id:long access_hash:long size:int dc_id:int key_fingerprint:int = EncryptedFile from Telegram
 type TLEncryptedFile struct {
 	Id             uint64 // id:long
 	AccessHash     uint64 // access_hash:long
@@ -19647,7 +20458,7 @@ func (o *TLEncryptedFile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputEncryptedFileEmpty represents ctor inputEncryptedFileEmpty#1837c364 = InputEncryptedFile from telegram.tl
+// TLInputEncryptedFileEmpty represents ctor inputEncryptedFileEmpty#1837c364 = InputEncryptedFile from Telegram
 type TLInputEncryptedFileEmpty struct {
 }
 
@@ -19667,7 +20478,7 @@ func (o *TLInputEncryptedFileEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputEncryptedFileUploaded represents ctor inputEncryptedFileUploaded#64bd0306 id:long parts:int md5_checksum:string key_fingerprint:int = InputEncryptedFile from telegram.tl
+// TLInputEncryptedFileUploaded represents ctor inputEncryptedFileUploaded#64bd0306 id:long parts:int md5_checksum:string key_fingerprint:int = InputEncryptedFile from Telegram
 type TLInputEncryptedFileUploaded struct {
 	Id             uint64 // id:long
 	Parts          int    // parts:int
@@ -19699,7 +20510,7 @@ func (o *TLInputEncryptedFileUploaded) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputEncryptedFile represents ctor inputEncryptedFile#5a17b5e5 id:long access_hash:long = InputEncryptedFile from telegram.tl
+// TLInputEncryptedFile represents ctor inputEncryptedFile#5a17b5e5 id:long access_hash:long = InputEncryptedFile from Telegram
 type TLInputEncryptedFile struct {
 	Id         uint64 // id:long
 	AccessHash uint64 // access_hash:long
@@ -19725,7 +20536,7 @@ func (o *TLInputEncryptedFile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputEncryptedFileBigUploaded represents ctor inputEncryptedFileBigUploaded#2dc173c8 id:long parts:int key_fingerprint:int = InputEncryptedFile from telegram.tl
+// TLInputEncryptedFileBigUploaded represents ctor inputEncryptedFileBigUploaded#2dc173c8 id:long parts:int key_fingerprint:int = InputEncryptedFile from Telegram
 type TLInputEncryptedFileBigUploaded struct {
 	Id             uint64 // id:long
 	Parts          int    // parts:int
@@ -19754,7 +20565,7 @@ func (o *TLInputEncryptedFileBigUploaded) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedMessage represents ctor encryptedMessage#ed18c118 random_id:long chat_id:int date:int bytes:bytes file:EncryptedFile = EncryptedMessage from telegram.tl
+// TLEncryptedMessage represents ctor encryptedMessage#ed18c118 random_id:long chat_id:int date:int bytes:bytes file:EncryptedFile = EncryptedMessage from Telegram
 type TLEncryptedMessage struct {
 	RandomId uint64              // random_id:long
 	ChatId   int                 // chat_id:int
@@ -19790,7 +20601,7 @@ func (o *TLEncryptedMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLEncryptedMessageService represents ctor encryptedMessageService#23734b06 random_id:long chat_id:int date:int bytes:bytes = EncryptedMessage from telegram.tl
+// TLEncryptedMessageService represents ctor encryptedMessageService#23734b06 random_id:long chat_id:int date:int bytes:bytes = EncryptedMessage from Telegram
 type TLEncryptedMessageService struct {
 	RandomId uint64 // random_id:long
 	ChatId   int    // chat_id:int
@@ -19822,7 +20633,7 @@ func (o *TLEncryptedMessageService) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesDHConfigNotModified represents ctor messages.dhConfigNotModified#c0e24635 random:bytes = messages.DhConfig from telegram.tl
+// TLMessagesDHConfigNotModified represents ctor messages.dhConfigNotModified#c0e24635 random:bytes = messages.DhConfig from Telegram
 type TLMessagesDHConfigNotModified struct {
 	Random []byte // random:bytes
 }
@@ -19845,7 +20656,7 @@ func (o *TLMessagesDHConfigNotModified) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesDHConfig represents ctor messages.dhConfig#2c221edd g:int p:bytes version:int random:bytes = messages.DhConfig from telegram.tl
+// TLMessagesDHConfig represents ctor messages.dhConfig#2c221edd g:int p:bytes version:int random:bytes = messages.DhConfig from Telegram
 type TLMessagesDHConfig struct {
 	G       int    // g:int
 	P       []byte // p:bytes
@@ -19877,7 +20688,7 @@ func (o *TLMessagesDHConfig) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSentEncryptedMessage represents ctor messages.sentEncryptedMessage#560f8935 date:int = messages.SentEncryptedMessage from telegram.tl
+// TLMessagesSentEncryptedMessage represents ctor messages.sentEncryptedMessage#560f8935 date:int = messages.SentEncryptedMessage from Telegram
 type TLMessagesSentEncryptedMessage struct {
 	Date int // date:int
 }
@@ -19900,7 +20711,7 @@ func (o *TLMessagesSentEncryptedMessage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSentEncryptedFile represents ctor messages.sentEncryptedFile#9493ff32 date:int file:EncryptedFile = messages.SentEncryptedMessage from telegram.tl
+// TLMessagesSentEncryptedFile represents ctor messages.sentEncryptedFile#9493ff32 date:int file:EncryptedFile = messages.SentEncryptedMessage from Telegram
 type TLMessagesSentEncryptedFile struct {
 	Date int                 // date:int
 	File TLEncryptedFileType // file:EncryptedFile
@@ -19927,7 +20738,7 @@ func (o *TLMessagesSentEncryptedFile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputDocumentEmpty represents ctor inputDocumentEmpty#72f0eaae = InputDocument from telegram.tl
+// TLInputDocumentEmpty represents ctor inputDocumentEmpty#72f0eaae = InputDocument from Telegram
 type TLInputDocumentEmpty struct {
 }
 
@@ -19947,7 +20758,7 @@ func (o *TLInputDocumentEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputDocument represents ctor inputDocument#18798952 id:long access_hash:long = InputDocument from telegram.tl
+// TLInputDocument represents ctor inputDocument#18798952 id:long access_hash:long = InputDocument from Telegram
 type TLInputDocument struct {
 	Id         uint64 // id:long
 	AccessHash uint64 // access_hash:long
@@ -19973,7 +20784,7 @@ func (o *TLInputDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDocumentEmpty represents ctor documentEmpty#36f8c871 id:long = Document from telegram.tl
+// TLDocumentEmpty represents ctor documentEmpty#36f8c871 id:long = Document from Telegram
 type TLDocumentEmpty struct {
 	Id uint64 // id:long
 }
@@ -19996,7 +20807,7 @@ func (o *TLDocumentEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDocument represents ctor document#87232bc7 id:long access_hash:long date:int mime_type:string size:int thumb:PhotoSize dc_id:int version:int attributes:Vector<DocumentAttribute> = Document from telegram.tl
+// TLDocument represents ctor document#87232bc7 id:long access_hash:long date:int mime_type:string size:int thumb:PhotoSize dc_id:int version:int attributes:Vector<DocumentAttribute> = Document from Telegram
 type TLDocument struct {
 	Id         uint64                    // id:long
 	AccessHash uint64                    // access_hash:long
@@ -20055,7 +20866,7 @@ func (o *TLDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLNotifyPeer represents ctor notifyPeer#9fd40bd8 peer:Peer = NotifyPeer from telegram.tl
+// TLNotifyPeer represents ctor notifyPeer#9fd40bd8 peer:Peer = NotifyPeer from Telegram
 type TLNotifyPeer struct {
 	Peer TLPeerType // peer:Peer
 }
@@ -20079,7 +20890,7 @@ func (o *TLNotifyPeer) String() string {
 	return tl.Pretty(o)
 }
 
-// TLNotifyUsers represents ctor notifyUsers#b4c83b4c = NotifyPeer from telegram.tl
+// TLNotifyUsers represents ctor notifyUsers#b4c83b4c = NotifyPeer from Telegram
 type TLNotifyUsers struct {
 }
 
@@ -20099,7 +20910,7 @@ func (o *TLNotifyUsers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLNotifyChats represents ctor notifyChats#c007cec3 = NotifyPeer from telegram.tl
+// TLNotifyChats represents ctor notifyChats#c007cec3 = NotifyPeer from Telegram
 type TLNotifyChats struct {
 }
 
@@ -20119,7 +20930,7 @@ func (o *TLNotifyChats) String() string {
 	return tl.Pretty(o)
 }
 
-// TLNotifyAll represents ctor notifyAll#74d07c60 = NotifyPeer from telegram.tl
+// TLNotifyAll represents ctor notifyAll#74d07c60 = NotifyPeer from Telegram
 type TLNotifyAll struct {
 }
 
@@ -20139,7 +20950,7 @@ func (o *TLNotifyAll) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageTypingAction represents ctor sendMessageTypingAction#16bf744e = SendMessageAction from telegram.tl
+// TLSendMessageTypingAction represents ctor sendMessageTypingAction#16bf744e = SendMessageAction from Telegram
 type TLSendMessageTypingAction struct {
 }
 
@@ -20159,7 +20970,7 @@ func (o *TLSendMessageTypingAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageCancelAction represents ctor sendMessageCancelAction#fd5ec8f5 = SendMessageAction from telegram.tl
+// TLSendMessageCancelAction represents ctor sendMessageCancelAction#fd5ec8f5 = SendMessageAction from Telegram
 type TLSendMessageCancelAction struct {
 }
 
@@ -20179,7 +20990,7 @@ func (o *TLSendMessageCancelAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageRecordVideoAction represents ctor sendMessageRecordVideoAction#a187d66f = SendMessageAction from telegram.tl
+// TLSendMessageRecordVideoAction represents ctor sendMessageRecordVideoAction#a187d66f = SendMessageAction from Telegram
 type TLSendMessageRecordVideoAction struct {
 }
 
@@ -20199,7 +21010,7 @@ func (o *TLSendMessageRecordVideoAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageUploadVideoAction represents ctor sendMessageUploadVideoAction#e9763aec progress:int = SendMessageAction from telegram.tl
+// TLSendMessageUploadVideoAction represents ctor sendMessageUploadVideoAction#e9763aec progress:int = SendMessageAction from Telegram
 type TLSendMessageUploadVideoAction struct {
 	Progress int // progress:int
 }
@@ -20222,7 +21033,7 @@ func (o *TLSendMessageUploadVideoAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageRecordAudioAction represents ctor sendMessageRecordAudioAction#d52f73f7 = SendMessageAction from telegram.tl
+// TLSendMessageRecordAudioAction represents ctor sendMessageRecordAudioAction#d52f73f7 = SendMessageAction from Telegram
 type TLSendMessageRecordAudioAction struct {
 }
 
@@ -20242,7 +21053,7 @@ func (o *TLSendMessageRecordAudioAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageUploadAudioAction represents ctor sendMessageUploadAudioAction#f351d7ab progress:int = SendMessageAction from telegram.tl
+// TLSendMessageUploadAudioAction represents ctor sendMessageUploadAudioAction#f351d7ab progress:int = SendMessageAction from Telegram
 type TLSendMessageUploadAudioAction struct {
 	Progress int // progress:int
 }
@@ -20265,7 +21076,7 @@ func (o *TLSendMessageUploadAudioAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageUploadPhotoAction represents ctor sendMessageUploadPhotoAction#d1d34a26 progress:int = SendMessageAction from telegram.tl
+// TLSendMessageUploadPhotoAction represents ctor sendMessageUploadPhotoAction#d1d34a26 progress:int = SendMessageAction from Telegram
 type TLSendMessageUploadPhotoAction struct {
 	Progress int // progress:int
 }
@@ -20288,7 +21099,7 @@ func (o *TLSendMessageUploadPhotoAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageUploadDocumentAction represents ctor sendMessageUploadDocumentAction#aa0cd9e4 progress:int = SendMessageAction from telegram.tl
+// TLSendMessageUploadDocumentAction represents ctor sendMessageUploadDocumentAction#aa0cd9e4 progress:int = SendMessageAction from Telegram
 type TLSendMessageUploadDocumentAction struct {
 	Progress int // progress:int
 }
@@ -20311,7 +21122,7 @@ func (o *TLSendMessageUploadDocumentAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageGeoLocationAction represents ctor sendMessageGeoLocationAction#176f8ba1 = SendMessageAction from telegram.tl
+// TLSendMessageGeoLocationAction represents ctor sendMessageGeoLocationAction#176f8ba1 = SendMessageAction from Telegram
 type TLSendMessageGeoLocationAction struct {
 }
 
@@ -20331,7 +21142,7 @@ func (o *TLSendMessageGeoLocationAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageChooseContactAction represents ctor sendMessageChooseContactAction#628cbc6f = SendMessageAction from telegram.tl
+// TLSendMessageChooseContactAction represents ctor sendMessageChooseContactAction#628cbc6f = SendMessageAction from Telegram
 type TLSendMessageChooseContactAction struct {
 }
 
@@ -20351,7 +21162,7 @@ func (o *TLSendMessageChooseContactAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLSendMessageGamePlayAction represents ctor sendMessageGamePlayAction#dd6a8f48 = SendMessageAction from telegram.tl
+// TLSendMessageGamePlayAction represents ctor sendMessageGamePlayAction#dd6a8f48 = SendMessageAction from Telegram
 type TLSendMessageGamePlayAction struct {
 }
 
@@ -20371,7 +21182,7 @@ func (o *TLSendMessageGamePlayAction) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPrivacyKeyStatusTimestamp represents ctor inputPrivacyKeyStatusTimestamp#4f96cb18 = InputPrivacyKey from telegram.tl
+// TLInputPrivacyKeyStatusTimestamp represents ctor inputPrivacyKeyStatusTimestamp#4f96cb18 = InputPrivacyKey from Telegram
 type TLInputPrivacyKeyStatusTimestamp struct {
 }
 
@@ -20391,7 +21202,7 @@ func (o *TLInputPrivacyKeyStatusTimestamp) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPrivacyKeyChatInvite represents ctor inputPrivacyKeyChatInvite#bdfb0426 = InputPrivacyKey from telegram.tl
+// TLInputPrivacyKeyChatInvite represents ctor inputPrivacyKeyChatInvite#bdfb0426 = InputPrivacyKey from Telegram
 type TLInputPrivacyKeyChatInvite struct {
 }
 
@@ -20411,7 +21222,7 @@ func (o *TLInputPrivacyKeyChatInvite) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPrivacyKeyPhoneCall represents ctor inputPrivacyKeyPhoneCall#fabadc5f = InputPrivacyKey from telegram.tl
+// TLInputPrivacyKeyPhoneCall represents ctor inputPrivacyKeyPhoneCall#fabadc5f = InputPrivacyKey from Telegram
 type TLInputPrivacyKeyPhoneCall struct {
 }
 
@@ -20431,7 +21242,7 @@ func (o *TLInputPrivacyKeyPhoneCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPrivacyKeyStatusTimestamp represents ctor privacyKeyStatusTimestamp#bc2eab30 = PrivacyKey from telegram.tl
+// TLPrivacyKeyStatusTimestamp represents ctor privacyKeyStatusTimestamp#bc2eab30 = PrivacyKey from Telegram
 type TLPrivacyKeyStatusTimestamp struct {
 }
 
@@ -20451,7 +21262,7 @@ func (o *TLPrivacyKeyStatusTimestamp) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPrivacyKeyChatInvite represents ctor privacyKeyChatInvite#500e6dfa = PrivacyKey from telegram.tl
+// TLPrivacyKeyChatInvite represents ctor privacyKeyChatInvite#500e6dfa = PrivacyKey from Telegram
 type TLPrivacyKeyChatInvite struct {
 }
 
@@ -20471,7 +21282,7 @@ func (o *TLPrivacyKeyChatInvite) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPrivacyKeyPhoneCall represents ctor privacyKeyPhoneCall#3d662b7b = PrivacyKey from telegram.tl
+// TLPrivacyKeyPhoneCall represents ctor privacyKeyPhoneCall#3d662b7b = PrivacyKey from Telegram
 type TLPrivacyKeyPhoneCall struct {
 }
 
@@ -20491,7 +21302,7 @@ func (o *TLPrivacyKeyPhoneCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPrivacyValueAllowContacts represents ctor inputPrivacyValueAllowContacts#0d09e07b = InputPrivacyRule from telegram.tl
+// TLInputPrivacyValueAllowContacts represents ctor inputPrivacyValueAllowContacts#0d09e07b = InputPrivacyRule from Telegram
 type TLInputPrivacyValueAllowContacts struct {
 }
 
@@ -20511,7 +21322,7 @@ func (o *TLInputPrivacyValueAllowContacts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPrivacyValueAllowAll represents ctor inputPrivacyValueAllowAll#184b35ce = InputPrivacyRule from telegram.tl
+// TLInputPrivacyValueAllowAll represents ctor inputPrivacyValueAllowAll#184b35ce = InputPrivacyRule from Telegram
 type TLInputPrivacyValueAllowAll struct {
 }
 
@@ -20531,7 +21342,7 @@ func (o *TLInputPrivacyValueAllowAll) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPrivacyValueAllowUsers represents ctor inputPrivacyValueAllowUsers#131cc67f users:Vector<InputUser> = InputPrivacyRule from telegram.tl
+// TLInputPrivacyValueAllowUsers represents ctor inputPrivacyValueAllowUsers#131cc67f users:Vector<InputUser> = InputPrivacyRule from Telegram
 type TLInputPrivacyValueAllowUsers struct {
 	Users []TLInputUserType // users:Vector<InputUser>
 }
@@ -20565,7 +21376,7 @@ func (o *TLInputPrivacyValueAllowUsers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPrivacyValueDisallowContacts represents ctor inputPrivacyValueDisallowContacts#0ba52007 = InputPrivacyRule from telegram.tl
+// TLInputPrivacyValueDisallowContacts represents ctor inputPrivacyValueDisallowContacts#0ba52007 = InputPrivacyRule from Telegram
 type TLInputPrivacyValueDisallowContacts struct {
 }
 
@@ -20585,7 +21396,7 @@ func (o *TLInputPrivacyValueDisallowContacts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPrivacyValueDisallowAll represents ctor inputPrivacyValueDisallowAll#d66b66c9 = InputPrivacyRule from telegram.tl
+// TLInputPrivacyValueDisallowAll represents ctor inputPrivacyValueDisallowAll#d66b66c9 = InputPrivacyRule from Telegram
 type TLInputPrivacyValueDisallowAll struct {
 }
 
@@ -20605,7 +21416,7 @@ func (o *TLInputPrivacyValueDisallowAll) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPrivacyValueDisallowUsers represents ctor inputPrivacyValueDisallowUsers#90110467 users:Vector<InputUser> = InputPrivacyRule from telegram.tl
+// TLInputPrivacyValueDisallowUsers represents ctor inputPrivacyValueDisallowUsers#90110467 users:Vector<InputUser> = InputPrivacyRule from Telegram
 type TLInputPrivacyValueDisallowUsers struct {
 	Users []TLInputUserType // users:Vector<InputUser>
 }
@@ -20639,7 +21450,7 @@ func (o *TLInputPrivacyValueDisallowUsers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPrivacyValueAllowContacts represents ctor privacyValueAllowContacts#fffe1bac = PrivacyRule from telegram.tl
+// TLPrivacyValueAllowContacts represents ctor privacyValueAllowContacts#fffe1bac = PrivacyRule from Telegram
 type TLPrivacyValueAllowContacts struct {
 }
 
@@ -20659,7 +21470,7 @@ func (o *TLPrivacyValueAllowContacts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPrivacyValueAllowAll represents ctor privacyValueAllowAll#65427b82 = PrivacyRule from telegram.tl
+// TLPrivacyValueAllowAll represents ctor privacyValueAllowAll#65427b82 = PrivacyRule from Telegram
 type TLPrivacyValueAllowAll struct {
 }
 
@@ -20679,7 +21490,7 @@ func (o *TLPrivacyValueAllowAll) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPrivacyValueAllowUsers represents ctor privacyValueAllowUsers#4d5bbe0c users:Vector<int> = PrivacyRule from telegram.tl
+// TLPrivacyValueAllowUsers represents ctor privacyValueAllowUsers#4d5bbe0c users:Vector<int> = PrivacyRule from Telegram
 type TLPrivacyValueAllowUsers struct {
 	Users []int // users:Vector<int>
 }
@@ -20712,7 +21523,7 @@ func (o *TLPrivacyValueAllowUsers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPrivacyValueDisallowContacts represents ctor privacyValueDisallowContacts#f888fa1a = PrivacyRule from telegram.tl
+// TLPrivacyValueDisallowContacts represents ctor privacyValueDisallowContacts#f888fa1a = PrivacyRule from Telegram
 type TLPrivacyValueDisallowContacts struct {
 }
 
@@ -20732,7 +21543,7 @@ func (o *TLPrivacyValueDisallowContacts) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPrivacyValueDisallowAll represents ctor privacyValueDisallowAll#8b73e763 = PrivacyRule from telegram.tl
+// TLPrivacyValueDisallowAll represents ctor privacyValueDisallowAll#8b73e763 = PrivacyRule from Telegram
 type TLPrivacyValueDisallowAll struct {
 }
 
@@ -20752,7 +21563,7 @@ func (o *TLPrivacyValueDisallowAll) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPrivacyValueDisallowUsers represents ctor privacyValueDisallowUsers#0c7f49b7 users:Vector<int> = PrivacyRule from telegram.tl
+// TLPrivacyValueDisallowUsers represents ctor privacyValueDisallowUsers#0c7f49b7 users:Vector<int> = PrivacyRule from Telegram
 type TLPrivacyValueDisallowUsers struct {
 	Users []int // users:Vector<int>
 }
@@ -20785,7 +21596,7 @@ func (o *TLPrivacyValueDisallowUsers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDocumentAttributeImageSize represents ctor documentAttributeImageSize#6c37c15c w:int h:int = DocumentAttribute from telegram.tl
+// TLDocumentAttributeImageSize represents ctor documentAttributeImageSize#6c37c15c w:int h:int = DocumentAttribute from Telegram
 type TLDocumentAttributeImageSize struct {
 	W int // w:int
 	H int // h:int
@@ -20811,7 +21622,7 @@ func (o *TLDocumentAttributeImageSize) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDocumentAttributeAnimated represents ctor documentAttributeAnimated#11b58939 = DocumentAttribute from telegram.tl
+// TLDocumentAttributeAnimated represents ctor documentAttributeAnimated#11b58939 = DocumentAttribute from Telegram
 type TLDocumentAttributeAnimated struct {
 }
 
@@ -20831,7 +21642,7 @@ func (o *TLDocumentAttributeAnimated) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDocumentAttributeSticker represents ctor documentAttributeSticker#6319d612 flags:# flags.1?mask:true alt:string stickerset:InputStickerSet flags.0?mask_coords:MaskCoords = DocumentAttribute from telegram.tl
+// TLDocumentAttributeSticker represents ctor documentAttributeSticker#6319d612 flags:# flags.1?mask:true alt:string stickerset:InputStickerSet flags.0?mask_coords:MaskCoords = DocumentAttribute from Telegram
 type TLDocumentAttributeSticker struct {
 	Flags      uint                  // flags:#
 	Mask       bool                  // flags.1?mask:true
@@ -20871,7 +21682,7 @@ func (o *TLDocumentAttributeSticker) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDocumentAttributeVideo represents ctor documentAttributeVideo#5910cccb duration:int w:int h:int = DocumentAttribute from telegram.tl
+// TLDocumentAttributeVideo represents ctor documentAttributeVideo#5910cccb duration:int w:int h:int = DocumentAttribute from Telegram
 type TLDocumentAttributeVideo struct {
 	Duration int // duration:int
 	W        int // w:int
@@ -20900,7 +21711,7 @@ func (o *TLDocumentAttributeVideo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDocumentAttributeAudio represents ctor documentAttributeAudio#9852f9c6 flags:# flags.10?voice:true duration:int flags.0?title:string flags.1?performer:string flags.2?waveform:bytes = DocumentAttribute from telegram.tl
+// TLDocumentAttributeAudio represents ctor documentAttributeAudio#9852f9c6 flags:# flags.10?voice:true duration:int flags.0?title:string flags.1?performer:string flags.2?waveform:bytes = DocumentAttribute from Telegram
 type TLDocumentAttributeAudio struct {
 	Flags     uint   // flags:#
 	Voice     bool   // flags.10?voice:true
@@ -20937,7 +21748,7 @@ func (o *TLDocumentAttributeAudio) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDocumentAttributeFilename represents ctor documentAttributeFilename#15590068 file_name:string = DocumentAttribute from telegram.tl
+// TLDocumentAttributeFilename represents ctor documentAttributeFilename#15590068 file_name:string = DocumentAttribute from Telegram
 type TLDocumentAttributeFilename struct {
 	FileName string // file_name:string
 }
@@ -20960,7 +21771,7 @@ func (o *TLDocumentAttributeFilename) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDocumentAttributeHasStickers represents ctor documentAttributeHasStickers#9801d2f7 = DocumentAttribute from telegram.tl
+// TLDocumentAttributeHasStickers represents ctor documentAttributeHasStickers#9801d2f7 = DocumentAttribute from Telegram
 type TLDocumentAttributeHasStickers struct {
 }
 
@@ -20980,7 +21791,7 @@ func (o *TLDocumentAttributeHasStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesStickersNotModified represents ctor messages.stickersNotModified#f1749a22 = messages.Stickers from telegram.tl
+// TLMessagesStickersNotModified represents ctor messages.stickersNotModified#f1749a22 = messages.Stickers from Telegram
 type TLMessagesStickersNotModified struct {
 }
 
@@ -21000,7 +21811,7 @@ func (o *TLMessagesStickersNotModified) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesStickers represents ctor messages.stickers#8a8ecd32 hash:string stickers:Vector<Document> = messages.Stickers from telegram.tl
+// TLMessagesStickers represents ctor messages.stickers#8a8ecd32 hash:string stickers:Vector<Document> = messages.Stickers from Telegram
 type TLMessagesStickers struct {
 	Hash     string           // hash:string
 	Stickers []TLDocumentType // stickers:Vector<Document>
@@ -21037,7 +21848,7 @@ func (o *TLMessagesStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesAllStickersNotModified represents ctor messages.allStickersNotModified#e86602c3 = messages.AllStickers from telegram.tl
+// TLMessagesAllStickersNotModified represents ctor messages.allStickersNotModified#e86602c3 = messages.AllStickers from Telegram
 type TLMessagesAllStickersNotModified struct {
 }
 
@@ -21057,7 +21868,7 @@ func (o *TLMessagesAllStickersNotModified) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesAllStickers represents ctor messages.allStickers#edfd405f hash:int sets:Vector<StickerSet> = messages.AllStickers from telegram.tl
+// TLMessagesAllStickers represents ctor messages.allStickers#edfd405f hash:int sets:Vector<StickerSet> = messages.AllStickers from Telegram
 type TLMessagesAllStickers struct {
 	Hash int             // hash:int
 	Sets []*TLStickerSet // sets:Vector<StickerSet>
@@ -21098,7 +21909,7 @@ func (o *TLMessagesAllStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLWebPageEmpty represents ctor webPageEmpty#eb1477e8 id:long = WebPage from telegram.tl
+// TLWebPageEmpty represents ctor webPageEmpty#eb1477e8 id:long = WebPage from Telegram
 type TLWebPageEmpty struct {
 	Id uint64 // id:long
 }
@@ -21121,7 +21932,7 @@ func (o *TLWebPageEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLWebPagePending represents ctor webPagePending#c586da1c id:long date:int = WebPage from telegram.tl
+// TLWebPagePending represents ctor webPagePending#c586da1c id:long date:int = WebPage from Telegram
 type TLWebPagePending struct {
 	Id   uint64 // id:long
 	Date int    // date:int
@@ -21147,7 +21958,7 @@ func (o *TLWebPagePending) String() string {
 	return tl.Pretty(o)
 }
 
-// TLWebPage represents ctor webPage#5f07b4bc flags:# id:long url:string display_url:string hash:int flags.0?type:string flags.1?site_name:string flags.2?title:string flags.3?description:string flags.4?photo:Photo flags.5?embed_url:string flags.5?embed_type:string flags.6?embed_width:int flags.6?embed_height:int flags.7?duration:int flags.8?author:string flags.9?document:Document flags.10?cached_page:Page = WebPage from telegram.tl
+// TLWebPage represents ctor webPage#5f07b4bc flags:# id:long url:string display_url:string hash:int flags.0?type:string flags.1?site_name:string flags.2?title:string flags.3?description:string flags.4?photo:Photo flags.5?embed_url:string flags.5?embed_type:string flags.6?embed_width:int flags.6?embed_height:int flags.7?duration:int flags.8?author:string flags.9?document:Document flags.10?cached_page:Page = WebPage from Telegram
 type TLWebPage struct {
 	Flags       uint           // flags:#
 	Id          uint64         // id:long
@@ -21224,7 +22035,7 @@ func (o *TLWebPage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLWebPageNotModified represents ctor webPageNotModified#85849473 = WebPage from telegram.tl
+// TLWebPageNotModified represents ctor webPageNotModified#85849473 = WebPage from Telegram
 type TLWebPageNotModified struct {
 }
 
@@ -21244,7 +22055,7 @@ func (o *TLWebPageNotModified) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountNoPassword represents ctor account.noPassword#96dabc18 new_salt:bytes email_unconfirmed_pattern:string = account.Password from telegram.tl
+// TLAccountNoPassword represents ctor account.noPassword#96dabc18 new_salt:bytes email_unconfirmed_pattern:string = account.Password from Telegram
 type TLAccountNoPassword struct {
 	NewSalt                 []byte // new_salt:bytes
 	EmailUnconfirmedPattern string // email_unconfirmed_pattern:string
@@ -21270,7 +22081,7 @@ func (o *TLAccountNoPassword) String() string {
 	return tl.Pretty(o)
 }
 
-// TLAccountPassword represents ctor account.password#7c18141c current_salt:bytes new_salt:bytes hint:string has_recovery:Bool email_unconfirmed_pattern:string = account.Password from telegram.tl
+// TLAccountPassword represents ctor account.password#7c18141c current_salt:bytes new_salt:bytes hint:string has_recovery:Bool email_unconfirmed_pattern:string = account.Password from Telegram
 type TLAccountPassword struct {
 	CurrentSalt             []byte // current_salt:bytes
 	NewSalt                 []byte // new_salt:bytes
@@ -21310,7 +22121,7 @@ func (o *TLAccountPassword) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatInviteEmpty represents ctor chatInviteEmpty#69df3769 = ExportedChatInvite from telegram.tl
+// TLChatInviteEmpty represents ctor chatInviteEmpty#69df3769 = ExportedChatInvite from Telegram
 type TLChatInviteEmpty struct {
 }
 
@@ -21330,7 +22141,7 @@ func (o *TLChatInviteEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatInviteExported represents ctor chatInviteExported#fc2e05bc link:string = ExportedChatInvite from telegram.tl
+// TLChatInviteExported represents ctor chatInviteExported#fc2e05bc link:string = ExportedChatInvite from Telegram
 type TLChatInviteExported struct {
 	Link string // link:string
 }
@@ -21353,7 +22164,7 @@ func (o *TLChatInviteExported) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatInviteAlready represents ctor chatInviteAlready#5a686d7c chat:Chat = ChatInvite from telegram.tl
+// TLChatInviteAlready represents ctor chatInviteAlready#5a686d7c chat:Chat = ChatInvite from Telegram
 type TLChatInviteAlready struct {
 	Chat TLChatType // chat:Chat
 }
@@ -21377,7 +22188,7 @@ func (o *TLChatInviteAlready) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChatInvite represents ctor chatInvite#db74f558 flags:# flags.0?channel:true flags.1?broadcast:true flags.2?public:true flags.3?megagroup:true title:string photo:ChatPhoto participants_count:int flags.4?participants:Vector<User> = ChatInvite from telegram.tl
+// TLChatInvite represents ctor chatInvite#db74f558 flags:# flags.0?channel:true flags.1?broadcast:true flags.2?public:true flags.3?megagroup:true title:string photo:ChatPhoto participants_count:int flags.4?participants:Vector<User> = ChatInvite from Telegram
 type TLChatInvite struct {
 	Flags             uint            // flags:#
 	Channel           bool            // flags.0?channel:true
@@ -21432,7 +22243,7 @@ func (o *TLChatInvite) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputStickerSetEmpty represents ctor inputStickerSetEmpty#ffb62b95 = InputStickerSet from telegram.tl
+// TLInputStickerSetEmpty represents ctor inputStickerSetEmpty#ffb62b95 = InputStickerSet from Telegram
 type TLInputStickerSetEmpty struct {
 }
 
@@ -21452,7 +22263,7 @@ func (o *TLInputStickerSetEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputStickerSetID represents ctor inputStickerSetID#9de7a269 id:long access_hash:long = InputStickerSet from telegram.tl
+// TLInputStickerSetID represents ctor inputStickerSetID#9de7a269 id:long access_hash:long = InputStickerSet from Telegram
 type TLInputStickerSetID struct {
 	Id         uint64 // id:long
 	AccessHash uint64 // access_hash:long
@@ -21478,7 +22289,7 @@ func (o *TLInputStickerSetID) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputStickerSetShortName represents ctor inputStickerSetShortName#861cc8a0 short_name:string = InputStickerSet from telegram.tl
+// TLInputStickerSetShortName represents ctor inputStickerSetShortName#861cc8a0 short_name:string = InputStickerSet from Telegram
 type TLInputStickerSetShortName struct {
 	ShortName string // short_name:string
 }
@@ -21501,7 +22312,7 @@ func (o *TLInputStickerSetShortName) String() string {
 	return tl.Pretty(o)
 }
 
-// TLKeyboardButton represents ctor keyboardButton#a2fa4880 text:string = KeyboardButton from telegram.tl
+// TLKeyboardButton represents ctor keyboardButton#a2fa4880 text:string = KeyboardButton from Telegram
 type TLKeyboardButton struct {
 	Text string // text:string
 }
@@ -21524,7 +22335,7 @@ func (o *TLKeyboardButton) String() string {
 	return tl.Pretty(o)
 }
 
-// TLKeyboardButtonUrl represents ctor keyboardButtonUrl#258aff05 text:string url:string = KeyboardButton from telegram.tl
+// TLKeyboardButtonUrl represents ctor keyboardButtonUrl#258aff05 text:string url:string = KeyboardButton from Telegram
 type TLKeyboardButtonUrl struct {
 	Text string // text:string
 	Url  string // url:string
@@ -21550,7 +22361,7 @@ func (o *TLKeyboardButtonUrl) String() string {
 	return tl.Pretty(o)
 }
 
-// TLKeyboardButtonCallback represents ctor keyboardButtonCallback#683a5e46 text:string data:bytes = KeyboardButton from telegram.tl
+// TLKeyboardButtonCallback represents ctor keyboardButtonCallback#683a5e46 text:string data:bytes = KeyboardButton from Telegram
 type TLKeyboardButtonCallback struct {
 	Text string // text:string
 	Data []byte // data:bytes
@@ -21576,7 +22387,7 @@ func (o *TLKeyboardButtonCallback) String() string {
 	return tl.Pretty(o)
 }
 
-// TLKeyboardButtonRequestPhone represents ctor keyboardButtonRequestPhone#b16a6c29 text:string = KeyboardButton from telegram.tl
+// TLKeyboardButtonRequestPhone represents ctor keyboardButtonRequestPhone#b16a6c29 text:string = KeyboardButton from Telegram
 type TLKeyboardButtonRequestPhone struct {
 	Text string // text:string
 }
@@ -21599,7 +22410,7 @@ func (o *TLKeyboardButtonRequestPhone) String() string {
 	return tl.Pretty(o)
 }
 
-// TLKeyboardButtonRequestGeoLocation represents ctor keyboardButtonRequestGeoLocation#fc796b3f text:string = KeyboardButton from telegram.tl
+// TLKeyboardButtonRequestGeoLocation represents ctor keyboardButtonRequestGeoLocation#fc796b3f text:string = KeyboardButton from Telegram
 type TLKeyboardButtonRequestGeoLocation struct {
 	Text string // text:string
 }
@@ -21622,7 +22433,7 @@ func (o *TLKeyboardButtonRequestGeoLocation) String() string {
 	return tl.Pretty(o)
 }
 
-// TLKeyboardButtonSwitchInline represents ctor keyboardButtonSwitchInline#0568a748 flags:# flags.0?same_peer:true text:string query:string = KeyboardButton from telegram.tl
+// TLKeyboardButtonSwitchInline represents ctor keyboardButtonSwitchInline#0568a748 flags:# flags.0?same_peer:true text:string query:string = KeyboardButton from Telegram
 type TLKeyboardButtonSwitchInline struct {
 	Flags    uint   // flags:#
 	SamePeer bool   // flags.0?same_peer:true
@@ -21653,7 +22464,7 @@ func (o *TLKeyboardButtonSwitchInline) String() string {
 	return tl.Pretty(o)
 }
 
-// TLKeyboardButtonGame represents ctor keyboardButtonGame#50f41ccf text:string = KeyboardButton from telegram.tl
+// TLKeyboardButtonGame represents ctor keyboardButtonGame#50f41ccf text:string = KeyboardButton from Telegram
 type TLKeyboardButtonGame struct {
 	Text string // text:string
 }
@@ -21676,7 +22487,7 @@ func (o *TLKeyboardButtonGame) String() string {
 	return tl.Pretty(o)
 }
 
-// TLKeyboardButtonBuy represents ctor keyboardButtonBuy#afd93fbb text:string = KeyboardButton from telegram.tl
+// TLKeyboardButtonBuy represents ctor keyboardButtonBuy#afd93fbb text:string = KeyboardButton from Telegram
 type TLKeyboardButtonBuy struct {
 	Text string // text:string
 }
@@ -21699,7 +22510,7 @@ func (o *TLKeyboardButtonBuy) String() string {
 	return tl.Pretty(o)
 }
 
-// TLReplyKeyboardHide represents ctor replyKeyboardHide#a03e5b85 flags:# flags.2?selective:true = ReplyMarkup from telegram.tl
+// TLReplyKeyboardHide represents ctor replyKeyboardHide#a03e5b85 flags:# flags.2?selective:true = ReplyMarkup from Telegram
 type TLReplyKeyboardHide struct {
 	Flags     uint // flags:#
 	Selective bool // flags.2?selective:true
@@ -21724,7 +22535,7 @@ func (o *TLReplyKeyboardHide) String() string {
 	return tl.Pretty(o)
 }
 
-// TLReplyKeyboardForceReply represents ctor replyKeyboardForceReply#f4108aa0 flags:# flags.1?single_use:true flags.2?selective:true = ReplyMarkup from telegram.tl
+// TLReplyKeyboardForceReply represents ctor replyKeyboardForceReply#f4108aa0 flags:# flags.1?single_use:true flags.2?selective:true = ReplyMarkup from Telegram
 type TLReplyKeyboardForceReply struct {
 	Flags     uint // flags:#
 	SingleUse bool // flags.1?single_use:true
@@ -21751,7 +22562,7 @@ func (o *TLReplyKeyboardForceReply) String() string {
 	return tl.Pretty(o)
 }
 
-// TLReplyKeyboardMarkup represents ctor replyKeyboardMarkup#3502758c flags:# flags.0?resize:true flags.1?single_use:true flags.2?selective:true rows:Vector<KeyboardButtonRow> = ReplyMarkup from telegram.tl
+// TLReplyKeyboardMarkup represents ctor replyKeyboardMarkup#3502758c flags:# flags.0?resize:true flags.1?single_use:true flags.2?selective:true rows:Vector<KeyboardButtonRow> = ReplyMarkup from Telegram
 type TLReplyKeyboardMarkup struct {
 	Flags     uint                   // flags:#
 	Resize    bool                   // flags.0?resize:true
@@ -21798,7 +22609,7 @@ func (o *TLReplyKeyboardMarkup) String() string {
 	return tl.Pretty(o)
 }
 
-// TLReplyInlineMarkup represents ctor replyInlineMarkup#48a30254 rows:Vector<KeyboardButtonRow> = ReplyMarkup from telegram.tl
+// TLReplyInlineMarkup represents ctor replyInlineMarkup#48a30254 rows:Vector<KeyboardButtonRow> = ReplyMarkup from Telegram
 type TLReplyInlineMarkup struct {
 	Rows []*TLKeyboardButtonRow // rows:Vector<KeyboardButtonRow>
 }
@@ -21836,7 +22647,7 @@ func (o *TLReplyInlineMarkup) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityUnknown represents ctor messageEntityUnknown#bb92ba95 offset:int length:int = MessageEntity from telegram.tl
+// TLMessageEntityUnknown represents ctor messageEntityUnknown#bb92ba95 offset:int length:int = MessageEntity from Telegram
 type TLMessageEntityUnknown struct {
 	Offset int // offset:int
 	Length int // length:int
@@ -21862,7 +22673,7 @@ func (o *TLMessageEntityUnknown) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityMention represents ctor messageEntityMention#fa04579d offset:int length:int = MessageEntity from telegram.tl
+// TLMessageEntityMention represents ctor messageEntityMention#fa04579d offset:int length:int = MessageEntity from Telegram
 type TLMessageEntityMention struct {
 	Offset int // offset:int
 	Length int // length:int
@@ -21888,7 +22699,7 @@ func (o *TLMessageEntityMention) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityHashtag represents ctor messageEntityHashtag#6f635b0d offset:int length:int = MessageEntity from telegram.tl
+// TLMessageEntityHashtag represents ctor messageEntityHashtag#6f635b0d offset:int length:int = MessageEntity from Telegram
 type TLMessageEntityHashtag struct {
 	Offset int // offset:int
 	Length int // length:int
@@ -21914,7 +22725,7 @@ func (o *TLMessageEntityHashtag) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityBotCommand represents ctor messageEntityBotCommand#6cef8ac7 offset:int length:int = MessageEntity from telegram.tl
+// TLMessageEntityBotCommand represents ctor messageEntityBotCommand#6cef8ac7 offset:int length:int = MessageEntity from Telegram
 type TLMessageEntityBotCommand struct {
 	Offset int // offset:int
 	Length int // length:int
@@ -21940,7 +22751,7 @@ func (o *TLMessageEntityBotCommand) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityUrl represents ctor messageEntityUrl#6ed02538 offset:int length:int = MessageEntity from telegram.tl
+// TLMessageEntityUrl represents ctor messageEntityUrl#6ed02538 offset:int length:int = MessageEntity from Telegram
 type TLMessageEntityUrl struct {
 	Offset int // offset:int
 	Length int // length:int
@@ -21966,7 +22777,7 @@ func (o *TLMessageEntityUrl) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityEmail represents ctor messageEntityEmail#64e475c2 offset:int length:int = MessageEntity from telegram.tl
+// TLMessageEntityEmail represents ctor messageEntityEmail#64e475c2 offset:int length:int = MessageEntity from Telegram
 type TLMessageEntityEmail struct {
 	Offset int // offset:int
 	Length int // length:int
@@ -21992,7 +22803,7 @@ func (o *TLMessageEntityEmail) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityBold represents ctor messageEntityBold#bd610bc9 offset:int length:int = MessageEntity from telegram.tl
+// TLMessageEntityBold represents ctor messageEntityBold#bd610bc9 offset:int length:int = MessageEntity from Telegram
 type TLMessageEntityBold struct {
 	Offset int // offset:int
 	Length int // length:int
@@ -22018,7 +22829,7 @@ func (o *TLMessageEntityBold) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityItalic represents ctor messageEntityItalic#826f8b60 offset:int length:int = MessageEntity from telegram.tl
+// TLMessageEntityItalic represents ctor messageEntityItalic#826f8b60 offset:int length:int = MessageEntity from Telegram
 type TLMessageEntityItalic struct {
 	Offset int // offset:int
 	Length int // length:int
@@ -22044,7 +22855,7 @@ func (o *TLMessageEntityItalic) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityCode represents ctor messageEntityCode#28a20571 offset:int length:int = MessageEntity from telegram.tl
+// TLMessageEntityCode represents ctor messageEntityCode#28a20571 offset:int length:int = MessageEntity from Telegram
 type TLMessageEntityCode struct {
 	Offset int // offset:int
 	Length int // length:int
@@ -22070,7 +22881,7 @@ func (o *TLMessageEntityCode) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityPre represents ctor messageEntityPre#73924be0 offset:int length:int language:string = MessageEntity from telegram.tl
+// TLMessageEntityPre represents ctor messageEntityPre#73924be0 offset:int length:int language:string = MessageEntity from Telegram
 type TLMessageEntityPre struct {
 	Offset   int    // offset:int
 	Length   int    // length:int
@@ -22099,7 +22910,7 @@ func (o *TLMessageEntityPre) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityTextUrl represents ctor messageEntityTextUrl#76a6d327 offset:int length:int url:string = MessageEntity from telegram.tl
+// TLMessageEntityTextUrl represents ctor messageEntityTextUrl#76a6d327 offset:int length:int url:string = MessageEntity from Telegram
 type TLMessageEntityTextUrl struct {
 	Offset int    // offset:int
 	Length int    // length:int
@@ -22128,7 +22939,7 @@ func (o *TLMessageEntityTextUrl) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityMentionName represents ctor messageEntityMentionName#352dca58 offset:int length:int user_id:int = MessageEntity from telegram.tl
+// TLMessageEntityMentionName represents ctor messageEntityMentionName#352dca58 offset:int length:int user_id:int = MessageEntity from Telegram
 type TLMessageEntityMentionName struct {
 	Offset int // offset:int
 	Length int // length:int
@@ -22157,7 +22968,7 @@ func (o *TLMessageEntityMentionName) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessageEntityMentionName represents ctor inputMessageEntityMentionName#208e68c9 offset:int length:int user_id:InputUser = MessageEntity from telegram.tl
+// TLInputMessageEntityMentionName represents ctor inputMessageEntityMentionName#208e68c9 offset:int length:int user_id:InputUser = MessageEntity from Telegram
 type TLInputMessageEntityMentionName struct {
 	Offset int             // offset:int
 	Length int             // length:int
@@ -22187,7 +22998,7 @@ func (o *TLInputMessageEntityMentionName) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputChannelEmpty represents ctor inputChannelEmpty#ee8c1e86 = InputChannel from telegram.tl
+// TLInputChannelEmpty represents ctor inputChannelEmpty#ee8c1e86 = InputChannel from Telegram
 type TLInputChannelEmpty struct {
 }
 
@@ -22207,7 +23018,7 @@ func (o *TLInputChannelEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputChannel represents ctor inputChannel#afeb712e channel_id:int access_hash:long = InputChannel from telegram.tl
+// TLInputChannel represents ctor inputChannel#afeb712e channel_id:int access_hash:long = InputChannel from Telegram
 type TLInputChannel struct {
 	ChannelId  int    // channel_id:int
 	AccessHash uint64 // access_hash:long
@@ -22233,7 +23044,7 @@ func (o *TLInputChannel) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesChannelDifferenceEmpty represents ctor updates.channelDifferenceEmpty#3e11affb flags:# flags.0?final:true pts:int flags.1?timeout:int = updates.ChannelDifference from telegram.tl
+// TLUpdatesChannelDifferenceEmpty represents ctor updates.channelDifferenceEmpty#3e11affb flags:# flags.0?final:true pts:int flags.1?timeout:int = updates.ChannelDifference from Telegram
 type TLUpdatesChannelDifferenceEmpty struct {
 	Flags   uint // flags:#
 	Final   bool // flags.0?final:true
@@ -22264,7 +23075,7 @@ func (o *TLUpdatesChannelDifferenceEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesChannelDifferenceTooLong represents ctor updates.channelDifferenceTooLong#410dee07 flags:# flags.0?final:true pts:int flags.1?timeout:int top_message:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = updates.ChannelDifference from telegram.tl
+// TLUpdatesChannelDifferenceTooLong represents ctor updates.channelDifferenceTooLong#410dee07 flags:# flags.0?final:true pts:int flags.1?timeout:int top_message:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = updates.ChannelDifference from Telegram
 type TLUpdatesChannelDifferenceTooLong struct {
 	Flags           uint            // flags:#
 	Final           bool            // flags.0?final:true
@@ -22349,7 +23160,7 @@ func (o *TLUpdatesChannelDifferenceTooLong) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdatesChannelDifference represents ctor updates.channelDifference#2064674e flags:# flags.0?final:true pts:int flags.1?timeout:int new_messages:Vector<Message> other_updates:Vector<Update> chats:Vector<Chat> users:Vector<User> = updates.ChannelDifference from telegram.tl
+// TLUpdatesChannelDifference represents ctor updates.channelDifference#2064674e flags:# flags.0?final:true pts:int flags.1?timeout:int new_messages:Vector<Message> other_updates:Vector<Update> chats:Vector<Chat> users:Vector<User> = updates.ChannelDifference from Telegram
 type TLUpdatesChannelDifference struct {
 	Flags        uint            // flags:#
 	Final        bool            // flags.0?final:true
@@ -22436,7 +23247,7 @@ func (o *TLUpdatesChannelDifference) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelMessagesFilterEmpty represents ctor channelMessagesFilterEmpty#94d42ee7 = ChannelMessagesFilter from telegram.tl
+// TLChannelMessagesFilterEmpty represents ctor channelMessagesFilterEmpty#94d42ee7 = ChannelMessagesFilter from Telegram
 type TLChannelMessagesFilterEmpty struct {
 }
 
@@ -22456,7 +23267,7 @@ func (o *TLChannelMessagesFilterEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelMessagesFilter represents ctor channelMessagesFilter#cd77d957 flags:# flags.1?exclude_new_messages:true ranges:Vector<MessageRange> = ChannelMessagesFilter from telegram.tl
+// TLChannelMessagesFilter represents ctor channelMessagesFilter#cd77d957 flags:# flags.1?exclude_new_messages:true ranges:Vector<MessageRange> = ChannelMessagesFilter from Telegram
 type TLChannelMessagesFilter struct {
 	Flags              uint              // flags:#
 	ExcludeNewMessages bool              // flags.1?exclude_new_messages:true
@@ -22499,7 +23310,7 @@ func (o *TLChannelMessagesFilter) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelParticipant represents ctor channelParticipant#15ebac1d user_id:int date:int = ChannelParticipant from telegram.tl
+// TLChannelParticipant represents ctor channelParticipant#15ebac1d user_id:int date:int = ChannelParticipant from Telegram
 type TLChannelParticipant struct {
 	UserId int // user_id:int
 	Date   int // date:int
@@ -22525,7 +23336,7 @@ func (o *TLChannelParticipant) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelParticipantSelf represents ctor channelParticipantSelf#a3289a6d user_id:int inviter_id:int date:int = ChannelParticipant from telegram.tl
+// TLChannelParticipantSelf represents ctor channelParticipantSelf#a3289a6d user_id:int inviter_id:int date:int = ChannelParticipant from Telegram
 type TLChannelParticipantSelf struct {
 	UserId    int // user_id:int
 	InviterId int // inviter_id:int
@@ -22554,7 +23365,7 @@ func (o *TLChannelParticipantSelf) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelParticipantModerator represents ctor channelParticipantModerator#91057fef user_id:int inviter_id:int date:int = ChannelParticipant from telegram.tl
+// TLChannelParticipantModerator represents ctor channelParticipantModerator#91057fef user_id:int inviter_id:int date:int = ChannelParticipant from Telegram
 type TLChannelParticipantModerator struct {
 	UserId    int // user_id:int
 	InviterId int // inviter_id:int
@@ -22583,7 +23394,7 @@ func (o *TLChannelParticipantModerator) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelParticipantEditor represents ctor channelParticipantEditor#98192d61 user_id:int inviter_id:int date:int = ChannelParticipant from telegram.tl
+// TLChannelParticipantEditor represents ctor channelParticipantEditor#98192d61 user_id:int inviter_id:int date:int = ChannelParticipant from Telegram
 type TLChannelParticipantEditor struct {
 	UserId    int // user_id:int
 	InviterId int // inviter_id:int
@@ -22612,7 +23423,7 @@ func (o *TLChannelParticipantEditor) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelParticipantKicked represents ctor channelParticipantKicked#8cc5e69a user_id:int kicked_by:int date:int = ChannelParticipant from telegram.tl
+// TLChannelParticipantKicked represents ctor channelParticipantKicked#8cc5e69a user_id:int kicked_by:int date:int = ChannelParticipant from Telegram
 type TLChannelParticipantKicked struct {
 	UserId   int // user_id:int
 	KickedBy int // kicked_by:int
@@ -22641,7 +23452,7 @@ func (o *TLChannelParticipantKicked) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelParticipantCreator represents ctor channelParticipantCreator#e3e2e1f9 user_id:int = ChannelParticipant from telegram.tl
+// TLChannelParticipantCreator represents ctor channelParticipantCreator#e3e2e1f9 user_id:int = ChannelParticipant from Telegram
 type TLChannelParticipantCreator struct {
 	UserId int // user_id:int
 }
@@ -22664,7 +23475,7 @@ func (o *TLChannelParticipantCreator) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelParticipantsRecent represents ctor channelParticipantsRecent#de3f3c79 = ChannelParticipantsFilter from telegram.tl
+// TLChannelParticipantsRecent represents ctor channelParticipantsRecent#de3f3c79 = ChannelParticipantsFilter from Telegram
 type TLChannelParticipantsRecent struct {
 }
 
@@ -22684,7 +23495,7 @@ func (o *TLChannelParticipantsRecent) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelParticipantsAdmins represents ctor channelParticipantsAdmins#b4608969 = ChannelParticipantsFilter from telegram.tl
+// TLChannelParticipantsAdmins represents ctor channelParticipantsAdmins#b4608969 = ChannelParticipantsFilter from Telegram
 type TLChannelParticipantsAdmins struct {
 }
 
@@ -22704,7 +23515,7 @@ func (o *TLChannelParticipantsAdmins) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelParticipantsKicked represents ctor channelParticipantsKicked#3c37bb7a = ChannelParticipantsFilter from telegram.tl
+// TLChannelParticipantsKicked represents ctor channelParticipantsKicked#3c37bb7a = ChannelParticipantsFilter from Telegram
 type TLChannelParticipantsKicked struct {
 }
 
@@ -22724,7 +23535,7 @@ func (o *TLChannelParticipantsKicked) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelParticipantsBots represents ctor channelParticipantsBots#b0d1865b = ChannelParticipantsFilter from telegram.tl
+// TLChannelParticipantsBots represents ctor channelParticipantsBots#b0d1865b = ChannelParticipantsFilter from Telegram
 type TLChannelParticipantsBots struct {
 }
 
@@ -22744,7 +23555,7 @@ func (o *TLChannelParticipantsBots) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelRoleEmpty represents ctor channelRoleEmpty#b285a0c6 = ChannelParticipantRole from telegram.tl
+// TLChannelRoleEmpty represents ctor channelRoleEmpty#b285a0c6 = ChannelParticipantRole from Telegram
 type TLChannelRoleEmpty struct {
 }
 
@@ -22764,7 +23575,7 @@ func (o *TLChannelRoleEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelRoleModerator represents ctor channelRoleModerator#9618d975 = ChannelParticipantRole from telegram.tl
+// TLChannelRoleModerator represents ctor channelRoleModerator#9618d975 = ChannelParticipantRole from Telegram
 type TLChannelRoleModerator struct {
 }
 
@@ -22784,7 +23595,7 @@ func (o *TLChannelRoleModerator) String() string {
 	return tl.Pretty(o)
 }
 
-// TLChannelRoleEditor represents ctor channelRoleEditor#820bfe8c = ChannelParticipantRole from telegram.tl
+// TLChannelRoleEditor represents ctor channelRoleEditor#820bfe8c = ChannelParticipantRole from Telegram
 type TLChannelRoleEditor struct {
 }
 
@@ -22804,7 +23615,7 @@ func (o *TLChannelRoleEditor) String() string {
 	return tl.Pretty(o)
 }
 
-// TLFoundGif represents ctor foundGif#162ecc1f url:string thumb_url:string content_url:string content_type:string w:int h:int = FoundGif from telegram.tl
+// TLFoundGif represents ctor foundGif#162ecc1f url:string thumb_url:string content_url:string content_type:string w:int h:int = FoundGif from Telegram
 type TLFoundGif struct {
 	Url         string // url:string
 	ThumbUrl    string // thumb_url:string
@@ -22842,7 +23653,7 @@ func (o *TLFoundGif) String() string {
 	return tl.Pretty(o)
 }
 
-// TLFoundGifCached represents ctor foundGifCached#9c750409 url:string photo:Photo document:Document = FoundGif from telegram.tl
+// TLFoundGifCached represents ctor foundGifCached#9c750409 url:string photo:Photo document:Document = FoundGif from Telegram
 type TLFoundGifCached struct {
 	Url      string         // url:string
 	Photo    TLPhotoType    // photo:Photo
@@ -22873,7 +23684,7 @@ func (o *TLFoundGifCached) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSavedGifsNotModified represents ctor messages.savedGifsNotModified#e8025ca2 = messages.SavedGifs from telegram.tl
+// TLMessagesSavedGifsNotModified represents ctor messages.savedGifsNotModified#e8025ca2 = messages.SavedGifs from Telegram
 type TLMessagesSavedGifsNotModified struct {
 }
 
@@ -22893,7 +23704,7 @@ func (o *TLMessagesSavedGifsNotModified) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesSavedGifs represents ctor messages.savedGifs#2e0709a5 hash:int gifs:Vector<Document> = messages.SavedGifs from telegram.tl
+// TLMessagesSavedGifs represents ctor messages.savedGifs#2e0709a5 hash:int gifs:Vector<Document> = messages.SavedGifs from Telegram
 type TLMessagesSavedGifs struct {
 	Hash int              // hash:int
 	Gifs []TLDocumentType // gifs:Vector<Document>
@@ -22930,7 +23741,7 @@ func (o *TLMessagesSavedGifs) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineMessageMediaAuto represents ctor inputBotInlineMessageMediaAuto#292fed13 flags:# caption:string flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
+// TLInputBotInlineMessageMediaAuto represents ctor inputBotInlineMessageMediaAuto#292fed13 flags:# caption:string flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from Telegram
 type TLInputBotInlineMessageMediaAuto struct {
 	Flags       uint              // flags:#
 	Caption     string            // caption:string
@@ -22960,7 +23771,7 @@ func (o *TLInputBotInlineMessageMediaAuto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineMessageText represents ctor inputBotInlineMessageText#3dcd7a87 flags:# flags.0?no_webpage:true message:string flags.1?entities:Vector<MessageEntity> flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
+// TLInputBotInlineMessageText represents ctor inputBotInlineMessageText#3dcd7a87 flags:# flags.0?no_webpage:true message:string flags.1?entities:Vector<MessageEntity> flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from Telegram
 type TLInputBotInlineMessageText struct {
 	Flags       uint                  // flags:#
 	NoWebpage   bool                  // flags.0?no_webpage:true
@@ -23006,7 +23817,7 @@ func (o *TLInputBotInlineMessageText) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineMessageMediaGeo represents ctor inputBotInlineMessageMediaGeo#f4a59de1 flags:# geo_point:InputGeoPoint flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
+// TLInputBotInlineMessageMediaGeo represents ctor inputBotInlineMessageMediaGeo#f4a59de1 flags:# geo_point:InputGeoPoint flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from Telegram
 type TLInputBotInlineMessageMediaGeo struct {
 	Flags       uint                // flags:#
 	GeoPoint    TLInputGeoPointType // geo_point:InputGeoPoint
@@ -23037,7 +23848,7 @@ func (o *TLInputBotInlineMessageMediaGeo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineMessageMediaVenue represents ctor inputBotInlineMessageMediaVenue#aaafadc8 flags:# geo_point:InputGeoPoint title:string address:string provider:string venue_id:string flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
+// TLInputBotInlineMessageMediaVenue represents ctor inputBotInlineMessageMediaVenue#aaafadc8 flags:# geo_point:InputGeoPoint title:string address:string provider:string venue_id:string flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from Telegram
 type TLInputBotInlineMessageMediaVenue struct {
 	Flags       uint                // flags:#
 	GeoPoint    TLInputGeoPointType // geo_point:InputGeoPoint
@@ -23080,7 +23891,7 @@ func (o *TLInputBotInlineMessageMediaVenue) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineMessageMediaContact represents ctor inputBotInlineMessageMediaContact#2daf01a7 flags:# phone_number:string first_name:string last_name:string flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
+// TLInputBotInlineMessageMediaContact represents ctor inputBotInlineMessageMediaContact#2daf01a7 flags:# phone_number:string first_name:string last_name:string flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from Telegram
 type TLInputBotInlineMessageMediaContact struct {
 	Flags       uint              // flags:#
 	PhoneNumber string            // phone_number:string
@@ -23116,7 +23927,7 @@ func (o *TLInputBotInlineMessageMediaContact) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineMessageGame represents ctor inputBotInlineMessageGame#4b425864 flags:# flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
+// TLInputBotInlineMessageGame represents ctor inputBotInlineMessageGame#4b425864 flags:# flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from Telegram
 type TLInputBotInlineMessageGame struct {
 	Flags       uint              // flags:#
 	ReplyMarkup TLReplyMarkupType // flags.2?reply_markup:ReplyMarkup
@@ -23143,7 +23954,7 @@ func (o *TLInputBotInlineMessageGame) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineResult represents ctor inputBotInlineResult#2cbbe15a flags:# id:string type:string flags.1?title:string flags.2?description:string flags.3?url:string flags.4?thumb_url:string flags.5?content_url:string flags.5?content_type:string flags.6?w:int flags.6?h:int flags.7?duration:int send_message:InputBotInlineMessage = InputBotInlineResult from telegram.tl
+// TLInputBotInlineResult represents ctor inputBotInlineResult#2cbbe15a flags:# id:string type:string flags.1?title:string flags.2?description:string flags.3?url:string flags.4?thumb_url:string flags.5?content_url:string flags.5?content_type:string flags.6?w:int flags.6?h:int flags.7?duration:int send_message:InputBotInlineMessage = InputBotInlineResult from Telegram
 type TLInputBotInlineResult struct {
 	Flags       uint                        // flags:#
 	Id          string                      // id:string
@@ -23203,7 +24014,7 @@ func (o *TLInputBotInlineResult) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineResultPhoto represents ctor inputBotInlineResultPhoto#a8d864a7 id:string type:string photo:InputPhoto send_message:InputBotInlineMessage = InputBotInlineResult from telegram.tl
+// TLInputBotInlineResultPhoto represents ctor inputBotInlineResultPhoto#a8d864a7 id:string type:string photo:InputPhoto send_message:InputBotInlineMessage = InputBotInlineResult from Telegram
 type TLInputBotInlineResultPhoto struct {
 	Id          string                      // id:string
 	Type        string                      // type:string
@@ -23237,7 +24048,7 @@ func (o *TLInputBotInlineResultPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineResultDocument represents ctor inputBotInlineResultDocument#fff8fdc4 flags:# id:string type:string flags.1?title:string flags.2?description:string document:InputDocument send_message:InputBotInlineMessage = InputBotInlineResult from telegram.tl
+// TLInputBotInlineResultDocument represents ctor inputBotInlineResultDocument#fff8fdc4 flags:# id:string type:string flags.1?title:string flags.2?description:string document:InputDocument send_message:InputBotInlineMessage = InputBotInlineResult from Telegram
 type TLInputBotInlineResultDocument struct {
 	Flags       uint                        // flags:#
 	Id          string                      // id:string
@@ -23280,7 +24091,7 @@ func (o *TLInputBotInlineResultDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputBotInlineResultGame represents ctor inputBotInlineResultGame#4fa417f2 id:string short_name:string send_message:InputBotInlineMessage = InputBotInlineResult from telegram.tl
+// TLInputBotInlineResultGame represents ctor inputBotInlineResultGame#4fa417f2 id:string short_name:string send_message:InputBotInlineMessage = InputBotInlineResult from Telegram
 type TLInputBotInlineResultGame struct {
 	Id          string                      // id:string
 	ShortName   string                      // short_name:string
@@ -23310,7 +24121,7 @@ func (o *TLInputBotInlineResultGame) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotInlineMessageMediaAuto represents ctor botInlineMessageMediaAuto#0a74b15b flags:# caption:string flags.2?reply_markup:ReplyMarkup = BotInlineMessage from telegram.tl
+// TLBotInlineMessageMediaAuto represents ctor botInlineMessageMediaAuto#0a74b15b flags:# caption:string flags.2?reply_markup:ReplyMarkup = BotInlineMessage from Telegram
 type TLBotInlineMessageMediaAuto struct {
 	Flags       uint              // flags:#
 	Caption     string            // caption:string
@@ -23340,7 +24151,7 @@ func (o *TLBotInlineMessageMediaAuto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotInlineMessageText represents ctor botInlineMessageText#8c7f65e2 flags:# flags.0?no_webpage:true message:string flags.1?entities:Vector<MessageEntity> flags.2?reply_markup:ReplyMarkup = BotInlineMessage from telegram.tl
+// TLBotInlineMessageText represents ctor botInlineMessageText#8c7f65e2 flags:# flags.0?no_webpage:true message:string flags.1?entities:Vector<MessageEntity> flags.2?reply_markup:ReplyMarkup = BotInlineMessage from Telegram
 type TLBotInlineMessageText struct {
 	Flags       uint                  // flags:#
 	NoWebpage   bool                  // flags.0?no_webpage:true
@@ -23386,7 +24197,7 @@ func (o *TLBotInlineMessageText) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotInlineMessageMediaGeo represents ctor botInlineMessageMediaGeo#3a8fd8b8 flags:# geo:GeoPoint flags.2?reply_markup:ReplyMarkup = BotInlineMessage from telegram.tl
+// TLBotInlineMessageMediaGeo represents ctor botInlineMessageMediaGeo#3a8fd8b8 flags:# geo:GeoPoint flags.2?reply_markup:ReplyMarkup = BotInlineMessage from Telegram
 type TLBotInlineMessageMediaGeo struct {
 	Flags       uint              // flags:#
 	Geo         TLGeoPointType    // geo:GeoPoint
@@ -23417,7 +24228,7 @@ func (o *TLBotInlineMessageMediaGeo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotInlineMessageMediaVenue represents ctor botInlineMessageMediaVenue#4366232e flags:# geo:GeoPoint title:string address:string provider:string venue_id:string flags.2?reply_markup:ReplyMarkup = BotInlineMessage from telegram.tl
+// TLBotInlineMessageMediaVenue represents ctor botInlineMessageMediaVenue#4366232e flags:# geo:GeoPoint title:string address:string provider:string venue_id:string flags.2?reply_markup:ReplyMarkup = BotInlineMessage from Telegram
 type TLBotInlineMessageMediaVenue struct {
 	Flags       uint              // flags:#
 	Geo         TLGeoPointType    // geo:GeoPoint
@@ -23460,7 +24271,7 @@ func (o *TLBotInlineMessageMediaVenue) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotInlineMessageMediaContact represents ctor botInlineMessageMediaContact#35edb4d4 flags:# phone_number:string first_name:string last_name:string flags.2?reply_markup:ReplyMarkup = BotInlineMessage from telegram.tl
+// TLBotInlineMessageMediaContact represents ctor botInlineMessageMediaContact#35edb4d4 flags:# phone_number:string first_name:string last_name:string flags.2?reply_markup:ReplyMarkup = BotInlineMessage from Telegram
 type TLBotInlineMessageMediaContact struct {
 	Flags       uint              // flags:#
 	PhoneNumber string            // phone_number:string
@@ -23496,7 +24307,7 @@ func (o *TLBotInlineMessageMediaContact) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotInlineResult represents ctor botInlineResult#9bebaeb9 flags:# id:string type:string flags.1?title:string flags.2?description:string flags.3?url:string flags.4?thumb_url:string flags.5?content_url:string flags.5?content_type:string flags.6?w:int flags.6?h:int flags.7?duration:int send_message:BotInlineMessage = BotInlineResult from telegram.tl
+// TLBotInlineResult represents ctor botInlineResult#9bebaeb9 flags:# id:string type:string flags.1?title:string flags.2?description:string flags.3?url:string flags.4?thumb_url:string flags.5?content_url:string flags.5?content_type:string flags.6?w:int flags.6?h:int flags.7?duration:int send_message:BotInlineMessage = BotInlineResult from Telegram
 type TLBotInlineResult struct {
 	Flags       uint                   // flags:#
 	Id          string                 // id:string
@@ -23556,7 +24367,7 @@ func (o *TLBotInlineResult) String() string {
 	return tl.Pretty(o)
 }
 
-// TLBotInlineMediaResult represents ctor botInlineMediaResult#17db940b flags:# id:string type:string flags.0?photo:Photo flags.1?document:Document flags.2?title:string flags.3?description:string send_message:BotInlineMessage = BotInlineResult from telegram.tl
+// TLBotInlineMediaResult represents ctor botInlineMediaResult#17db940b flags:# id:string type:string flags.0?photo:Photo flags.1?document:Document flags.2?title:string flags.3?description:string send_message:BotInlineMessage = BotInlineResult from Telegram
 type TLBotInlineMediaResult struct {
 	Flags       uint                   // flags:#
 	Id          string                 // id:string
@@ -23603,7 +24414,7 @@ func (o *TLBotInlineMediaResult) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTopPeerCategoryBotsPM represents ctor topPeerCategoryBotsPM#ab661b5b = TopPeerCategory from telegram.tl
+// TLTopPeerCategoryBotsPM represents ctor topPeerCategoryBotsPM#ab661b5b = TopPeerCategory from Telegram
 type TLTopPeerCategoryBotsPM struct {
 }
 
@@ -23623,7 +24434,7 @@ func (o *TLTopPeerCategoryBotsPM) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTopPeerCategoryBotsInline represents ctor topPeerCategoryBotsInline#148677e2 = TopPeerCategory from telegram.tl
+// TLTopPeerCategoryBotsInline represents ctor topPeerCategoryBotsInline#148677e2 = TopPeerCategory from Telegram
 type TLTopPeerCategoryBotsInline struct {
 }
 
@@ -23643,7 +24454,7 @@ func (o *TLTopPeerCategoryBotsInline) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTopPeerCategoryCorrespondents represents ctor topPeerCategoryCorrespondents#0637b7ed = TopPeerCategory from telegram.tl
+// TLTopPeerCategoryCorrespondents represents ctor topPeerCategoryCorrespondents#0637b7ed = TopPeerCategory from Telegram
 type TLTopPeerCategoryCorrespondents struct {
 }
 
@@ -23663,7 +24474,7 @@ func (o *TLTopPeerCategoryCorrespondents) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTopPeerCategoryGroups represents ctor topPeerCategoryGroups#bd17a14a = TopPeerCategory from telegram.tl
+// TLTopPeerCategoryGroups represents ctor topPeerCategoryGroups#bd17a14a = TopPeerCategory from Telegram
 type TLTopPeerCategoryGroups struct {
 }
 
@@ -23683,7 +24494,7 @@ func (o *TLTopPeerCategoryGroups) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTopPeerCategoryChannels represents ctor topPeerCategoryChannels#161d9628 = TopPeerCategory from telegram.tl
+// TLTopPeerCategoryChannels represents ctor topPeerCategoryChannels#161d9628 = TopPeerCategory from Telegram
 type TLTopPeerCategoryChannels struct {
 }
 
@@ -23703,7 +24514,7 @@ func (o *TLTopPeerCategoryChannels) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsTopPeersNotModified represents ctor contacts.topPeersNotModified#de266ef5 = contacts.TopPeers from telegram.tl
+// TLContactsTopPeersNotModified represents ctor contacts.topPeersNotModified#de266ef5 = contacts.TopPeers from Telegram
 type TLContactsTopPeersNotModified struct {
 }
 
@@ -23723,7 +24534,7 @@ func (o *TLContactsTopPeersNotModified) String() string {
 	return tl.Pretty(o)
 }
 
-// TLContactsTopPeers represents ctor contacts.topPeers#70b772a8 categories:Vector<TopPeerCategoryPeers> chats:Vector<Chat> users:Vector<User> = contacts.TopPeers from telegram.tl
+// TLContactsTopPeers represents ctor contacts.topPeers#70b772a8 categories:Vector<TopPeerCategoryPeers> chats:Vector<Chat> users:Vector<User> = contacts.TopPeers from Telegram
 type TLContactsTopPeers struct {
 	Categories []*TLTopPeerCategoryPeers // categories:Vector<TopPeerCategoryPeers>
 	Chats      []TLChatType              // chats:Vector<Chat>
@@ -23789,7 +24600,7 @@ func (o *TLContactsTopPeers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesFeaturedStickersNotModified represents ctor messages.featuredStickersNotModified#04ede3cf = messages.FeaturedStickers from telegram.tl
+// TLMessagesFeaturedStickersNotModified represents ctor messages.featuredStickersNotModified#04ede3cf = messages.FeaturedStickers from Telegram
 type TLMessagesFeaturedStickersNotModified struct {
 }
 
@@ -23809,7 +24620,7 @@ func (o *TLMessagesFeaturedStickersNotModified) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesFeaturedStickers represents ctor messages.featuredStickers#f89d88e5 hash:int sets:Vector<StickerSetCovered> unread:Vector<long> = messages.FeaturedStickers from telegram.tl
+// TLMessagesFeaturedStickers represents ctor messages.featuredStickers#f89d88e5 hash:int sets:Vector<StickerSetCovered> unread:Vector<long> = messages.FeaturedStickers from Telegram
 type TLMessagesFeaturedStickers struct {
 	Hash   int                       // hash:int
 	Sets   []TLStickerSetCoveredType // sets:Vector<StickerSetCovered>
@@ -23859,7 +24670,7 @@ func (o *TLMessagesFeaturedStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesRecentStickersNotModified represents ctor messages.recentStickersNotModified#0b17f890 = messages.RecentStickers from telegram.tl
+// TLMessagesRecentStickersNotModified represents ctor messages.recentStickersNotModified#0b17f890 = messages.RecentStickers from Telegram
 type TLMessagesRecentStickersNotModified struct {
 }
 
@@ -23879,7 +24690,7 @@ func (o *TLMessagesRecentStickersNotModified) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesRecentStickers represents ctor messages.recentStickers#5ce20970 hash:int stickers:Vector<Document> = messages.RecentStickers from telegram.tl
+// TLMessagesRecentStickers represents ctor messages.recentStickers#5ce20970 hash:int stickers:Vector<Document> = messages.RecentStickers from Telegram
 type TLMessagesRecentStickers struct {
 	Hash     int              // hash:int
 	Stickers []TLDocumentType // stickers:Vector<Document>
@@ -23916,7 +24727,7 @@ func (o *TLMessagesRecentStickers) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesStickerSetInstallResultSuccess represents ctor messages.stickerSetInstallResultSuccess#38641628 = messages.StickerSetInstallResult from telegram.tl
+// TLMessagesStickerSetInstallResultSuccess represents ctor messages.stickerSetInstallResultSuccess#38641628 = messages.StickerSetInstallResult from Telegram
 type TLMessagesStickerSetInstallResultSuccess struct {
 }
 
@@ -23936,7 +24747,7 @@ func (o *TLMessagesStickerSetInstallResultSuccess) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessagesStickerSetInstallResultArchive represents ctor messages.stickerSetInstallResultArchive#35e410a8 sets:Vector<StickerSetCovered> = messages.StickerSetInstallResult from telegram.tl
+// TLMessagesStickerSetInstallResultArchive represents ctor messages.stickerSetInstallResultArchive#35e410a8 sets:Vector<StickerSetCovered> = messages.StickerSetInstallResult from Telegram
 type TLMessagesStickerSetInstallResultArchive struct {
 	Sets []TLStickerSetCoveredType // sets:Vector<StickerSetCovered>
 }
@@ -23970,7 +24781,7 @@ func (o *TLMessagesStickerSetInstallResultArchive) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStickerSetCovered represents ctor stickerSetCovered#6410a5d2 set:StickerSet cover:Document = StickerSetCovered from telegram.tl
+// TLStickerSetCovered represents ctor stickerSetCovered#6410a5d2 set:StickerSet cover:Document = StickerSetCovered from Telegram
 type TLStickerSetCovered struct {
 	Set   *TLStickerSet  // set:StickerSet
 	Cover TLDocumentType // cover:Document
@@ -24002,7 +24813,7 @@ func (o *TLStickerSetCovered) String() string {
 	return tl.Pretty(o)
 }
 
-// TLStickerSetMultiCovered represents ctor stickerSetMultiCovered#3407e51b set:StickerSet covers:Vector<Document> = StickerSetCovered from telegram.tl
+// TLStickerSetMultiCovered represents ctor stickerSetMultiCovered#3407e51b set:StickerSet covers:Vector<Document> = StickerSetCovered from Telegram
 type TLStickerSetMultiCovered struct {
 	Set    *TLStickerSet    // set:StickerSet
 	Covers []TLDocumentType // covers:Vector<Document>
@@ -24044,7 +24855,7 @@ func (o *TLStickerSetMultiCovered) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputStickeredMediaPhoto represents ctor inputStickeredMediaPhoto#4a992157 id:InputPhoto = InputStickeredMedia from telegram.tl
+// TLInputStickeredMediaPhoto represents ctor inputStickeredMediaPhoto#4a992157 id:InputPhoto = InputStickeredMedia from Telegram
 type TLInputStickeredMediaPhoto struct {
 	Id TLInputPhotoType // id:InputPhoto
 }
@@ -24068,7 +24879,7 @@ func (o *TLInputStickeredMediaPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputStickeredMediaDocument represents ctor inputStickeredMediaDocument#0438865b id:InputDocument = InputStickeredMedia from telegram.tl
+// TLInputStickeredMediaDocument represents ctor inputStickeredMediaDocument#0438865b id:InputDocument = InputStickeredMedia from Telegram
 type TLInputStickeredMediaDocument struct {
 	Id TLInputDocumentType // id:InputDocument
 }
@@ -24092,7 +24903,7 @@ func (o *TLInputStickeredMediaDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputGameID represents ctor inputGameID#032c3e77 id:long access_hash:long = InputGame from telegram.tl
+// TLInputGameID represents ctor inputGameID#032c3e77 id:long access_hash:long = InputGame from Telegram
 type TLInputGameID struct {
 	Id         uint64 // id:long
 	AccessHash uint64 // access_hash:long
@@ -24118,7 +24929,7 @@ func (o *TLInputGameID) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputGameShortName represents ctor inputGameShortName#c331e80a bot_id:InputUser short_name:string = InputGame from telegram.tl
+// TLInputGameShortName represents ctor inputGameShortName#c331e80a bot_id:InputUser short_name:string = InputGame from Telegram
 type TLInputGameShortName struct {
 	BotId     TLInputUserType // bot_id:InputUser
 	ShortName string          // short_name:string
@@ -24145,7 +24956,7 @@ func (o *TLInputGameShortName) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextEmpty represents ctor textEmpty#dc3d824f = RichText from telegram.tl
+// TLTextEmpty represents ctor textEmpty#dc3d824f = RichText from Telegram
 type TLTextEmpty struct {
 }
 
@@ -24165,7 +24976,7 @@ func (o *TLTextEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextPlain represents ctor textPlain#744694e0 text:string = RichText from telegram.tl
+// TLTextPlain represents ctor textPlain#744694e0 text:string = RichText from Telegram
 type TLTextPlain struct {
 	Text string // text:string
 }
@@ -24188,7 +24999,7 @@ func (o *TLTextPlain) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextBold represents ctor textBold#6724abc4 text:RichText = RichText from telegram.tl
+// TLTextBold represents ctor textBold#6724abc4 text:RichText = RichText from Telegram
 type TLTextBold struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24212,7 +25023,7 @@ func (o *TLTextBold) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextItalic represents ctor textItalic#d912a59c text:RichText = RichText from telegram.tl
+// TLTextItalic represents ctor textItalic#d912a59c text:RichText = RichText from Telegram
 type TLTextItalic struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24236,7 +25047,7 @@ func (o *TLTextItalic) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextUnderline represents ctor textUnderline#c12622c4 text:RichText = RichText from telegram.tl
+// TLTextUnderline represents ctor textUnderline#c12622c4 text:RichText = RichText from Telegram
 type TLTextUnderline struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24260,7 +25071,7 @@ func (o *TLTextUnderline) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextStrike represents ctor textStrike#9bf8bb95 text:RichText = RichText from telegram.tl
+// TLTextStrike represents ctor textStrike#9bf8bb95 text:RichText = RichText from Telegram
 type TLTextStrike struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24284,7 +25095,7 @@ func (o *TLTextStrike) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextFixed represents ctor textFixed#6c3f19b9 text:RichText = RichText from telegram.tl
+// TLTextFixed represents ctor textFixed#6c3f19b9 text:RichText = RichText from Telegram
 type TLTextFixed struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24308,7 +25119,7 @@ func (o *TLTextFixed) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextUrl represents ctor textUrl#3c2884c1 text:RichText url:string webpage_id:long = RichText from telegram.tl
+// TLTextUrl represents ctor textUrl#3c2884c1 text:RichText url:string webpage_id:long = RichText from Telegram
 type TLTextUrl struct {
 	Text      TLRichTextType // text:RichText
 	Url       string         // url:string
@@ -24338,7 +25149,7 @@ func (o *TLTextUrl) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextEmail represents ctor textEmail#de5a0dd6 text:RichText email:string = RichText from telegram.tl
+// TLTextEmail represents ctor textEmail#de5a0dd6 text:RichText email:string = RichText from Telegram
 type TLTextEmail struct {
 	Text  TLRichTextType // text:RichText
 	Email string         // email:string
@@ -24365,7 +25176,7 @@ func (o *TLTextEmail) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextConcat represents ctor textConcat#7e6260d7 texts:Vector<RichText> = RichText from telegram.tl
+// TLTextConcat represents ctor textConcat#7e6260d7 texts:Vector<RichText> = RichText from Telegram
 type TLTextConcat struct {
 	Texts []TLRichTextType // texts:Vector<RichText>
 }
@@ -24399,7 +25210,7 @@ func (o *TLTextConcat) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockUnsupported represents ctor pageBlockUnsupported#13567e8a = PageBlock from telegram.tl
+// TLPageBlockUnsupported represents ctor pageBlockUnsupported#13567e8a = PageBlock from Telegram
 type TLPageBlockUnsupported struct {
 }
 
@@ -24419,7 +25230,7 @@ func (o *TLPageBlockUnsupported) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockTitle represents ctor pageBlockTitle#70abc3fd text:RichText = PageBlock from telegram.tl
+// TLPageBlockTitle represents ctor pageBlockTitle#70abc3fd text:RichText = PageBlock from Telegram
 type TLPageBlockTitle struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24443,7 +25254,7 @@ func (o *TLPageBlockTitle) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockSubtitle represents ctor pageBlockSubtitle#8ffa9a1f text:RichText = PageBlock from telegram.tl
+// TLPageBlockSubtitle represents ctor pageBlockSubtitle#8ffa9a1f text:RichText = PageBlock from Telegram
 type TLPageBlockSubtitle struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24467,7 +25278,7 @@ func (o *TLPageBlockSubtitle) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockAuthorDate represents ctor pageBlockAuthorDate#baafe5e0 author:RichText published_date:int = PageBlock from telegram.tl
+// TLPageBlockAuthorDate represents ctor pageBlockAuthorDate#baafe5e0 author:RichText published_date:int = PageBlock from Telegram
 type TLPageBlockAuthorDate struct {
 	Author        TLRichTextType // author:RichText
 	PublishedDate int            // published_date:int
@@ -24494,7 +25305,7 @@ func (o *TLPageBlockAuthorDate) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockHeader represents ctor pageBlockHeader#bfd064ec text:RichText = PageBlock from telegram.tl
+// TLPageBlockHeader represents ctor pageBlockHeader#bfd064ec text:RichText = PageBlock from Telegram
 type TLPageBlockHeader struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24518,7 +25329,7 @@ func (o *TLPageBlockHeader) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockSubheader represents ctor pageBlockSubheader#f12bb6e1 text:RichText = PageBlock from telegram.tl
+// TLPageBlockSubheader represents ctor pageBlockSubheader#f12bb6e1 text:RichText = PageBlock from Telegram
 type TLPageBlockSubheader struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24542,7 +25353,7 @@ func (o *TLPageBlockSubheader) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockParagraph represents ctor pageBlockParagraph#467a0766 text:RichText = PageBlock from telegram.tl
+// TLPageBlockParagraph represents ctor pageBlockParagraph#467a0766 text:RichText = PageBlock from Telegram
 type TLPageBlockParagraph struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24566,7 +25377,7 @@ func (o *TLPageBlockParagraph) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockPreformatted represents ctor pageBlockPreformatted#c070d93e text:RichText language:string = PageBlock from telegram.tl
+// TLPageBlockPreformatted represents ctor pageBlockPreformatted#c070d93e text:RichText language:string = PageBlock from Telegram
 type TLPageBlockPreformatted struct {
 	Text     TLRichTextType // text:RichText
 	Language string         // language:string
@@ -24593,7 +25404,7 @@ func (o *TLPageBlockPreformatted) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockFooter represents ctor pageBlockFooter#48870999 text:RichText = PageBlock from telegram.tl
+// TLPageBlockFooter represents ctor pageBlockFooter#48870999 text:RichText = PageBlock from Telegram
 type TLPageBlockFooter struct {
 	Text TLRichTextType // text:RichText
 }
@@ -24617,7 +25428,7 @@ func (o *TLPageBlockFooter) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockDivider represents ctor pageBlockDivider#db20b188 = PageBlock from telegram.tl
+// TLPageBlockDivider represents ctor pageBlockDivider#db20b188 = PageBlock from Telegram
 type TLPageBlockDivider struct {
 }
 
@@ -24637,7 +25448,7 @@ func (o *TLPageBlockDivider) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockAnchor represents ctor pageBlockAnchor#ce0d37b0 name:string = PageBlock from telegram.tl
+// TLPageBlockAnchor represents ctor pageBlockAnchor#ce0d37b0 name:string = PageBlock from Telegram
 type TLPageBlockAnchor struct {
 	Name string // name:string
 }
@@ -24660,7 +25471,7 @@ func (o *TLPageBlockAnchor) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockList represents ctor pageBlockList#3a58c7f4 ordered:Bool items:Vector<RichText> = PageBlock from telegram.tl
+// TLPageBlockList represents ctor pageBlockList#3a58c7f4 ordered:Bool items:Vector<RichText> = PageBlock from Telegram
 type TLPageBlockList struct {
 	Ordered bool             // ordered:Bool
 	Items   []TLRichTextType // items:Vector<RichText>
@@ -24702,7 +25513,7 @@ func (o *TLPageBlockList) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockBlockquote represents ctor pageBlockBlockquote#263d7c26 text:RichText caption:RichText = PageBlock from telegram.tl
+// TLPageBlockBlockquote represents ctor pageBlockBlockquote#263d7c26 text:RichText caption:RichText = PageBlock from Telegram
 type TLPageBlockBlockquote struct {
 	Text    TLRichTextType // text:RichText
 	Caption TLRichTextType // caption:RichText
@@ -24730,7 +25541,7 @@ func (o *TLPageBlockBlockquote) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockPullquote represents ctor pageBlockPullquote#4f4456d3 text:RichText caption:RichText = PageBlock from telegram.tl
+// TLPageBlockPullquote represents ctor pageBlockPullquote#4f4456d3 text:RichText caption:RichText = PageBlock from Telegram
 type TLPageBlockPullquote struct {
 	Text    TLRichTextType // text:RichText
 	Caption TLRichTextType // caption:RichText
@@ -24758,7 +25569,7 @@ func (o *TLPageBlockPullquote) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockPhoto represents ctor pageBlockPhoto#e9c69982 photo_id:long caption:RichText = PageBlock from telegram.tl
+// TLPageBlockPhoto represents ctor pageBlockPhoto#e9c69982 photo_id:long caption:RichText = PageBlock from Telegram
 type TLPageBlockPhoto struct {
 	PhotoId uint64         // photo_id:long
 	Caption TLRichTextType // caption:RichText
@@ -24785,7 +25596,7 @@ func (o *TLPageBlockPhoto) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockVideo represents ctor pageBlockVideo#d9d71866 flags:# flags.0?autoplay:true flags.1?loop:true video_id:long caption:RichText = PageBlock from telegram.tl
+// TLPageBlockVideo represents ctor pageBlockVideo#d9d71866 flags:# flags.0?autoplay:true flags.1?loop:true video_id:long caption:RichText = PageBlock from Telegram
 type TLPageBlockVideo struct {
 	Flags    uint           // flags:#
 	Autoplay bool           // flags.0?autoplay:true
@@ -24819,7 +25630,7 @@ func (o *TLPageBlockVideo) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockCover represents ctor pageBlockCover#39f23300 cover:PageBlock = PageBlock from telegram.tl
+// TLPageBlockCover represents ctor pageBlockCover#39f23300 cover:PageBlock = PageBlock from Telegram
 type TLPageBlockCover struct {
 	Cover TLPageBlockType // cover:PageBlock
 }
@@ -24843,7 +25654,7 @@ func (o *TLPageBlockCover) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockEmbed represents ctor pageBlockEmbed#cde200d1 flags:# flags.0?full_width:true flags.3?allow_scrolling:true flags.1?url:string flags.2?html:string flags.4?poster_photo_id:long w:int h:int caption:RichText = PageBlock from telegram.tl
+// TLPageBlockEmbed represents ctor pageBlockEmbed#cde200d1 flags:# flags.0?full_width:true flags.3?allow_scrolling:true flags.1?url:string flags.2?html:string flags.4?poster_photo_id:long w:int h:int caption:RichText = PageBlock from Telegram
 type TLPageBlockEmbed struct {
 	Flags          uint           // flags:#
 	FullWidth      bool           // flags.0?full_width:true
@@ -24889,7 +25700,7 @@ func (o *TLPageBlockEmbed) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockEmbedPost represents ctor pageBlockEmbedPost#292c7be9 url:string webpage_id:long author_photo_id:long author:string date:int blocks:Vector<PageBlock> caption:RichText = PageBlock from telegram.tl
+// TLPageBlockEmbedPost represents ctor pageBlockEmbedPost#292c7be9 url:string webpage_id:long author_photo_id:long author:string date:int blocks:Vector<PageBlock> caption:RichText = PageBlock from Telegram
 type TLPageBlockEmbedPost struct {
 	Url           string            // url:string
 	WebpageId     uint64            // webpage_id:long
@@ -24942,7 +25753,7 @@ func (o *TLPageBlockEmbedPost) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockCollage represents ctor pageBlockCollage#08b31c4f items:Vector<PageBlock> caption:RichText = PageBlock from telegram.tl
+// TLPageBlockCollage represents ctor pageBlockCollage#08b31c4f items:Vector<PageBlock> caption:RichText = PageBlock from Telegram
 type TLPageBlockCollage struct {
 	Items   []TLPageBlockType // items:Vector<PageBlock>
 	Caption TLRichTextType    // caption:RichText
@@ -24980,7 +25791,7 @@ func (o *TLPageBlockCollage) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageBlockSlideshow represents ctor pageBlockSlideshow#130c8963 items:Vector<PageBlock> caption:RichText = PageBlock from telegram.tl
+// TLPageBlockSlideshow represents ctor pageBlockSlideshow#130c8963 items:Vector<PageBlock> caption:RichText = PageBlock from Telegram
 type TLPageBlockSlideshow struct {
 	Items   []TLPageBlockType // items:Vector<PageBlock>
 	Caption TLRichTextType    // caption:RichText
@@ -25018,7 +25829,7 @@ func (o *TLPageBlockSlideshow) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPagePart represents ctor pagePart#8dee6c44 blocks:Vector<PageBlock> photos:Vector<Photo> videos:Vector<Document> = Page from telegram.tl
+// TLPagePart represents ctor pagePart#8dee6c44 blocks:Vector<PageBlock> photos:Vector<Photo> videos:Vector<Document> = Page from Telegram
 type TLPagePart struct {
 	Blocks []TLPageBlockType // blocks:Vector<PageBlock>
 	Photos []TLPhotoType     // photos:Vector<Photo>
@@ -25080,7 +25891,7 @@ func (o *TLPagePart) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPageFull represents ctor pageFull#d7a19d69 blocks:Vector<PageBlock> photos:Vector<Photo> videos:Vector<Document> = Page from telegram.tl
+// TLPageFull represents ctor pageFull#d7a19d69 blocks:Vector<PageBlock> photos:Vector<Photo> videos:Vector<Document> = Page from Telegram
 type TLPageFull struct {
 	Blocks []TLPageBlockType // blocks:Vector<PageBlock>
 	Photos []TLPhotoType     // photos:Vector<Photo>
@@ -25142,7 +25953,7 @@ func (o *TLPageFull) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallDiscardReasonMissed represents ctor phoneCallDiscardReasonMissed#85e42301 = PhoneCallDiscardReason from telegram.tl
+// TLPhoneCallDiscardReasonMissed represents ctor phoneCallDiscardReasonMissed#85e42301 = PhoneCallDiscardReason from Telegram
 type TLPhoneCallDiscardReasonMissed struct {
 }
 
@@ -25162,7 +25973,7 @@ func (o *TLPhoneCallDiscardReasonMissed) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallDiscardReasonDisconnect represents ctor phoneCallDiscardReasonDisconnect#e095c1a0 = PhoneCallDiscardReason from telegram.tl
+// TLPhoneCallDiscardReasonDisconnect represents ctor phoneCallDiscardReasonDisconnect#e095c1a0 = PhoneCallDiscardReason from Telegram
 type TLPhoneCallDiscardReasonDisconnect struct {
 }
 
@@ -25182,7 +25993,7 @@ func (o *TLPhoneCallDiscardReasonDisconnect) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallDiscardReasonHangup represents ctor phoneCallDiscardReasonHangup#57adc690 = PhoneCallDiscardReason from telegram.tl
+// TLPhoneCallDiscardReasonHangup represents ctor phoneCallDiscardReasonHangup#57adc690 = PhoneCallDiscardReason from Telegram
 type TLPhoneCallDiscardReasonHangup struct {
 }
 
@@ -25202,7 +26013,7 @@ func (o *TLPhoneCallDiscardReasonHangup) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallDiscardReasonBusy represents ctor phoneCallDiscardReasonBusy#faf7e8c9 = PhoneCallDiscardReason from telegram.tl
+// TLPhoneCallDiscardReasonBusy represents ctor phoneCallDiscardReasonBusy#faf7e8c9 = PhoneCallDiscardReason from Telegram
 type TLPhoneCallDiscardReasonBusy struct {
 }
 
@@ -25222,7 +26033,7 @@ func (o *TLPhoneCallDiscardReasonBusy) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsPaymentResult represents ctor payments.paymentResult#4e5f810d updates:Updates = payments.PaymentResult from telegram.tl
+// TLPaymentsPaymentResult represents ctor payments.paymentResult#4e5f810d updates:Updates = payments.PaymentResult from Telegram
 type TLPaymentsPaymentResult struct {
 	Updates TLUpdatesType // updates:Updates
 }
@@ -25246,7 +26057,7 @@ func (o *TLPaymentsPaymentResult) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPaymentsPaymentVerficationNeeded represents ctor payments.paymentVerficationNeeded#6b56b921 url:string = payments.PaymentResult from telegram.tl
+// TLPaymentsPaymentVerficationNeeded represents ctor payments.paymentVerficationNeeded#6b56b921 url:string = payments.PaymentResult from Telegram
 type TLPaymentsPaymentVerficationNeeded struct {
 	Url string // url:string
 }
@@ -25269,7 +26080,7 @@ func (o *TLPaymentsPaymentVerficationNeeded) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPaymentCredentialsSaved represents ctor inputPaymentCredentialsSaved#c10eb2cf id:string tmp_password:bytes = InputPaymentCredentials from telegram.tl
+// TLInputPaymentCredentialsSaved represents ctor inputPaymentCredentialsSaved#c10eb2cf id:string tmp_password:bytes = InputPaymentCredentials from Telegram
 type TLInputPaymentCredentialsSaved struct {
 	Id          string // id:string
 	TmpPassword []byte // tmp_password:bytes
@@ -25295,7 +26106,7 @@ func (o *TLInputPaymentCredentialsSaved) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputPaymentCredentials represents ctor inputPaymentCredentials#3417d728 flags:# flags.0?save:true data:DataJSON = InputPaymentCredentials from telegram.tl
+// TLInputPaymentCredentials represents ctor inputPaymentCredentials#3417d728 flags:# flags.0?save:true data:DataJSON = InputPaymentCredentials from Telegram
 type TLInputPaymentCredentials struct {
 	Flags uint        // flags:#
 	Save  bool        // flags.0?save:true
@@ -25328,7 +26139,7 @@ func (o *TLInputPaymentCredentials) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallEmpty represents ctor phoneCallEmpty#5366c915 id:long = PhoneCall from telegram.tl
+// TLPhoneCallEmpty represents ctor phoneCallEmpty#5366c915 id:long = PhoneCall from Telegram
 type TLPhoneCallEmpty struct {
 	Id uint64 // id:long
 }
@@ -25351,7 +26162,7 @@ func (o *TLPhoneCallEmpty) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallWaiting represents ctor phoneCallWaiting#1b8f4ad1 flags:# id:long access_hash:long date:int admin_id:int participant_id:int protocol:PhoneCallProtocol flags.0?receive_date:int = PhoneCall from telegram.tl
+// TLPhoneCallWaiting represents ctor phoneCallWaiting#1b8f4ad1 flags:# id:long access_hash:long date:int admin_id:int participant_id:int protocol:PhoneCallProtocol flags.0?receive_date:int = PhoneCall from Telegram
 type TLPhoneCallWaiting struct {
 	Flags         uint                 // flags:#
 	Id            uint64               // id:long
@@ -25400,7 +26211,7 @@ func (o *TLPhoneCallWaiting) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallRequested represents ctor phoneCallRequested#83761ce4 id:long access_hash:long date:int admin_id:int participant_id:int g_a_hash:bytes protocol:PhoneCallProtocol = PhoneCall from telegram.tl
+// TLPhoneCallRequested represents ctor phoneCallRequested#83761ce4 id:long access_hash:long date:int admin_id:int participant_id:int g_a_hash:bytes protocol:PhoneCallProtocol = PhoneCall from Telegram
 type TLPhoneCallRequested struct {
 	Id            uint64               // id:long
 	AccessHash    uint64               // access_hash:long
@@ -25446,7 +26257,7 @@ func (o *TLPhoneCallRequested) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallAccepted represents ctor phoneCallAccepted#6d003d3f id:long access_hash:long date:int admin_id:int participant_id:int g_b:bytes protocol:PhoneCallProtocol = PhoneCall from telegram.tl
+// TLPhoneCallAccepted represents ctor phoneCallAccepted#6d003d3f id:long access_hash:long date:int admin_id:int participant_id:int g_b:bytes protocol:PhoneCallProtocol = PhoneCall from Telegram
 type TLPhoneCallAccepted struct {
 	Id            uint64               // id:long
 	AccessHash    uint64               // access_hash:long
@@ -25492,7 +26303,7 @@ func (o *TLPhoneCallAccepted) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCall represents ctor phoneCall#ffe6ab67 id:long access_hash:long date:int admin_id:int participant_id:int g_a_or_b:bytes key_fingerprint:long protocol:PhoneCallProtocol connection:PhoneConnection alternative_connections:Vector<PhoneConnection> start_date:int = PhoneCall from telegram.tl
+// TLPhoneCall represents ctor phoneCall#ffe6ab67 id:long access_hash:long date:int admin_id:int participant_id:int g_a_or_b:bytes key_fingerprint:long protocol:PhoneCallProtocol connection:PhoneConnection alternative_connections:Vector<PhoneConnection> start_date:int = PhoneCall from Telegram
 type TLPhoneCall struct {
 	Id                     uint64               // id:long
 	AccessHash             uint64               // access_hash:long
@@ -25570,7 +26381,7 @@ func (o *TLPhoneCall) String() string {
 	return tl.Pretty(o)
 }
 
-// TLPhoneCallDiscarded represents ctor phoneCallDiscarded#50ca4de1 flags:# flags.2?need_rating:true flags.3?need_debug:true id:long flags.0?reason:PhoneCallDiscardReason flags.1?duration:int = PhoneCall from telegram.tl
+// TLPhoneCallDiscarded represents ctor phoneCallDiscarded#50ca4de1 flags:# flags.2?need_rating:true flags.3?need_debug:true id:long flags.0?reason:PhoneCallDiscardReason flags.1?duration:int = PhoneCall from Telegram
 type TLPhoneCallDiscarded struct {
 	Flags      uint                         // flags:#
 	NeedRating bool                         // flags.2?need_rating:true
