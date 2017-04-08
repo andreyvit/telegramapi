@@ -181,8 +181,7 @@ func (sess *Session) sendInternal(o tl.Object) {
 		return
 	}
 
-	// TODO: determine the correct message type (content or not)
-	msg := *makeKeyExMsg(o)
+	msg := MsgFromObj(o)
 
 	raw, err := sess.framer.Format(msg)
 	if err != nil {

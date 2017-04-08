@@ -31,14 +31,20 @@ type Msg struct {
 	MsgID   uint64
 }
 
-func MakeMsg(b []byte, t MsgType) Msg {
-	return Msg{b, t, 0}
+func MsgFromObj(o tl.Object) Msg {
+	if o == nil {
+		panic("MsgFromObj for nil object")
+	} else {
+		var t MsgType
+		if IsContentMsg(o) {
+			t = ContentMsg
+		} else {
+			t = KeyExMsg
+		}
+		return Msg{tl.Bytes(o), t, 0}
+	}
 }
 
-func makeKeyExMsg(o tl.Object) *Msg {
-	if o == nil {
-		return nil
-	} else {
-		return &Msg{tl.Bytes(o), KeyExMsg, 0}
-	}
+func IsContentMsg(o tl.Object) bool {
+	return combOrigins[o.Cmd()] == SchemaOriginTelegram
 }
