@@ -16,6 +16,7 @@ type Options struct {
 
 func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 	rm := NewReprMapper(sch)
+	rm.Finalize()
 
 	buf := new(bytes.Buffer)
 
@@ -63,6 +64,13 @@ func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 		SkipUtils:    options.SkipPrelude,
 		SkipComments: options.SkipPrelude,
 	})
+
+	if false {
+		log.Printf("All type IDs:")
+		for i, s := range rm.AllTypeIDs() {
+			log.Printf("%03d. %s", i, s)
+		}
+	}
 
 	src := buf.Bytes()
 	fmt, err := format.Source(src)

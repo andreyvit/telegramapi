@@ -6,15 +6,27 @@ import (
 	"github.com/andreyvit/telegramapi/tl/tlschema"
 )
 
+type finalizationState int
+
+const (
+	open finalizationState = iota
+	finalizing
+	finalized
+)
+
 type ReprMapper struct {
 	prefix string
 
 	schema    *tlschema.Schema
 	typeReprs map[string]GenericRepr
-	funcReprs map[uint32]*StructRepr
-	reprs     []GenericRepr
 
 	typeOverrides map[string]string
+
+	contribByName map[string]Contributor
+	contributors  []Contributor
+	finalized     map[string]bool
+
+	finState finalizationState
 }
 
 func NewReprMapper(sch *tlschema.Schema) *ReprMapper {
@@ -22,7 +34,6 @@ func NewReprMapper(sch *tlschema.Schema) *ReprMapper {
 		prefix:    "TL",
 		schema:    sch,
 		typeReprs: make(map[string]GenericRepr),
-		funcReprs: make(map[uint32]*StructRepr),
 		typeOverrides: map[string]string{
 			"resPQ:pq":                      "bigint_",
 			"p_q_inner_data:pq":             "bigint_",
@@ -34,6 +45,8 @@ func NewReprMapper(sch *tlschema.Schema) *ReprMapper {
 
 			"server_DH_inner_data:server_time": "unixtime_",
 		},
+		contribByName: make(map[string]Contributor),
+		finalized:     make(map[string]bool),
 	}
 
 	rm.schema.MustParse("string ? = String")
@@ -73,12 +86,61 @@ func (rm *ReprMapper) analyze() {
 			GoName: rm.prefix + comb.CombName.GoName(),
 			Ctor:   comb,
 		}
-		rm.addRepr(sr)
+		rm.AddContributor(sr)
 	}
 
-	for _, repr := range rm.reprs {
-		repr.Resolve(rm)
+	rm.Finalize()
+}
+
+func (rm *ReprMapper) AddContributor(c Contributor) Contributor {
+	if rm.finState == finalized {
+		panic("cannot add new types after Finalize()")
 	}
+
+	id := c.InternalTypeID()
+	if prev := rm.contribByName[id]; prev != nil {
+		return prev
+	}
+	rm.contribByName[id] = c
+	rm.contributors = append(rm.contributors, c)
+	return c
+}
+
+func (rm *ReprMapper) finalizeContributor(c Contributor) {
+	id := c.InternalTypeID()
+	if rm.finalized[id] {
+		return
+	}
+	rm.finalized[id] = true
+
+	if rm.finState == finalized {
+		panic("cannot finalize new contributors after Finalize() returns")
+	}
+
+	c.Resolve(rm)
+}
+
+func (rm *ReprMapper) Finalize() {
+	if rm.finState != open {
+		return
+	}
+	rm.finState = finalizing
+
+	// cannot use range here because new contributors may be added during this loop
+	for i := 0; i < len(rm.contributors); i++ {
+		rm.finalizeContributor(rm.contributors[i])
+	}
+
+	rm.finState = finalized
+}
+
+func (rm *ReprMapper) Specialize(gr GenericRepr, typeExpr tlschema.TypeExpr) Repr {
+	rm.finalizeContributor(gr)
+	repr := gr.Specialize(typeExpr)
+	if repr != nil {
+		repr = rm.AddContributor(repr).(Repr)
+	}
+	return repr
 }
 
 func (rm *ReprMapper) ResolveTypeExpr(expr tlschema.TypeExpr, context string) Repr {
@@ -89,7 +151,8 @@ func (rm *ReprMapper) ResolveTypeExpr(expr tlschema.TypeExpr, context string) Re
 	if expr.Name.IsBare() {
 		comb := rm.schema.ByName(expr.Name.Full())
 		if comb == nil {
-			return &UnsupportedRepr{expr.String(), "implied constructor not found for bare type"}
+			repr := &UnsupportedRepr{expr.String(), "implied constructor not found for bare type"}
+			return rm.AddContributor(repr).(Repr)
 		}
 
 		expr.IsPercent = true
@@ -98,17 +161,17 @@ func (rm *ReprMapper) ResolveTypeExpr(expr tlschema.TypeExpr, context string) Re
 
 	gr := rm.typeReprs[expr.Name.Full()]
 	if gr == nil {
-		return &UnsupportedRepr{expr.String(), "unknown type"}
+		repr := &UnsupportedRepr{expr.String(), "unknown type"}
+		return rm.AddContributor(repr).(Repr)
 	}
 
-	gr.Resolve(rm)
-
-	repr := gr.Specialize(expr)
+	repr := rm.Specialize(gr, expr)
 	if repr != nil {
 		return repr
 	}
 
-	return &UnsupportedRepr{expr.String(), "failed to specialize"}
+	repr = &UnsupportedRepr{expr.String(), "failed to specialize"}
+	return rm.AddContributor(repr).(Repr)
 }
 
 func (rm *ReprMapper) FindType(name string) *tlschema.Type {
@@ -120,33 +183,60 @@ func (rm *ReprMapper) FindComb(name string) *tlschema.Comb {
 }
 
 func (rm *ReprMapper) AddType(typ *tlschema.Type) {
-	repr := rm.pick(typ)
+	if rm.typeReprs[typ.Name.Full()] != nil {
+		return
+	}
+
+	repr := rm.pickTypeRepr(typ)
 	if repr == nil {
 		return
 	}
+
 	rm.typeReprs[typ.Name.Full()] = repr
-	rm.addRepr(repr)
+	rm.AddContributor(repr)
+}
+
+func (rm *ReprMapper) AllTypeIDs() []string {
+	if rm.finState != finalized {
+		panic("Finalize() must be called before AllTypeIDs()")
+	}
+
+	var result []string
+	for _, c := range rm.contributors {
+		result = append(result, c.InternalTypeID())
+	}
+	return result
 }
 
 func (rm *ReprMapper) GoImports() []string {
+	if rm.finState != finalized {
+		panic("Finalize() must be called before GoImports()")
+	}
+
 	var result []string
-	for _, repr := range rm.reprs {
-		result = append(result, repr.GoImports()...)
+	for _, c := range rm.contributors {
+		result = append(result, c.GoImports()...)
 	}
 	return result
 }
 
 func (rm *ReprMapper) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
-	for _, repr := range rm.reprs {
-		repr.AppendGoDefs(buf, options)
+	if rm.finState != finalized {
+		panic("Finalize() must be called before AppendGoDefs()")
+	}
+
+	for _, c := range rm.contributors {
+		c.AppendGoDefs(buf, options)
 	}
 
 	buf.WriteString("\n")
 	buf.WriteString("func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {\n")
 	buf.WriteString("\tcmd := r.ReadCmd()\n")
 	buf.WriteString("\tswitch cmd {\n")
-	for _, repr := range rm.reprs {
-		repr.AppendSwitchCase(buf, "\t")
+	for _, c := range rm.contributors {
+		if gr, ok := c.(GenericRepr); ok {
+			gr.AppendSwitchCase(buf, "\t")
+		}
 	}
 	buf.WriteString("\tdefault:\n")
 	buf.WriteString("\t\treturn nil\n")
@@ -165,15 +255,7 @@ func (rm *ReprMapper) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 	}
 }
 
-func (rm *ReprMapper) addRepr(repr GenericRepr) {
-	rm.reprs = append(rm.reprs, repr)
-}
-
-func (rm *ReprMapper) pick(typ *tlschema.Type) GenericRepr {
-	if gr := rm.typeReprs[typ.Name.Full()]; gr != nil {
-		return gr
-	}
-
+func (rm *ReprMapper) pickTypeRepr(typ *tlschema.Type) GenericRepr {
 	switch len(typ.Ctors) {
 	case 0:
 		panic("type has no constructors")

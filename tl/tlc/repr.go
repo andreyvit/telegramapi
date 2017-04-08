@@ -2,6 +2,7 @@ package tlc
 
 import (
 	"bytes"
+	"errors"
 	"github.com/andreyvit/telegramapi/tl/tlschema"
 )
 
@@ -12,24 +13,30 @@ type CodeGenOptions struct {
 
 type Resolver interface {
 	ResolveTypeExpr(expr tlschema.TypeExpr, context string) Repr
+	AddContributor(c Contributor) Contributor
 	FindType(name string) *tlschema.Type
 	FindComb(name string) *tlschema.Comb
 }
 
-type GenericRepr interface {
-	Specialize(typ tlschema.TypeExpr) Repr
-	AppendSwitchCase(buf *bytes.Buffer, indent string)
+type Contributor interface {
+	InternalTypeID() string
+	Resolve(resolver Resolver) error
+
 	AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions)
-	Resolve(resolver Resolver)
 	GoImports() []string
 }
 
+type GenericRepr interface {
+	Contributor
+	Specialize(typ tlschema.TypeExpr) Repr
+	AppendSwitchCase(buf *bytes.Buffer, indent string)
+}
+
 type Repr interface {
-	Resolve(resolver Resolver)
+	Contributor
 	AppendReadStmt(buf *bytes.Buffer, indent, dst string)
 	AppendWriteStmt(buf *bytes.Buffer, indent, src string)
 	GoType() string
-	GoImports() []string
 }
 
 type UnsupportedRepr struct {
@@ -40,32 +47,30 @@ type UnsupportedRepr struct {
 func (r *UnsupportedRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return r
 }
-
-func (r *UnsupportedRepr) Resolve(resolver Resolver) {
+func (r *UnsupportedRepr) Resolve(resolver Resolver) error {
+	return nil
 }
-
 func (r *UnsupportedRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
 	buf.WriteString(indent)
 	buf.WriteString("// TODO: read ")
 	buf.WriteString(dst)
 	buf.WriteString("\n")
 }
-
 func (r *UnsupportedRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
 	buf.WriteString(indent)
 	buf.WriteString("// TODO: write ")
 	buf.WriteString(src)
 	buf.WriteString("\n")
 }
-
 func (r *UnsupportedRepr) AppendSwitchCase(buf *bytes.Buffer, indent string) {
 }
-
 func (r *UnsupportedRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 }
-
 func (r *UnsupportedRepr) GoType() string {
 	return "interface{} /* " + r.Name + " - " + r.ErrMsg + " */"
+}
+func (r *UnsupportedRepr) InternalTypeID() string {
+	return "Unsupported-" + r.Name
 }
 func (r *UnsupportedRepr) GoImports() []string {
 	return nil
@@ -78,7 +83,8 @@ func (r *StringRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeOnlyBare(r, typ)
 }
 
-func (r *StringRepr) Resolve(resolver Resolver) {
+func (r *StringRepr) Resolve(resolver Resolver) error {
+	return nil
 }
 
 func (r *StringRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
@@ -105,6 +111,9 @@ func (r *StringRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 func (r *StringRepr) GoType() string {
 	return "string"
 }
+func (r *StringRepr) InternalTypeID() string {
+	return "string"
+}
 func (r *StringRepr) GoImports() []string {
 	return nil
 }
@@ -116,7 +125,8 @@ func (r *BytesRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeOnlyBare(r, typ)
 }
 
-func (r *BytesRepr) Resolve(resolver Resolver) {
+func (r *BytesRepr) Resolve(resolver Resolver) error {
+	return nil
 }
 
 func (r *BytesRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
@@ -143,6 +153,9 @@ func (r *BytesRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 func (r *BytesRepr) GoType() string {
 	return "[]byte"
 }
+func (r *BytesRepr) InternalTypeID() string {
+	return "bytes"
+}
 func (r *BytesRepr) GoImports() []string {
 	return nil
 }
@@ -154,7 +167,8 @@ func (r *BigIntRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeOnlyBare(r, typ)
 }
 
-func (r *BigIntRepr) Resolve(resolver Resolver) {
+func (r *BigIntRepr) Resolve(resolver Resolver) error {
+	return nil
 }
 
 func (r *BigIntRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
@@ -181,6 +195,9 @@ func (r *BigIntRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 func (r *BigIntRepr) GoType() string {
 	return "*big.Int"
 }
+func (r *BigIntRepr) InternalTypeID() string {
+	return "bigint"
+}
 func (r *BigIntRepr) GoImports() []string {
 	return []string{"math/big"}
 }
@@ -192,7 +209,8 @@ func (r *UnixTimeRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeOnlyBare(r, typ)
 }
 
-func (r *UnixTimeRepr) Resolve(resolver Resolver) {
+func (r *UnixTimeRepr) Resolve(resolver Resolver) error {
+	return nil
 }
 
 func (r *UnixTimeRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
@@ -219,6 +237,9 @@ func (r *UnixTimeRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 func (r *UnixTimeRepr) GoType() string {
 	return "time.Time"
 }
+func (r *UnixTimeRepr) InternalTypeID() string {
+	return "unixtime"
+}
 func (r *UnixTimeRepr) GoImports() []string {
 	return []string{"time"}
 }
@@ -229,10 +250,9 @@ type IntRepr struct {
 func (r *IntRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeOnlyBare(r, typ)
 }
-
-func (r *IntRepr) Resolve(resolver Resolver) {
+func (r *IntRepr) Resolve(resolver Resolver) error {
+	return nil
 }
-
 func (r *IntRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
 	buf.WriteString(indent)
 	buf.WriteString(dst)
@@ -240,14 +260,12 @@ func (r *IntRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
 	buf.WriteString("r.ReadInt()")
 	buf.WriteString("\n")
 }
-
 func (r *IntRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
 	buf.WriteString(indent)
 	buf.WriteString("w.WriteInt(")
 	buf.WriteString(src)
 	buf.WriteString(")\n")
 }
-
 func (r *IntRepr) AppendSwitchCase(buf *bytes.Buffer, indent string) {
 }
 
@@ -255,6 +273,9 @@ func (r *IntRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 }
 
 func (r *IntRepr) GoType() string {
+	return "int"
+}
+func (r *IntRepr) InternalTypeID() string {
 	return "int"
 }
 func (r *IntRepr) GoImports() []string {
@@ -268,7 +289,8 @@ func (r *LongRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeOnlyBare(r, typ)
 }
 
-func (r *LongRepr) Resolve(resolver Resolver) {
+func (r *LongRepr) Resolve(resolver Resolver) error {
+	return nil
 }
 
 func (r *LongRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
@@ -295,6 +317,9 @@ func (r *LongRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 func (r *LongRepr) GoType() string {
 	return "uint64"
 }
+func (r *LongRepr) InternalTypeID() string {
+	return "long"
+}
 func (r *LongRepr) GoImports() []string {
 	return nil
 }
@@ -306,7 +331,8 @@ func (r *Int128Repr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeOnlyBare(r, typ)
 }
 
-func (r *Int128Repr) Resolve(resolver Resolver) {
+func (r *Int128Repr) Resolve(resolver Resolver) error {
+	return nil
 }
 
 func (r *Int128Repr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
@@ -332,6 +358,9 @@ func (r *Int128Repr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 func (r *Int128Repr) GoType() string {
 	return "[16]byte"
 }
+func (r *Int128Repr) InternalTypeID() string {
+	return "int128"
+}
 func (r *Int128Repr) GoImports() []string {
 	return nil
 }
@@ -343,7 +372,8 @@ func (r *Int256Repr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeOnlyBare(r, typ)
 }
 
-func (r *Int256Repr) Resolve(resolver Resolver) {
+func (r *Int256Repr) Resolve(resolver Resolver) error {
+	return nil
 }
 
 func (r *Int256Repr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
@@ -369,6 +399,9 @@ func (r *Int256Repr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 func (r *Int256Repr) GoType() string {
 	return "[32]byte"
 }
+func (r *Int256Repr) InternalTypeID() string {
+	return "int256"
+}
 func (r *Int256Repr) GoImports() []string {
 	return nil
 }
@@ -380,7 +413,8 @@ func (r *ObjectRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeOnlyNonBare(r, typ)
 }
 
-func (r *ObjectRepr) Resolve(resolver Resolver) {
+func (r *ObjectRepr) Resolve(resolver Resolver) error {
+	return nil
 }
 func (r *ObjectRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
 	buf.WriteString(indent)
@@ -412,6 +446,9 @@ func (r *ObjectRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 func (r *ObjectRepr) GoType() string {
 	return "tl.Object"
 }
+func (r *ObjectRepr) InternalTypeID() string {
+	return "Object"
+}
 func (r *ObjectRepr) GoImports() []string {
 	return nil
 }
@@ -431,15 +468,19 @@ func (r *GenericVectorRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	}
 	return specializeBare(vec, r.vectorComb, typ)
 }
-func (r *GenericVectorRepr) Resolve(resolver Resolver) {
+func (r *GenericVectorRepr) Resolve(resolver Resolver) error {
 	r.vectorComb = resolver.FindComb("vector")
 	if r.vectorComb == nil {
-		panic("vector constructor not found")
+		return errors.New("vector constructor not found")
 	}
+	return nil
 }
 func (r *GenericVectorRepr) AppendSwitchCase(buf *bytes.Buffer, indent string) {
 }
 func (r *GenericVectorRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
+}
+func (r *GenericVectorRepr) InternalTypeID() string {
+	return "Vector"
 }
 func (r *GenericVectorRepr) GoImports() []string {
 	return nil
@@ -451,8 +492,9 @@ type VectorRepr struct {
 	ItemRepr Repr
 }
 
-func (r *VectorRepr) Resolve(resolver Resolver) {
+func (r *VectorRepr) Resolve(resolver Resolver) error {
 	r.ItemRepr = resolver.ResolveTypeExpr(r.ItemType, "")
+	return nil
 }
 func (r *VectorRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
 	buf.WriteString(indent)
@@ -484,12 +526,16 @@ func (r *VectorRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
 	buf.WriteString(indent)
 	buf.WriteString("}\n")
 }
-
+func (r *VectorRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
+}
 func (r *VectorRepr) GoType() string {
 	return "[]" + r.ItemRepr.GoType()
 }
+func (r *VectorRepr) InternalTypeID() string {
+	return "Vector<" + r.ItemType.String() + ">"
+}
 func (r *VectorRepr) GoImports() []string {
-	return append([]string{"errors"}, r.ItemRepr.GoImports()...)
+	return []string{"errors"}
 }
 
 type BoxedRepr struct {
@@ -497,9 +543,10 @@ type BoxedRepr struct {
 	ItemRepr Repr
 }
 
-func (r *BoxedRepr) Resolve(resolver Resolver) {
+func (r *BoxedRepr) Resolve(resolver Resolver) error {
 	// r.ItemRepr = resolver.ResolveTypeExpr(r.ItemType, "")
-	r.ItemRepr.Resolve(resolver)
+	r.ItemRepr = resolver.AddContributor(r.ItemRepr).(Repr)
+	return nil
 }
 func (r *BoxedRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
 	buf.WriteString(indent)
@@ -523,11 +570,16 @@ func (r *BoxedRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
 	buf.WriteString(")\n")
 	r.ItemRepr.AppendWriteStmt(buf, indent, src)
 }
+func (r *BoxedRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
+}
 func (r *BoxedRepr) GoType() string {
 	return r.ItemRepr.GoType()
 }
+func (r *BoxedRepr) InternalTypeID() string {
+	return "Box<" + r.ItemRepr.InternalTypeID() + ">"
+}
 func (r *BoxedRepr) GoImports() []string {
-	return r.ItemRepr.GoImports()
+	return nil
 }
 
 type StructRepr struct {
@@ -537,7 +589,6 @@ type StructRepr struct {
 
 	GoMarkerFuncName string
 
-	resolved bool
 	ArgReprs []ArgRepr
 }
 
@@ -553,12 +604,7 @@ func (r *StructRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeBare(r, r.Ctor, typ)
 }
 
-func (r *StructRepr) Resolve(resolver Resolver) {
-	if r.resolved {
-		return
-	}
-	r.resolved = true
-
+func (r *StructRepr) Resolve(resolver Resolver) error {
 	for _, arg := range r.Ctor.Args {
 		ar := ArgRepr{
 			// Arg:    &arg,
@@ -567,9 +613,10 @@ func (r *StructRepr) Resolve(resolver Resolver) {
 			TypeRepr:   resolver.ResolveTypeExpr(arg.Type, r.TLName+":"+arg.Name),
 			TLTypeName: arg.Type.String(),
 		}
-		ar.TypeRepr.Resolve(resolver)
 		r.ArgReprs = append(r.ArgReprs, ar)
 	}
+
+	return nil
 }
 
 func (r *StructRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
@@ -683,12 +730,11 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 func (r *StructRepr) GoType() string {
 	return "*" + r.GoName
 }
+func (r *StructRepr) InternalTypeID() string {
+	return r.TLName
+}
 func (r *StructRepr) GoImports() []string {
-	var result []string
-	for _, ar := range r.ArgReprs {
-		result = append(result, ar.TypeRepr.GoImports()...)
-	}
-	return result
+	return nil
 }
 
 // func (r *StructRepr) GoDef(buf *bytes.Buffer) {
@@ -700,23 +746,17 @@ type MultiCtorRepr struct {
 	GoName           string
 	GoMarkerFuncName string
 	Structs          []*StructRepr
-
-	resolved bool
 }
 
 func (r *MultiCtorRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeOnlyNonBare(r, typ)
 }
 
-func (r *MultiCtorRepr) Resolve(resolver Resolver) {
-	if r.resolved {
-		return
-	}
-	r.resolved = true
-
+func (r *MultiCtorRepr) Resolve(resolver Resolver) error {
 	for _, struc := range r.Structs {
-		struc.Resolve(resolver)
+		resolver.AddContributor(struc)
 	}
+	return nil
 }
 
 func (r *MultiCtorRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
@@ -741,9 +781,6 @@ func (r *MultiCtorRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
 }
 
 func (r *MultiCtorRepr) AppendSwitchCase(buf *bytes.Buffer, indent string) {
-	for _, struc := range r.Structs {
-		struc.AppendSwitchCase(buf, indent)
-	}
 }
 
 func (r *MultiCtorRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
@@ -766,19 +803,14 @@ func (r *MultiCtorRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) 
 	buf.WriteString("\tReadBareFrom(r *tl.Reader)\n")
 	buf.WriteString("\tWriteBareTo(w *tl.Writer)\n")
 	buf.WriteString("}\n")
-
-	for _, struc := range r.Structs {
-		struc.AppendGoDefs(buf, options)
-	}
 }
 
 func (r *MultiCtorRepr) GoType() string {
 	return "tl.Object"
 }
+func (r *MultiCtorRepr) InternalTypeID() string {
+	return r.TLName
+}
 func (r *MultiCtorRepr) GoImports() []string {
-	var result []string
-	for _, struc := range r.Structs {
-		result = append(result, struc.GoImports()...)
-	}
-	return result
+	return nil
 }
