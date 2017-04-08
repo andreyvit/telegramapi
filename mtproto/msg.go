@@ -1,5 +1,9 @@
 package mtproto
 
+import (
+	"github.com/andreyvit/telegramapi/tl"
+)
+
 type MsgType int
 
 const (
@@ -29,4 +33,12 @@ type Msg struct {
 
 func MakeMsg(b []byte, t MsgType) Msg {
 	return Msg{b, t, 0}
+}
+
+func makeKeyExMsg(o tl.Object) *Msg {
+	if o == nil {
+		return nil
+	} else {
+		return &Msg{tl.Bytes(o), KeyExMsg, 0}
+	}
 }

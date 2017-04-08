@@ -5,8 +5,6 @@ import (
 	"encoding/hex"
 	"strings"
 	"testing"
-
-	"github.com/andreyvit/telegramapi/tl"
 )
 
 const randomness = `
@@ -164,7 +162,7 @@ func TestKeyExchange(t *testing.T) {
 	// --- req 1
 
 	framer.MsgIDOverride = 0x51e57ac42770964a
-	msgbytes, err := framer.Format(keyex.Start())
+	msgbytes, err := framer.Format(*makeKeyExMsg(keyex.Start()))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +178,7 @@ func TestKeyExchange(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err := keyex.Handle(tl.NewReader(inmsg.Payload))
+	msg, err := keyex.Handle(Schema.MustReadBoxedObject(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,7 +189,7 @@ func TestKeyExchange(t *testing.T) {
 		t.Fatal("no reply to res_pq")
 	}
 	framer.MsgIDOverride = 0x51e57ac917717a27
-	msgbytes, err = framer.Format(*msg)
+	msgbytes, err = framer.Format(*makeKeyExMsg(msg))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -210,7 +208,7 @@ func TestKeyExchange(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err = keyex.Handle(tl.NewReader(inmsg.Payload))
+	msg, err = keyex.Handle(Schema.MustReadBoxedObject(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -221,7 +219,7 @@ func TestKeyExchange(t *testing.T) {
 		t.Fatal("no reply to server_DH_params_ok")
 	}
 	framer.MsgIDOverride = 0x51e57acd2aa32c6d
-	msgbytes, err = framer.Format(*msg)
+	msgbytes, err = framer.Format(*makeKeyExMsg(msg))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -237,7 +235,7 @@ func TestKeyExchange(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	msg, err = keyex.Handle(tl.NewReader(inmsg.Payload))
+	msg, err = keyex.Handle(Schema.MustReadBoxedObject(inmsg.Payload))
 	if err != nil {
 		t.Fatal(err)
 	}

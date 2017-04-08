@@ -26,7 +26,7 @@ type SessionOptions struct {
 	Verbose int
 }
 
-type Handler func(cmd uint32, r *tl.Reader) ([]Msg, error)
+type Handler func(cmd uint32, o tl.Object) ([]tl.Object, error)
 
 var ErrCmdNotHandled = errors.New("not handled")
 
@@ -71,7 +71,7 @@ func NewSession(transport Transport, options SessionOptions) *Session {
 	return s
 }
 
-func (sess *Session) AddHandler(handler func(cmd uint32, r *tl.Reader) ([]Msg, error)) {
+func (sess *Session) AddHandler(handler func(cmd uint32, o tl.Object) ([]tl.Object, error)) {
 	h := Handler(handler)
 	sess.handlers = append(sess.handlers, h)
 }
@@ -176,10 +176,13 @@ func (sess *Session) failInternal(err error) {
 	}
 }
 
-func (sess *Session) sendInternal(msg Msg) {
+func (sess *Session) sendInternal(o tl.Object) {
 	if sess.err != nil {
 		return
 	}
+
+	// TODO: determine the correct message type (content or not)
+	msg := *makeKeyExMsg(o)
 
 	raw, err := sess.framer.Format(msg)
 	if err != nil {
@@ -218,23 +221,32 @@ func (sess *Session) doHandle(raw []byte) error {
 		return err
 	}
 
+	o, err := Schema.ReadBoxedObject(msg.Payload)
+	if err != nil {
+		if sess.options.Verbose >= 2 {
+			log.Printf("mtproto.Session received %s (%v bytes, %v): %v", DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type, hex.EncodeToString(msg.Payload))
+		} else if sess.options.Verbose >= 1 {
+			log.Printf("mtproto.Session received %s (%v bytes, %v)", DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type)
+		}
+		return err
+	}
+
 	if sess.options.Verbose >= 2 {
-		log.Printf("mtproto.Session received %s (%v bytes, %v): %v", DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type, hex.EncodeToString(msg.Payload))
+		log.Printf("mtproto.Session received %v", o)
 	} else if sess.options.Verbose >= 1 {
 		log.Printf("mtproto.Session received %s (%v bytes, %v)", DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type)
 	}
 
-	r := tl.NewReader(msg.Payload)
-	sess.invokeHandlersInternal(r.ReadCmd(), r)
+	sess.invokeHandlersInternal(o)
 
 	return nil
 }
 
-func (sess *Session) invokeHandlersInternal(cmd uint32, r *tl.Reader) {
-	msgs, err := sess.invokeHandlersInternalReturnCmds(cmd, r)
+func (sess *Session) invokeHandlersInternal(o tl.Object) {
+	msgs, err := sess.invokeHandlersInternalReturnCmds(o)
 	if err == ErrCmdNotHandled {
 		if sess.options.Verbose >= 1 {
-			log.Printf("mtproto.Session: dropping unhandled message %s (within %s)", DescribeCmd(r.Cmd()), DescribeCmd(cmd))
+			log.Printf("mtproto.Session: dropping unhandled message %v", o)
 		}
 	} else if err != nil {
 		sess.failInternal(err)
@@ -245,9 +257,9 @@ func (sess *Session) invokeHandlersInternal(cmd uint32, r *tl.Reader) {
 	}
 }
 
-func (sess *Session) invokeHandlersInternalReturnCmds(cmd uint32, r *tl.Reader) ([]Msg, error) {
+func (sess *Session) invokeHandlersInternalReturnCmds(o tl.Object) ([]tl.Object, error) {
 	for _, h := range sess.handlers {
-		msgs, err := h(cmd, r)
+		msgs, err := h(o.Cmd(), o)
 		if err == ErrCmdNotHandled {
 			continue
 		} else if err != nil {
@@ -276,58 +288,58 @@ func (sess *Session) broadcastInternal(cmd uint32) {
 	}
 }
 
-func (sess *Session) handleKeyEx(cmd uint32, r *tl.Reader) ([]Msg, error) {
+func (sess *Session) handleKeyEx(cmd uint32, o tl.Object) ([]tl.Object, error) {
 	if sess.keyex.IsFinished() {
 		return nil, ErrCmdNotHandled
 	}
 
 	if cmd == PseudoIDKeyExStart {
 		omsg := sess.keyex.Start()
-		return []Msg{omsg}, nil
-	} else if r != nil {
-		omsg, err := sess.keyex.Handle(r)
+		return []tl.Object{omsg}, nil
+	} else if o != nil {
+		omsg, err := sess.keyex.Handle(o)
 		if err != nil {
 			return nil, err
 		}
 		if omsg != nil {
-			return []Msg{*omsg}, nil
+			return []tl.Object{omsg}, nil
 		} else {
 			auth, err := sess.keyex.Result()
 			if err != nil {
 				return nil, err
 			}
 			sess.ApplyAuth(auth)
-			return []Msg{}, nil
+			return []tl.Object{}, nil
 		}
 	} else {
 		return nil, ErrCmdNotHandled
 	}
 }
 
-func (sess *Session) handleConfig(cmd uint32, r *tl.Reader) ([]Msg, error) {
+func (sess *Session) handleConfig(cmd uint32, o tl.Object) ([]tl.Object, error) {
 	if cmd == PseudoIDHandshakeDone {
-		w := tl.NewWriterCmd(Cmd("invokeWithLayer"))
-		w.WriteInt(apiLayer)
-		w.WriteCmd(Cmd("initConnection"))
-		w.WriteInt(88766)
-		w.WriteString("Mac")
-		w.WriteString("10.11")
-		w.WriteString("0.1")
-		w.WriteString("en")
-		w.WriteCmd(Cmd("help.getNearestDc"))
-		return []Msg{MakeMsg(w.Bytes(), ContentMsg)}, nil
+		msg := &TLInvokeWithLayer{
+			Layer: apiLayer,
+			Query: &TLInitConnection{
+				ApiId:         88766,
+				DeviceModel:   "Mac",
+				SystemVersion: "10.11",
+				AppVersion:    "0.1",
+				LangCode:      "en",
+				Query:         &TLHelpGetNearestDc{},
+			},
+		}
+		return []tl.Object{msg}, nil
 	} else {
 		return nil, ErrCmdNotHandled
 	}
 }
 
-func (sess *Session) handleRPCResult(cmd uint32, r *tl.Reader) ([]Msg, error) {
-	if cmd == Cmd("rpc_result") {
-		reqMsgID := r.ReadUint64()
-		_ = reqMsgID
-		subcmd := r.StartInnerCmd()
-		return sess.invokeHandlersInternalReturnCmds(subcmd, r)
-	} else {
+func (sess *Session) handleRPCResult(cmd uint32, o tl.Object) ([]tl.Object, error) {
+	switch o := o.(type) {
+	case *TLRpcResult:
+		return sess.invokeHandlersInternalReturnCmds(o.Result)
+	default:
 		return nil, ErrCmdNotHandled
 	}
 }

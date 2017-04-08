@@ -25,6 +25,31 @@ func (schema *Schema) ReadBoxedObject(raw []byte) (Object, error) {
 	return o, r.Err()
 }
 
+func (schema *Schema) ReadBoxedObjectNoEOFCheck(raw []byte) (Object, error) {
+	var r Reader
+	r.Reset(raw)
+	o := schema.ReadBoxedObjectFrom(&r)
+
+	return o, r.Err()
+}
+
+func (schema *Schema) ReadLimitedBoxedObject(raw []byte, cmds ...uint32) (Object, error) {
+	var r Reader
+	r.Reset(raw)
+	o := schema.ReadLimitedBoxedObjectFrom(&r, cmds...)
+	r.ExpectEOF()
+
+	return o, r.Err()
+}
+
+func (schema *Schema) ReadLimitedBoxedObjectNoEOFCheck(raw []byte, cmds ...uint32) (Object, error) {
+	var r Reader
+	r.Reset(raw)
+	o := schema.ReadLimitedBoxedObjectFrom(&r, cmds...)
+
+	return o, r.Err()
+}
+
 func (schema *Schema) MustReadBoxedObject(raw []byte) Object {
 	o, err := schema.ReadBoxedObject(raw)
 	if err != nil {
@@ -52,6 +77,13 @@ func (schema *Schema) ReadLimitedBoxedObjectFrom(r *Reader, cmds ...uint32) Obje
 	} else {
 		return nil
 	}
+}
+
+func Bytes(o Object) []byte {
+	var w Writer
+	w.WriteCmd(o.Cmd())
+	o.WriteBareTo(&w)
+	return w.Bytes()
 }
 
 func Pretty(o Object) string {
