@@ -10,7 +10,7 @@ import (
 )
 
 //go:generate go install ../tl/cmd/tlc
-//go:generate tlc mtproto mtproto generated.go
+//go:generate tlc -o generated.go mtproto telegram
 
 type cmdInfo struct {
 	cmd      uint32

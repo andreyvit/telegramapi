@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go/build"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
@@ -12,42 +14,66 @@ import (
 	"github.com/andreyvit/telegramapi/tl/tlschema"
 )
 
+func Usage() {
+	fmt.Fprintf(os.Stderr, "Usage: tlc [-pkg <package-name>] [-o <output.go>] (<source.tl> | mtproto | telegram)...\n")
+	fmt.Fprintf(os.Stderr, "Flags:\n")
+	flag.PrintDefaults()
+}
+
 func main() {
+	var pkgName string
+	var outputFile string
+	flag.StringVar(&pkgName, "pkg", "", "Package name (defaults to the package in the current directory)")
+	flag.StringVar(&outputFile, "o", "tlschema.go", "Output file name (defaults to tlschema.go)")
+	flag.Usage = Usage
 	flag.Parse()
 
-	if flag.NArg() < 3 {
-		fmt.Fprintf(os.Stderr, "** Usage: tlc (<source.tl> | mtproto | telegram) <package-name> <output.go>\n")
+	if pkgName == "" {
+		directory := "."
+		pkg, err := build.ImportDir(directory, 0)
+		if err != nil {
+			log.Fatalf("cannot process directory %s: %s", directory, err)
+		}
+		pkgName = pkg.Name
+	}
+
+	if flag.NArg() == 0 {
+		Usage()
 		os.Exit(1)
 	}
 
-	schemaName := flag.Arg(0)
-	pkgName := flag.Arg(1)
-	outputFile := flag.Arg(2)
+	sch := new(tlschema.Schema)
 
-	var schema string
-	if schemaName == "mtproto" {
-		schema = knownschemas.MTProtoSchema
-	} else if schemaName == "telegram" {
-		schema = knownschemas.TelegramSchema
-	} else if strings.Contains(schemaName, ".") {
-		fmt.Fprintf(os.Stderr, "** Reading schema from file isn't implemented yet\n")
-		os.Exit(1)
-	} else {
-		fmt.Fprintf(os.Stderr, "** Unknown schema: %s\n", schemaName)
-		os.Exit(1)
+	for _, schemaName := range flag.Args() {
+
+		var schema string
+		if schemaName == "mtproto" {
+			schema = knownschemas.MTProtoSchema
+		} else if schemaName == "telegram" {
+			schema = knownschemas.TelegramSchema
+		} else if strings.Contains(schemaName, ".") {
+			fmt.Fprintf(os.Stderr, "** Reading schema from file isn't implemented yet\n")
+			os.Exit(1)
+		} else {
+			fmt.Fprintf(os.Stderr, "** Unknown schema: %s\n", schemaName)
+			os.Exit(1)
+		}
+
+		sch.MustParse(schema)
 	}
 
 	options := tlc.Options{
 		PackageName: pkgName,
 	}
-
-	sch := tlschema.MustParse(schema)
-
 	code := tlc.GenerateGoCode(sch, options)
 
-	err := ioutil.WriteFile(outputFile, []byte(code), 0666)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "** Error writing to %v: %v\n", outputFile, err)
-		os.Exit(1)
+	if outputFile == "-" {
+		fmt.Print(code)
+	} else {
+		err := ioutil.WriteFile(outputFile, []byte(code), 0666)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "** Error writing to %v: %v\n", outputFile, err)
+			os.Exit(1)
+		}
 	}
 }
