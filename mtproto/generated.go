@@ -856,6 +856,10 @@ func (o *TLResPQ) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLResPQ) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPQInnerData represents ctor p_q_inner_data#83c95aec pq:bytes p:bytes q:bytes nonce:int128 server_nonce:int128 new_nonce:int256 = P_Q_inner_data from mtproto.tl
 type TLPQInnerData struct {
 	PQ          *big.Int // pq:bytes
@@ -886,6 +890,10 @@ func (o *TLPQInnerData) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(o.Nonce[:])
 	w.WriteUint128(o.ServerNonce[:])
 	w.Write(o.NewNonce[:])
+}
+
+func (o *TLPQInnerData) String() string {
+	return tl.Pretty(o)
 }
 
 // TLServerDHParamsType represents Server_DH_Params from mtproto.tl
@@ -928,6 +936,10 @@ func (o *TLServerDHInnerData) WriteBareTo(w *tl.Writer) {
 	w.WriteTimeSec32(o.ServerTime)
 }
 
+func (o *TLServerDHInnerData) String() string {
+	return tl.Pretty(o)
+}
+
 // TLClientDHInnerData represents ctor client_DH_inner_data#6643b654 nonce:int128 server_nonce:int128 retry_id:long g_b:bytes = Client_DH_Inner_Data from mtproto.tl
 type TLClientDHInnerData struct {
 	Nonce       [16]byte // nonce:int128
@@ -952,6 +964,10 @@ func (o *TLClientDHInnerData) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(o.ServerNonce[:])
 	w.WriteUint64(o.RetryId)
 	w.WriteBigInt(o.GB)
+}
+
+func (o *TLClientDHInnerData) String() string {
+	return tl.Pretty(o)
 }
 
 // TLSetClientDHParamsAnswerType represents Set_client_DH_params_answer from mtproto.tl
@@ -983,6 +999,10 @@ func (o *TLRpcResult) WriteBareTo(w *tl.Writer) {
 	o.Result.WriteBareTo(w)
 }
 
+func (o *TLRpcResult) String() string {
+	return tl.Pretty(o)
+}
+
 // TLRpcError represents ctor rpc_error#2144ca19 error_code:int error_message:string = RpcError from mtproto.tl
 type TLRpcError struct {
 	ErrorCode    int    // error_code:int
@@ -1001,6 +1021,10 @@ func (o *TLRpcError) ReadBareFrom(r *tl.Reader) {
 func (o *TLRpcError) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ErrorCode)
 	w.WriteString(o.ErrorMessage)
+}
+
+func (o *TLRpcError) String() string {
+	return tl.Pretty(o)
 }
 
 // TLRpcDropAnswerType represents RpcDropAnswer from mtproto.tl
@@ -1034,6 +1058,10 @@ func (o *TLFutureSalt) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Salt)
 }
 
+func (o *TLFutureSalt) String() string {
+	return tl.Pretty(o)
+}
+
 // TLFutureSalts represents ctor future_salts#ae500895 req_msg_id:long now:int salts:vector<future_salt> = FutureSalts from mtproto.tl
 type TLFutureSalts struct {
 	ReqMsgId uint64          // req_msg_id:long
@@ -1064,6 +1092,10 @@ func (o *TLFutureSalts) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLFutureSalts) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPong represents ctor pong#347773c5 msg_id:long ping_id:long = Pong from mtproto.tl
 type TLPong struct {
 	MsgId  uint64 // msg_id:long
@@ -1082,6 +1114,10 @@ func (o *TLPong) ReadBareFrom(r *tl.Reader) {
 func (o *TLPong) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.MsgId)
 	w.WriteUint64(o.PingId)
+}
+
+func (o *TLPong) String() string {
+	return tl.Pretty(o)
 }
 
 // TLDestroySessionResType represents DestroySessionRes from mtproto.tl
@@ -1115,6 +1151,10 @@ func (o *TLNewSessionCreated) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.ServerSalt)
 }
 
+func (o *TLNewSessionCreated) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMsgContainer represents ctor msg_container#73f1f8dc messages:vector<%ProtoMessage> = MessageContainer from mtproto.tl
 type TLMsgContainer struct {
 	Messages []*TLProtoMessage // messages:vector<%ProtoMessage>
@@ -1137,6 +1177,10 @@ func (o *TLMsgContainer) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.Messages); i++ {
 		o.Messages[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLMsgContainer) String() string {
+	return tl.Pretty(o)
 }
 
 // TLProtoMessage represents ctor proto_message#5bb8e511 msg_id:long seqno:int bytes:int body:Object = ProtoMessage from mtproto.tl
@@ -1166,6 +1210,10 @@ func (o *TLProtoMessage) WriteBareTo(w *tl.Writer) {
 	o.Body.WriteBareTo(w)
 }
 
+func (o *TLProtoMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMsgCopy represents ctor msg_copy#e06046b2 orig_message:Message = MessageCopy from mtproto.tl
 type TLMsgCopy struct {
 	OrigMessage TLMessageType // orig_message:Message
@@ -1182,6 +1230,10 @@ func (o *TLMsgCopy) ReadBareFrom(r *tl.Reader) {
 func (o *TLMsgCopy) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.OrigMessage.Cmd())
 	o.OrigMessage.WriteBareTo(w)
+}
+
+func (o *TLMsgCopy) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMsgsAck represents ctor msgs_ack#62d6b459 msg_ids:Vector<long> = MsgsAck from mtproto.tl
@@ -1209,6 +1261,10 @@ func (o *TLMsgsAck) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.MsgIds); i++ {
 		w.WriteUint64(o.MsgIds[i])
 	}
+}
+
+func (o *TLMsgsAck) String() string {
+	return tl.Pretty(o)
 }
 
 // TLBadMsgNotificationType represents BadMsgNotification from mtproto.tl
@@ -1246,6 +1302,10 @@ func (o *TLMsgResendReq) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMsgResendReq) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMsgsStateReq represents ctor msgs_state_req#da69fb52 msg_ids:Vector<long> = MsgsStateReq from mtproto.tl
 type TLMsgsStateReq struct {
 	MsgIds []uint64 // msg_ids:Vector<long>
@@ -1273,6 +1333,10 @@ func (o *TLMsgsStateReq) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMsgsStateReq) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMsgsStateInfo represents ctor msgs_state_info#04deb57d req_msg_id:long info:bytes = MsgsStateInfo from mtproto.tl
 type TLMsgsStateInfo struct {
 	ReqMsgId uint64 // req_msg_id:long
@@ -1291,6 +1355,10 @@ func (o *TLMsgsStateInfo) ReadBareFrom(r *tl.Reader) {
 func (o *TLMsgsStateInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.ReqMsgId)
 	w.WriteBlob(o.Info)
+}
+
+func (o *TLMsgsStateInfo) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMsgsAllInfo represents ctor msgs_all_info#8cc0d131 msg_ids:Vector<long> info:bytes = MsgsAllInfo from mtproto.tl
@@ -1323,6 +1391,10 @@ func (o *TLMsgsAllInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.Info)
 }
 
+func (o *TLMsgsAllInfo) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMsgDetailedInfoType represents MsgDetailedInfo from mtproto.tl
 type TLMsgDetailedInfoType interface {
 	IsTLMsgDetailedInfo()
@@ -1351,6 +1423,10 @@ func (o *TLError) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
 }
 
+func (o *TLError) String() string {
+	return tl.Pretty(o)
+}
+
 // TLNull represents ctor null#56730bcc = Null from telegram.tl
 type TLNull struct {
 }
@@ -1363,6 +1439,10 @@ func (o *TLNull) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLNull) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLNull) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPeerType represents InputPeer from telegram.tl
@@ -1405,6 +1485,10 @@ func (o *TLInputPhoneContact) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Phone)
 	w.WriteString(o.FirstName)
 	w.WriteString(o.LastName)
+}
+
+func (o *TLInputPhoneContact) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputFileType represents InputFile from telegram.tl
@@ -1479,6 +1563,10 @@ func (o *TLInputAppEvent) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Type)
 	w.WriteUint64(o.Peer)
 	w.WriteString(o.Data)
+}
+
+func (o *TLInputAppEvent) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPeerType represents Peer from telegram.tl
@@ -1639,6 +1727,10 @@ func (o *TLDialog) WriteBareTo(w *tl.Writer) {
 	o.Draft.WriteBareTo(w)
 }
 
+func (o *TLDialog) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhotoType represents Photo from telegram.tl
 type TLPhotoType interface {
 	IsTLPhoto()
@@ -1685,6 +1777,10 @@ func (o *TLAuthCheckedPhone) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLAuthCheckedPhone) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthSentCode represents ctor auth.sentCode#5e002502 flags:# flags.0?phone_registered:true type:auth.SentCodeType phone_code_hash:string flags.1?next_type:auth.CodeType flags.2?timeout:int = auth.SentCode from telegram.tl
 type TLAuthSentCode struct {
 	Flags           uint                   // flags:#
@@ -1718,6 +1814,10 @@ func (o *TLAuthSentCode) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Timeout)
 }
 
+func (o *TLAuthSentCode) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthAuthorization represents ctor auth.authorization#cd050916 flags:# flags.0?tmp_sessions:int user:User = auth.Authorization from telegram.tl
 type TLAuthAuthorization struct {
 	Flags       uint       // flags:#
@@ -1742,6 +1842,10 @@ func (o *TLAuthAuthorization) WriteBareTo(w *tl.Writer) {
 	o.User.WriteBareTo(w)
 }
 
+func (o *TLAuthAuthorization) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthExportedAuthorization represents ctor auth.exportedAuthorization#df969c2d id:int bytes:bytes = auth.ExportedAuthorization from telegram.tl
 type TLAuthExportedAuthorization struct {
 	Id    int    // id:int
@@ -1760,6 +1864,10 @@ func (o *TLAuthExportedAuthorization) ReadBareFrom(r *tl.Reader) {
 func (o *TLAuthExportedAuthorization) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
 	w.WriteBlob(o.Bytes)
+}
+
+func (o *TLAuthExportedAuthorization) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputNotifyPeerType represents InputNotifyPeer from telegram.tl
@@ -1805,6 +1913,10 @@ func (o *TLInputPeerNotifySettings) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Sound)
 }
 
+func (o *TLInputPeerNotifySettings) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPeerNotifyEventsType represents PeerNotifyEvents from telegram.tl
 type TLPeerNotifyEventsType interface {
 	IsTLPeerNotifyEvents()
@@ -1838,6 +1950,10 @@ func (o *TLPeerSettings) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPeerSettings) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLPeerSettings) String() string {
+	return tl.Pretty(o)
 }
 
 // TLWallPaperType represents WallPaper from telegram.tl
@@ -1913,6 +2029,10 @@ func (o *TLUserFull) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.CommonChatsCount)
 }
 
+func (o *TLUserFull) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContact represents ctor contact#f911c994 user_id:int mutual:Bool = Contact from telegram.tl
 type TLContact struct {
 	UserId int  // user_id:int
@@ -1938,6 +2058,10 @@ func (o *TLContact) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLContact) String() string {
+	return tl.Pretty(o)
+}
+
 // TLImportedContact represents ctor importedContact#d0028438 user_id:int client_id:long = ImportedContact from telegram.tl
 type TLImportedContact struct {
 	UserId   int    // user_id:int
@@ -1956,6 +2080,10 @@ func (o *TLImportedContact) ReadBareFrom(r *tl.Reader) {
 func (o *TLImportedContact) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 	w.WriteUint64(o.ClientId)
+}
+
+func (o *TLImportedContact) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactBlocked represents ctor contactBlocked#561bc879 user_id:int date:int = ContactBlocked from telegram.tl
@@ -1978,6 +2106,10 @@ func (o *TLContactBlocked) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 }
 
+func (o *TLContactBlocked) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactStatus represents ctor contactStatus#d3680c61 user_id:int status:UserStatus = ContactStatus from telegram.tl
 type TLContactStatus struct {
 	UserId int              // user_id:int
@@ -1997,6 +2129,10 @@ func (o *TLContactStatus) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 	w.WriteCmd(o.Status.Cmd())
 	o.Status.WriteBareTo(w)
+}
+
+func (o *TLContactStatus) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsLink represents ctor contacts.link#3ace484c my_link:ContactLink foreign_link:ContactLink user:User = contacts.Link from telegram.tl
@@ -2023,6 +2159,10 @@ func (o *TLContactsLink) WriteBareTo(w *tl.Writer) {
 	o.ForeignLink.WriteBareTo(w)
 	w.WriteCmd(o.User.Cmd())
 	o.User.WriteBareTo(w)
+}
+
+func (o *TLContactsLink) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsContactsType represents contacts.Contacts from telegram.tl
@@ -2090,6 +2230,10 @@ func (o *TLContactsImportedContacts) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLContactsImportedContacts) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsBlockedType represents contacts.Blocked from telegram.tl
@@ -2170,6 +2314,10 @@ func (o *TLMessagesChatFull) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesChatFull) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesAffectedHistory represents ctor messages.affectedHistory#b45c69d1 pts:int pts_count:int offset:int = messages.AffectedHistory from telegram.tl
 type TLMessagesAffectedHistory struct {
 	Pts      int // pts:int
@@ -2191,6 +2339,10 @@ func (o *TLMessagesAffectedHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
 	w.WriteInt(o.Offset)
+}
+
+func (o *TLMessagesAffectedHistory) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesFilterType represents MessagesFilter from telegram.tl
@@ -2236,6 +2388,10 @@ func (o *TLUpdatesState) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 	w.WriteInt(o.Seq)
 	w.WriteInt(o.UnreadCount)
+}
+
+func (o *TLUpdatesState) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatesDifferenceType represents updates.Difference from telegram.tl
@@ -2294,6 +2450,10 @@ func (o *TLPhotosPhoto) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPhotosPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUploadFile represents ctor upload.file#096a18d5 type:storage.FileType mtime:int bytes:bytes = upload.File from telegram.tl
 type TLUploadFile struct {
 	Type  TLStorageFileTypeType // type:storage.FileType
@@ -2316,6 +2476,10 @@ func (o *TLUploadFile) WriteBareTo(w *tl.Writer) {
 	o.Type.WriteBareTo(w)
 	w.WriteInt(o.Mtime)
 	w.WriteBlob(o.Bytes)
+}
+
+func (o *TLUploadFile) String() string {
+	return tl.Pretty(o)
 }
 
 // TLDcOption represents ctor dcOption#05d8c6cc flags:# flags.0?ipv6:true flags.1?media_only:true flags.2?tcpo_only:true id:int ip_address:string port:int = DcOption from telegram.tl
@@ -2348,6 +2512,10 @@ func (o *TLDcOption) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
 	w.WriteString(o.IPAddress)
 	w.WriteInt(o.Port)
+}
+
+func (o *TLDcOption) String() string {
+	return tl.Pretty(o)
 }
 
 // TLConfig represents ctor config#cb601684 flags:# flags.1?phonecalls_enabled:true date:int expires:int test_mode:Bool this_dc:int dc_options:Vector<DcOption> chat_size_max:int megagroup_size_max:int forwarded_count_max:int online_update_period_ms:int offline_blur_timeout_ms:int offline_idle_timeout_ms:int online_cloud_timeout_ms:int notify_cloud_delay_ms:int notify_default_delay_ms:int chat_big_size:int push_chat_period_ms:int push_chat_limit:int saved_gifs_limit:int edit_time_limit:int rating_e_decay:int stickers_recent_limit:int flags.0?tmp_sessions:int pinned_dialogs_count_max:int call_receive_timeout_ms:int call_ring_timeout_ms:int call_connect_timeout_ms:int call_packet_timeout_ms:int me_url_prefix:string disabled_features:Vector<DisabledFeature> = Config from telegram.tl
@@ -2491,6 +2659,10 @@ func (o *TLConfig) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLConfig) String() string {
+	return tl.Pretty(o)
+}
+
 // TLNearestDc represents ctor nearestDc#8e1a1775 country:string this_dc:int nearest_dc:int = NearestDc from telegram.tl
 type TLNearestDc struct {
 	Country   string // country:string
@@ -2512,6 +2684,10 @@ func (o *TLNearestDc) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Country)
 	w.WriteInt(o.ThisDc)
 	w.WriteInt(o.NearestDc)
+}
+
+func (o *TLNearestDc) String() string {
+	return tl.Pretty(o)
 }
 
 // TLHelpAppUpdateType represents help.AppUpdate from telegram.tl
@@ -2537,6 +2713,10 @@ func (o *TLHelpInviteText) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLHelpInviteText) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Message)
+}
+
+func (o *TLHelpInviteText) String() string {
+	return tl.Pretty(o)
 }
 
 // TLEncryptedChatType represents EncryptedChat from telegram.tl
@@ -2565,6 +2745,10 @@ func (o *TLInputEncryptedChat) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputEncryptedChat) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
 	w.WriteUint64(o.AccessHash)
+}
+
+func (o *TLInputEncryptedChat) String() string {
+	return tl.Pretty(o)
 }
 
 // TLEncryptedFileType represents EncryptedFile from telegram.tl
@@ -2644,6 +2828,10 @@ func (o *TLHelpSupport) WriteBareTo(w *tl.Writer) {
 	o.User.WriteBareTo(w)
 }
 
+func (o *TLHelpSupport) String() string {
+	return tl.Pretty(o)
+}
+
 // TLNotifyPeerType represents NotifyPeer from telegram.tl
 type TLNotifyPeerType interface {
 	IsTLNotifyPeer()
@@ -2714,6 +2902,10 @@ func (o *TLContactsFound) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLContactsFound) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPrivacyKeyType represents InputPrivacyKey from telegram.tl
@@ -2790,6 +2982,10 @@ func (o *TLAccountPrivacyRules) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLAccountPrivacyRules) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountDaysTTL represents ctor accountDaysTTL#b8d0afdf days:int = AccountDaysTTL from telegram.tl
 type TLAccountDaysTTL struct {
 	Days int // days:int
@@ -2805,6 +3001,10 @@ func (o *TLAccountDaysTTL) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLAccountDaysTTL) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Days)
+}
+
+func (o *TLAccountDaysTTL) String() string {
+	return tl.Pretty(o)
 }
 
 // TLDocumentAttributeType represents DocumentAttribute from telegram.tl
@@ -2853,6 +3053,10 @@ func (o *TLStickerPack) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLStickerPack) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesAllStickersType represents messages.AllStickers from telegram.tl
 type TLMessagesAllStickersType interface {
 	IsTLMessagesAllStickers()
@@ -2881,6 +3085,10 @@ func (o *TLDisabledFeature) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Description)
 }
 
+func (o *TLDisabledFeature) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesAffectedMessages represents ctor messages.affectedMessages#84d19185 pts:int pts_count:int = messages.AffectedMessages from telegram.tl
 type TLMessagesAffectedMessages struct {
 	Pts      int // pts:int
@@ -2899,6 +3107,10 @@ func (o *TLMessagesAffectedMessages) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesAffectedMessages) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
+}
+
+func (o *TLMessagesAffectedMessages) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactLinkType represents ContactLink from telegram.tl
@@ -2970,6 +3182,10 @@ func (o *TLAuthorization) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Region)
 }
 
+func (o *TLAuthorization) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountAuthorizations represents ctor account.authorizations#1250abde authorizations:Vector<Authorization> = account.Authorizations from telegram.tl
 type TLAccountAuthorizations struct {
 	Authorizations []*TLAuthorization // authorizations:Vector<Authorization>
@@ -3002,6 +3218,10 @@ func (o *TLAccountAuthorizations) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLAccountAuthorizations) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountPasswordType represents account.Password from telegram.tl
 type TLAccountPasswordType interface {
 	IsTLAccountPassword()
@@ -3025,6 +3245,10 @@ func (o *TLAccountPasswordSettings) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLAccountPasswordSettings) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Email)
+}
+
+func (o *TLAccountPasswordSettings) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountPasswordInputSettings represents ctor account.passwordInputSettings#86916deb flags:# flags.0?new_salt:bytes flags.0?new_password_hash:bytes flags.0?hint:string flags.1?email:string = account.PasswordInputSettings from telegram.tl
@@ -3056,6 +3280,10 @@ func (o *TLAccountPasswordInputSettings) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Email)
 }
 
+func (o *TLAccountPasswordInputSettings) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthPasswordRecovery represents ctor auth.passwordRecovery#137948a5 email_pattern:string = auth.PasswordRecovery from telegram.tl
 type TLAuthPasswordRecovery struct {
 	EmailPattern string // email_pattern:string
@@ -3071,6 +3299,10 @@ func (o *TLAuthPasswordRecovery) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLAuthPasswordRecovery) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.EmailPattern)
+}
+
+func (o *TLAuthPasswordRecovery) String() string {
+	return tl.Pretty(o)
 }
 
 // TLReceivedNotifyMessage represents ctor receivedNotifyMessage#a384b779 id:int flags:int = ReceivedNotifyMessage from telegram.tl
@@ -3091,6 +3323,10 @@ func (o *TLReceivedNotifyMessage) ReadBareFrom(r *tl.Reader) {
 func (o *TLReceivedNotifyMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
 	w.WriteInt(o.Flags)
+}
+
+func (o *TLReceivedNotifyMessage) String() string {
+	return tl.Pretty(o)
 }
 
 // TLExportedChatInviteType represents ExportedChatInvite from telegram.tl
@@ -3160,6 +3396,10 @@ func (o *TLStickerSet) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Hash)
 }
 
+func (o *TLStickerSet) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesStickerSet represents ctor messages.stickerSet#b60a24a6 set:StickerSet packs:Vector<StickerPack> documents:Vector<Document> = messages.StickerSet from telegram.tl
 type TLMessagesStickerSet struct {
 	Set       *TLStickerSet    // set:StickerSet
@@ -3214,6 +3454,10 @@ func (o *TLMessagesStickerSet) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesStickerSet) String() string {
+	return tl.Pretty(o)
+}
+
 // TLBotCommand represents ctor botCommand#c27ac8c7 command:string description:string = BotCommand from telegram.tl
 type TLBotCommand struct {
 	Command     string // command:string
@@ -3232,6 +3476,10 @@ func (o *TLBotCommand) ReadBareFrom(r *tl.Reader) {
 func (o *TLBotCommand) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Command)
 	w.WriteString(o.Description)
+}
+
+func (o *TLBotCommand) String() string {
+	return tl.Pretty(o)
 }
 
 // TLBotInfo represents ctor botInfo#98e81d3a user_id:int description:string commands:Vector<BotCommand> = BotInfo from telegram.tl
@@ -3272,6 +3520,10 @@ func (o *TLBotInfo) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLBotInfo) String() string {
+	return tl.Pretty(o)
+}
+
 // TLKeyboardButtonType represents KeyboardButton from telegram.tl
 type TLKeyboardButtonType interface {
 	IsTLKeyboardButton()
@@ -3306,6 +3558,10 @@ func (o *TLKeyboardButtonRow) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Buttons[i].Cmd())
 		o.Buttons[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLKeyboardButtonRow) String() string {
+	return tl.Pretty(o)
 }
 
 // TLReplyMarkupType represents ReplyMarkup from telegram.tl
@@ -3378,6 +3634,10 @@ func (o *TLContactsResolvedPeer) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLContactsResolvedPeer) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageRange represents ctor messageRange#0ae30253 min_id:int max_id:int = MessageRange from telegram.tl
 type TLMessageRange struct {
 	MinId int // min_id:int
@@ -3396,6 +3656,10 @@ func (o *TLMessageRange) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageRange) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.MinId)
 	w.WriteInt(o.MaxId)
+}
+
+func (o *TLMessageRange) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatesChannelDifferenceType represents updates.ChannelDifference from telegram.tl
@@ -3483,6 +3747,10 @@ func (o *TLChannelsChannelParticipants) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelsChannelParticipants) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsChannelParticipant represents ctor channels.channelParticipant#d0d9b163 participant:ChannelParticipant users:Vector<User> = channels.ChannelParticipant from telegram.tl
 type TLChannelsChannelParticipant struct {
 	Participant TLChannelParticipantType // participant:ChannelParticipant
@@ -3515,6 +3783,10 @@ func (o *TLChannelsChannelParticipant) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelsChannelParticipant) String() string {
+	return tl.Pretty(o)
+}
+
 // TLHelpTermsOfService represents ctor help.termsOfService#f1ee3e90 text:string = help.TermsOfService from telegram.tl
 type TLHelpTermsOfService struct {
 	Text string // text:string
@@ -3530,6 +3802,10 @@ func (o *TLHelpTermsOfService) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLHelpTermsOfService) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
+}
+
+func (o *TLHelpTermsOfService) String() string {
+	return tl.Pretty(o)
 }
 
 // TLFoundGifType represents FoundGif from telegram.tl
@@ -3569,6 +3845,10 @@ func (o *TLMessagesFoundGifs) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Results[i].Cmd())
 		o.Results[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLMessagesFoundGifs) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSavedGifsType represents messages.SavedGifs from telegram.tl
@@ -3661,6 +3941,10 @@ func (o *TLMessagesBotResults) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.CacheTime)
 }
 
+func (o *TLMessagesBotResults) String() string {
+	return tl.Pretty(o)
+}
+
 // TLExportedMessageLink represents ctor exportedMessageLink#1f486803 link:string = ExportedMessageLink from telegram.tl
 type TLExportedMessageLink struct {
 	Link string // link:string
@@ -3676,6 +3960,10 @@ func (o *TLExportedMessageLink) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLExportedMessageLink) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Link)
+}
+
+func (o *TLExportedMessageLink) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageFwdHeader represents ctor messageFwdHeader#c786ddcb flags:# flags.0?from_id:int date:int flags.1?channel_id:int flags.2?channel_post:int = MessageFwdHeader from telegram.tl
@@ -3705,6 +3993,10 @@ func (o *TLMessageFwdHeader) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 	w.WriteInt(o.ChannelId)
 	w.WriteInt(o.ChannelPost)
+}
+
+func (o *TLMessageFwdHeader) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthCodeTypeType represents auth.CodeType from telegram.tl
@@ -3753,6 +4045,10 @@ func (o *TLMessagesBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.CacheTime)
 }
 
+func (o *TLMessagesBotCallbackAnswer) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesMessageEditData represents ctor messages.messageEditData#26b5dde6 flags:# flags.0?caption:true = messages.MessageEditData from telegram.tl
 type TLMessagesMessageEditData struct {
 	Flags   uint // flags:#
@@ -3770,6 +4066,10 @@ func (o *TLMessagesMessageEditData) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesMessageEditData) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLMessagesMessageEditData) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputBotInlineMessageID represents ctor inputBotInlineMessageID#890c3d89 dc_id:int id:long access_hash:long = InputBotInlineMessageID from telegram.tl
@@ -3795,6 +4095,10 @@ func (o *TLInputBotInlineMessageID) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.AccessHash)
 }
 
+func (o *TLInputBotInlineMessageID) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInlineBotSwitchPM represents ctor inlineBotSwitchPM#3c20629f text:string start_param:string = InlineBotSwitchPM from telegram.tl
 type TLInlineBotSwitchPM struct {
 	Text       string // text:string
@@ -3813,6 +4117,10 @@ func (o *TLInlineBotSwitchPM) ReadBareFrom(r *tl.Reader) {
 func (o *TLInlineBotSwitchPM) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
 	w.WriteString(o.StartParam)
+}
+
+func (o *TLInlineBotSwitchPM) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesPeerDialogs represents ctor messages.peerDialogs#3371c354 dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> state:updates.State = messages.PeerDialogs from telegram.tl
@@ -3897,6 +4205,10 @@ func (o *TLMessagesPeerDialogs) WriteBareTo(w *tl.Writer) {
 	o.State.WriteBareTo(w)
 }
 
+func (o *TLMessagesPeerDialogs) String() string {
+	return tl.Pretty(o)
+}
+
 // TLTopPeer represents ctor topPeer#edcdc05b peer:Peer rating:double = TopPeer from telegram.tl
 type TLTopPeer struct {
 	Peer   TLPeerType // peer:Peer
@@ -3916,6 +4228,10 @@ func (o *TLTopPeer) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
 	w.WriteFloat64(o.Rating)
+}
+
+func (o *TLTopPeer) String() string {
+	return tl.Pretty(o)
 }
 
 // TLTopPeerCategoryType represents TopPeerCategory from telegram.tl
@@ -3963,6 +4279,10 @@ func (o *TLTopPeerCategoryPeers) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(TagTopPeer)
 		o.Peers[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLTopPeerCategoryPeers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsTopPeersType represents contacts.TopPeers from telegram.tl
@@ -4028,6 +4348,10 @@ func (o *TLMessagesArchivedStickers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesArchivedStickers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesStickerSetInstallResultType represents messages.StickerSetInstallResult from telegram.tl
 type TLMessagesStickerSetInstallResultType interface {
 	IsTLMessagesStickerSetInstallResult()
@@ -4068,6 +4392,10 @@ func (o *TLMaskCoords) WriteBareTo(w *tl.Writer) {
 	w.WriteFloat64(o.X)
 	w.WriteFloat64(o.Y)
 	w.WriteFloat64(o.Zoom)
+}
+
+func (o *TLMaskCoords) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputStickeredMediaType represents InputStickeredMedia from telegram.tl
@@ -4118,6 +4446,10 @@ func (o *TLGame) WriteBareTo(w *tl.Writer) {
 	o.Document.WriteBareTo(w)
 }
 
+func (o *TLGame) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputGameType represents InputGame from telegram.tl
 type TLInputGameType interface {
 	IsTLInputGame()
@@ -4147,6 +4479,10 @@ func (o *TLHighScore) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Pos)
 	w.WriteInt(o.UserId)
 	w.WriteInt(o.Score)
+}
+
+func (o *TLHighScore) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesHighScores represents ctor messages.highScores#9a3bfd99 scores:Vector<HighScore> users:Vector<User> = messages.HighScores from telegram.tl
@@ -4193,6 +4529,10 @@ func (o *TLMessagesHighScores) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLMessagesHighScores) String() string {
+	return tl.Pretty(o)
 }
 
 // TLRichTextType represents RichText from telegram.tl
@@ -4244,6 +4584,10 @@ func (o *TLDataJSON) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Data)
 }
 
+func (o *TLDataJSON) String() string {
+	return tl.Pretty(o)
+}
+
 // TLLabeledPrice represents ctor labeledPrice#cb296bf8 label:string amount:long = LabeledPrice from telegram.tl
 type TLLabeledPrice struct {
 	Label  string // label:string
@@ -4262,6 +4606,10 @@ func (o *TLLabeledPrice) ReadBareFrom(r *tl.Reader) {
 func (o *TLLabeledPrice) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Label)
 	w.WriteUint64(o.Amount)
+}
+
+func (o *TLLabeledPrice) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInvoice represents ctor invoice#c30aa358 flags:# flags.0?test:true flags.1?name_requested:true flags.2?phone_requested:true flags.3?email_requested:true flags.4?shipping_address_requested:true flags.5?flexible:true currency:string prices:Vector<LabeledPrice> = Invoice from telegram.tl
@@ -4314,6 +4662,10 @@ func (o *TLInvoice) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLInvoice) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPaymentCharge represents ctor paymentCharge#ea02c27e id:string provider_charge_id:string = PaymentCharge from telegram.tl
 type TLPaymentCharge struct {
 	Id               string // id:string
@@ -4332,6 +4684,10 @@ func (o *TLPaymentCharge) ReadBareFrom(r *tl.Reader) {
 func (o *TLPaymentCharge) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Id)
 	w.WriteString(o.ProviderChargeId)
+}
+
+func (o *TLPaymentCharge) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPostAddress represents ctor postAddress#1e8caaeb street_line1:string street_line2:string city:string state:string country_iso2:string post_code:string = PostAddress from telegram.tl
@@ -4364,6 +4720,10 @@ func (o *TLPostAddress) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.State)
 	w.WriteString(o.CountryIso2)
 	w.WriteString(o.PostCode)
+}
+
+func (o *TLPostAddress) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPaymentRequestedInfo represents ctor paymentRequestedInfo#909c3f94 flags:# flags.0?name:string flags.1?phone:string flags.2?email:string flags.3?shipping_address:PostAddress = PaymentRequestedInfo from telegram.tl
@@ -4400,6 +4760,10 @@ func (o *TLPaymentRequestedInfo) WriteBareTo(w *tl.Writer) {
 	o.ShippingAddress.WriteBareTo(w)
 }
 
+func (o *TLPaymentRequestedInfo) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPaymentSavedCredentialsCard represents ctor paymentSavedCredentialsCard#cdc27a1f id:string title:string = PaymentSavedCredentials from telegram.tl
 type TLPaymentSavedCredentialsCard struct {
 	Id    string // id:string
@@ -4418,6 +4782,10 @@ func (o *TLPaymentSavedCredentialsCard) ReadBareFrom(r *tl.Reader) {
 func (o *TLPaymentSavedCredentialsCard) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Id)
 	w.WriteString(o.Title)
+}
+
+func (o *TLPaymentSavedCredentialsCard) String() string {
+	return tl.Pretty(o)
 }
 
 // TLWebDocument represents ctor webDocument#c61acbd8 url:string access_hash:long size:int mime_type:string attributes:Vector<DocumentAttribute> dc_id:int = WebDocument from telegram.tl
@@ -4463,6 +4831,10 @@ func (o *TLWebDocument) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.DcId)
 }
 
+func (o *TLWebDocument) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputWebDocument represents ctor inputWebDocument#9bed434d url:string size:int mime_type:string attributes:Vector<DocumentAttribute> = InputWebDocument from telegram.tl
 type TLInputWebDocument struct {
 	Url        string                    // url:string
@@ -4500,6 +4872,10 @@ func (o *TLInputWebDocument) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLInputWebDocument) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputWebFileLocation represents ctor inputWebFileLocation#c239d686 url:string access_hash:long = InputWebFileLocation from telegram.tl
 type TLInputWebFileLocation struct {
 	Url        string // url:string
@@ -4518,6 +4894,10 @@ func (o *TLInputWebFileLocation) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputWebFileLocation) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Url)
 	w.WriteUint64(o.AccessHash)
+}
+
+func (o *TLInputWebFileLocation) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUploadWebFile represents ctor upload.webFile#21e753bc size:int mime_type:string file_type:storage.FileType mtime:int bytes:bytes = upload.WebFile from telegram.tl
@@ -4548,6 +4928,10 @@ func (o *TLUploadWebFile) WriteBareTo(w *tl.Writer) {
 	o.FileType.WriteBareTo(w)
 	w.WriteInt(o.Mtime)
 	w.WriteBlob(o.Bytes)
+}
+
+func (o *TLUploadWebFile) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPaymentsPaymentForm represents ctor payments.paymentForm#3f56aea3 flags:# flags.2?can_save_credentials:true flags.3?password_missing:true bot_id:int invoice:Invoice provider_id:int url:string flags.4?native_provider:string flags.4?native_params:DataJSON flags.0?saved_info:PaymentRequestedInfo flags.1?saved_credentials:PaymentSavedCredentials users:Vector<User> = payments.PaymentForm from telegram.tl
@@ -4629,6 +5013,10 @@ func (o *TLPaymentsPaymentForm) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPaymentsPaymentForm) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPaymentsValidatedRequestedInfo represents ctor payments.validatedRequestedInfo#d1451883 flags:# flags.0?id:string flags.1?shipping_options:Vector<ShippingOption> = payments.ValidatedRequestedInfo from telegram.tl
 type TLPaymentsValidatedRequestedInfo struct {
 	Flags           uint                // flags:#
@@ -4665,6 +5053,10 @@ func (o *TLPaymentsValidatedRequestedInfo) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(TagShippingOption)
 		o.ShippingOptions[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLPaymentsValidatedRequestedInfo) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPaymentsPaymentResultType represents payments.PaymentResult from telegram.tl
@@ -4748,6 +5140,10 @@ func (o *TLPaymentsPaymentReceipt) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPaymentsPaymentReceipt) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPaymentsSavedInfo represents ctor payments.savedInfo#fb8fe43c flags:# flags.1?has_saved_credentials:true flags.0?saved_info:PaymentRequestedInfo = payments.SavedInfo from telegram.tl
 type TLPaymentsSavedInfo struct {
 	Flags               uint                    // flags:#
@@ -4773,6 +5169,10 @@ func (o *TLPaymentsSavedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(TagPaymentRequestedInfo)
 	o.SavedInfo.WriteBareTo(w)
+}
+
+func (o *TLPaymentsSavedInfo) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPaymentCredentialsType represents InputPaymentCredentials from telegram.tl
@@ -4801,6 +5201,10 @@ func (o *TLAccountTmpPassword) ReadBareFrom(r *tl.Reader) {
 func (o *TLAccountTmpPassword) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.TmpPassword)
 	w.WriteInt(o.ValidUntil)
+}
+
+func (o *TLAccountTmpPassword) String() string {
+	return tl.Pretty(o)
 }
 
 // TLShippingOption represents ctor shippingOption#b6213cdf id:string title:string prices:Vector<LabeledPrice> = ShippingOption from telegram.tl
@@ -4841,6 +5245,10 @@ func (o *TLShippingOption) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLShippingOption) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputPhoneCall represents ctor inputPhoneCall#1e36fded id:long access_hash:long = InputPhoneCall from telegram.tl
 type TLInputPhoneCall struct {
 	Id         uint64 // id:long
@@ -4859,6 +5267,10 @@ func (o *TLInputPhoneCall) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputPhoneCall) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
 	w.WriteUint64(o.AccessHash)
+}
+
+func (o *TLInputPhoneCall) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhoneCallType represents PhoneCall from telegram.tl
@@ -4898,6 +5310,10 @@ func (o *TLPhoneConnection) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.PeerTag)
 }
 
+func (o *TLPhoneConnection) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneCallProtocol represents ctor phoneCallProtocol#a2bb35cb flags:# flags.0?udp_p2p:true flags.1?udp_reflector:true min_layer:int max_layer:int = PhoneCallProtocol from telegram.tl
 type TLPhoneCallProtocol struct {
 	Flags        uint // flags:#
@@ -4923,6 +5339,10 @@ func (o *TLPhoneCallProtocol) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.MinLayer)
 	w.WriteInt(o.MaxLayer)
+}
+
+func (o *TLPhoneCallProtocol) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhonePhoneCall represents ctor phone.phoneCall#ec82e140 phone_call:PhoneCall users:Vector<User> = phone.PhoneCall from telegram.tl
@@ -4957,6 +5377,10 @@ func (o *TLPhonePhoneCall) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPhonePhoneCall) String() string {
+	return tl.Pretty(o)
+}
+
 // TLReqPQ represents func req_pq#60469778 nonce:int128 = ResPQ from mtproto.tl
 type TLReqPQ struct {
 	Nonce [16]byte // nonce:int128
@@ -4972,6 +5396,10 @@ func (o *TLReqPQ) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLReqPQ) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(o.Nonce[:])
+}
+
+func (o *TLReqPQ) String() string {
+	return tl.Pretty(o)
 }
 
 // TLReqDHParams represents func req_DH_params#d712e4be nonce:int128 server_nonce:int128 p:bytes q:bytes public_key_fingerprint:long encrypted_data:bytes = Server_DH_Params from mtproto.tl
@@ -5006,6 +5434,10 @@ func (o *TLReqDHParams) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.EncryptedData)
 }
 
+func (o *TLReqDHParams) String() string {
+	return tl.Pretty(o)
+}
+
 // TLSetClientDHParams represents func set_client_DH_params#f5045f1f nonce:int128 server_nonce:int128 encrypted_data:bytes = Set_client_DH_params_answer from mtproto.tl
 type TLSetClientDHParams struct {
 	Nonce         [16]byte // nonce:int128
@@ -5029,6 +5461,10 @@ func (o *TLSetClientDHParams) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.EncryptedData)
 }
 
+func (o *TLSetClientDHParams) String() string {
+	return tl.Pretty(o)
+}
+
 // TLRpcDropAnswer represents func rpc_drop_answer#58e4a740 req_msg_id:long = RpcDropAnswer from mtproto.tl
 type TLRpcDropAnswer struct {
 	ReqMsgId uint64 // req_msg_id:long
@@ -5044,6 +5480,10 @@ func (o *TLRpcDropAnswer) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLRpcDropAnswer) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.ReqMsgId)
+}
+
+func (o *TLRpcDropAnswer) String() string {
+	return tl.Pretty(o)
 }
 
 // TLGetFutureSalts represents func get_future_salts#b921bd04 num:int = FutureSalts from mtproto.tl
@@ -5063,6 +5503,10 @@ func (o *TLGetFutureSalts) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Num)
 }
 
+func (o *TLGetFutureSalts) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPing represents func ping#7abe77ec ping_id:long = Pong from mtproto.tl
 type TLPing struct {
 	PingId uint64 // ping_id:long
@@ -5078,6 +5522,10 @@ func (o *TLPing) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPing) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.PingId)
+}
+
+func (o *TLPing) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPingDelayDisconnect represents func ping_delay_disconnect#f3427b8c ping_id:long disconnect_delay:int = Pong from mtproto.tl
@@ -5100,6 +5548,10 @@ func (o *TLPingDelayDisconnect) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.DisconnectDelay)
 }
 
+func (o *TLPingDelayDisconnect) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDestroySession represents func destroy_session#e7512126 session_id:long = DestroySessionRes from mtproto.tl
 type TLDestroySession struct {
 	SessionId uint64 // session_id:long
@@ -5115,6 +5567,10 @@ func (o *TLDestroySession) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLDestroySession) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.SessionId)
+}
+
+func (o *TLDestroySession) String() string {
+	return tl.Pretty(o)
 }
 
 // TLHttpWait represents func http_wait#9299359f max_delay:int wait_after:int max_wait:int = HttpWait from mtproto.tl
@@ -5140,6 +5596,10 @@ func (o *TLHttpWait) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.MaxWait)
 }
 
+func (o *TLHttpWait) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInvokeAfterMsg represents func invokeAfterMsg#cb9f372d {X:Type} msg_id:long query:Object = Object from telegram.tl
 type TLInvokeAfterMsg struct {
 	MsgId uint64    // msg_id:long
@@ -5159,6 +5619,10 @@ func (o *TLInvokeAfterMsg) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.MsgId)
 	w.WriteCmd(o.Query.Cmd())
 	o.Query.WriteBareTo(w)
+}
+
+func (o *TLInvokeAfterMsg) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInvokeAfterMsgs represents func invokeAfterMsgs#3dc4b4f0 {X:Type} msg_ids:Vector<long> query:Object = Object from telegram.tl
@@ -5190,6 +5654,10 @@ func (o *TLInvokeAfterMsgs) WriteBareTo(w *tl.Writer) {
 	}
 	w.WriteCmd(o.Query.Cmd())
 	o.Query.WriteBareTo(w)
+}
+
+func (o *TLInvokeAfterMsgs) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInitConnection represents func initConnection#69796de9 {X:Type} api_id:int device_model:string system_version:string app_version:string lang_code:string query:Object = Object from telegram.tl
@@ -5225,6 +5693,10 @@ func (o *TLInitConnection) WriteBareTo(w *tl.Writer) {
 	o.Query.WriteBareTo(w)
 }
 
+func (o *TLInitConnection) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInvokeWithLayer represents func invokeWithLayer#da9b0d0d {X:Type} layer:int query:Object = Object from telegram.tl
 type TLInvokeWithLayer struct {
 	Layer int       // layer:int
@@ -5246,6 +5718,10 @@ func (o *TLInvokeWithLayer) WriteBareTo(w *tl.Writer) {
 	o.Query.WriteBareTo(w)
 }
 
+func (o *TLInvokeWithLayer) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInvokeWithoutUpdates represents func invokeWithoutUpdates#bf9459b7 {X:Type} query:Object = Object from telegram.tl
 type TLInvokeWithoutUpdates struct {
 	Query tl.Object // query:Object
@@ -5264,6 +5740,10 @@ func (o *TLInvokeWithoutUpdates) WriteBareTo(w *tl.Writer) {
 	o.Query.WriteBareTo(w)
 }
 
+func (o *TLInvokeWithoutUpdates) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthCheckPhone represents func auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone from telegram.tl
 type TLAuthCheckPhone struct {
 	PhoneNumber string // phone_number:string
@@ -5279,6 +5759,10 @@ func (o *TLAuthCheckPhone) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLAuthCheckPhone) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PhoneNumber)
+}
+
+func (o *TLAuthCheckPhone) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthSendCode represents func auth.sendCode#86aef0ec flags:# flags.0?allow_flashcall:true phone_number:string flags.0?current_number:Bool api_id:int api_hash:string = auth.SentCode from telegram.tl
@@ -5317,6 +5801,10 @@ func (o *TLAuthSendCode) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.ApiHash)
 }
 
+func (o *TLAuthSendCode) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthSignUp represents func auth.signUp#1b067634 phone_number:string phone_code_hash:string phone_code:string first_name:string last_name:string = auth.Authorization from telegram.tl
 type TLAuthSignUp struct {
 	PhoneNumber   string // phone_number:string
@@ -5346,6 +5834,10 @@ func (o *TLAuthSignUp) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.LastName)
 }
 
+func (o *TLAuthSignUp) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthSignIn represents func auth.signIn#bcd51581 phone_number:string phone_code_hash:string phone_code:string = auth.Authorization from telegram.tl
 type TLAuthSignIn struct {
 	PhoneNumber   string // phone_number:string
@@ -5369,6 +5861,10 @@ func (o *TLAuthSignIn) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PhoneCode)
 }
 
+func (o *TLAuthSignIn) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthLogOut represents func auth.logOut#5717da40 = Bool from telegram.tl
 type TLAuthLogOut struct {
 }
@@ -5383,6 +5879,10 @@ func (o *TLAuthLogOut) ReadBareFrom(r *tl.Reader) {
 func (o *TLAuthLogOut) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLAuthLogOut) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthResetAuthorizations represents func auth.resetAuthorizations#9fab0d1a = Bool from telegram.tl
 type TLAuthResetAuthorizations struct {
 }
@@ -5395,6 +5895,10 @@ func (o *TLAuthResetAuthorizations) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLAuthResetAuthorizations) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLAuthResetAuthorizations) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthSendInvites represents func auth.sendInvites#771c1d97 phone_numbers:Vector<string> message:string = Bool from telegram.tl
@@ -5427,6 +5931,10 @@ func (o *TLAuthSendInvites) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Message)
 }
 
+func (o *TLAuthSendInvites) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthExportAuthorization represents func auth.exportAuthorization#e5bfffcd dc_id:int = auth.ExportedAuthorization from telegram.tl
 type TLAuthExportAuthorization struct {
 	DcId int // dc_id:int
@@ -5442,6 +5950,10 @@ func (o *TLAuthExportAuthorization) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLAuthExportAuthorization) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.DcId)
+}
+
+func (o *TLAuthExportAuthorization) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthImportAuthorization represents func auth.importAuthorization#e3ef9613 id:int bytes:bytes = auth.Authorization from telegram.tl
@@ -5462,6 +5974,10 @@ func (o *TLAuthImportAuthorization) ReadBareFrom(r *tl.Reader) {
 func (o *TLAuthImportAuthorization) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
 	w.WriteBlob(o.Bytes)
+}
+
+func (o *TLAuthImportAuthorization) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthBindTempAuthKey represents func auth.bindTempAuthKey#cdd42a05 perm_auth_key_id:long nonce:long expires_at:int encrypted_message:bytes = Bool from telegram.tl
@@ -5490,6 +6006,10 @@ func (o *TLAuthBindTempAuthKey) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.EncryptedMessage)
 }
 
+func (o *TLAuthBindTempAuthKey) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthImportBotAuthorization represents func auth.importBotAuthorization#67a3ff2c flags:int api_id:int api_hash:string bot_auth_token:string = auth.Authorization from telegram.tl
 type TLAuthImportBotAuthorization struct {
 	Flags        int    // flags:int
@@ -5516,6 +6036,10 @@ func (o *TLAuthImportBotAuthorization) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.BotAuthToken)
 }
 
+func (o *TLAuthImportBotAuthorization) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthCheckPassword represents func auth.checkPassword#0a63011e password_hash:bytes = auth.Authorization from telegram.tl
 type TLAuthCheckPassword struct {
 	PasswordHash []byte // password_hash:bytes
@@ -5533,6 +6057,10 @@ func (o *TLAuthCheckPassword) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.PasswordHash)
 }
 
+func (o *TLAuthCheckPassword) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthRequestPasswordRecovery represents func auth.requestPasswordRecovery#d897bc66 = auth.PasswordRecovery from telegram.tl
 type TLAuthRequestPasswordRecovery struct {
 }
@@ -5545,6 +6073,10 @@ func (o *TLAuthRequestPasswordRecovery) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLAuthRequestPasswordRecovery) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLAuthRequestPasswordRecovery) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthRecoverPassword represents func auth.recoverPassword#4ea56e92 code:string = auth.Authorization from telegram.tl
@@ -5562,6 +6094,10 @@ func (o *TLAuthRecoverPassword) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLAuthRecoverPassword) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Code)
+}
+
+func (o *TLAuthRecoverPassword) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthResendCode represents func auth.resendCode#3ef1a9bf phone_number:string phone_code_hash:string = auth.SentCode from telegram.tl
@@ -5584,6 +6120,10 @@ func (o *TLAuthResendCode) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PhoneCodeHash)
 }
 
+func (o *TLAuthResendCode) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthCancelCode represents func auth.cancelCode#1f040578 phone_number:string phone_code_hash:string = Bool from telegram.tl
 type TLAuthCancelCode struct {
 	PhoneNumber   string // phone_number:string
@@ -5602,6 +6142,10 @@ func (o *TLAuthCancelCode) ReadBareFrom(r *tl.Reader) {
 func (o *TLAuthCancelCode) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PhoneNumber)
 	w.WriteString(o.PhoneCodeHash)
+}
+
+func (o *TLAuthCancelCode) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthDropTempAuthKeys represents func auth.dropTempAuthKeys#8e48a188 except_auth_keys:Vector<long> = Bool from telegram.tl
@@ -5631,6 +6175,10 @@ func (o *TLAuthDropTempAuthKeys) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLAuthDropTempAuthKeys) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountRegisterDevice represents func account.registerDevice#637ea878 token_type:int token:string = Bool from telegram.tl
 type TLAccountRegisterDevice struct {
 	TokenType int    // token_type:int
@@ -5651,6 +6199,10 @@ func (o *TLAccountRegisterDevice) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Token)
 }
 
+func (o *TLAccountRegisterDevice) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountUnregisterDevice represents func account.unregisterDevice#65c55b40 token_type:int token:string = Bool from telegram.tl
 type TLAccountUnregisterDevice struct {
 	TokenType int    // token_type:int
@@ -5669,6 +6221,10 @@ func (o *TLAccountUnregisterDevice) ReadBareFrom(r *tl.Reader) {
 func (o *TLAccountUnregisterDevice) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.TokenType)
 	w.WriteString(o.Token)
+}
+
+func (o *TLAccountUnregisterDevice) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountUpdateNotifySettings represents func account.updateNotifySettings#84be5b93 peer:InputNotifyPeer settings:InputPeerNotifySettings = Bool from telegram.tl
@@ -5697,6 +6253,10 @@ func (o *TLAccountUpdateNotifySettings) WriteBareTo(w *tl.Writer) {
 	o.Settings.WriteBareTo(w)
 }
 
+func (o *TLAccountUpdateNotifySettings) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountGetNotifySettings represents func account.getNotifySettings#12b3ad31 peer:InputNotifyPeer = PeerNotifySettings from telegram.tl
 type TLAccountGetNotifySettings struct {
 	Peer TLInputNotifyPeerType // peer:InputNotifyPeer
@@ -5715,6 +6275,10 @@ func (o *TLAccountGetNotifySettings) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 }
 
+func (o *TLAccountGetNotifySettings) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountResetNotifySettings represents func account.resetNotifySettings#db7e1747 = Bool from telegram.tl
 type TLAccountResetNotifySettings struct {
 }
@@ -5727,6 +6291,10 @@ func (o *TLAccountResetNotifySettings) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLAccountResetNotifySettings) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLAccountResetNotifySettings) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountUpdateProfile represents func account.updateProfile#78515775 flags:# flags.0?first_name:string flags.1?last_name:string flags.2?about:string = User from telegram.tl
@@ -5755,6 +6323,10 @@ func (o *TLAccountUpdateProfile) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.About)
 }
 
+func (o *TLAccountUpdateProfile) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountUpdateStatus represents func account.updateStatus#6628562c offline:Bool = Bool from telegram.tl
 type TLAccountUpdateStatus struct {
 	Offline bool // offline:Bool
@@ -5777,6 +6349,10 @@ func (o *TLAccountUpdateStatus) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLAccountUpdateStatus) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountGetWallPapers represents func account.getWallPapers#c04cfac2 = Vector<WallPaper> from telegram.tl
 type TLAccountGetWallPapers struct {
 }
@@ -5789,6 +6365,10 @@ func (o *TLAccountGetWallPapers) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLAccountGetWallPapers) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLAccountGetWallPapers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountReportPeer represents func account.reportPeer#ae189d5f peer:InputPeer reason:ReportReason = Bool from telegram.tl
@@ -5813,6 +6393,10 @@ func (o *TLAccountReportPeer) WriteBareTo(w *tl.Writer) {
 	o.Reason.WriteBareTo(w)
 }
 
+func (o *TLAccountReportPeer) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountCheckUsername represents func account.checkUsername#2714d86c username:string = Bool from telegram.tl
 type TLAccountCheckUsername struct {
 	Username string // username:string
@@ -5828,6 +6412,10 @@ func (o *TLAccountCheckUsername) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLAccountCheckUsername) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Username)
+}
+
+func (o *TLAccountCheckUsername) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountUpdateUsername represents func account.updateUsername#3e0bdd7c username:string = User from telegram.tl
@@ -5847,6 +6435,10 @@ func (o *TLAccountUpdateUsername) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Username)
 }
 
+func (o *TLAccountUpdateUsername) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountGetPrivacy represents func account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules from telegram.tl
 type TLAccountGetPrivacy struct {
 	Key TLInputPrivacyKeyType // key:InputPrivacyKey
@@ -5863,6 +6455,10 @@ func (o *TLAccountGetPrivacy) ReadBareFrom(r *tl.Reader) {
 func (o *TLAccountGetPrivacy) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Key.Cmd())
 	o.Key.WriteBareTo(w)
+}
+
+func (o *TLAccountGetPrivacy) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountSetPrivacy represents func account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules from telegram.tl
@@ -5897,6 +6493,10 @@ func (o *TLAccountSetPrivacy) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLAccountSetPrivacy) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountDeleteAccount represents func account.deleteAccount#418d4e0b reason:string = Bool from telegram.tl
 type TLAccountDeleteAccount struct {
 	Reason string // reason:string
@@ -5914,6 +6514,10 @@ func (o *TLAccountDeleteAccount) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Reason)
 }
 
+func (o *TLAccountDeleteAccount) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountGetAccountTTL represents func account.getAccountTTL#08fc711d = AccountDaysTTL from telegram.tl
 type TLAccountGetAccountTTL struct {
 }
@@ -5926,6 +6530,10 @@ func (o *TLAccountGetAccountTTL) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLAccountGetAccountTTL) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLAccountGetAccountTTL) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountSetAccountTTL represents func account.setAccountTTL#2442485e ttl:AccountDaysTTL = Bool from telegram.tl
@@ -5948,6 +6556,10 @@ func (o *TLAccountSetAccountTTL) ReadBareFrom(r *tl.Reader) {
 func (o *TLAccountSetAccountTTL) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagAccountDaysTTL)
 	o.Ttl.WriteBareTo(w)
+}
+
+func (o *TLAccountSetAccountTTL) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountSendChangePhoneCode represents func account.sendChangePhoneCode#08e57deb flags:# flags.0?allow_flashcall:true phone_number:string flags.0?current_number:Bool = auth.SentCode from telegram.tl
@@ -5980,6 +6592,10 @@ func (o *TLAccountSendChangePhoneCode) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLAccountSendChangePhoneCode) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountChangePhone represents func account.changePhone#70c32edb phone_number:string phone_code_hash:string phone_code:string = User from telegram.tl
 type TLAccountChangePhone struct {
 	PhoneNumber   string // phone_number:string
@@ -6003,6 +6619,10 @@ func (o *TLAccountChangePhone) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PhoneCode)
 }
 
+func (o *TLAccountChangePhone) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountUpdateDeviceLocked represents func account.updateDeviceLocked#38df3532 period:int = Bool from telegram.tl
 type TLAccountUpdateDeviceLocked struct {
 	Period int // period:int
@@ -6020,6 +6640,10 @@ func (o *TLAccountUpdateDeviceLocked) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Period)
 }
 
+func (o *TLAccountUpdateDeviceLocked) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountGetAuthorizations represents func account.getAuthorizations#e320c158 = account.Authorizations from telegram.tl
 type TLAccountGetAuthorizations struct {
 }
@@ -6032,6 +6656,10 @@ func (o *TLAccountGetAuthorizations) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLAccountGetAuthorizations) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLAccountGetAuthorizations) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountResetAuthorization represents func account.resetAuthorization#df77f3bc hash:long = Bool from telegram.tl
@@ -6051,6 +6679,10 @@ func (o *TLAccountResetAuthorization) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Hash)
 }
 
+func (o *TLAccountResetAuthorization) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountGetPassword represents func account.getPassword#548a30f5 = account.Password from telegram.tl
 type TLAccountGetPassword struct {
 }
@@ -6063,6 +6695,10 @@ func (o *TLAccountGetPassword) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLAccountGetPassword) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLAccountGetPassword) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountGetPasswordSettings represents func account.getPasswordSettings#bc8d11bb current_password_hash:bytes = account.PasswordSettings from telegram.tl
@@ -6080,6 +6716,10 @@ func (o *TLAccountGetPasswordSettings) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLAccountGetPasswordSettings) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.CurrentPasswordHash)
+}
+
+func (o *TLAccountGetPasswordSettings) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountUpdatePasswordSettings represents func account.updatePasswordSettings#fa7c4b86 current_password_hash:bytes new_settings:account.PasswordInputSettings = Bool from telegram.tl
@@ -6105,6 +6745,10 @@ func (o *TLAccountUpdatePasswordSettings) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.CurrentPasswordHash)
 	w.WriteCmd(TagAccountPasswordInputSettings)
 	o.NewSettings.WriteBareTo(w)
+}
+
+func (o *TLAccountUpdatePasswordSettings) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountSendConfirmPhoneCode represents func account.sendConfirmPhoneCode#1516d7bd flags:# flags.0?allow_flashcall:true hash:string flags.0?current_number:Bool = auth.SentCode from telegram.tl
@@ -6137,6 +6781,10 @@ func (o *TLAccountSendConfirmPhoneCode) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLAccountSendConfirmPhoneCode) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountConfirmPhone represents func account.confirmPhone#5f2178c3 phone_code_hash:string phone_code:string = Bool from telegram.tl
 type TLAccountConfirmPhone struct {
 	PhoneCodeHash string // phone_code_hash:string
@@ -6157,6 +6805,10 @@ func (o *TLAccountConfirmPhone) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PhoneCode)
 }
 
+func (o *TLAccountConfirmPhone) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAccountGetTmpPassword represents func account.getTmpPassword#4a82327e password_hash:bytes period:int = account.TmpPassword from telegram.tl
 type TLAccountGetTmpPassword struct {
 	PasswordHash []byte // password_hash:bytes
@@ -6175,6 +6827,10 @@ func (o *TLAccountGetTmpPassword) ReadBareFrom(r *tl.Reader) {
 func (o *TLAccountGetTmpPassword) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.PasswordHash)
 	w.WriteInt(o.Period)
+}
+
+func (o *TLAccountGetTmpPassword) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUsersGetUsers represents func users.getUsers#0d91a548 id:Vector<InputUser> = Vector<User> from telegram.tl
@@ -6205,6 +6861,10 @@ func (o *TLUsersGetUsers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUsersGetUsers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUsersGetFullUser represents func users.getFullUser#ca30a5b1 id:InputUser = UserFull from telegram.tl
 type TLUsersGetFullUser struct {
 	Id TLInputUserType // id:InputUser
@@ -6223,6 +6883,10 @@ func (o *TLUsersGetFullUser) WriteBareTo(w *tl.Writer) {
 	o.Id.WriteBareTo(w)
 }
 
+func (o *TLUsersGetFullUser) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsGetStatuses represents func contacts.getStatuses#c4a353ee = Vector<ContactStatus> from telegram.tl
 type TLContactsGetStatuses struct {
 }
@@ -6235,6 +6899,10 @@ func (o *TLContactsGetStatuses) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLContactsGetStatuses) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLContactsGetStatuses) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsGetContacts represents func contacts.getContacts#22c6aa08 hash:string = contacts.Contacts from telegram.tl
@@ -6252,6 +6920,10 @@ func (o *TLContactsGetContacts) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLContactsGetContacts) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Hash)
+}
+
+func (o *TLContactsGetContacts) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsImportContacts represents func contacts.importContacts#da30b32d contacts:Vector<InputContact> replace:Bool = contacts.ImportedContacts from telegram.tl
@@ -6294,6 +6966,10 @@ func (o *TLContactsImportContacts) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLContactsImportContacts) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsDeleteContact represents func contacts.deleteContact#8e953744 id:InputUser = contacts.Link from telegram.tl
 type TLContactsDeleteContact struct {
 	Id TLInputUserType // id:InputUser
@@ -6310,6 +6986,10 @@ func (o *TLContactsDeleteContact) ReadBareFrom(r *tl.Reader) {
 func (o *TLContactsDeleteContact) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Id.Cmd())
 	o.Id.WriteBareTo(w)
+}
+
+func (o *TLContactsDeleteContact) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsDeleteContacts represents func contacts.deleteContacts#59ab389e id:Vector<InputUser> = Bool from telegram.tl
@@ -6340,6 +7020,10 @@ func (o *TLContactsDeleteContacts) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLContactsDeleteContacts) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsBlock represents func contacts.block#332b49fc id:InputUser = Bool from telegram.tl
 type TLContactsBlock struct {
 	Id TLInputUserType // id:InputUser
@@ -6358,6 +7042,10 @@ func (o *TLContactsBlock) WriteBareTo(w *tl.Writer) {
 	o.Id.WriteBareTo(w)
 }
 
+func (o *TLContactsBlock) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsUnblock represents func contacts.unblock#e54100bd id:InputUser = Bool from telegram.tl
 type TLContactsUnblock struct {
 	Id TLInputUserType // id:InputUser
@@ -6374,6 +7062,10 @@ func (o *TLContactsUnblock) ReadBareFrom(r *tl.Reader) {
 func (o *TLContactsUnblock) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Id.Cmd())
 	o.Id.WriteBareTo(w)
+}
+
+func (o *TLContactsUnblock) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsGetBlocked represents func contacts.getBlocked#f57c350f offset:int limit:int = contacts.Blocked from telegram.tl
@@ -6396,6 +7088,10 @@ func (o *TLContactsGetBlocked) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Limit)
 }
 
+func (o *TLContactsGetBlocked) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsExportCard represents func contacts.exportCard#84e53737 = Vector<int> from telegram.tl
 type TLContactsExportCard struct {
 }
@@ -6408,6 +7104,10 @@ func (o *TLContactsExportCard) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLContactsExportCard) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLContactsExportCard) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsImportCard represents func contacts.importCard#4fe196fe export_card:Vector<int> = User from telegram.tl
@@ -6437,6 +7137,10 @@ func (o *TLContactsImportCard) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLContactsImportCard) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsSearch represents func contacts.search#11f812d8 q:string limit:int = contacts.Found from telegram.tl
 type TLContactsSearch struct {
 	Q     string // q:string
@@ -6457,6 +7161,10 @@ func (o *TLContactsSearch) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Limit)
 }
 
+func (o *TLContactsSearch) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsResolveUsername represents func contacts.resolveUsername#f93ccba3 username:string = contacts.ResolvedPeer from telegram.tl
 type TLContactsResolveUsername struct {
 	Username string // username:string
@@ -6472,6 +7180,10 @@ func (o *TLContactsResolveUsername) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLContactsResolveUsername) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Username)
+}
+
+func (o *TLContactsResolveUsername) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsGetTopPeers represents func contacts.getTopPeers#d4982db5 flags:# flags.0?correspondents:true flags.1?bots_pm:true flags.2?bots_inline:true flags.10?groups:true flags.15?channels:true offset:int limit:int hash:int = contacts.TopPeers from telegram.tl
@@ -6510,6 +7222,10 @@ func (o *TLContactsGetTopPeers) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Hash)
 }
 
+func (o *TLContactsGetTopPeers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsResetTopPeerRating represents func contacts.resetTopPeerRating#1ae373ac category:TopPeerCategory peer:InputPeer = Bool from telegram.tl
 type TLContactsResetTopPeerRating struct {
 	Category TLTopPeerCategoryType // category:TopPeerCategory
@@ -6530,6 +7246,10 @@ func (o *TLContactsResetTopPeerRating) WriteBareTo(w *tl.Writer) {
 	o.Category.WriteBareTo(w)
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
+}
+
+func (o *TLContactsResetTopPeerRating) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetMessages represents func messages.getMessages#4222fa74 id:Vector<int> = messages.Messages from telegram.tl
@@ -6557,6 +7277,10 @@ func (o *TLMessagesGetMessages) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.Id); i++ {
 		w.WriteInt(o.Id[i])
 	}
+}
+
+func (o *TLMessagesGetMessages) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetDialogs represents func messages.getDialogs#191ba9c5 flags:# flags.0?exclude_pinned:true offset_date:int offset_id:int offset_peer:InputPeer limit:int = messages.Dialogs from telegram.tl
@@ -6589,6 +7313,10 @@ func (o *TLMessagesGetDialogs) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.OffsetPeer.Cmd())
 	o.OffsetPeer.WriteBareTo(w)
 	w.WriteInt(o.Limit)
+}
+
+func (o *TLMessagesGetDialogs) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetHistory represents func messages.getHistory#afa92846 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int = messages.Messages from telegram.tl
@@ -6625,6 +7353,10 @@ func (o *TLMessagesGetHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Limit)
 	w.WriteInt(o.MaxId)
 	w.WriteInt(o.MinId)
+}
+
+func (o *TLMessagesGetHistory) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSearch represents func messages.search#d4569248 flags:# peer:InputPeer q:string filter:MessagesFilter min_date:int max_date:int offset:int max_id:int limit:int = messages.Messages from telegram.tl
@@ -6670,6 +7402,10 @@ func (o *TLMessagesSearch) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Limit)
 }
 
+func (o *TLMessagesSearch) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesReadHistory represents func messages.readHistory#0e306d3a peer:InputPeer max_id:int = messages.AffectedMessages from telegram.tl
 type TLMessagesReadHistory struct {
 	Peer  TLInputPeerType // peer:InputPeer
@@ -6689,6 +7425,10 @@ func (o *TLMessagesReadHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
 	w.WriteInt(o.MaxId)
+}
+
+func (o *TLMessagesReadHistory) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesDeleteHistory represents func messages.deleteHistory#1c015b09 flags:# flags.0?just_clear:true peer:InputPeer max_id:int = messages.AffectedHistory from telegram.tl
@@ -6715,6 +7455,10 @@ func (o *TLMessagesDeleteHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
 	w.WriteInt(o.MaxId)
+}
+
+func (o *TLMessagesDeleteHistory) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesDeleteMessages represents func messages.deleteMessages#e58e95d2 flags:# flags.0?revoke:true id:Vector<int> = messages.AffectedMessages from telegram.tl
@@ -6749,6 +7493,10 @@ func (o *TLMessagesDeleteMessages) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesDeleteMessages) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesReceivedMessages represents func messages.receivedMessages#05a954c0 max_id:int = Vector<ReceivedNotifyMessage> from telegram.tl
 type TLMessagesReceivedMessages struct {
 	MaxId int // max_id:int
@@ -6764,6 +7512,10 @@ func (o *TLMessagesReceivedMessages) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesReceivedMessages) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.MaxId)
+}
+
+func (o *TLMessagesReceivedMessages) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSetTyping represents func messages.setTyping#a3825e50 peer:InputPeer action:SendMessageAction = Bool from telegram.tl
@@ -6786,6 +7538,10 @@ func (o *TLMessagesSetTyping) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 	w.WriteCmd(o.Action.Cmd())
 	o.Action.WriteBareTo(w)
+}
+
+func (o *TLMessagesSetTyping) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSendMessage represents func messages.sendMessage#fa88427a flags:# flags.1?no_webpage:true flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int message:string random_id:long flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Updates from telegram.tl
@@ -6844,6 +7600,10 @@ func (o *TLMessagesSendMessage) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesSendMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesSendMedia represents func messages.sendMedia#c8f16791 flags:# flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int media:InputMedia random_id:long flags.2?reply_markup:ReplyMarkup = Updates from telegram.tl
 type TLMessagesSendMedia struct {
 	Flags        uint              // flags:#
@@ -6883,6 +7643,10 @@ func (o *TLMessagesSendMedia) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.RandomId)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
+}
+
+func (o *TLMessagesSendMedia) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesForwardMessages represents func messages.forwardMessages#708e0195 flags:# flags.5?silent:true flags.6?background:true flags.8?with_my_score:true from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer = Updates from telegram.tl
@@ -6942,6 +7706,10 @@ func (o *TLMessagesForwardMessages) WriteBareTo(w *tl.Writer) {
 	o.ToPeer.WriteBareTo(w)
 }
 
+func (o *TLMessagesForwardMessages) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesReportSpam represents func messages.reportSpam#cf1592db peer:InputPeer = Bool from telegram.tl
 type TLMessagesReportSpam struct {
 	Peer TLInputPeerType // peer:InputPeer
@@ -6958,6 +7726,10 @@ func (o *TLMessagesReportSpam) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesReportSpam) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
+}
+
+func (o *TLMessagesReportSpam) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesHideReportSpam represents func messages.hideReportSpam#a8f1709b peer:InputPeer = Bool from telegram.tl
@@ -6978,6 +7750,10 @@ func (o *TLMessagesHideReportSpam) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 }
 
+func (o *TLMessagesHideReportSpam) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetPeerSettings represents func messages.getPeerSettings#3672e09c peer:InputPeer = PeerSettings from telegram.tl
 type TLMessagesGetPeerSettings struct {
 	Peer TLInputPeerType // peer:InputPeer
@@ -6994,6 +7770,10 @@ func (o *TLMessagesGetPeerSettings) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesGetPeerSettings) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
+}
+
+func (o *TLMessagesGetPeerSettings) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetChats represents func messages.getChats#3c6aa187 id:Vector<int> = messages.Chats from telegram.tl
@@ -7023,6 +7803,10 @@ func (o *TLMessagesGetChats) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesGetChats) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetFullChat represents func messages.getFullChat#3b831c66 chat_id:int = messages.ChatFull from telegram.tl
 type TLMessagesGetFullChat struct {
 	ChatId int // chat_id:int
@@ -7038,6 +7822,10 @@ func (o *TLMessagesGetFullChat) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesGetFullChat) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
+}
+
+func (o *TLMessagesGetFullChat) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesEditChatTitle represents func messages.editChatTitle#dc452855 chat_id:int title:string = Updates from telegram.tl
@@ -7060,6 +7848,10 @@ func (o *TLMessagesEditChatTitle) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Title)
 }
 
+func (o *TLMessagesEditChatTitle) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesEditChatPhoto represents func messages.editChatPhoto#ca4c79d8 chat_id:int photo:InputChatPhoto = Updates from telegram.tl
 type TLMessagesEditChatPhoto struct {
 	ChatId int                  // chat_id:int
@@ -7079,6 +7871,10 @@ func (o *TLMessagesEditChatPhoto) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
 	w.WriteCmd(o.Photo.Cmd())
 	o.Photo.WriteBareTo(w)
+}
+
+func (o *TLMessagesEditChatPhoto) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesAddChatUser represents func messages.addChatUser#f9a0aa09 chat_id:int user_id:InputUser fwd_limit:int = Updates from telegram.tl
@@ -7105,6 +7901,10 @@ func (o *TLMessagesAddChatUser) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.FwdLimit)
 }
 
+func (o *TLMessagesAddChatUser) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesDeleteChatUser represents func messages.deleteChatUser#e0611f16 chat_id:int user_id:InputUser = Updates from telegram.tl
 type TLMessagesDeleteChatUser struct {
 	ChatId int             // chat_id:int
@@ -7124,6 +7924,10 @@ func (o *TLMessagesDeleteChatUser) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
 	w.WriteCmd(o.UserId.Cmd())
 	o.UserId.WriteBareTo(w)
+}
+
+func (o *TLMessagesDeleteChatUser) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesCreateChat represents func messages.createChat#09cb126e users:Vector<InputUser> title:string = Updates from telegram.tl
@@ -7157,6 +7961,10 @@ func (o *TLMessagesCreateChat) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Title)
 }
 
+func (o *TLMessagesCreateChat) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesForwardMessage represents func messages.forwardMessage#33963bf9 peer:InputPeer id:int random_id:long = Updates from telegram.tl
 type TLMessagesForwardMessage struct {
 	Peer     TLInputPeerType // peer:InputPeer
@@ -7181,6 +7989,10 @@ func (o *TLMessagesForwardMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.RandomId)
 }
 
+func (o *TLMessagesForwardMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetDHConfig represents func messages.getDhConfig#26cf8950 version:int random_length:int = messages.DhConfig from telegram.tl
 type TLMessagesGetDHConfig struct {
 	Version      int // version:int
@@ -7199,6 +8011,10 @@ func (o *TLMessagesGetDHConfig) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesGetDHConfig) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Version)
 	w.WriteInt(o.RandomLength)
+}
+
+func (o *TLMessagesGetDHConfig) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesRequestEncryption represents func messages.requestEncryption#f64daf43 user_id:InputUser random_id:int g_a:bytes = EncryptedChat from telegram.tl
@@ -7223,6 +8039,10 @@ func (o *TLMessagesRequestEncryption) WriteBareTo(w *tl.Writer) {
 	o.UserId.WriteBareTo(w)
 	w.WriteInt(o.RandomId)
 	w.WriteBlob(o.GA)
+}
+
+func (o *TLMessagesRequestEncryption) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesAcceptEncryption represents func messages.acceptEncryption#3dbc0415 peer:InputEncryptedChat g_b:bytes key_fingerprint:long = EncryptedChat from telegram.tl
@@ -7253,6 +8073,10 @@ func (o *TLMessagesAcceptEncryption) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.KeyFingerprint)
 }
 
+func (o *TLMessagesAcceptEncryption) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesDiscardEncryption represents func messages.discardEncryption#edd923c5 chat_id:int = Bool from telegram.tl
 type TLMessagesDiscardEncryption struct {
 	ChatId int // chat_id:int
@@ -7268,6 +8092,10 @@ func (o *TLMessagesDiscardEncryption) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesDiscardEncryption) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
+}
+
+func (o *TLMessagesDiscardEncryption) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSetEncryptedTyping represents func messages.setEncryptedTyping#791451ed peer:InputEncryptedChat typing:Bool = Bool from telegram.tl
@@ -7300,6 +8128,10 @@ func (o *TLMessagesSetEncryptedTyping) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesSetEncryptedTyping) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesReadEncryptedHistory represents func messages.readEncryptedHistory#7f4b690a peer:InputEncryptedChat max_date:int = Bool from telegram.tl
 type TLMessagesReadEncryptedHistory struct {
 	Peer    *TLInputEncryptedChat // peer:InputEncryptedChat
@@ -7323,6 +8155,10 @@ func (o *TLMessagesReadEncryptedHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagInputEncryptedChat)
 	o.Peer.WriteBareTo(w)
 	w.WriteInt(o.MaxDate)
+}
+
+func (o *TLMessagesReadEncryptedHistory) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSendEncrypted represents func messages.sendEncrypted#a9776773 peer:InputEncryptedChat random_id:long data:bytes = messages.SentEncryptedMessage from telegram.tl
@@ -7351,6 +8187,10 @@ func (o *TLMessagesSendEncrypted) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 	w.WriteUint64(o.RandomId)
 	w.WriteBlob(o.Data)
+}
+
+func (o *TLMessagesSendEncrypted) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSendEncryptedFile represents func messages.sendEncryptedFile#9a901b66 peer:InputEncryptedChat random_id:long data:bytes file:InputEncryptedFile = messages.SentEncryptedMessage from telegram.tl
@@ -7385,6 +8225,10 @@ func (o *TLMessagesSendEncryptedFile) WriteBareTo(w *tl.Writer) {
 	o.File.WriteBareTo(w)
 }
 
+func (o *TLMessagesSendEncryptedFile) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesSendEncryptedService represents func messages.sendEncryptedService#32d439a4 peer:InputEncryptedChat random_id:long data:bytes = messages.SentEncryptedMessage from telegram.tl
 type TLMessagesSendEncryptedService struct {
 	Peer     *TLInputEncryptedChat // peer:InputEncryptedChat
@@ -7413,6 +8257,10 @@ func (o *TLMessagesSendEncryptedService) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.Data)
 }
 
+func (o *TLMessagesSendEncryptedService) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesReceivedQueue represents func messages.receivedQueue#55a5bb66 max_qts:int = Vector<long> from telegram.tl
 type TLMessagesReceivedQueue struct {
 	MaxQts int // max_qts:int
@@ -7428,6 +8276,10 @@ func (o *TLMessagesReceivedQueue) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesReceivedQueue) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.MaxQts)
+}
+
+func (o *TLMessagesReceivedQueue) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesReportEncryptedSpam represents func messages.reportEncryptedSpam#4b0c8c0f peer:InputEncryptedChat = Bool from telegram.tl
@@ -7450,6 +8302,10 @@ func (o *TLMessagesReportEncryptedSpam) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesReportEncryptedSpam) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagInputEncryptedChat)
 	o.Peer.WriteBareTo(w)
+}
+
+func (o *TLMessagesReportEncryptedSpam) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesReadMessageContents represents func messages.readMessageContents#36a73f77 id:Vector<int> = messages.AffectedMessages from telegram.tl
@@ -7479,6 +8335,10 @@ func (o *TLMessagesReadMessageContents) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesReadMessageContents) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetAllStickers represents func messages.getAllStickers#1c9618b1 hash:int = messages.AllStickers from telegram.tl
 type TLMessagesGetAllStickers struct {
 	Hash int // hash:int
@@ -7494,6 +8354,10 @@ func (o *TLMessagesGetAllStickers) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesGetAllStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Hash)
+}
+
+func (o *TLMessagesGetAllStickers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetWebPagePreview represents func messages.getWebPagePreview#25223e24 message:string = MessageMedia from telegram.tl
@@ -7513,6 +8377,10 @@ func (o *TLMessagesGetWebPagePreview) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Message)
 }
 
+func (o *TLMessagesGetWebPagePreview) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesExportChatInvite represents func messages.exportChatInvite#7d885289 chat_id:int = ExportedChatInvite from telegram.tl
 type TLMessagesExportChatInvite struct {
 	ChatId int // chat_id:int
@@ -7528,6 +8396,10 @@ func (o *TLMessagesExportChatInvite) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesExportChatInvite) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
+}
+
+func (o *TLMessagesExportChatInvite) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesCheckChatInvite represents func messages.checkChatInvite#3eadb1bb hash:string = ChatInvite from telegram.tl
@@ -7547,6 +8419,10 @@ func (o *TLMessagesCheckChatInvite) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Hash)
 }
 
+func (o *TLMessagesCheckChatInvite) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesImportChatInvite represents func messages.importChatInvite#6c50051c hash:string = Updates from telegram.tl
 type TLMessagesImportChatInvite struct {
 	Hash string // hash:string
@@ -7562,6 +8438,10 @@ func (o *TLMessagesImportChatInvite) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesImportChatInvite) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Hash)
+}
+
+func (o *TLMessagesImportChatInvite) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetStickerSet represents func messages.getStickerSet#2619a90e stickerset:InputStickerSet = messages.StickerSet from telegram.tl
@@ -7580,6 +8460,10 @@ func (o *TLMessagesGetStickerSet) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesGetStickerSet) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Stickerset.Cmd())
 	o.Stickerset.WriteBareTo(w)
+}
+
+func (o *TLMessagesGetStickerSet) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesInstallStickerSet represents func messages.installStickerSet#c78fe460 stickerset:InputStickerSet archived:Bool = messages.StickerSetInstallResult from telegram.tl
@@ -7608,6 +8492,10 @@ func (o *TLMessagesInstallStickerSet) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesInstallStickerSet) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesUninstallStickerSet represents func messages.uninstallStickerSet#f96e55de stickerset:InputStickerSet = Bool from telegram.tl
 type TLMessagesUninstallStickerSet struct {
 	Stickerset TLInputStickerSetType // stickerset:InputStickerSet
@@ -7624,6 +8512,10 @@ func (o *TLMessagesUninstallStickerSet) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesUninstallStickerSet) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Stickerset.Cmd())
 	o.Stickerset.WriteBareTo(w)
+}
+
+func (o *TLMessagesUninstallStickerSet) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesStartBot represents func messages.startBot#e6df7378 bot:InputUser peer:InputPeer random_id:long start_param:string = Updates from telegram.tl
@@ -7652,6 +8544,10 @@ func (o *TLMessagesStartBot) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 	w.WriteUint64(o.RandomId)
 	w.WriteString(o.StartParam)
+}
+
+func (o *TLMessagesStartBot) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetMessagesViews represents func messages.getMessagesViews#c4c8a55d peer:InputPeer id:Vector<int> increment:Bool = Vector<int> from telegram.tl
@@ -7693,6 +8589,10 @@ func (o *TLMessagesGetMessagesViews) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesGetMessagesViews) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesToggleChatAdmins represents func messages.toggleChatAdmins#ec8bd9e1 chat_id:int enabled:Bool = Updates from telegram.tl
 type TLMessagesToggleChatAdmins struct {
 	ChatId  int  // chat_id:int
@@ -7716,6 +8616,10 @@ func (o *TLMessagesToggleChatAdmins) WriteBareTo(w *tl.Writer) {
 	} else {
 		w.WriteCmd(TagBoolFalse)
 	}
+}
+
+func (o *TLMessagesToggleChatAdmins) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesEditChatAdmin represents func messages.editChatAdmin#a9e69f2e chat_id:int user_id:InputUser is_admin:Bool = Bool from telegram.tl
@@ -7747,6 +8651,10 @@ func (o *TLMessagesEditChatAdmin) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesEditChatAdmin) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesMigrateChat represents func messages.migrateChat#15a3b8e3 chat_id:int = Updates from telegram.tl
 type TLMessagesMigrateChat struct {
 	ChatId int // chat_id:int
@@ -7762,6 +8670,10 @@ func (o *TLMessagesMigrateChat) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesMigrateChat) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
+}
+
+func (o *TLMessagesMigrateChat) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSearchGlobal represents func messages.searchGlobal#9e3cacb0 q:string offset_date:int offset_peer:InputPeer offset_id:int limit:int = messages.Messages from telegram.tl
@@ -7792,6 +8704,10 @@ func (o *TLMessagesSearchGlobal) WriteBareTo(w *tl.Writer) {
 	o.OffsetPeer.WriteBareTo(w)
 	w.WriteInt(o.OffsetId)
 	w.WriteInt(o.Limit)
+}
+
+func (o *TLMessagesSearchGlobal) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesReorderStickerSets represents func messages.reorderStickerSets#78337739 flags:# flags.0?masks:true order:Vector<long> = Bool from telegram.tl
@@ -7826,6 +8742,10 @@ func (o *TLMessagesReorderStickerSets) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesReorderStickerSets) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetDocumentByHash represents func messages.getDocumentByHash#338e2464 sha256:bytes size:int mime_type:string = Document from telegram.tl
 type TLMessagesGetDocumentByHash struct {
 	Sha256   []byte // sha256:bytes
@@ -7849,6 +8769,10 @@ func (o *TLMessagesGetDocumentByHash) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.MimeType)
 }
 
+func (o *TLMessagesGetDocumentByHash) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesSearchGifs represents func messages.searchGifs#bf9a776b q:string offset:int = messages.FoundGifs from telegram.tl
 type TLMessagesSearchGifs struct {
 	Q      string // q:string
@@ -7869,6 +8793,10 @@ func (o *TLMessagesSearchGifs) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 }
 
+func (o *TLMessagesSearchGifs) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetSavedGifs represents func messages.getSavedGifs#83bf3d52 hash:int = messages.SavedGifs from telegram.tl
 type TLMessagesGetSavedGifs struct {
 	Hash int // hash:int
@@ -7884,6 +8812,10 @@ func (o *TLMessagesGetSavedGifs) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesGetSavedGifs) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Hash)
+}
+
+func (o *TLMessagesGetSavedGifs) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSaveGif represents func messages.saveGif#327a30cb id:InputDocument unsave:Bool = Bool from telegram.tl
@@ -7910,6 +8842,10 @@ func (o *TLMessagesSaveGif) WriteBareTo(w *tl.Writer) {
 	} else {
 		w.WriteCmd(TagBoolFalse)
 	}
+}
+
+func (o *TLMessagesSaveGif) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetInlineBotResults represents func messages.getInlineBotResults#514e999d flags:# bot:InputUser peer:InputPeer flags.0?geo_point:InputGeoPoint query:string offset:string = messages.BotResults from telegram.tl
@@ -7945,6 +8881,10 @@ func (o *TLMessagesGetInlineBotResults) WriteBareTo(w *tl.Writer) {
 	o.GeoPoint.WriteBareTo(w)
 	w.WriteString(o.Query)
 	w.WriteString(o.Offset)
+}
+
+func (o *TLMessagesGetInlineBotResults) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSetInlineBotResults represents func messages.setInlineBotResults#eb5ea206 flags:# flags.0?gallery:true flags.1?private:true query_id:long results:Vector<InputBotInlineResult> cache_time:int flags.2?next_offset:string flags.3?switch_pm:InlineBotSwitchPM = Bool from telegram.tl
@@ -7999,6 +8939,10 @@ func (o *TLMessagesSetInlineBotResults) WriteBareTo(w *tl.Writer) {
 	o.SwitchPm.WriteBareTo(w)
 }
 
+func (o *TLMessagesSetInlineBotResults) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesSendInlineBotResult represents func messages.sendInlineBotResult#b16e06fe flags:# flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int random_id:long query_id:long id:string = Updates from telegram.tl
 type TLMessagesSendInlineBotResult struct {
 	Flags        uint            // flags:#
@@ -8038,6 +8982,10 @@ func (o *TLMessagesSendInlineBotResult) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Id)
 }
 
+func (o *TLMessagesSendInlineBotResult) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetMessageEditData represents func messages.getMessageEditData#fda68d36 peer:InputPeer id:int = messages.MessageEditData from telegram.tl
 type TLMessagesGetMessageEditData struct {
 	Peer TLInputPeerType // peer:InputPeer
@@ -8057,6 +9005,10 @@ func (o *TLMessagesGetMessageEditData) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
 	w.WriteInt(o.Id)
+}
+
+func (o *TLMessagesGetMessageEditData) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesEditMessage represents func messages.editMessage#ce91e4ca flags:# flags.1?no_webpage:true peer:InputPeer id:int flags.11?message:string flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Updates from telegram.tl
@@ -8104,6 +9056,10 @@ func (o *TLMessagesEditMessage) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Entities[i].Cmd())
 		o.Entities[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLMessagesEditMessage) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesEditInlineBotMessage represents func messages.editInlineBotMessage#130c2c85 flags:# flags.1?no_webpage:true id:InputBotInlineMessageID flags.11?message:string flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Bool from telegram.tl
@@ -8154,6 +9110,10 @@ func (o *TLMessagesEditInlineBotMessage) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesEditInlineBotMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetBotCallbackAnswer represents func messages.getBotCallbackAnswer#810a9fec flags:# flags.1?game:true peer:InputPeer msg_id:int flags.0?data:bytes = messages.BotCallbackAnswer from telegram.tl
 type TLMessagesGetBotCallbackAnswer struct {
 	Flags uint            // flags:#
@@ -8181,6 +9141,10 @@ func (o *TLMessagesGetBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 	w.WriteInt(o.MsgId)
 	w.WriteBlob(o.Data)
+}
+
+func (o *TLMessagesGetBotCallbackAnswer) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSetBotCallbackAnswer represents func messages.setBotCallbackAnswer#d58f130a flags:# flags.1?alert:true query_id:long flags.0?message:string flags.2?url:string cache_time:int = Bool from telegram.tl
@@ -8214,6 +9178,10 @@ func (o *TLMessagesSetBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.CacheTime)
 }
 
+func (o *TLMessagesSetBotCallbackAnswer) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetPeerDialogs represents func messages.getPeerDialogs#2d9776b9 peers:Vector<InputPeer> = messages.PeerDialogs from telegram.tl
 type TLMessagesGetPeerDialogs struct {
 	Peers []TLInputPeerType // peers:Vector<InputPeer>
@@ -8240,6 +9208,10 @@ func (o *TLMessagesGetPeerDialogs) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Peers[i].Cmd())
 		o.Peers[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLMessagesGetPeerDialogs) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSaveDraft represents func messages.saveDraft#bc39e14b flags:# flags.1?no_webpage:true flags.0?reply_to_msg_id:int peer:InputPeer message:string flags.3?entities:Vector<MessageEntity> = Bool from telegram.tl
@@ -8285,6 +9257,10 @@ func (o *TLMessagesSaveDraft) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesSaveDraft) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetAllDrafts represents func messages.getAllDrafts#6a3f8d65 = Updates from telegram.tl
 type TLMessagesGetAllDrafts struct {
 }
@@ -8297,6 +9273,10 @@ func (o *TLMessagesGetAllDrafts) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessagesGetAllDrafts) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessagesGetAllDrafts) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetFeaturedStickers represents func messages.getFeaturedStickers#2dacca4f hash:int = messages.FeaturedStickers from telegram.tl
@@ -8314,6 +9294,10 @@ func (o *TLMessagesGetFeaturedStickers) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesGetFeaturedStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Hash)
+}
+
+func (o *TLMessagesGetFeaturedStickers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesReadFeaturedStickers represents func messages.readFeaturedStickers#5b118126 id:Vector<long> = Bool from telegram.tl
@@ -8343,6 +9327,10 @@ func (o *TLMessagesReadFeaturedStickers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesReadFeaturedStickers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetRecentStickers represents func messages.getRecentStickers#5ea192c9 flags:# flags.0?attached:true hash:int = messages.RecentStickers from telegram.tl
 type TLMessagesGetRecentStickers struct {
 	Flags    uint // flags:#
@@ -8363,6 +9351,10 @@ func (o *TLMessagesGetRecentStickers) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesGetRecentStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.Hash)
+}
+
+func (o *TLMessagesGetRecentStickers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSaveRecentSticker represents func messages.saveRecentSticker#392718f8 flags:# flags.0?attached:true id:InputDocument unsave:Bool = Bool from telegram.tl
@@ -8396,6 +9388,10 @@ func (o *TLMessagesSaveRecentSticker) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesSaveRecentSticker) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesClearRecentStickers represents func messages.clearRecentStickers#8999602d flags:# flags.0?attached:true = Bool from telegram.tl
 type TLMessagesClearRecentStickers struct {
 	Flags    uint // flags:#
@@ -8413,6 +9409,10 @@ func (o *TLMessagesClearRecentStickers) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesClearRecentStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLMessagesClearRecentStickers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetArchivedStickers represents func messages.getArchivedStickers#57f17692 flags:# flags.0?masks:true offset_id:long limit:int = messages.ArchivedStickers from telegram.tl
@@ -8440,6 +9440,10 @@ func (o *TLMessagesGetArchivedStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Limit)
 }
 
+func (o *TLMessagesGetArchivedStickers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetMaskStickers represents func messages.getMaskStickers#65b8c79f hash:int = messages.AllStickers from telegram.tl
 type TLMessagesGetMaskStickers struct {
 	Hash int // hash:int
@@ -8455,6 +9459,10 @@ func (o *TLMessagesGetMaskStickers) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesGetMaskStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Hash)
+}
+
+func (o *TLMessagesGetMaskStickers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetAttachedStickers represents func messages.getAttachedStickers#cc5b67cc media:InputStickeredMedia = Vector<StickerSetCovered> from telegram.tl
@@ -8473,6 +9481,10 @@ func (o *TLMessagesGetAttachedStickers) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesGetAttachedStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Media.Cmd())
 	o.Media.WriteBareTo(w)
+}
+
+func (o *TLMessagesGetAttachedStickers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSetGameScore represents func messages.setGameScore#8ef8ecc0 flags:# flags.0?edit_message:true flags.1?force:true peer:InputPeer id:int user_id:InputUser score:int = Updates from telegram.tl
@@ -8508,6 +9520,10 @@ func (o *TLMessagesSetGameScore) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.UserId.Cmd())
 	o.UserId.WriteBareTo(w)
 	w.WriteInt(o.Score)
+}
+
+func (o *TLMessagesSetGameScore) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSetInlineGameScore represents func messages.setInlineGameScore#15ad9f64 flags:# flags.0?edit_message:true flags.1?force:true id:InputBotInlineMessageID user_id:InputUser score:int = Bool from telegram.tl
@@ -8546,6 +9562,10 @@ func (o *TLMessagesSetInlineGameScore) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Score)
 }
 
+func (o *TLMessagesSetInlineGameScore) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetGameHighScores represents func messages.getGameHighScores#e822649d peer:InputPeer id:int user_id:InputUser = messages.HighScores from telegram.tl
 type TLMessagesGetGameHighScores struct {
 	Peer   TLInputPeerType // peer:InputPeer
@@ -8569,6 +9589,10 @@ func (o *TLMessagesGetGameHighScores) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
 	w.WriteCmd(o.UserId.Cmd())
 	o.UserId.WriteBareTo(w)
+}
+
+func (o *TLMessagesGetGameHighScores) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetInlineGameHighScores represents func messages.getInlineGameHighScores#0f635e1b id:InputBotInlineMessageID user_id:InputUser = messages.HighScores from telegram.tl
@@ -8597,6 +9621,10 @@ func (o *TLMessagesGetInlineGameHighScores) WriteBareTo(w *tl.Writer) {
 	o.UserId.WriteBareTo(w)
 }
 
+func (o *TLMessagesGetInlineGameHighScores) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetCommonChats represents func messages.getCommonChats#0d0a48c4 user_id:InputUser max_id:int limit:int = messages.Chats from telegram.tl
 type TLMessagesGetCommonChats struct {
 	UserId TLInputUserType // user_id:InputUser
@@ -8619,6 +9647,10 @@ func (o *TLMessagesGetCommonChats) WriteBareTo(w *tl.Writer) {
 	o.UserId.WriteBareTo(w)
 	w.WriteInt(o.MaxId)
 	w.WriteInt(o.Limit)
+}
+
+func (o *TLMessagesGetCommonChats) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesGetAllChats represents func messages.getAllChats#eba80ff0 except_ids:Vector<int> = messages.Chats from telegram.tl
@@ -8648,6 +9680,10 @@ func (o *TLMessagesGetAllChats) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesGetAllChats) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetWebPage represents func messages.getWebPage#32ca8f91 url:string hash:int = WebPage from telegram.tl
 type TLMessagesGetWebPage struct {
 	Url  string // url:string
@@ -8666,6 +9702,10 @@ func (o *TLMessagesGetWebPage) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesGetWebPage) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Url)
 	w.WriteInt(o.Hash)
+}
+
+func (o *TLMessagesGetWebPage) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesToggleDialogPin represents func messages.toggleDialogPin#3289be6a flags:# flags.0?pinned:true peer:InputPeer = Bool from telegram.tl
@@ -8689,6 +9729,10 @@ func (o *TLMessagesToggleDialogPin) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
+}
+
+func (o *TLMessagesToggleDialogPin) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesReorderPinnedDialogs represents func messages.reorderPinnedDialogs#959ff644 flags:# flags.0?force:true order:Vector<InputPeer> = Bool from telegram.tl
@@ -8724,6 +9768,10 @@ func (o *TLMessagesReorderPinnedDialogs) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesReorderPinnedDialogs) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesGetPinnedDialogs represents func messages.getPinnedDialogs#e254d64e = messages.PeerDialogs from telegram.tl
 type TLMessagesGetPinnedDialogs struct {
 }
@@ -8736,6 +9784,10 @@ func (o *TLMessagesGetPinnedDialogs) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessagesGetPinnedDialogs) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessagesGetPinnedDialogs) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSetBotShippingResults represents func messages.setBotShippingResults#e5f672fa flags:# query_id:long flags.0?error:string flags.1?shipping_options:Vector<ShippingOption> = Bool from telegram.tl
@@ -8779,6 +9831,10 @@ func (o *TLMessagesSetBotShippingResults) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesSetBotShippingResults) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesSetBotPrecheckoutResults represents func messages.setBotPrecheckoutResults#09c2dd95 flags:# flags.1?success:true query_id:long flags.0?error:string = Bool from telegram.tl
 type TLMessagesSetBotPrecheckoutResults struct {
 	Flags   uint   // flags:#
@@ -8804,6 +9860,10 @@ func (o *TLMessagesSetBotPrecheckoutResults) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Error)
 }
 
+func (o *TLMessagesSetBotPrecheckoutResults) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdatesGetState represents func updates.getState#edd4882a = updates.State from telegram.tl
 type TLUpdatesGetState struct {
 }
@@ -8816,6 +9876,10 @@ func (o *TLUpdatesGetState) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUpdatesGetState) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLUpdatesGetState) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatesGetDifference represents func updates.getDifference#25939651 flags:# pts:int flags.0?pts_total_limit:int date:int qts:int = updates.Difference from telegram.tl
@@ -8845,6 +9909,10 @@ func (o *TLUpdatesGetDifference) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PtsTotalLimit)
 	w.WriteInt(o.Date)
 	w.WriteInt(o.Qts)
+}
+
+func (o *TLUpdatesGetDifference) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatesGetChannelDifference represents func updates.getChannelDifference#03173d78 flags:# flags.0?force:true channel:InputChannel filter:ChannelMessagesFilter pts:int limit:int = updates.ChannelDifference from telegram.tl
@@ -8880,6 +9948,10 @@ func (o *TLUpdatesGetChannelDifference) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Limit)
 }
 
+func (o *TLUpdatesGetChannelDifference) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhotosUpdateProfilePhoto represents func photos.updateProfilePhoto#f0bb5152 id:InputPhoto = UserProfilePhoto from telegram.tl
 type TLPhotosUpdateProfilePhoto struct {
 	Id TLInputPhotoType // id:InputPhoto
@@ -8898,6 +9970,10 @@ func (o *TLPhotosUpdateProfilePhoto) WriteBareTo(w *tl.Writer) {
 	o.Id.WriteBareTo(w)
 }
 
+func (o *TLPhotosUpdateProfilePhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhotosUploadProfilePhoto represents func photos.uploadProfilePhoto#4f32c098 file:InputFile = photos.Photo from telegram.tl
 type TLPhotosUploadProfilePhoto struct {
 	File TLInputFileType // file:InputFile
@@ -8914,6 +9990,10 @@ func (o *TLPhotosUploadProfilePhoto) ReadBareFrom(r *tl.Reader) {
 func (o *TLPhotosUploadProfilePhoto) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.File.Cmd())
 	o.File.WriteBareTo(w)
+}
+
+func (o *TLPhotosUploadProfilePhoto) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhotosDeletePhotos represents func photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long> from telegram.tl
@@ -8944,6 +10024,10 @@ func (o *TLPhotosDeletePhotos) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPhotosDeletePhotos) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhotosGetUserPhotos represents func photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos from telegram.tl
 type TLPhotosGetUserPhotos struct {
 	UserId TLInputUserType // user_id:InputUser
@@ -8971,6 +10055,10 @@ func (o *TLPhotosGetUserPhotos) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Limit)
 }
 
+func (o *TLPhotosGetUserPhotos) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUploadSaveFilePart represents func upload.saveFilePart#b304a621 file_id:long file_part:int bytes:bytes = Bool from telegram.tl
 type TLUploadSaveFilePart struct {
 	FileId   uint64 // file_id:long
@@ -8992,6 +10080,10 @@ func (o *TLUploadSaveFilePart) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.FileId)
 	w.WriteInt(o.FilePart)
 	w.WriteBlob(o.Bytes)
+}
+
+func (o *TLUploadSaveFilePart) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUploadGetFile represents func upload.getFile#e3a6cfb5 location:InputFileLocation offset:int limit:int = upload.File from telegram.tl
@@ -9018,6 +10110,10 @@ func (o *TLUploadGetFile) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Limit)
 }
 
+func (o *TLUploadGetFile) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUploadSaveBigFilePart represents func upload.saveBigFilePart#de7b673d file_id:long file_part:int file_total_parts:int bytes:bytes = Bool from telegram.tl
 type TLUploadSaveBigFilePart struct {
 	FileId         uint64 // file_id:long
@@ -9042,6 +10138,10 @@ func (o *TLUploadSaveBigFilePart) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.FilePart)
 	w.WriteInt(o.FileTotalParts)
 	w.WriteBlob(o.Bytes)
+}
+
+func (o *TLUploadSaveBigFilePart) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUploadGetWebFile represents func upload.getWebFile#24e6818d location:InputWebFileLocation offset:int limit:int = upload.WebFile from telegram.tl
@@ -9072,6 +10172,10 @@ func (o *TLUploadGetWebFile) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Limit)
 }
 
+func (o *TLUploadGetWebFile) String() string {
+	return tl.Pretty(o)
+}
+
 // TLHelpGetConfig represents func help.getConfig#c4f9186b = Config from telegram.tl
 type TLHelpGetConfig struct {
 }
@@ -9084,6 +10188,10 @@ func (o *TLHelpGetConfig) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLHelpGetConfig) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLHelpGetConfig) String() string {
+	return tl.Pretty(o)
 }
 
 // TLHelpGetNearestDc represents func help.getNearestDc#1fb33026 = NearestDc from telegram.tl
@@ -9100,6 +10208,10 @@ func (o *TLHelpGetNearestDc) ReadBareFrom(r *tl.Reader) {
 func (o *TLHelpGetNearestDc) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLHelpGetNearestDc) String() string {
+	return tl.Pretty(o)
+}
+
 // TLHelpGetAppUpdate represents func help.getAppUpdate#ae2de196 = help.AppUpdate from telegram.tl
 type TLHelpGetAppUpdate struct {
 }
@@ -9112,6 +10224,10 @@ func (o *TLHelpGetAppUpdate) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLHelpGetAppUpdate) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLHelpGetAppUpdate) String() string {
+	return tl.Pretty(o)
 }
 
 // TLHelpSaveAppLog represents func help.saveAppLog#6f02f748 events:Vector<InputAppEvent> = Bool from telegram.tl
@@ -9146,6 +10262,10 @@ func (o *TLHelpSaveAppLog) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLHelpSaveAppLog) String() string {
+	return tl.Pretty(o)
+}
+
 // TLHelpGetInviteText represents func help.getInviteText#4d392343 = help.InviteText from telegram.tl
 type TLHelpGetInviteText struct {
 }
@@ -9160,6 +10280,10 @@ func (o *TLHelpGetInviteText) ReadBareFrom(r *tl.Reader) {
 func (o *TLHelpGetInviteText) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLHelpGetInviteText) String() string {
+	return tl.Pretty(o)
+}
+
 // TLHelpGetSupport represents func help.getSupport#9cdf08cd = help.Support from telegram.tl
 type TLHelpGetSupport struct {
 }
@@ -9172,6 +10296,10 @@ func (o *TLHelpGetSupport) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLHelpGetSupport) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLHelpGetSupport) String() string {
+	return tl.Pretty(o)
 }
 
 // TLHelpGetAppChangelog represents func help.getAppChangelog#9010ef6f prev_app_version:string = Updates from telegram.tl
@@ -9191,6 +10319,10 @@ func (o *TLHelpGetAppChangelog) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PrevAppVersion)
 }
 
+func (o *TLHelpGetAppChangelog) String() string {
+	return tl.Pretty(o)
+}
+
 // TLHelpGetTermsOfService represents func help.getTermsOfService#350170f3 = help.TermsOfService from telegram.tl
 type TLHelpGetTermsOfService struct {
 }
@@ -9203,6 +10335,10 @@ func (o *TLHelpGetTermsOfService) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLHelpGetTermsOfService) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLHelpGetTermsOfService) String() string {
+	return tl.Pretty(o)
 }
 
 // TLHelpSetBotUpdatesStatus represents func help.setBotUpdatesStatus#ec22cfcd pending_updates_count:int message:string = Bool from telegram.tl
@@ -9225,6 +10361,10 @@ func (o *TLHelpSetBotUpdatesStatus) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Message)
 }
 
+func (o *TLHelpSetBotUpdatesStatus) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsReadHistory represents func channels.readHistory#cc104937 channel:InputChannel max_id:int = Bool from telegram.tl
 type TLChannelsReadHistory struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9244,6 +10384,10 @@ func (o *TLChannelsReadHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
 	w.WriteInt(o.MaxId)
+}
+
+func (o *TLChannelsReadHistory) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelsDeleteMessages represents func channels.deleteMessages#84c1fd4e channel:InputChannel id:Vector<int> = messages.AffectedMessages from telegram.tl
@@ -9277,6 +10421,10 @@ func (o *TLChannelsDeleteMessages) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelsDeleteMessages) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsDeleteUserHistory represents func channels.deleteUserHistory#d10dd71b channel:InputChannel user_id:InputUser = messages.AffectedHistory from telegram.tl
 type TLChannelsDeleteUserHistory struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9297,6 +10445,10 @@ func (o *TLChannelsDeleteUserHistory) WriteBareTo(w *tl.Writer) {
 	o.Channel.WriteBareTo(w)
 	w.WriteCmd(o.UserId.Cmd())
 	o.UserId.WriteBareTo(w)
+}
+
+func (o *TLChannelsDeleteUserHistory) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelsReportSpam represents func channels.reportSpam#fe087810 channel:InputChannel user_id:InputUser id:Vector<int> = Bool from telegram.tl
@@ -9334,6 +10486,10 @@ func (o *TLChannelsReportSpam) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelsReportSpam) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsGetMessages represents func channels.getMessages#93d7b347 channel:InputChannel id:Vector<int> = messages.Messages from telegram.tl
 type TLChannelsGetMessages struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9365,6 +10521,10 @@ func (o *TLChannelsGetMessages) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelsGetMessages) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsGetParticipants represents func channels.getParticipants#24d98f92 channel:InputChannel filter:ChannelParticipantsFilter offset:int limit:int = channels.ChannelParticipants from telegram.tl
 type TLChannelsGetParticipants struct {
 	Channel TLInputChannelType              // channel:InputChannel
@@ -9393,6 +10553,10 @@ func (o *TLChannelsGetParticipants) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Limit)
 }
 
+func (o *TLChannelsGetParticipants) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsGetParticipant represents func channels.getParticipant#546dd7a6 channel:InputChannel user_id:InputUser = channels.ChannelParticipant from telegram.tl
 type TLChannelsGetParticipant struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9413,6 +10577,10 @@ func (o *TLChannelsGetParticipant) WriteBareTo(w *tl.Writer) {
 	o.Channel.WriteBareTo(w)
 	w.WriteCmd(o.UserId.Cmd())
 	o.UserId.WriteBareTo(w)
+}
+
+func (o *TLChannelsGetParticipant) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelsGetChannels represents func channels.getChannels#0a7f6bbb id:Vector<InputChannel> = messages.Chats from telegram.tl
@@ -9443,6 +10611,10 @@ func (o *TLChannelsGetChannels) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelsGetChannels) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsGetFullChannel represents func channels.getFullChannel#08736a09 channel:InputChannel = messages.ChatFull from telegram.tl
 type TLChannelsGetFullChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9459,6 +10631,10 @@ func (o *TLChannelsGetFullChannel) ReadBareFrom(r *tl.Reader) {
 func (o *TLChannelsGetFullChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
+}
+
+func (o *TLChannelsGetFullChannel) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelsCreateChannel represents func channels.createChannel#f4893d7f flags:# flags.0?broadcast:true flags.1?megagroup:true title:string about:string = Updates from telegram.tl
@@ -9488,6 +10664,10 @@ func (o *TLChannelsCreateChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.About)
 }
 
+func (o *TLChannelsCreateChannel) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsEditAbout represents func channels.editAbout#13e27f1e channel:InputChannel about:string = Bool from telegram.tl
 type TLChannelsEditAbout struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9507,6 +10687,10 @@ func (o *TLChannelsEditAbout) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
 	w.WriteString(o.About)
+}
+
+func (o *TLChannelsEditAbout) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelsEditAdmin represents func channels.editAdmin#eb7611d0 channel:InputChannel user_id:InputUser role:ChannelParticipantRole = Updates from telegram.tl
@@ -9535,6 +10719,10 @@ func (o *TLChannelsEditAdmin) WriteBareTo(w *tl.Writer) {
 	o.Role.WriteBareTo(w)
 }
 
+func (o *TLChannelsEditAdmin) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsEditTitle represents func channels.editTitle#566decd0 channel:InputChannel title:string = Updates from telegram.tl
 type TLChannelsEditTitle struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9554,6 +10742,10 @@ func (o *TLChannelsEditTitle) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
 	w.WriteString(o.Title)
+}
+
+func (o *TLChannelsEditTitle) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelsEditPhoto represents func channels.editPhoto#f12e57c9 channel:InputChannel photo:InputChatPhoto = Updates from telegram.tl
@@ -9578,6 +10770,10 @@ func (o *TLChannelsEditPhoto) WriteBareTo(w *tl.Writer) {
 	o.Photo.WriteBareTo(w)
 }
 
+func (o *TLChannelsEditPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsCheckUsername represents func channels.checkUsername#10e6bd2c channel:InputChannel username:string = Bool from telegram.tl
 type TLChannelsCheckUsername struct {
 	Channel  TLInputChannelType // channel:InputChannel
@@ -9597,6 +10793,10 @@ func (o *TLChannelsCheckUsername) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
 	w.WriteString(o.Username)
+}
+
+func (o *TLChannelsCheckUsername) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelsUpdateUsername represents func channels.updateUsername#3514b3de channel:InputChannel username:string = Bool from telegram.tl
@@ -9620,6 +10820,10 @@ func (o *TLChannelsUpdateUsername) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Username)
 }
 
+func (o *TLChannelsUpdateUsername) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsJoinChannel represents func channels.joinChannel#24b524c5 channel:InputChannel = Updates from telegram.tl
 type TLChannelsJoinChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9638,6 +10842,10 @@ func (o *TLChannelsJoinChannel) WriteBareTo(w *tl.Writer) {
 	o.Channel.WriteBareTo(w)
 }
 
+func (o *TLChannelsJoinChannel) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsLeaveChannel represents func channels.leaveChannel#f836aa95 channel:InputChannel = Updates from telegram.tl
 type TLChannelsLeaveChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9654,6 +10862,10 @@ func (o *TLChannelsLeaveChannel) ReadBareFrom(r *tl.Reader) {
 func (o *TLChannelsLeaveChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
+}
+
+func (o *TLChannelsLeaveChannel) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelsInviteToChannel represents func channels.inviteToChannel#199f3a6c channel:InputChannel users:Vector<InputUser> = Updates from telegram.tl
@@ -9688,6 +10900,10 @@ func (o *TLChannelsInviteToChannel) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelsInviteToChannel) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsKickFromChannel represents func channels.kickFromChannel#a672de14 channel:InputChannel user_id:InputUser kicked:Bool = Updates from telegram.tl
 type TLChannelsKickFromChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9718,6 +10934,10 @@ func (o *TLChannelsKickFromChannel) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelsKickFromChannel) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsExportInvite represents func channels.exportInvite#c7560885 channel:InputChannel = ExportedChatInvite from telegram.tl
 type TLChannelsExportInvite struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9736,6 +10956,10 @@ func (o *TLChannelsExportInvite) WriteBareTo(w *tl.Writer) {
 	o.Channel.WriteBareTo(w)
 }
 
+func (o *TLChannelsExportInvite) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsDeleteChannel represents func channels.deleteChannel#c0111fe3 channel:InputChannel = Updates from telegram.tl
 type TLChannelsDeleteChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9752,6 +10976,10 @@ func (o *TLChannelsDeleteChannel) ReadBareFrom(r *tl.Reader) {
 func (o *TLChannelsDeleteChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
+}
+
+func (o *TLChannelsDeleteChannel) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelsToggleInvites represents func channels.toggleInvites#49609307 channel:InputChannel enabled:Bool = Updates from telegram.tl
@@ -9780,6 +11008,10 @@ func (o *TLChannelsToggleInvites) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelsToggleInvites) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsExportMessageLink represents func channels.exportMessageLink#c846d22d channel:InputChannel id:int = ExportedMessageLink from telegram.tl
 type TLChannelsExportMessageLink struct {
 	Channel TLInputChannelType // channel:InputChannel
@@ -9799,6 +11031,10 @@ func (o *TLChannelsExportMessageLink) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
 	w.WriteInt(o.Id)
+}
+
+func (o *TLChannelsExportMessageLink) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelsToggleSignatures represents func channels.toggleSignatures#1f69b606 channel:InputChannel enabled:Bool = Updates from telegram.tl
@@ -9827,6 +11063,10 @@ func (o *TLChannelsToggleSignatures) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelsToggleSignatures) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsUpdatePinnedMessage represents func channels.updatePinnedMessage#a72ded52 flags:# flags.0?silent:true channel:InputChannel id:int = Updates from telegram.tl
 type TLChannelsUpdatePinnedMessage struct {
 	Flags   uint               // flags:#
@@ -9853,6 +11093,10 @@ func (o *TLChannelsUpdatePinnedMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
 }
 
+func (o *TLChannelsUpdatePinnedMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelsGetAdminedPublicChannels represents func channels.getAdminedPublicChannels#8d8d82d7 = messages.Chats from telegram.tl
 type TLChannelsGetAdminedPublicChannels struct {
 }
@@ -9865,6 +11109,10 @@ func (o *TLChannelsGetAdminedPublicChannels) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLChannelsGetAdminedPublicChannels) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLChannelsGetAdminedPublicChannels) String() string {
+	return tl.Pretty(o)
 }
 
 // TLBotsSendCustomRequest represents func bots.sendCustomRequest#aa2769ed custom_method:string params:DataJSON = DataJSON from telegram.tl
@@ -9892,6 +11140,10 @@ func (o *TLBotsSendCustomRequest) WriteBareTo(w *tl.Writer) {
 	o.Params.WriteBareTo(w)
 }
 
+func (o *TLBotsSendCustomRequest) String() string {
+	return tl.Pretty(o)
+}
+
 // TLBotsAnswerWebhookJSONQuery represents func bots.answerWebhookJSONQuery#e6213f4d query_id:long data:DataJSON = Bool from telegram.tl
 type TLBotsAnswerWebhookJSONQuery struct {
 	QueryId uint64      // query_id:long
@@ -9917,6 +11169,10 @@ func (o *TLBotsAnswerWebhookJSONQuery) WriteBareTo(w *tl.Writer) {
 	o.Data.WriteBareTo(w)
 }
 
+func (o *TLBotsAnswerWebhookJSONQuery) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPaymentsGetPaymentForm represents func payments.getPaymentForm#99f09745 msg_id:int = payments.PaymentForm from telegram.tl
 type TLPaymentsGetPaymentForm struct {
 	MsgId int // msg_id:int
@@ -9934,6 +11190,10 @@ func (o *TLPaymentsGetPaymentForm) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.MsgId)
 }
 
+func (o *TLPaymentsGetPaymentForm) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPaymentsGetPaymentReceipt represents func payments.getPaymentReceipt#a092a980 msg_id:int = payments.PaymentReceipt from telegram.tl
 type TLPaymentsGetPaymentReceipt struct {
 	MsgId int // msg_id:int
@@ -9949,6 +11209,10 @@ func (o *TLPaymentsGetPaymentReceipt) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPaymentsGetPaymentReceipt) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.MsgId)
+}
+
+func (o *TLPaymentsGetPaymentReceipt) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPaymentsValidateRequestedInfo represents func payments.validateRequestedInfo#770a8e74 flags:# flags.0?save:true msg_id:int info:PaymentRequestedInfo = payments.ValidatedRequestedInfo from telegram.tl
@@ -9981,6 +11245,10 @@ func (o *TLPaymentsValidateRequestedInfo) WriteBareTo(w *tl.Writer) {
 	o.Info.WriteBareTo(w)
 }
 
+func (o *TLPaymentsValidateRequestedInfo) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPaymentsSendPaymentForm represents func payments.sendPaymentForm#2b8879b3 flags:# msg_id:int flags.0?requested_info_id:string flags.1?shipping_option_id:string credentials:InputPaymentCredentials = payments.PaymentResult from telegram.tl
 type TLPaymentsSendPaymentForm struct {
 	Flags            uint                          // flags:#
@@ -10011,6 +11279,10 @@ func (o *TLPaymentsSendPaymentForm) WriteBareTo(w *tl.Writer) {
 	o.Credentials.WriteBareTo(w)
 }
 
+func (o *TLPaymentsSendPaymentForm) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPaymentsGetSavedInfo represents func payments.getSavedInfo#227d824b = payments.SavedInfo from telegram.tl
 type TLPaymentsGetSavedInfo struct {
 }
@@ -10023,6 +11295,10 @@ func (o *TLPaymentsGetSavedInfo) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPaymentsGetSavedInfo) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPaymentsGetSavedInfo) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPaymentsClearSavedInfo represents func payments.clearSavedInfo#d83d70c1 flags:# flags.0?credentials:true flags.1?info:true = Bool from telegram.tl
@@ -10046,6 +11322,10 @@ func (o *TLPaymentsClearSavedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 }
 
+func (o *TLPaymentsClearSavedInfo) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneGetCallConfig represents func phone.getCallConfig#55451fa9 = DataJSON from telegram.tl
 type TLPhoneGetCallConfig struct {
 }
@@ -10058,6 +11338,10 @@ func (o *TLPhoneGetCallConfig) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPhoneGetCallConfig) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPhoneGetCallConfig) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhoneRequestCall represents func phone.requestCall#5b95b3d4 user_id:InputUser random_id:int g_a_hash:bytes protocol:PhoneCallProtocol = phone.PhoneCall from telegram.tl
@@ -10092,6 +11376,10 @@ func (o *TLPhoneRequestCall) WriteBareTo(w *tl.Writer) {
 	o.Protocol.WriteBareTo(w)
 }
 
+func (o *TLPhoneRequestCall) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneAcceptCall represents func phone.acceptCall#3bd2b4a0 peer:InputPhoneCall g_b:bytes protocol:PhoneCallProtocol = phone.PhoneCall from telegram.tl
 type TLPhoneAcceptCall struct {
 	Peer     *TLInputPhoneCall    // peer:InputPhoneCall
@@ -10123,6 +11411,10 @@ func (o *TLPhoneAcceptCall) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.GB)
 	w.WriteCmd(TagPhoneCallProtocol)
 	o.Protocol.WriteBareTo(w)
+}
+
+func (o *TLPhoneAcceptCall) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhoneConfirmCall represents func phone.confirmCall#2efe1722 peer:InputPhoneCall g_a:bytes key_fingerprint:long protocol:PhoneCallProtocol = phone.PhoneCall from telegram.tl
@@ -10161,6 +11453,10 @@ func (o *TLPhoneConfirmCall) WriteBareTo(w *tl.Writer) {
 	o.Protocol.WriteBareTo(w)
 }
 
+func (o *TLPhoneConfirmCall) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneReceivedCall represents func phone.receivedCall#17d54f61 peer:InputPhoneCall = Bool from telegram.tl
 type TLPhoneReceivedCall struct {
 	Peer *TLInputPhoneCall // peer:InputPhoneCall
@@ -10181,6 +11477,10 @@ func (o *TLPhoneReceivedCall) ReadBareFrom(r *tl.Reader) {
 func (o *TLPhoneReceivedCall) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagInputPhoneCall)
 	o.Peer.WriteBareTo(w)
+}
+
+func (o *TLPhoneReceivedCall) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhoneDiscardCall represents func phone.discardCall#78d413a6 peer:InputPhoneCall duration:int reason:PhoneCallDiscardReason connection_id:long = Updates from telegram.tl
@@ -10215,6 +11515,10 @@ func (o *TLPhoneDiscardCall) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.ConnectionId)
 }
 
+func (o *TLPhoneDiscardCall) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneSetCallRating represents func phone.setCallRating#1c536a34 peer:InputPhoneCall rating:int comment:string = Updates from telegram.tl
 type TLPhoneSetCallRating struct {
 	Peer    *TLInputPhoneCall // peer:InputPhoneCall
@@ -10241,6 +11545,10 @@ func (o *TLPhoneSetCallRating) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 	w.WriteInt(o.Rating)
 	w.WriteString(o.Comment)
+}
+
+func (o *TLPhoneSetCallRating) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhoneSaveCallDebug represents func phone.saveCallDebug#277add7e peer:InputPhoneCall debug:DataJSON = Bool from telegram.tl
@@ -10273,6 +11581,10 @@ func (o *TLPhoneSaveCallDebug) WriteBareTo(w *tl.Writer) {
 	o.Debug.WriteBareTo(w)
 }
 
+func (o *TLPhoneSaveCallDebug) String() string {
+	return tl.Pretty(o)
+}
+
 // TLServerDHParamsFail represents ctor server_DH_params_fail#79cb045d nonce:int128 server_nonce:int128 new_nonce_hash:int128 = Server_DH_Params from mtproto.tl
 type TLServerDHParamsFail struct {
 	Nonce        [16]byte // nonce:int128
@@ -10296,6 +11608,10 @@ func (o *TLServerDHParamsFail) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(o.Nonce[:])
 	w.WriteUint128(o.ServerNonce[:])
 	w.WriteUint128(o.NewNonceHash[:])
+}
+
+func (o *TLServerDHParamsFail) String() string {
+	return tl.Pretty(o)
 }
 
 // TLServerDHParamsOK represents ctor server_DH_params_ok#d0e8075c nonce:int128 server_nonce:int128 encrypted_answer:bytes = Server_DH_Params from mtproto.tl
@@ -10323,6 +11639,10 @@ func (o *TLServerDHParamsOK) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.EncryptedAnswer)
 }
 
+func (o *TLServerDHParamsOK) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDHGenOK represents ctor dh_gen_ok#3bcbf734 nonce:int128 server_nonce:int128 new_nonce_hash1:int128 = Set_client_DH_params_answer from mtproto.tl
 type TLDHGenOK struct {
 	Nonce         [16]byte // nonce:int128
@@ -10346,6 +11666,10 @@ func (o *TLDHGenOK) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(o.Nonce[:])
 	w.WriteUint128(o.ServerNonce[:])
 	w.WriteUint128(o.NewNonceHash1[:])
+}
+
+func (o *TLDHGenOK) String() string {
+	return tl.Pretty(o)
 }
 
 // TLDHGenRetry represents ctor dh_gen_retry#46dc1fb9 nonce:int128 server_nonce:int128 new_nonce_hash2:int128 = Set_client_DH_params_answer from mtproto.tl
@@ -10373,6 +11697,10 @@ func (o *TLDHGenRetry) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(o.NewNonceHash2[:])
 }
 
+func (o *TLDHGenRetry) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDHGenFail represents ctor dh_gen_fail#a69dae02 nonce:int128 server_nonce:int128 new_nonce_hash3:int128 = Set_client_DH_params_answer from mtproto.tl
 type TLDHGenFail struct {
 	Nonce         [16]byte // nonce:int128
@@ -10398,6 +11726,10 @@ func (o *TLDHGenFail) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(o.NewNonceHash3[:])
 }
 
+func (o *TLDHGenFail) String() string {
+	return tl.Pretty(o)
+}
+
 // TLRpcAnswerUnknown represents ctor rpc_answer_unknown#5e2ad36e = RpcDropAnswer from mtproto.tl
 type TLRpcAnswerUnknown struct {
 }
@@ -10414,6 +11746,10 @@ func (o *TLRpcAnswerUnknown) ReadBareFrom(r *tl.Reader) {
 func (o *TLRpcAnswerUnknown) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLRpcAnswerUnknown) String() string {
+	return tl.Pretty(o)
+}
+
 // TLRpcAnswerDroppedRunning represents ctor rpc_answer_dropped_running#cd78e586 = RpcDropAnswer from mtproto.tl
 type TLRpcAnswerDroppedRunning struct {
 }
@@ -10428,6 +11764,10 @@ func (o *TLRpcAnswerDroppedRunning) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLRpcAnswerDroppedRunning) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLRpcAnswerDroppedRunning) String() string {
+	return tl.Pretty(o)
 }
 
 // TLRpcAnswerDropped represents ctor rpc_answer_dropped#a43ad8b7 msg_id:long seq_no:int bytes:int = RpcDropAnswer from mtproto.tl
@@ -10455,6 +11795,10 @@ func (o *TLRpcAnswerDropped) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Bytes)
 }
 
+func (o *TLRpcAnswerDropped) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDestroySessionOK represents ctor destroy_session_ok#e22045fc session_id:long = DestroySessionRes from mtproto.tl
 type TLDestroySessionOK struct {
 	SessionId uint64 // session_id:long
@@ -10472,6 +11816,10 @@ func (o *TLDestroySessionOK) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLDestroySessionOK) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.SessionId)
+}
+
+func (o *TLDestroySessionOK) String() string {
+	return tl.Pretty(o)
 }
 
 // TLDestroySessionNone represents ctor destroy_session_none#62d350c9 session_id:long = DestroySessionRes from mtproto.tl
@@ -10493,6 +11841,10 @@ func (o *TLDestroySessionNone) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.SessionId)
 }
 
+func (o *TLDestroySessionNone) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageEmpty represents ctor messageEmpty#83e5de54 id:int = Message from telegram.tl
 type TLMessageEmpty struct {
 	Id int // id:int
@@ -10510,6 +11862,10 @@ func (o *TLMessageEmpty) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessageEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
+}
+
+func (o *TLMessageEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessage represents ctor message#c09be45f flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true flags.14?post:true id:int flags.8?from_id:int to_id:Peer flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int date:int message:string flags.9?media:MessageMedia flags.6?reply_markup:ReplyMarkup flags.7?entities:Vector<MessageEntity> flags.10?views:int flags.15?edit_date:int = Message from telegram.tl
@@ -10599,6 +11955,10 @@ func (o *TLMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.EditDate)
 }
 
+func (o *TLMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageService represents ctor messageService#9e19a1f6 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true flags.14?post:true id:int flags.8?from_id:int to_id:Peer flags.3?reply_to_msg_id:int date:int action:MessageAction = Message from telegram.tl
 type TLMessageService struct {
 	Flags        uint                // flags:#
@@ -10648,6 +12008,10 @@ func (o *TLMessageService) WriteBareTo(w *tl.Writer) {
 	o.Action.WriteBareTo(w)
 }
 
+func (o *TLMessageService) String() string {
+	return tl.Pretty(o)
+}
+
 // TLBadMsgNotification represents ctor bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int = BadMsgNotification from mtproto.tl
 type TLBadMsgNotification struct {
 	BadMsgId    uint64 // bad_msg_id:long
@@ -10671,6 +12035,10 @@ func (o *TLBadMsgNotification) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.BadMsgId)
 	w.WriteInt(o.BadMsgSeqno)
 	w.WriteInt(o.ErrorCode)
+}
+
+func (o *TLBadMsgNotification) String() string {
+	return tl.Pretty(o)
 }
 
 // TLBadServerSalt represents ctor bad_server_salt#edab447b bad_msg_id:long bad_msg_seqno:int error_code:int new_server_salt:long = BadMsgNotification from mtproto.tl
@@ -10701,6 +12069,10 @@ func (o *TLBadServerSalt) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.NewServerSalt)
 }
 
+func (o *TLBadServerSalt) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMsgDetailedInfo represents ctor msg_detailed_info#276d3ec6 msg_id:long answer_msg_id:long bytes:int status:int = MsgDetailedInfo from mtproto.tl
 type TLMsgDetailedInfo struct {
 	MsgId       uint64 // msg_id:long
@@ -10729,6 +12101,10 @@ func (o *TLMsgDetailedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Status)
 }
 
+func (o *TLMsgDetailedInfo) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMsgNewDetailedInfo represents ctor msg_new_detailed_info#809db6df answer_msg_id:long bytes:int status:int = MsgDetailedInfo from mtproto.tl
 type TLMsgNewDetailedInfo struct {
 	AnswerMsgId uint64 // answer_msg_id:long
@@ -10754,6 +12130,10 @@ func (o *TLMsgNewDetailedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Status)
 }
 
+func (o *TLMsgNewDetailedInfo) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputPeerEmpty represents ctor inputPeerEmpty#7f3b18ea = InputPeer from telegram.tl
 type TLInputPeerEmpty struct {
 }
@@ -10770,6 +12150,10 @@ func (o *TLInputPeerEmpty) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputPeerEmpty) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputPeerEmpty) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputPeerSelf represents ctor inputPeerSelf#7da07ec9 = InputPeer from telegram.tl
 type TLInputPeerSelf struct {
 }
@@ -10784,6 +12168,10 @@ func (o *TLInputPeerSelf) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputPeerSelf) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputPeerSelf) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPeerChat represents ctor inputPeerChat#179be863 chat_id:int = InputPeer from telegram.tl
@@ -10803,6 +12191,10 @@ func (o *TLInputPeerChat) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLInputPeerChat) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
+}
+
+func (o *TLInputPeerChat) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPeerUser represents ctor inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer from telegram.tl
@@ -10827,6 +12219,10 @@ func (o *TLInputPeerUser) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.AccessHash)
 }
 
+func (o *TLInputPeerUser) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputPeerChannel represents ctor inputPeerChannel#20adaef8 channel_id:int access_hash:long = InputPeer from telegram.tl
 type TLInputPeerChannel struct {
 	ChannelId  int    // channel_id:int
@@ -10849,6 +12245,10 @@ func (o *TLInputPeerChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.AccessHash)
 }
 
+func (o *TLInputPeerChannel) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputUserEmpty represents ctor inputUserEmpty#b98886cf = InputUser from telegram.tl
 type TLInputUserEmpty struct {
 }
@@ -10865,6 +12265,10 @@ func (o *TLInputUserEmpty) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputUserEmpty) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputUserEmpty) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputUserSelf represents ctor inputUserSelf#f7c1b13f = InputUser from telegram.tl
 type TLInputUserSelf struct {
 }
@@ -10879,6 +12283,10 @@ func (o *TLInputUserSelf) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputUserSelf) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputUserSelf) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputUser represents ctor inputUser#d8292816 user_id:int access_hash:long = InputUser from telegram.tl
@@ -10901,6 +12309,10 @@ func (o *TLInputUser) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputUser) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 	w.WriteUint64(o.AccessHash)
+}
+
+func (o *TLInputUser) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputFile represents ctor inputFile#f52ff27f id:long parts:int name:string md5_checksum:string = InputFile from telegram.tl
@@ -10931,6 +12343,10 @@ func (o *TLInputFile) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Md5Checksum)
 }
 
+func (o *TLInputFile) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputFileBig represents ctor inputFileBig#fa4f0bb5 id:long parts:int name:string = InputFile from telegram.tl
 type TLInputFileBig struct {
 	Id    uint64 // id:long
@@ -10956,6 +12372,10 @@ func (o *TLInputFileBig) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Name)
 }
 
+func (o *TLInputFileBig) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMediaEmpty represents ctor inputMediaEmpty#9664f57f = InputMedia from telegram.tl
 type TLInputMediaEmpty struct {
 }
@@ -10970,6 +12390,10 @@ func (o *TLInputMediaEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputMediaEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputMediaEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMediaUploadedPhoto represents ctor inputMediaUploadedPhoto#630c9af1 flags:# file:InputFile caption:string flags.0?stickers:Vector<InputDocument> = InputMedia from telegram.tl
@@ -11012,6 +12436,10 @@ func (o *TLInputMediaUploadedPhoto) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLInputMediaUploadedPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMediaPhoto represents ctor inputMediaPhoto#e9bfb4f3 id:InputPhoto caption:string = InputMedia from telegram.tl
 type TLInputMediaPhoto struct {
 	Id      TLInputPhotoType // id:InputPhoto
@@ -11035,6 +12463,10 @@ func (o *TLInputMediaPhoto) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Caption)
 }
 
+func (o *TLInputMediaPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMediaGeoPoint represents ctor inputMediaGeoPoint#f9c44144 geo_point:InputGeoPoint = InputMedia from telegram.tl
 type TLInputMediaGeoPoint struct {
 	GeoPoint TLInputGeoPointType // geo_point:InputGeoPoint
@@ -11053,6 +12485,10 @@ func (o *TLInputMediaGeoPoint) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputMediaGeoPoint) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.GeoPoint.Cmd())
 	o.GeoPoint.WriteBareTo(w)
+}
+
+func (o *TLInputMediaGeoPoint) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMediaContact represents ctor inputMediaContact#a6e45987 phone_number:string first_name:string last_name:string = InputMedia from telegram.tl
@@ -11078,6 +12514,10 @@ func (o *TLInputMediaContact) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PhoneNumber)
 	w.WriteString(o.FirstName)
 	w.WriteString(o.LastName)
+}
+
+func (o *TLInputMediaContact) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMediaUploadedDocument represents ctor inputMediaUploadedDocument#d070f1e9 flags:# file:InputFile mime_type:string attributes:Vector<DocumentAttribute> caption:string flags.0?stickers:Vector<InputDocument> = InputMedia from telegram.tl
@@ -11135,6 +12575,10 @@ func (o *TLInputMediaUploadedDocument) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Stickers[i].Cmd())
 		o.Stickers[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLInputMediaUploadedDocument) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMediaUploadedThumbDocument represents ctor inputMediaUploadedThumbDocument#50d88cae flags:# file:InputFile thumb:InputFile mime_type:string attributes:Vector<DocumentAttribute> caption:string flags.0?stickers:Vector<InputDocument> = InputMedia from telegram.tl
@@ -11198,6 +12642,10 @@ func (o *TLInputMediaUploadedThumbDocument) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLInputMediaUploadedThumbDocument) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMediaDocument represents ctor inputMediaDocument#1a77f29c id:InputDocument caption:string = InputMedia from telegram.tl
 type TLInputMediaDocument struct {
 	Id      TLInputDocumentType // id:InputDocument
@@ -11219,6 +12667,10 @@ func (o *TLInputMediaDocument) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Id.Cmd())
 	o.Id.WriteBareTo(w)
 	w.WriteString(o.Caption)
+}
+
+func (o *TLInputMediaDocument) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMediaVenue represents ctor inputMediaVenue#2827a81a geo_point:InputGeoPoint title:string address:string provider:string venue_id:string = InputMedia from telegram.tl
@@ -11253,6 +12705,10 @@ func (o *TLInputMediaVenue) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.VenueId)
 }
 
+func (o *TLInputMediaVenue) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMediaGifExternal represents ctor inputMediaGifExternal#4843b0fd url:string q:string = InputMedia from telegram.tl
 type TLInputMediaGifExternal struct {
 	Url string // url:string
@@ -11273,6 +12729,10 @@ func (o *TLInputMediaGifExternal) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputMediaGifExternal) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Url)
 	w.WriteString(o.Q)
+}
+
+func (o *TLInputMediaGifExternal) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMediaPhotoExternal represents ctor inputMediaPhotoExternal#b55f4f18 url:string caption:string = InputMedia from telegram.tl
@@ -11297,6 +12757,10 @@ func (o *TLInputMediaPhotoExternal) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Caption)
 }
 
+func (o *TLInputMediaPhotoExternal) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMediaDocumentExternal represents ctor inputMediaDocumentExternal#e5e9607c url:string caption:string = InputMedia from telegram.tl
 type TLInputMediaDocumentExternal struct {
 	Url     string // url:string
@@ -11319,6 +12783,10 @@ func (o *TLInputMediaDocumentExternal) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Caption)
 }
 
+func (o *TLInputMediaDocumentExternal) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMediaGame represents ctor inputMediaGame#d33f43f3 id:InputGame = InputMedia from telegram.tl
 type TLInputMediaGame struct {
 	Id TLInputGameType // id:InputGame
@@ -11337,6 +12805,10 @@ func (o *TLInputMediaGame) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputMediaGame) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Id.Cmd())
 	o.Id.WriteBareTo(w)
+}
+
+func (o *TLInputMediaGame) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMediaInvoice represents ctor inputMediaInvoice#92153685 flags:# title:string description:string flags.0?photo:InputWebDocument invoice:Invoice payload:bytes provider:string start_param:string = InputMedia from telegram.tl
@@ -11389,6 +12861,10 @@ func (o *TLInputMediaInvoice) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.StartParam)
 }
 
+func (o *TLInputMediaInvoice) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputChatPhotoEmpty represents ctor inputChatPhotoEmpty#1ca48f57 = InputChatPhoto from telegram.tl
 type TLInputChatPhotoEmpty struct {
 }
@@ -11403,6 +12879,10 @@ func (o *TLInputChatPhotoEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputChatPhotoEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputChatPhotoEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputChatUploadedPhoto represents ctor inputChatUploadedPhoto#927c55b4 file:InputFile = InputChatPhoto from telegram.tl
@@ -11425,6 +12905,10 @@ func (o *TLInputChatUploadedPhoto) WriteBareTo(w *tl.Writer) {
 	o.File.WriteBareTo(w)
 }
 
+func (o *TLInputChatUploadedPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputChatPhoto represents ctor inputChatPhoto#8953ad37 id:InputPhoto = InputChatPhoto from telegram.tl
 type TLInputChatPhoto struct {
 	Id TLInputPhotoType // id:InputPhoto
@@ -11445,6 +12929,10 @@ func (o *TLInputChatPhoto) WriteBareTo(w *tl.Writer) {
 	o.Id.WriteBareTo(w)
 }
 
+func (o *TLInputChatPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputGeoPointEmpty represents ctor inputGeoPointEmpty#e4c123d6 = InputGeoPoint from telegram.tl
 type TLInputGeoPointEmpty struct {
 }
@@ -11459,6 +12947,10 @@ func (o *TLInputGeoPointEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputGeoPointEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputGeoPointEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputGeoPoint represents ctor inputGeoPoint#f3b7acc9 lat:double long:double = InputGeoPoint from telegram.tl
@@ -11483,6 +12975,10 @@ func (o *TLInputGeoPoint) WriteBareTo(w *tl.Writer) {
 	w.WriteFloat64(o.Long)
 }
 
+func (o *TLInputGeoPoint) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputPhotoEmpty represents ctor inputPhotoEmpty#1cd7bf0d = InputPhoto from telegram.tl
 type TLInputPhotoEmpty struct {
 }
@@ -11497,6 +12993,10 @@ func (o *TLInputPhotoEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputPhotoEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputPhotoEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPhoto represents ctor inputPhoto#fb95c6c4 id:long access_hash:long = InputPhoto from telegram.tl
@@ -11519,6 +13019,10 @@ func (o *TLInputPhoto) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputPhoto) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
 	w.WriteUint64(o.AccessHash)
+}
+
+func (o *TLInputPhoto) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputFileLocation represents ctor inputFileLocation#14637196 volume_id:long local_id:int secret:long = InputFileLocation from telegram.tl
@@ -11546,6 +13050,10 @@ func (o *TLInputFileLocation) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Secret)
 }
 
+func (o *TLInputFileLocation) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputEncryptedFileLocation represents ctor inputEncryptedFileLocation#f5235d55 id:long access_hash:long = InputFileLocation from telegram.tl
 type TLInputEncryptedFileLocation struct {
 	Id         uint64 // id:long
@@ -11566,6 +13074,10 @@ func (o *TLInputEncryptedFileLocation) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputEncryptedFileLocation) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
 	w.WriteUint64(o.AccessHash)
+}
+
+func (o *TLInputEncryptedFileLocation) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputDocumentFileLocation represents ctor inputDocumentFileLocation#430f0724 id:long access_hash:long version:int = InputFileLocation from telegram.tl
@@ -11593,6 +13105,10 @@ func (o *TLInputDocumentFileLocation) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Version)
 }
 
+func (o *TLInputDocumentFileLocation) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPeerUser represents ctor peerUser#9db1bc6d user_id:int = Peer from telegram.tl
 type TLPeerUser struct {
 	UserId int // user_id:int
@@ -11610,6 +13126,10 @@ func (o *TLPeerUser) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPeerUser) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
+}
+
+func (o *TLPeerUser) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPeerChat represents ctor peerChat#bad0e5bb chat_id:int = Peer from telegram.tl
@@ -11631,6 +13151,10 @@ func (o *TLPeerChat) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
 }
 
+func (o *TLPeerChat) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPeerChannel represents ctor peerChannel#bddde532 channel_id:int = Peer from telegram.tl
 type TLPeerChannel struct {
 	ChannelId int // channel_id:int
@@ -11650,6 +13174,10 @@ func (o *TLPeerChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChannelId)
 }
 
+func (o *TLPeerChannel) String() string {
+	return tl.Pretty(o)
+}
+
 // TLStorageFileUnknown represents ctor storage.fileUnknown#aa963b05 = storage.FileType from telegram.tl
 type TLStorageFileUnknown struct {
 }
@@ -11664,6 +13192,10 @@ func (o *TLStorageFileUnknown) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLStorageFileUnknown) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLStorageFileUnknown) String() string {
+	return tl.Pretty(o)
 }
 
 // TLStorageFilePartial represents ctor storage.filePartial#40bc6f52 = storage.FileType from telegram.tl
@@ -11682,6 +13214,10 @@ func (o *TLStorageFilePartial) ReadBareFrom(r *tl.Reader) {
 func (o *TLStorageFilePartial) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLStorageFilePartial) String() string {
+	return tl.Pretty(o)
+}
+
 // TLStorageFileJpeg represents ctor storage.fileJpeg#007efe0e = storage.FileType from telegram.tl
 type TLStorageFileJpeg struct {
 }
@@ -11696,6 +13232,10 @@ func (o *TLStorageFileJpeg) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLStorageFileJpeg) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLStorageFileJpeg) String() string {
+	return tl.Pretty(o)
 }
 
 // TLStorageFileGif represents ctor storage.fileGif#cae1aadf = storage.FileType from telegram.tl
@@ -11714,6 +13254,10 @@ func (o *TLStorageFileGif) ReadBareFrom(r *tl.Reader) {
 func (o *TLStorageFileGif) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLStorageFileGif) String() string {
+	return tl.Pretty(o)
+}
+
 // TLStorageFilePng represents ctor storage.filePng#0a4f63c0 = storage.FileType from telegram.tl
 type TLStorageFilePng struct {
 }
@@ -11728,6 +13272,10 @@ func (o *TLStorageFilePng) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLStorageFilePng) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLStorageFilePng) String() string {
+	return tl.Pretty(o)
 }
 
 // TLStorageFilePdf represents ctor storage.filePdf#ae1e508d = storage.FileType from telegram.tl
@@ -11746,6 +13294,10 @@ func (o *TLStorageFilePdf) ReadBareFrom(r *tl.Reader) {
 func (o *TLStorageFilePdf) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLStorageFilePdf) String() string {
+	return tl.Pretty(o)
+}
+
 // TLStorageFileMp3 represents ctor storage.fileMp3#528a0677 = storage.FileType from telegram.tl
 type TLStorageFileMp3 struct {
 }
@@ -11760,6 +13312,10 @@ func (o *TLStorageFileMp3) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLStorageFileMp3) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLStorageFileMp3) String() string {
+	return tl.Pretty(o)
 }
 
 // TLStorageFileMov represents ctor storage.fileMov#4b09ebbc = storage.FileType from telegram.tl
@@ -11778,6 +13334,10 @@ func (o *TLStorageFileMov) ReadBareFrom(r *tl.Reader) {
 func (o *TLStorageFileMov) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLStorageFileMov) String() string {
+	return tl.Pretty(o)
+}
+
 // TLStorageFileMp4 represents ctor storage.fileMp4#b3cea0e4 = storage.FileType from telegram.tl
 type TLStorageFileMp4 struct {
 }
@@ -11794,6 +13354,10 @@ func (o *TLStorageFileMp4) ReadBareFrom(r *tl.Reader) {
 func (o *TLStorageFileMp4) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLStorageFileMp4) String() string {
+	return tl.Pretty(o)
+}
+
 // TLStorageFileWebp represents ctor storage.fileWebp#1081464c = storage.FileType from telegram.tl
 type TLStorageFileWebp struct {
 }
@@ -11808,6 +13372,10 @@ func (o *TLStorageFileWebp) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLStorageFileWebp) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLStorageFileWebp) String() string {
+	return tl.Pretty(o)
 }
 
 // TLFileLocationUnavailable represents ctor fileLocationUnavailable#7c596b46 volume_id:long local_id:int secret:long = FileLocation from telegram.tl
@@ -11833,6 +13401,10 @@ func (o *TLFileLocationUnavailable) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.VolumeId)
 	w.WriteInt(o.LocalId)
 	w.WriteUint64(o.Secret)
+}
+
+func (o *TLFileLocationUnavailable) String() string {
+	return tl.Pretty(o)
 }
 
 // TLFileLocation represents ctor fileLocation#53d69076 dc_id:int volume_id:long local_id:int secret:long = FileLocation from telegram.tl
@@ -11863,6 +13435,10 @@ func (o *TLFileLocation) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Secret)
 }
 
+func (o *TLFileLocation) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUserEmpty represents ctor userEmpty#200250ba id:int = User from telegram.tl
 type TLUserEmpty struct {
 	Id int // id:int
@@ -11880,6 +13456,10 @@ func (o *TLUserEmpty) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUserEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
+}
+
+func (o *TLUserEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUser represents ctor user#d10d979a flags:# flags.10?self:true flags.11?contact:true flags.12?mutual_contact:true flags.13?deleted:true flags.14?bot:true flags.15?bot_chat_history:true flags.16?bot_nochats:true flags.17?verified:true flags.18?restricted:true flags.20?min:true flags.21?bot_inline_geo:true id:int flags.0?access_hash:long flags.1?first_name:string flags.2?last_name:string flags.3?username:string flags.4?phone:string flags.5?photo:UserProfilePhoto flags.6?status:UserStatus flags.14?bot_info_version:int flags.18?restriction_reason:string flags.19?bot_inline_placeholder:string = User from telegram.tl
@@ -11958,6 +13538,10 @@ func (o *TLUser) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.BotInlinePlaceholder)
 }
 
+func (o *TLUser) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUserProfilePhotoEmpty represents ctor userProfilePhotoEmpty#4f11bae1 = UserProfilePhoto from telegram.tl
 type TLUserProfilePhotoEmpty struct {
 }
@@ -11972,6 +13556,10 @@ func (o *TLUserProfilePhotoEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUserProfilePhotoEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLUserProfilePhotoEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUserProfilePhoto represents ctor userProfilePhoto#d559d8c8 photo_id:long photo_small:FileLocation photo_big:FileLocation = UserProfilePhoto from telegram.tl
@@ -12001,6 +13589,10 @@ func (o *TLUserProfilePhoto) WriteBareTo(w *tl.Writer) {
 	o.PhotoBig.WriteBareTo(w)
 }
 
+func (o *TLUserProfilePhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUserStatusEmpty represents ctor userStatusEmpty#09d05049 = UserStatus from telegram.tl
 type TLUserStatusEmpty struct {
 }
@@ -12015,6 +13607,10 @@ func (o *TLUserStatusEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUserStatusEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLUserStatusEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUserStatusOnline represents ctor userStatusOnline#edb93949 expires:int = UserStatus from telegram.tl
@@ -12036,6 +13632,10 @@ func (o *TLUserStatusOnline) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Expires)
 }
 
+func (o *TLUserStatusOnline) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUserStatusOffline represents ctor userStatusOffline#008c703f was_online:int = UserStatus from telegram.tl
 type TLUserStatusOffline struct {
 	WasOnline int // was_online:int
@@ -12055,6 +13655,10 @@ func (o *TLUserStatusOffline) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.WasOnline)
 }
 
+func (o *TLUserStatusOffline) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUserStatusRecently represents ctor userStatusRecently#e26f42f1 = UserStatus from telegram.tl
 type TLUserStatusRecently struct {
 }
@@ -12069,6 +13673,10 @@ func (o *TLUserStatusRecently) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUserStatusRecently) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLUserStatusRecently) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUserStatusLastWeek represents ctor userStatusLastWeek#07bf09fc = UserStatus from telegram.tl
@@ -12087,6 +13695,10 @@ func (o *TLUserStatusLastWeek) ReadBareFrom(r *tl.Reader) {
 func (o *TLUserStatusLastWeek) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLUserStatusLastWeek) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUserStatusLastMonth represents ctor userStatusLastMonth#77ebc742 = UserStatus from telegram.tl
 type TLUserStatusLastMonth struct {
 }
@@ -12101,6 +13713,10 @@ func (o *TLUserStatusLastMonth) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUserStatusLastMonth) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLUserStatusLastMonth) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChatEmpty represents ctor chatEmpty#9ba2d800 id:int = Chat from telegram.tl
@@ -12120,6 +13736,10 @@ func (o *TLChatEmpty) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLChatEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
+}
+
+func (o *TLChatEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChat represents ctor chat#d91cdd54 flags:# flags.0?creator:true flags.1?kicked:true flags.2?left:true flags.3?admins_enabled:true flags.4?admin:true flags.5?deactivated:true id:int title:string photo:ChatPhoto participants_count:int date:int version:int flags.6?migrated_to:InputChannel = Chat from telegram.tl
@@ -12176,6 +13796,10 @@ func (o *TLChat) WriteBareTo(w *tl.Writer) {
 	o.MigratedTo.WriteBareTo(w)
 }
 
+func (o *TLChat) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChatForbidden represents ctor chatForbidden#07328bdb id:int title:string = Chat from telegram.tl
 type TLChatForbidden struct {
 	Id    int    // id:int
@@ -12196,6 +13820,10 @@ func (o *TLChatForbidden) ReadBareFrom(r *tl.Reader) {
 func (o *TLChatForbidden) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
 	w.WriteString(o.Title)
+}
+
+func (o *TLChatForbidden) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannel represents ctor channel#a14dca52 flags:# flags.0?creator:true flags.1?kicked:true flags.2?left:true flags.3?editor:true flags.4?moderator:true flags.5?broadcast:true flags.7?verified:true flags.8?megagroup:true flags.9?restricted:true flags.10?democracy:true flags.11?signatures:true flags.12?min:true id:int flags.13?access_hash:long title:string flags.6?username:string photo:ChatPhoto date:int version:int flags.9?restriction_reason:string = Chat from telegram.tl
@@ -12266,6 +13894,10 @@ func (o *TLChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.RestrictionReason)
 }
 
+func (o *TLChannel) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelForbidden represents ctor channelForbidden#8537784f flags:# flags.5?broadcast:true flags.8?megagroup:true id:int access_hash:long title:string = Chat from telegram.tl
 type TLChannelForbidden struct {
 	Flags      uint   // flags:#
@@ -12296,6 +13928,10 @@ func (o *TLChannelForbidden) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
 	w.WriteUint64(o.AccessHash)
 	w.WriteString(o.Title)
+}
+
+func (o *TLChannelForbidden) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChatFull represents ctor chatFull#2e02a614 id:int participants:ChatParticipants chat_photo:Photo notify_settings:PeerNotifySettings exported_invite:ExportedChatInvite bot_info:Vector<BotInfo> = ChatFull from telegram.tl
@@ -12349,6 +13985,10 @@ func (o *TLChatFull) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(TagBotInfo)
 		o.BotInfo[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLChatFull) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelFull represents ctor channelFull#c3d5512f flags:# flags.3?can_view_participants:true flags.6?can_set_username:true id:int about:string flags.0?participants_count:int flags.1?admins_count:int flags.2?kicked_count:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int chat_photo:Photo notify_settings:PeerNotifySettings exported_invite:ExportedChatInvite bot_info:Vector<BotInfo> flags.4?migrated_from_chat_id:int flags.4?migrated_from_max_id:int flags.5?pinned_msg_id:int = ChatFull from telegram.tl
@@ -12437,6 +14077,10 @@ func (o *TLChannelFull) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PinnedMsgId)
 }
 
+func (o *TLChannelFull) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChatParticipant represents ctor chatParticipant#c8d7493e user_id:int inviter_id:int date:int = ChatParticipant from telegram.tl
 type TLChatParticipant struct {
 	UserId    int // user_id:int
@@ -12462,6 +14106,10 @@ func (o *TLChatParticipant) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 }
 
+func (o *TLChatParticipant) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChatParticipantCreator represents ctor chatParticipantCreator#da13538a user_id:int = ChatParticipant from telegram.tl
 type TLChatParticipantCreator struct {
 	UserId int // user_id:int
@@ -12479,6 +14127,10 @@ func (o *TLChatParticipantCreator) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLChatParticipantCreator) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
+}
+
+func (o *TLChatParticipantCreator) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChatParticipantAdmin represents ctor chatParticipantAdmin#e2d6e436 user_id:int inviter_id:int date:int = ChatParticipant from telegram.tl
@@ -12506,6 +14158,10 @@ func (o *TLChatParticipantAdmin) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 }
 
+func (o *TLChatParticipantAdmin) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChatParticipantsForbidden represents ctor chatParticipantsForbidden#fc900c2b flags:# chat_id:int flags.0?self_participant:ChatParticipant = ChatParticipants from telegram.tl
 type TLChatParticipantsForbidden struct {
 	Flags           uint                  // flags:#
@@ -12530,6 +14186,10 @@ func (o *TLChatParticipantsForbidden) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
 	w.WriteCmd(o.SelfParticipant.Cmd())
 	o.SelfParticipant.WriteBareTo(w)
+}
+
+func (o *TLChatParticipantsForbidden) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChatParticipants represents ctor chatParticipants#3f460fed chat_id:int participants:Vector<ChatParticipant> version:int = ChatParticipants from telegram.tl
@@ -12568,6 +14228,10 @@ func (o *TLChatParticipants) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Version)
 }
 
+func (o *TLChatParticipants) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChatPhotoEmpty represents ctor chatPhotoEmpty#37c1011c = ChatPhoto from telegram.tl
 type TLChatPhotoEmpty struct {
 }
@@ -12582,6 +14246,10 @@ func (o *TLChatPhotoEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLChatPhotoEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLChatPhotoEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChatPhoto represents ctor chatPhoto#6153276a photo_small:FileLocation photo_big:FileLocation = ChatPhoto from telegram.tl
@@ -12608,6 +14276,10 @@ func (o *TLChatPhoto) WriteBareTo(w *tl.Writer) {
 	o.PhotoBig.WriteBareTo(w)
 }
 
+func (o *TLChatPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageMediaEmpty represents ctor messageMediaEmpty#3ded6320 = MessageMedia from telegram.tl
 type TLMessageMediaEmpty struct {
 }
@@ -12622,6 +14294,10 @@ func (o *TLMessageMediaEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessageMediaEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessageMediaEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageMediaPhoto represents ctor messageMediaPhoto#3d8ce53d photo:Photo caption:string = MessageMedia from telegram.tl
@@ -12647,6 +14323,10 @@ func (o *TLMessageMediaPhoto) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Caption)
 }
 
+func (o *TLMessageMediaPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageMediaGeo represents ctor messageMediaGeo#56e0d474 geo:GeoPoint = MessageMedia from telegram.tl
 type TLMessageMediaGeo struct {
 	Geo TLGeoPointType // geo:GeoPoint
@@ -12665,6 +14345,10 @@ func (o *TLMessageMediaGeo) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageMediaGeo) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Geo.Cmd())
 	o.Geo.WriteBareTo(w)
+}
+
+func (o *TLMessageMediaGeo) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageMediaContact represents ctor messageMediaContact#5e7d2f39 phone_number:string first_name:string last_name:string user_id:int = MessageMedia from telegram.tl
@@ -12695,6 +14379,10 @@ func (o *TLMessageMediaContact) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 }
 
+func (o *TLMessageMediaContact) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageMediaUnsupported represents ctor messageMediaUnsupported#9f84f49e = MessageMedia from telegram.tl
 type TLMessageMediaUnsupported struct {
 }
@@ -12709,6 +14397,10 @@ func (o *TLMessageMediaUnsupported) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessageMediaUnsupported) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessageMediaUnsupported) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageMediaDocument represents ctor messageMediaDocument#f3e02ea8 document:Document caption:string = MessageMedia from telegram.tl
@@ -12734,6 +14426,10 @@ func (o *TLMessageMediaDocument) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Caption)
 }
 
+func (o *TLMessageMediaDocument) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageMediaWebPage represents ctor messageMediaWebPage#a32dd600 webpage:WebPage = MessageMedia from telegram.tl
 type TLMessageMediaWebPage struct {
 	Webpage TLWebPageType // webpage:WebPage
@@ -12752,6 +14448,10 @@ func (o *TLMessageMediaWebPage) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageMediaWebPage) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Webpage.Cmd())
 	o.Webpage.WriteBareTo(w)
+}
+
+func (o *TLMessageMediaWebPage) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageMediaVenue represents ctor messageMediaVenue#7912b71f geo:GeoPoint title:string address:string provider:string venue_id:string = MessageMedia from telegram.tl
@@ -12786,6 +14486,10 @@ func (o *TLMessageMediaVenue) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.VenueId)
 }
 
+func (o *TLMessageMediaVenue) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageMediaGame represents ctor messageMediaGame#fdb19008 game:Game = MessageMedia from telegram.tl
 type TLMessageMediaGame struct {
 	Game *TLGame // game:Game
@@ -12808,6 +14512,10 @@ func (o *TLMessageMediaGame) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageMediaGame) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagGame)
 	o.Game.WriteBareTo(w)
+}
+
+func (o *TLMessageMediaGame) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageMediaInvoice represents ctor messageMediaInvoice#84551347 flags:# flags.1?shipping_address_requested:true flags.3?test:true title:string description:string flags.0?photo:WebDocument flags.2?receipt_msg_id:int currency:string total_amount:long start_param:string = MessageMedia from telegram.tl
@@ -12859,6 +14567,10 @@ func (o *TLMessageMediaInvoice) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.StartParam)
 }
 
+func (o *TLMessageMediaInvoice) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageActionEmpty represents ctor messageActionEmpty#b6aef7b0 = MessageAction from telegram.tl
 type TLMessageActionEmpty struct {
 }
@@ -12873,6 +14585,10 @@ func (o *TLMessageActionEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessageActionEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessageActionEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageActionChatCreate represents ctor messageActionChatCreate#a6638b9a title:string users:Vector<int> = MessageAction from telegram.tl
@@ -12907,6 +14623,10 @@ func (o *TLMessageActionChatCreate) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessageActionChatCreate) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageActionChatEditTitle represents ctor messageActionChatEditTitle#b5a1ce5a title:string = MessageAction from telegram.tl
 type TLMessageActionChatEditTitle struct {
 	Title string // title:string
@@ -12924,6 +14644,10 @@ func (o *TLMessageActionChatEditTitle) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessageActionChatEditTitle) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Title)
+}
+
+func (o *TLMessageActionChatEditTitle) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageActionChatEditPhoto represents ctor messageActionChatEditPhoto#7fcb13a8 photo:Photo = MessageAction from telegram.tl
@@ -12946,6 +14670,10 @@ func (o *TLMessageActionChatEditPhoto) WriteBareTo(w *tl.Writer) {
 	o.Photo.WriteBareTo(w)
 }
 
+func (o *TLMessageActionChatEditPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageActionChatDeletePhoto represents ctor messageActionChatDeletePhoto#95e3fbef = MessageAction from telegram.tl
 type TLMessageActionChatDeletePhoto struct {
 }
@@ -12960,6 +14688,10 @@ func (o *TLMessageActionChatDeletePhoto) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessageActionChatDeletePhoto) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessageActionChatDeletePhoto) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageActionChatAddUser represents ctor messageActionChatAddUser#488a7337 users:Vector<int> = MessageAction from telegram.tl
@@ -12991,6 +14723,10 @@ func (o *TLMessageActionChatAddUser) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessageActionChatAddUser) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageActionChatDeleteUser represents ctor messageActionChatDeleteUser#b2ae9b0c user_id:int = MessageAction from telegram.tl
 type TLMessageActionChatDeleteUser struct {
 	UserId int // user_id:int
@@ -13008,6 +14744,10 @@ func (o *TLMessageActionChatDeleteUser) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessageActionChatDeleteUser) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
+}
+
+func (o *TLMessageActionChatDeleteUser) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageActionChatJoinedByLink represents ctor messageActionChatJoinedByLink#f89cf5e8 inviter_id:int = MessageAction from telegram.tl
@@ -13029,6 +14769,10 @@ func (o *TLMessageActionChatJoinedByLink) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.InviterId)
 }
 
+func (o *TLMessageActionChatJoinedByLink) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageActionChannelCreate represents ctor messageActionChannelCreate#95d2ac92 title:string = MessageAction from telegram.tl
 type TLMessageActionChannelCreate struct {
 	Title string // title:string
@@ -13048,6 +14792,10 @@ func (o *TLMessageActionChannelCreate) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Title)
 }
 
+func (o *TLMessageActionChannelCreate) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageActionChatMigrateTo represents ctor messageActionChatMigrateTo#51bdb021 channel_id:int = MessageAction from telegram.tl
 type TLMessageActionChatMigrateTo struct {
 	ChannelId int // channel_id:int
@@ -13065,6 +14813,10 @@ func (o *TLMessageActionChatMigrateTo) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessageActionChatMigrateTo) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChannelId)
+}
+
+func (o *TLMessageActionChatMigrateTo) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageActionChannelMigrateFrom represents ctor messageActionChannelMigrateFrom#b055eaee title:string chat_id:int = MessageAction from telegram.tl
@@ -13089,6 +14841,10 @@ func (o *TLMessageActionChannelMigrateFrom) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
 }
 
+func (o *TLMessageActionChannelMigrateFrom) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageActionPinMessage represents ctor messageActionPinMessage#94bd38ed = MessageAction from telegram.tl
 type TLMessageActionPinMessage struct {
 }
@@ -13105,6 +14861,10 @@ func (o *TLMessageActionPinMessage) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageActionPinMessage) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLMessageActionPinMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageActionHistoryClear represents ctor messageActionHistoryClear#9fbab604 = MessageAction from telegram.tl
 type TLMessageActionHistoryClear struct {
 }
@@ -13119,6 +14879,10 @@ func (o *TLMessageActionHistoryClear) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessageActionHistoryClear) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessageActionHistoryClear) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageActionGameScore represents ctor messageActionGameScore#92a72876 game_id:long score:int = MessageAction from telegram.tl
@@ -13141,6 +14905,10 @@ func (o *TLMessageActionGameScore) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageActionGameScore) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.GameId)
 	w.WriteInt(o.Score)
+}
+
+func (o *TLMessageActionGameScore) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageActionPaymentSentMe represents ctor messageActionPaymentSentMe#8f31b327 flags:# currency:string total_amount:long payload:bytes flags.0?info:PaymentRequestedInfo flags.1?shipping_option_id:string charge:PaymentCharge = MessageAction from telegram.tl
@@ -13190,6 +14958,10 @@ func (o *TLMessageActionPaymentSentMe) WriteBareTo(w *tl.Writer) {
 	o.Charge.WriteBareTo(w)
 }
 
+func (o *TLMessageActionPaymentSentMe) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageActionPaymentSent represents ctor messageActionPaymentSent#40699cd0 currency:string total_amount:long = MessageAction from telegram.tl
 type TLMessageActionPaymentSent struct {
 	Currency    string // currency:string
@@ -13210,6 +14982,10 @@ func (o *TLMessageActionPaymentSent) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageActionPaymentSent) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Currency)
 	w.WriteUint64(o.TotalAmount)
+}
+
+func (o *TLMessageActionPaymentSent) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageActionPhoneCall represents ctor messageActionPhoneCall#80e11a7f flags:# call_id:long flags.0?reason:PhoneCallDiscardReason flags.1?duration:int = MessageAction from telegram.tl
@@ -13241,6 +15017,10 @@ func (o *TLMessageActionPhoneCall) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Duration)
 }
 
+func (o *TLMessageActionPhoneCall) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPeerNotifySettingsEmpty represents ctor peerNotifySettingsEmpty#70a68512 = PeerNotifySettings from telegram.tl
 type TLPeerNotifySettingsEmpty struct {
 }
@@ -13255,6 +15035,10 @@ func (o *TLPeerNotifySettingsEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPeerNotifySettingsEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPeerNotifySettingsEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPeerNotifySettings represents ctor peerNotifySettings#9acda4c0 flags:# flags.0?show_previews:true flags.1?silent:true mute_until:int sound:string = PeerNotifySettings from telegram.tl
@@ -13286,6 +15070,10 @@ func (o *TLPeerNotifySettings) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Sound)
 }
 
+func (o *TLPeerNotifySettings) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDraftMessageEmpty represents ctor draftMessageEmpty#ba4baec5 = DraftMessage from telegram.tl
 type TLDraftMessageEmpty struct {
 }
@@ -13300,6 +15088,10 @@ func (o *TLDraftMessageEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLDraftMessageEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLDraftMessageEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLDraftMessage represents ctor draftMessage#fd8e711f flags:# flags.1?no_webpage:true flags.0?reply_to_msg_id:int message:string flags.3?entities:Vector<MessageEntity> date:int = DraftMessage from telegram.tl
@@ -13346,6 +15138,10 @@ func (o *TLDraftMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 }
 
+func (o *TLDraftMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhotoEmpty represents ctor photoEmpty#2331b22d id:long = Photo from telegram.tl
 type TLPhotoEmpty struct {
 	Id uint64 // id:long
@@ -13363,6 +15159,10 @@ func (o *TLPhotoEmpty) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPhotoEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
+}
+
+func (o *TLPhotoEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhoto represents ctor photo#9288dd29 flags:# flags.0?has_stickers:true id:long access_hash:long date:int sizes:Vector<PhotoSize> = Photo from telegram.tl
@@ -13409,6 +15209,10 @@ func (o *TLPhoto) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhotoSizeEmpty represents ctor photoSizeEmpty#0e17e23c type:string = PhotoSize from telegram.tl
 type TLPhotoSizeEmpty struct {
 	Type string // type:string
@@ -13426,6 +15230,10 @@ func (o *TLPhotoSizeEmpty) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPhotoSizeEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Type)
+}
+
+func (o *TLPhotoSizeEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhotoSize represents ctor photoSize#77bfb61b type:string location:FileLocation w:int h:int size:int = PhotoSize from telegram.tl
@@ -13460,6 +15268,10 @@ func (o *TLPhotoSize) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Size)
 }
 
+func (o *TLPhotoSize) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhotoCachedSize represents ctor photoCachedSize#e9a734fa type:string location:FileLocation w:int h:int bytes:bytes = PhotoSize from telegram.tl
 type TLPhotoCachedSize struct {
 	Type     string             // type:string
@@ -13492,6 +15304,10 @@ func (o *TLPhotoCachedSize) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.Bytes)
 }
 
+func (o *TLPhotoCachedSize) String() string {
+	return tl.Pretty(o)
+}
+
 // TLGeoPointEmpty represents ctor geoPointEmpty#1117dd5f = GeoPoint from telegram.tl
 type TLGeoPointEmpty struct {
 }
@@ -13506,6 +15322,10 @@ func (o *TLGeoPointEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLGeoPointEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLGeoPointEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLGeoPoint represents ctor geoPoint#2049d70c long:double lat:double = GeoPoint from telegram.tl
@@ -13530,6 +15350,10 @@ func (o *TLGeoPoint) WriteBareTo(w *tl.Writer) {
 	w.WriteFloat64(o.Lat)
 }
 
+func (o *TLGeoPoint) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthSentCodeTypeApp represents ctor auth.sentCodeTypeApp#3dbb5986 length:int = auth.SentCodeType from telegram.tl
 type TLAuthSentCodeTypeApp struct {
 	Length int // length:int
@@ -13547,6 +15371,10 @@ func (o *TLAuthSentCodeTypeApp) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLAuthSentCodeTypeApp) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Length)
+}
+
+func (o *TLAuthSentCodeTypeApp) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthSentCodeTypeSms represents ctor auth.sentCodeTypeSms#c000bba2 length:int = auth.SentCodeType from telegram.tl
@@ -13568,6 +15396,10 @@ func (o *TLAuthSentCodeTypeSms) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Length)
 }
 
+func (o *TLAuthSentCodeTypeSms) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthSentCodeTypeCall represents ctor auth.sentCodeTypeCall#5353e5a7 length:int = auth.SentCodeType from telegram.tl
 type TLAuthSentCodeTypeCall struct {
 	Length int // length:int
@@ -13585,6 +15417,10 @@ func (o *TLAuthSentCodeTypeCall) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLAuthSentCodeTypeCall) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Length)
+}
+
+func (o *TLAuthSentCodeTypeCall) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthSentCodeTypeFlashCall represents ctor auth.sentCodeTypeFlashCall#ab03c6d9 pattern:string = auth.SentCodeType from telegram.tl
@@ -13606,6 +15442,10 @@ func (o *TLAuthSentCodeTypeFlashCall) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Pattern)
 }
 
+func (o *TLAuthSentCodeTypeFlashCall) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthCodeTypeSms represents ctor auth.codeTypeSms#72a3158c = auth.CodeType from telegram.tl
 type TLAuthCodeTypeSms struct {
 }
@@ -13620,6 +15460,10 @@ func (o *TLAuthCodeTypeSms) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLAuthCodeTypeSms) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLAuthCodeTypeSms) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAuthCodeTypeCall represents ctor auth.codeTypeCall#741cd3e3 = auth.CodeType from telegram.tl
@@ -13638,6 +15482,10 @@ func (o *TLAuthCodeTypeCall) ReadBareFrom(r *tl.Reader) {
 func (o *TLAuthCodeTypeCall) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLAuthCodeTypeCall) String() string {
+	return tl.Pretty(o)
+}
+
 // TLAuthCodeTypeFlashCall represents ctor auth.codeTypeFlashCall#226ccefb = auth.CodeType from telegram.tl
 type TLAuthCodeTypeFlashCall struct {
 }
@@ -13652,6 +15500,10 @@ func (o *TLAuthCodeTypeFlashCall) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLAuthCodeTypeFlashCall) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLAuthCodeTypeFlashCall) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputNotifyPeer represents ctor inputNotifyPeer#b8bc5b0c peer:InputPeer = InputNotifyPeer from telegram.tl
@@ -13674,6 +15526,10 @@ func (o *TLInputNotifyPeer) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 }
 
+func (o *TLInputNotifyPeer) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputNotifyUsers represents ctor inputNotifyUsers#193b4417 = InputNotifyPeer from telegram.tl
 type TLInputNotifyUsers struct {
 }
@@ -13688,6 +15544,10 @@ func (o *TLInputNotifyUsers) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputNotifyUsers) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputNotifyUsers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputNotifyChats represents ctor inputNotifyChats#4a95e84e = InputNotifyPeer from telegram.tl
@@ -13706,6 +15566,10 @@ func (o *TLInputNotifyChats) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputNotifyChats) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputNotifyChats) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputNotifyAll represents ctor inputNotifyAll#a429b886 = InputNotifyPeer from telegram.tl
 type TLInputNotifyAll struct {
 }
@@ -13720,6 +15584,10 @@ func (o *TLInputNotifyAll) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputNotifyAll) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputNotifyAll) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPeerNotifyEventsEmpty represents ctor inputPeerNotifyEventsEmpty#f03064d8 = InputPeerNotifyEvents from telegram.tl
@@ -13738,6 +15606,10 @@ func (o *TLInputPeerNotifyEventsEmpty) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputPeerNotifyEventsEmpty) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputPeerNotifyEventsEmpty) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputPeerNotifyEventsAll represents ctor inputPeerNotifyEventsAll#e86a2c74 = InputPeerNotifyEvents from telegram.tl
 type TLInputPeerNotifyEventsAll struct {
 }
@@ -13752,6 +15624,10 @@ func (o *TLInputPeerNotifyEventsAll) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputPeerNotifyEventsAll) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputPeerNotifyEventsAll) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPeerNotifyEventsEmpty represents ctor peerNotifyEventsEmpty#add53cb3 = PeerNotifyEvents from telegram.tl
@@ -13770,6 +15646,10 @@ func (o *TLPeerNotifyEventsEmpty) ReadBareFrom(r *tl.Reader) {
 func (o *TLPeerNotifyEventsEmpty) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLPeerNotifyEventsEmpty) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPeerNotifyEventsAll represents ctor peerNotifyEventsAll#6d1ded88 = PeerNotifyEvents from telegram.tl
 type TLPeerNotifyEventsAll struct {
 }
@@ -13784,6 +15664,10 @@ func (o *TLPeerNotifyEventsAll) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPeerNotifyEventsAll) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPeerNotifyEventsAll) String() string {
+	return tl.Pretty(o)
 }
 
 // TLWallPaper represents ctor wallPaper#ccb03657 id:int title:string sizes:Vector<PhotoSize> color:int = WallPaper from telegram.tl
@@ -13825,6 +15709,10 @@ func (o *TLWallPaper) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Color)
 }
 
+func (o *TLWallPaper) String() string {
+	return tl.Pretty(o)
+}
+
 // TLWallPaperSolid represents ctor wallPaperSolid#63117f24 id:int title:string bg_color:int color:int = WallPaper from telegram.tl
 type TLWallPaperSolid struct {
 	Id      int    // id:int
@@ -13853,6 +15741,10 @@ func (o *TLWallPaperSolid) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Color)
 }
 
+func (o *TLWallPaperSolid) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputReportReasonSpam represents ctor inputReportReasonSpam#58dbcab8 = ReportReason from telegram.tl
 type TLInputReportReasonSpam struct {
 }
@@ -13867,6 +15759,10 @@ func (o *TLInputReportReasonSpam) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputReportReasonSpam) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputReportReasonSpam) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputReportReasonViolence represents ctor inputReportReasonViolence#1e22c78d = ReportReason from telegram.tl
@@ -13885,6 +15781,10 @@ func (o *TLInputReportReasonViolence) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputReportReasonViolence) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputReportReasonViolence) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputReportReasonPornography represents ctor inputReportReasonPornography#2e59d922 = ReportReason from telegram.tl
 type TLInputReportReasonPornography struct {
 }
@@ -13899,6 +15799,10 @@ func (o *TLInputReportReasonPornography) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputReportReasonPornography) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputReportReasonPornography) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputReportReasonOther represents ctor inputReportReasonOther#e1746d0a text:string = ReportReason from telegram.tl
@@ -13920,6 +15824,10 @@ func (o *TLInputReportReasonOther) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
 }
 
+func (o *TLInputReportReasonOther) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactLinkUnknown represents ctor contactLinkUnknown#5f4f9247 = ContactLink from telegram.tl
 type TLContactLinkUnknown struct {
 }
@@ -13934,6 +15842,10 @@ func (o *TLContactLinkUnknown) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLContactLinkUnknown) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLContactLinkUnknown) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactLinkNone represents ctor contactLinkNone#feedd3ad = ContactLink from telegram.tl
@@ -13952,6 +15864,10 @@ func (o *TLContactLinkNone) ReadBareFrom(r *tl.Reader) {
 func (o *TLContactLinkNone) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLContactLinkNone) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactLinkHasPhone represents ctor contactLinkHasPhone#268f3f59 = ContactLink from telegram.tl
 type TLContactLinkHasPhone struct {
 }
@@ -13966,6 +15882,10 @@ func (o *TLContactLinkHasPhone) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLContactLinkHasPhone) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLContactLinkHasPhone) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactLinkContact represents ctor contactLinkContact#d502c2d0 = ContactLink from telegram.tl
@@ -13984,6 +15904,10 @@ func (o *TLContactLinkContact) ReadBareFrom(r *tl.Reader) {
 func (o *TLContactLinkContact) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLContactLinkContact) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsContactsNotModified represents ctor contacts.contactsNotModified#b74ba9d2 = contacts.Contacts from telegram.tl
 type TLContactsContactsNotModified struct {
 }
@@ -13998,6 +15922,10 @@ func (o *TLContactsContactsNotModified) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLContactsContactsNotModified) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLContactsContactsNotModified) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsContacts represents ctor contacts.contacts#6f8b8cb2 contacts:Vector<Contact> users:Vector<User> = contacts.Contacts from telegram.tl
@@ -14048,6 +15976,10 @@ func (o *TLContactsContacts) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLContactsContacts) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsBlocked represents ctor contacts.blocked#1c138d15 blocked:Vector<ContactBlocked> users:Vector<User> = contacts.Blocked from telegram.tl
 type TLContactsBlocked struct {
 	Blocked []*TLContactBlocked // blocked:Vector<ContactBlocked>
@@ -14094,6 +16026,10 @@ func (o *TLContactsBlocked) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLContactsBlocked) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsBlockedSlice represents ctor contacts.blockedSlice#900802a1 count:int blocked:Vector<ContactBlocked> users:Vector<User> = contacts.Blocked from telegram.tl
@@ -14145,6 +16081,10 @@ func (o *TLContactsBlockedSlice) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLContactsBlockedSlice) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesDialogs represents ctor messages.dialogs#15ba6c40 dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Dialogs from telegram.tl
@@ -14221,6 +16161,10 @@ func (o *TLMessagesDialogs) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLMessagesDialogs) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesDialogsSlice represents ctor messages.dialogsSlice#71e094f3 count:int dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Dialogs from telegram.tl
@@ -14302,6 +16246,10 @@ func (o *TLMessagesDialogsSlice) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesDialogsSlice) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesMessages represents ctor messages.messages#8c718e87 messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Messages from telegram.tl
 type TLMessagesMessages struct {
 	Messages []TLMessageType // messages:Vector<Message>
@@ -14358,6 +16306,10 @@ func (o *TLMessagesMessages) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLMessagesMessages) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesMessagesSlice represents ctor messages.messagesSlice#0b446ae3 count:int messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Messages from telegram.tl
@@ -14419,6 +16371,10 @@ func (o *TLMessagesMessagesSlice) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLMessagesMessagesSlice) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesChannelMessages represents ctor messages.channelMessages#99262e37 flags:# pts:int count:int messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Messages from telegram.tl
@@ -14488,6 +16444,10 @@ func (o *TLMessagesChannelMessages) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesChannelMessages) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesChats represents ctor messages.chats#64ff9fd5 chats:Vector<Chat> = messages.Chats from telegram.tl
 type TLMessagesChats struct {
 	Chats []TLChatType // chats:Vector<Chat>
@@ -14516,6 +16476,10 @@ func (o *TLMessagesChats) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Chats[i].Cmd())
 		o.Chats[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLMessagesChats) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesChatsSlice represents ctor messages.chatsSlice#9cd81144 count:int chats:Vector<Chat> = messages.Chats from telegram.tl
@@ -14551,6 +16515,10 @@ func (o *TLMessagesChatsSlice) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesChatsSlice) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMessagesFilterEmpty represents ctor inputMessagesFilterEmpty#57e2f66c = MessagesFilter from telegram.tl
 type TLInputMessagesFilterEmpty struct {
 }
@@ -14565,6 +16533,10 @@ func (o *TLInputMessagesFilterEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputMessagesFilterEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputMessagesFilterEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMessagesFilterPhotos represents ctor inputMessagesFilterPhotos#9609a51c = MessagesFilter from telegram.tl
@@ -14583,6 +16555,10 @@ func (o *TLInputMessagesFilterPhotos) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputMessagesFilterPhotos) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputMessagesFilterPhotos) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMessagesFilterVideo represents ctor inputMessagesFilterVideo#9fc00e65 = MessagesFilter from telegram.tl
 type TLInputMessagesFilterVideo struct {
 }
@@ -14597,6 +16573,10 @@ func (o *TLInputMessagesFilterVideo) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputMessagesFilterVideo) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputMessagesFilterVideo) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMessagesFilterPhotoVideo represents ctor inputMessagesFilterPhotoVideo#56e9f0e4 = MessagesFilter from telegram.tl
@@ -14615,6 +16595,10 @@ func (o *TLInputMessagesFilterPhotoVideo) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputMessagesFilterPhotoVideo) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputMessagesFilterPhotoVideo) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMessagesFilterPhotoVideoDocuments represents ctor inputMessagesFilterPhotoVideoDocuments#d95e73bb = MessagesFilter from telegram.tl
 type TLInputMessagesFilterPhotoVideoDocuments struct {
 }
@@ -14629,6 +16613,10 @@ func (o *TLInputMessagesFilterPhotoVideoDocuments) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputMessagesFilterPhotoVideoDocuments) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputMessagesFilterPhotoVideoDocuments) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMessagesFilterDocument represents ctor inputMessagesFilterDocument#9eddf188 = MessagesFilter from telegram.tl
@@ -14647,6 +16635,10 @@ func (o *TLInputMessagesFilterDocument) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputMessagesFilterDocument) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputMessagesFilterDocument) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMessagesFilterUrl represents ctor inputMessagesFilterUrl#7ef0dd87 = MessagesFilter from telegram.tl
 type TLInputMessagesFilterUrl struct {
 }
@@ -14661,6 +16653,10 @@ func (o *TLInputMessagesFilterUrl) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputMessagesFilterUrl) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputMessagesFilterUrl) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMessagesFilterGif represents ctor inputMessagesFilterGif#ffc86587 = MessagesFilter from telegram.tl
@@ -14679,6 +16675,10 @@ func (o *TLInputMessagesFilterGif) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputMessagesFilterGif) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputMessagesFilterGif) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMessagesFilterVoice represents ctor inputMessagesFilterVoice#50f5c392 = MessagesFilter from telegram.tl
 type TLInputMessagesFilterVoice struct {
 }
@@ -14693,6 +16693,10 @@ func (o *TLInputMessagesFilterVoice) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputMessagesFilterVoice) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputMessagesFilterVoice) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMessagesFilterMusic represents ctor inputMessagesFilterMusic#3751b49e = MessagesFilter from telegram.tl
@@ -14711,6 +16715,10 @@ func (o *TLInputMessagesFilterMusic) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputMessagesFilterMusic) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputMessagesFilterMusic) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputMessagesFilterChatPhotos represents ctor inputMessagesFilterChatPhotos#3a20ecb8 = MessagesFilter from telegram.tl
 type TLInputMessagesFilterChatPhotos struct {
 }
@@ -14725,6 +16733,10 @@ func (o *TLInputMessagesFilterChatPhotos) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputMessagesFilterChatPhotos) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputMessagesFilterChatPhotos) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMessagesFilterPhoneCalls represents ctor inputMessagesFilterPhoneCalls#80c99768 flags:# flags.0?missed:true = MessagesFilter from telegram.tl
@@ -14746,6 +16758,10 @@ func (o *TLInputMessagesFilterPhoneCalls) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLInputMessagesFilterPhoneCalls) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLInputMessagesFilterPhoneCalls) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateNewMessage represents ctor updateNewMessage#1f2b0afd message:Message pts:int pts_count:int = Update from telegram.tl
@@ -14774,6 +16790,10 @@ func (o *TLUpdateNewMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PtsCount)
 }
 
+func (o *TLUpdateNewMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateMessageID represents ctor updateMessageID#4e90bfd6 id:int random_id:long = Update from telegram.tl
 type TLUpdateMessageID struct {
 	Id       int    // id:int
@@ -14794,6 +16814,10 @@ func (o *TLUpdateMessageID) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateMessageID) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
 	w.WriteUint64(o.RandomId)
+}
+
+func (o *TLUpdateMessageID) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateDeleteMessages represents ctor updateDeleteMessages#a20db0e5 messages:Vector<int> pts:int pts_count:int = Update from telegram.tl
@@ -14831,6 +16855,10 @@ func (o *TLUpdateDeleteMessages) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PtsCount)
 }
 
+func (o *TLUpdateDeleteMessages) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateUserTyping represents ctor updateUserTyping#5c486927 user_id:int action:SendMessageAction = Update from telegram.tl
 type TLUpdateUserTyping struct {
 	UserId int                     // user_id:int
@@ -14852,6 +16880,10 @@ func (o *TLUpdateUserTyping) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 	w.WriteCmd(o.Action.Cmd())
 	o.Action.WriteBareTo(w)
+}
+
+func (o *TLUpdateUserTyping) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateChatUserTyping represents ctor updateChatUserTyping#9a65ea1f chat_id:int user_id:int action:SendMessageAction = Update from telegram.tl
@@ -14880,6 +16912,10 @@ func (o *TLUpdateChatUserTyping) WriteBareTo(w *tl.Writer) {
 	o.Action.WriteBareTo(w)
 }
 
+func (o *TLUpdateChatUserTyping) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateChatParticipants represents ctor updateChatParticipants#07761198 participants:ChatParticipants = Update from telegram.tl
 type TLUpdateChatParticipants struct {
 	Participants TLChatParticipantsType // participants:ChatParticipants
@@ -14898,6 +16934,10 @@ func (o *TLUpdateChatParticipants) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateChatParticipants) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Participants.Cmd())
 	o.Participants.WriteBareTo(w)
+}
+
+func (o *TLUpdateChatParticipants) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateUserStatus represents ctor updateUserStatus#1bfbd823 user_id:int status:UserStatus = Update from telegram.tl
@@ -14921,6 +16961,10 @@ func (o *TLUpdateUserStatus) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 	w.WriteCmd(o.Status.Cmd())
 	o.Status.WriteBareTo(w)
+}
+
+func (o *TLUpdateUserStatus) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateUserName represents ctor updateUserName#a7332b73 user_id:int first_name:string last_name:string username:string = Update from telegram.tl
@@ -14949,6 +16993,10 @@ func (o *TLUpdateUserName) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.FirstName)
 	w.WriteString(o.LastName)
 	w.WriteString(o.Username)
+}
+
+func (o *TLUpdateUserName) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateUserPhoto represents ctor updateUserPhoto#95313b0c user_id:int date:int photo:UserProfilePhoto previous:Bool = Update from telegram.tl
@@ -14985,6 +17033,10 @@ func (o *TLUpdateUserPhoto) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdateUserPhoto) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateContactRegistered represents ctor updateContactRegistered#2575bbb9 user_id:int date:int = Update from telegram.tl
 type TLUpdateContactRegistered struct {
 	UserId int // user_id:int
@@ -15005,6 +17057,10 @@ func (o *TLUpdateContactRegistered) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateContactRegistered) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 	w.WriteInt(o.Date)
+}
+
+func (o *TLUpdateContactRegistered) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateContactLink represents ctor updateContactLink#9d2e67c5 user_id:int my_link:ContactLink foreign_link:ContactLink = Update from telegram.tl
@@ -15034,6 +17090,10 @@ func (o *TLUpdateContactLink) WriteBareTo(w *tl.Writer) {
 	o.ForeignLink.WriteBareTo(w)
 }
 
+func (o *TLUpdateContactLink) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateNewEncryptedMessage represents ctor updateNewEncryptedMessage#12bcbd9a message:EncryptedMessage qts:int = Update from telegram.tl
 type TLUpdateNewEncryptedMessage struct {
 	Message TLEncryptedMessageType // message:EncryptedMessage
@@ -15057,6 +17117,10 @@ func (o *TLUpdateNewEncryptedMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Qts)
 }
 
+func (o *TLUpdateNewEncryptedMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateEncryptedChatTyping represents ctor updateEncryptedChatTyping#1710f156 chat_id:int = Update from telegram.tl
 type TLUpdateEncryptedChatTyping struct {
 	ChatId int // chat_id:int
@@ -15074,6 +17138,10 @@ func (o *TLUpdateEncryptedChatTyping) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUpdateEncryptedChatTyping) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
+}
+
+func (o *TLUpdateEncryptedChatTyping) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateEncryption represents ctor updateEncryption#b4a2e88d chat:EncryptedChat date:int = Update from telegram.tl
@@ -15099,6 +17167,10 @@ func (o *TLUpdateEncryption) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 }
 
+func (o *TLUpdateEncryption) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateEncryptedMessagesRead represents ctor updateEncryptedMessagesRead#38fe25b7 chat_id:int max_date:int date:int = Update from telegram.tl
 type TLUpdateEncryptedMessagesRead struct {
 	ChatId  int // chat_id:int
@@ -15122,6 +17194,10 @@ func (o *TLUpdateEncryptedMessagesRead) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
 	w.WriteInt(o.MaxDate)
 	w.WriteInt(o.Date)
+}
+
+func (o *TLUpdateEncryptedMessagesRead) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateChatParticipantAdd represents ctor updateChatParticipantAdd#ea4b0e5c chat_id:int user_id:int inviter_id:int date:int version:int = Update from telegram.tl
@@ -15155,6 +17231,10 @@ func (o *TLUpdateChatParticipantAdd) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Version)
 }
 
+func (o *TLUpdateChatParticipantAdd) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateChatParticipantDelete represents ctor updateChatParticipantDelete#6e5f8c22 chat_id:int user_id:int version:int = Update from telegram.tl
 type TLUpdateChatParticipantDelete struct {
 	ChatId  int // chat_id:int
@@ -15178,6 +17258,10 @@ func (o *TLUpdateChatParticipantDelete) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChatId)
 	w.WriteInt(o.UserId)
 	w.WriteInt(o.Version)
+}
+
+func (o *TLUpdateChatParticipantDelete) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateDcOptions represents ctor updateDcOptions#8e5e9873 dc_options:Vector<DcOption> = Update from telegram.tl
@@ -15214,6 +17298,10 @@ func (o *TLUpdateDcOptions) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdateDcOptions) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateUserBlocked represents ctor updateUserBlocked#80ece81a user_id:int blocked:Bool = Update from telegram.tl
 type TLUpdateUserBlocked struct {
 	UserId  int  // user_id:int
@@ -15241,6 +17329,10 @@ func (o *TLUpdateUserBlocked) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdateUserBlocked) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateNotifySettings represents ctor updateNotifySettings#bec268ef peer:NotifyPeer notify_settings:PeerNotifySettings = Update from telegram.tl
 type TLUpdateNotifySettings struct {
 	Peer           TLNotifyPeerType         // peer:NotifyPeer
@@ -15263,6 +17355,10 @@ func (o *TLUpdateNotifySettings) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 	w.WriteCmd(o.NotifySettings.Cmd())
 	o.NotifySettings.WriteBareTo(w)
+}
+
+func (o *TLUpdateNotifySettings) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateServiceNotification represents ctor updateServiceNotification#ebe46819 flags:# flags.0?popup:true flags.1?inbox_date:int type:string message:string media:MessageMedia entities:Vector<MessageEntity> = Update from telegram.tl
@@ -15313,6 +17409,10 @@ func (o *TLUpdateServiceNotification) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdateServiceNotification) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdatePrivacy represents ctor updatePrivacy#ee3b272a key:PrivacyKey rules:Vector<PrivacyRule> = Update from telegram.tl
 type TLUpdatePrivacy struct {
 	Key   TLPrivacyKeyType    // key:PrivacyKey
@@ -15347,6 +17447,10 @@ func (o *TLUpdatePrivacy) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdatePrivacy) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateUserPhone represents ctor updateUserPhone#12b9417b user_id:int phone:string = Update from telegram.tl
 type TLUpdateUserPhone struct {
 	UserId int    // user_id:int
@@ -15367,6 +17471,10 @@ func (o *TLUpdateUserPhone) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateUserPhone) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 	w.WriteString(o.Phone)
+}
+
+func (o *TLUpdateUserPhone) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateReadHistoryInbox represents ctor updateReadHistoryInbox#9961fd5c peer:Peer max_id:int pts:int pts_count:int = Update from telegram.tl
@@ -15398,6 +17506,10 @@ func (o *TLUpdateReadHistoryInbox) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PtsCount)
 }
 
+func (o *TLUpdateReadHistoryInbox) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateReadHistoryOutbox represents ctor updateReadHistoryOutbox#2f2f21bf peer:Peer max_id:int pts:int pts_count:int = Update from telegram.tl
 type TLUpdateReadHistoryOutbox struct {
 	Peer     TLPeerType // peer:Peer
@@ -15427,6 +17539,10 @@ func (o *TLUpdateReadHistoryOutbox) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PtsCount)
 }
 
+func (o *TLUpdateReadHistoryOutbox) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateWebPage represents ctor updateWebPage#7f891213 webpage:WebPage pts:int pts_count:int = Update from telegram.tl
 type TLUpdateWebPage struct {
 	Webpage  TLWebPageType // webpage:WebPage
@@ -15451,6 +17567,10 @@ func (o *TLUpdateWebPage) WriteBareTo(w *tl.Writer) {
 	o.Webpage.WriteBareTo(w)
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
+}
+
+func (o *TLUpdateWebPage) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateReadMessagesContents represents ctor updateReadMessagesContents#68c13933 messages:Vector<int> pts:int pts_count:int = Update from telegram.tl
@@ -15488,6 +17608,10 @@ func (o *TLUpdateReadMessagesContents) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PtsCount)
 }
 
+func (o *TLUpdateReadMessagesContents) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateChannelTooLong represents ctor updateChannelTooLong#eb0467fb flags:# channel_id:int flags.0?pts:int = Update from telegram.tl
 type TLUpdateChannelTooLong struct {
 	Flags     uint // flags:#
@@ -15513,6 +17637,10 @@ func (o *TLUpdateChannelTooLong) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Pts)
 }
 
+func (o *TLUpdateChannelTooLong) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateChannel represents ctor updateChannel#b6d45656 channel_id:int = Update from telegram.tl
 type TLUpdateChannel struct {
 	ChannelId int // channel_id:int
@@ -15530,6 +17658,10 @@ func (o *TLUpdateChannel) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUpdateChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChannelId)
+}
+
+func (o *TLUpdateChannel) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateNewChannelMessage represents ctor updateNewChannelMessage#62ba04d9 message:Message pts:int pts_count:int = Update from telegram.tl
@@ -15558,6 +17690,10 @@ func (o *TLUpdateNewChannelMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PtsCount)
 }
 
+func (o *TLUpdateNewChannelMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateReadChannelInbox represents ctor updateReadChannelInbox#4214f37f channel_id:int max_id:int = Update from telegram.tl
 type TLUpdateReadChannelInbox struct {
 	ChannelId int // channel_id:int
@@ -15578,6 +17714,10 @@ func (o *TLUpdateReadChannelInbox) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateReadChannelInbox) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChannelId)
 	w.WriteInt(o.MaxId)
+}
+
+func (o *TLUpdateReadChannelInbox) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateDeleteChannelMessages represents ctor updateDeleteChannelMessages#c37521c9 channel_id:int messages:Vector<int> pts:int pts_count:int = Update from telegram.tl
@@ -15618,6 +17758,10 @@ func (o *TLUpdateDeleteChannelMessages) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PtsCount)
 }
 
+func (o *TLUpdateDeleteChannelMessages) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateChannelMessageViews represents ctor updateChannelMessageViews#98a12b4b channel_id:int id:int views:int = Update from telegram.tl
 type TLUpdateChannelMessageViews struct {
 	ChannelId int // channel_id:int
@@ -15641,6 +17785,10 @@ func (o *TLUpdateChannelMessageViews) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChannelId)
 	w.WriteInt(o.Id)
 	w.WriteInt(o.Views)
+}
+
+func (o *TLUpdateChannelMessageViews) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateChatAdmins represents ctor updateChatAdmins#6e947941 chat_id:int enabled:Bool version:int = Update from telegram.tl
@@ -15671,6 +17819,10 @@ func (o *TLUpdateChatAdmins) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(TagBoolFalse)
 	}
 	w.WriteInt(o.Version)
+}
+
+func (o *TLUpdateChatAdmins) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateChatParticipantAdmin represents ctor updateChatParticipantAdmin#b6901959 chat_id:int user_id:int is_admin:Bool version:int = Update from telegram.tl
@@ -15706,6 +17858,10 @@ func (o *TLUpdateChatParticipantAdmin) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Version)
 }
 
+func (o *TLUpdateChatParticipantAdmin) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateNewStickerSet represents ctor updateNewStickerSet#688a30aa stickerset:messages.StickerSet = Update from telegram.tl
 type TLUpdateNewStickerSet struct {
 	Stickerset *TLMessagesStickerSet // stickerset:messages.StickerSet
@@ -15728,6 +17884,10 @@ func (o *TLUpdateNewStickerSet) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateNewStickerSet) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagMessagesStickerSet)
 	o.Stickerset.WriteBareTo(w)
+}
+
+func (o *TLUpdateNewStickerSet) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateStickerSetsOrder represents ctor updateStickerSetsOrder#0bb2d201 flags:# flags.0?masks:true order:Vector<long> = Update from telegram.tl
@@ -15764,6 +17924,10 @@ func (o *TLUpdateStickerSetsOrder) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdateStickerSetsOrder) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateStickerSets represents ctor updateStickerSets#43ae3dec = Update from telegram.tl
 type TLUpdateStickerSets struct {
 }
@@ -15780,6 +17944,10 @@ func (o *TLUpdateStickerSets) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateStickerSets) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLUpdateStickerSets) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateSavedGifs represents ctor updateSavedGifs#9375341e = Update from telegram.tl
 type TLUpdateSavedGifs struct {
 }
@@ -15794,6 +17962,10 @@ func (o *TLUpdateSavedGifs) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUpdateSavedGifs) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLUpdateSavedGifs) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateBotInlineQuery represents ctor updateBotInlineQuery#54826690 flags:# query_id:long user_id:int query:string flags.0?geo:GeoPoint offset:string = Update from telegram.tl
@@ -15829,6 +18001,10 @@ func (o *TLUpdateBotInlineQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Geo.Cmd())
 	o.Geo.WriteBareTo(w)
 	w.WriteString(o.Offset)
+}
+
+func (o *TLUpdateBotInlineQuery) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateBotInlineSend represents ctor updateBotInlineSend#0e48f964 flags:# user_id:int query:string flags.0?geo:GeoPoint id:string flags.1?msg_id:InputBotInlineMessageID = Update from telegram.tl
@@ -15871,6 +18047,10 @@ func (o *TLUpdateBotInlineSend) WriteBareTo(w *tl.Writer) {
 	o.MsgId.WriteBareTo(w)
 }
 
+func (o *TLUpdateBotInlineSend) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateEditChannelMessage represents ctor updateEditChannelMessage#1b3f4df7 message:Message pts:int pts_count:int = Update from telegram.tl
 type TLUpdateEditChannelMessage struct {
 	Message  TLMessageType // message:Message
@@ -15897,6 +18077,10 @@ func (o *TLUpdateEditChannelMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PtsCount)
 }
 
+func (o *TLUpdateEditChannelMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateChannelPinnedMessage represents ctor updateChannelPinnedMessage#98592475 channel_id:int id:int = Update from telegram.tl
 type TLUpdateChannelPinnedMessage struct {
 	ChannelId int // channel_id:int
@@ -15917,6 +18101,10 @@ func (o *TLUpdateChannelPinnedMessage) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateChannelPinnedMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChannelId)
 	w.WriteInt(o.Id)
+}
+
+func (o *TLUpdateChannelPinnedMessage) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateBotCallbackQuery represents ctor updateBotCallbackQuery#e73547e1 flags:# query_id:long user_id:int peer:Peer msg_id:int chat_instance:long flags.0?data:bytes flags.1?game_short_name:string = Update from telegram.tl
@@ -15960,6 +18148,10 @@ func (o *TLUpdateBotCallbackQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.GameShortName)
 }
 
+func (o *TLUpdateBotCallbackQuery) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateEditMessage represents ctor updateEditMessage#e40370a3 message:Message pts:int pts_count:int = Update from telegram.tl
 type TLUpdateEditMessage struct {
 	Message  TLMessageType // message:Message
@@ -15984,6 +18176,10 @@ func (o *TLUpdateEditMessage) WriteBareTo(w *tl.Writer) {
 	o.Message.WriteBareTo(w)
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
+}
+
+func (o *TLUpdateEditMessage) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateInlineBotCallbackQuery represents ctor updateInlineBotCallbackQuery#f9d27a5a flags:# query_id:long user_id:int msg_id:InputBotInlineMessageID chat_instance:long flags.0?data:bytes flags.1?game_short_name:string = Update from telegram.tl
@@ -16028,6 +18224,10 @@ func (o *TLUpdateInlineBotCallbackQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.GameShortName)
 }
 
+func (o *TLUpdateInlineBotCallbackQuery) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateReadChannelOutbox represents ctor updateReadChannelOutbox#25d6c9c7 channel_id:int max_id:int = Update from telegram.tl
 type TLUpdateReadChannelOutbox struct {
 	ChannelId int // channel_id:int
@@ -16048,6 +18248,10 @@ func (o *TLUpdateReadChannelOutbox) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateReadChannelOutbox) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChannelId)
 	w.WriteInt(o.MaxId)
+}
+
+func (o *TLUpdateReadChannelOutbox) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateDraftMessage represents ctor updateDraftMessage#ee2bb969 peer:Peer draft:DraftMessage = Update from telegram.tl
@@ -16074,6 +18278,10 @@ func (o *TLUpdateDraftMessage) WriteBareTo(w *tl.Writer) {
 	o.Draft.WriteBareTo(w)
 }
 
+func (o *TLUpdateDraftMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateReadFeaturedStickers represents ctor updateReadFeaturedStickers#571d2742 = Update from telegram.tl
 type TLUpdateReadFeaturedStickers struct {
 }
@@ -16088,6 +18296,10 @@ func (o *TLUpdateReadFeaturedStickers) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUpdateReadFeaturedStickers) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLUpdateReadFeaturedStickers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateRecentStickers represents ctor updateRecentStickers#9a422c20 = Update from telegram.tl
@@ -16106,6 +18318,10 @@ func (o *TLUpdateRecentStickers) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateRecentStickers) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLUpdateRecentStickers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateConfig represents ctor updateConfig#a229dd06 = Update from telegram.tl
 type TLUpdateConfig struct {
 }
@@ -16122,6 +18338,10 @@ func (o *TLUpdateConfig) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateConfig) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLUpdateConfig) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdatePtsChanged represents ctor updatePtsChanged#3354678f = Update from telegram.tl
 type TLUpdatePtsChanged struct {
 }
@@ -16136,6 +18356,10 @@ func (o *TLUpdatePtsChanged) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUpdatePtsChanged) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLUpdatePtsChanged) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateChannelWebPage represents ctor updateChannelWebPage#40771900 channel_id:int webpage:WebPage pts:int pts_count:int = Update from telegram.tl
@@ -16167,6 +18391,10 @@ func (o *TLUpdateChannelWebPage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PtsCount)
 }
 
+func (o *TLUpdateChannelWebPage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateDialogPinned represents ctor updateDialogPinned#d711a2cc flags:# flags.0?pinned:true peer:Peer = Update from telegram.tl
 type TLUpdateDialogPinned struct {
 	Flags  uint       // flags:#
@@ -16190,6 +18418,10 @@ func (o *TLUpdateDialogPinned) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
+}
+
+func (o *TLUpdateDialogPinned) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatePinnedDialogs represents ctor updatePinnedDialogs#d8caf68d flags:# flags.0?order:Vector<Peer> = Update from telegram.tl
@@ -16225,6 +18457,10 @@ func (o *TLUpdatePinnedDialogs) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdatePinnedDialogs) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateBotWebhookJSON represents ctor updateBotWebhookJSON#8317c0c3 data:DataJSON = Update from telegram.tl
 type TLUpdateBotWebhookJSON struct {
 	Data *TLDataJSON // data:DataJSON
@@ -16247,6 +18483,10 @@ func (o *TLUpdateBotWebhookJSON) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateBotWebhookJSON) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagDataJSON)
 	o.Data.WriteBareTo(w)
+}
+
+func (o *TLUpdateBotWebhookJSON) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateBotWebhookJSONQuery represents ctor updateBotWebhookJSONQuery#9b9240a6 query_id:long data:DataJSON timeout:int = Update from telegram.tl
@@ -16277,6 +18517,10 @@ func (o *TLUpdateBotWebhookJSONQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagDataJSON)
 	o.Data.WriteBareTo(w)
 	w.WriteInt(o.Timeout)
+}
+
+func (o *TLUpdateBotWebhookJSONQuery) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateBotShippingQuery represents ctor updateBotShippingQuery#e0cdc940 query_id:long user_id:int payload:bytes shipping_address:PostAddress = Update from telegram.tl
@@ -16310,6 +18554,10 @@ func (o *TLUpdateBotShippingQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.Payload)
 	w.WriteCmd(TagPostAddress)
 	o.ShippingAddress.WriteBareTo(w)
+}
+
+func (o *TLUpdateBotShippingQuery) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateBotPrecheckoutQuery represents ctor updateBotPrecheckoutQuery#5d2f3aa9 flags:# query_id:long user_id:int payload:bytes flags.0?info:PaymentRequestedInfo flags.1?shipping_option_id:string currency:string total_amount:long = Update from telegram.tl
@@ -16357,6 +18605,10 @@ func (o *TLUpdateBotPrecheckoutQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.TotalAmount)
 }
 
+func (o *TLUpdateBotPrecheckoutQuery) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdatePhoneCall represents ctor updatePhoneCall#ab0f6b1e phone_call:PhoneCall = Update from telegram.tl
 type TLUpdatePhoneCall struct {
 	PhoneCall TLPhoneCallType // phone_call:PhoneCall
@@ -16375,6 +18627,10 @@ func (o *TLUpdatePhoneCall) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdatePhoneCall) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.PhoneCall.Cmd())
 	o.PhoneCall.WriteBareTo(w)
+}
+
+func (o *TLUpdatePhoneCall) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatesDifferenceEmpty represents ctor updates.differenceEmpty#5d75a138 date:int seq:int = updates.Difference from telegram.tl
@@ -16397,6 +18653,10 @@ func (o *TLUpdatesDifferenceEmpty) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdatesDifferenceEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 	w.WriteInt(o.Seq)
+}
+
+func (o *TLUpdatesDifferenceEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatesDifference represents ctor updates.difference#00f49ca0 new_messages:Vector<Message> new_encrypted_messages:Vector<EncryptedMessage> other_updates:Vector<Update> chats:Vector<Chat> users:Vector<User> state:updates.State = updates.Difference from telegram.tl
@@ -16493,6 +18753,10 @@ func (o *TLUpdatesDifference) WriteBareTo(w *tl.Writer) {
 	o.State.WriteBareTo(w)
 }
 
+func (o *TLUpdatesDifference) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdatesDifferenceSlice represents ctor updates.differenceSlice#a8fb1981 new_messages:Vector<Message> new_encrypted_messages:Vector<EncryptedMessage> other_updates:Vector<Update> chats:Vector<Chat> users:Vector<User> intermediate_state:updates.State = updates.Difference from telegram.tl
 type TLUpdatesDifferenceSlice struct {
 	NewMessages          []TLMessageType          // new_messages:Vector<Message>
@@ -16587,6 +18851,10 @@ func (o *TLUpdatesDifferenceSlice) WriteBareTo(w *tl.Writer) {
 	o.IntermediateState.WriteBareTo(w)
 }
 
+func (o *TLUpdatesDifferenceSlice) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdatesDifferenceTooLong represents ctor updates.differenceTooLong#4afe8f6d pts:int = updates.Difference from telegram.tl
 type TLUpdatesDifferenceTooLong struct {
 	Pts int // pts:int
@@ -16606,6 +18874,10 @@ func (o *TLUpdatesDifferenceTooLong) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Pts)
 }
 
+func (o *TLUpdatesDifferenceTooLong) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdatesTooLong represents ctor updatesTooLong#e317af7e = Updates from telegram.tl
 type TLUpdatesTooLong struct {
 }
@@ -16620,6 +18892,10 @@ func (o *TLUpdatesTooLong) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUpdatesTooLong) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLUpdatesTooLong) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateShortMessage represents ctor updateShortMessage#914fbf11 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true id:int user_id:int message:string pts:int pts_count:int date:int flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int flags.7?entities:Vector<MessageEntity> = Updates from telegram.tl
@@ -16693,6 +18969,10 @@ func (o *TLUpdateShortMessage) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Entities[i].Cmd())
 		o.Entities[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLUpdateShortMessage) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdateShortChatMessage represents ctor updateShortChatMessage#16812688 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true id:int from_id:int chat_id:int message:string pts:int pts_count:int date:int flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int flags.7?entities:Vector<MessageEntity> = Updates from telegram.tl
@@ -16771,6 +19051,10 @@ func (o *TLUpdateShortChatMessage) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdateShortChatMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateShort represents ctor updateShort#78d4dec1 update:Update date:int = Updates from telegram.tl
 type TLUpdateShort struct {
 	Update TLUpdateType // update:Update
@@ -16792,6 +19076,10 @@ func (o *TLUpdateShort) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Update.Cmd())
 	o.Update.WriteBareTo(w)
 	w.WriteInt(o.Date)
+}
+
+func (o *TLUpdateShort) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatesCombined represents ctor updatesCombined#725b04c3 updates:Vector<Update> users:Vector<User> chats:Vector<Chat> date:int seq_start:int seq:int = Updates from telegram.tl
@@ -16861,6 +19149,10 @@ func (o *TLUpdatesCombined) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Seq)
 }
 
+func (o *TLUpdatesCombined) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdates represents ctor updates#74ae4240 updates:Vector<Update> users:Vector<User> chats:Vector<Chat> date:int seq:int = Updates from telegram.tl
 type TLUpdates struct {
 	Updates []TLUpdateType // updates:Vector<Update>
@@ -16925,6 +19217,10 @@ func (o *TLUpdates) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Seq)
 }
 
+func (o *TLUpdates) String() string {
+	return tl.Pretty(o)
+}
+
 // TLUpdateShortSentMessage represents ctor updateShortSentMessage#11f1331c flags:# flags.1?out:true id:int pts:int pts_count:int date:int flags.9?media:MessageMedia flags.7?entities:Vector<MessageEntity> = Updates from telegram.tl
 type TLUpdateShortSentMessage struct {
 	Flags    uint                  // flags:#
@@ -16976,6 +19272,10 @@ func (o *TLUpdateShortSentMessage) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdateShortSentMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhotosPhotos represents ctor photos.photos#8dca6aa5 photos:Vector<Photo> users:Vector<User> = photos.Photos from telegram.tl
 type TLPhotosPhotos struct {
 	Photos []TLPhotoType // photos:Vector<Photo>
@@ -17018,6 +19318,10 @@ func (o *TLPhotosPhotos) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLPhotosPhotos) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhotosPhotosSlice represents ctor photos.photosSlice#15051f54 count:int photos:Vector<Photo> users:Vector<User> = photos.Photos from telegram.tl
@@ -17067,6 +19371,10 @@ func (o *TLPhotosPhotosSlice) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPhotosPhotosSlice) String() string {
+	return tl.Pretty(o)
+}
+
 // TLHelpAppUpdate represents ctor help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate from telegram.tl
 type TLHelpAppUpdate struct {
 	Id       int    // id:int
@@ -17100,6 +19408,10 @@ func (o *TLHelpAppUpdate) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
 }
 
+func (o *TLHelpAppUpdate) String() string {
+	return tl.Pretty(o)
+}
+
 // TLHelpNoAppUpdate represents ctor help.noAppUpdate#c45a6536 = help.AppUpdate from telegram.tl
 type TLHelpNoAppUpdate struct {
 }
@@ -17114,6 +19426,10 @@ func (o *TLHelpNoAppUpdate) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLHelpNoAppUpdate) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLHelpNoAppUpdate) String() string {
+	return tl.Pretty(o)
 }
 
 // TLEncryptedChatEmpty represents ctor encryptedChatEmpty#ab7ec0a0 id:int = EncryptedChat from telegram.tl
@@ -17133,6 +19449,10 @@ func (o *TLEncryptedChatEmpty) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLEncryptedChatEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
+}
+
+func (o *TLEncryptedChatEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLEncryptedChatWaiting represents ctor encryptedChatWaiting#3bf703dc id:int access_hash:long date:int admin_id:int participant_id:int = EncryptedChat from telegram.tl
@@ -17164,6 +19484,10 @@ func (o *TLEncryptedChatWaiting) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 	w.WriteInt(o.AdminId)
 	w.WriteInt(o.ParticipantId)
+}
+
+func (o *TLEncryptedChatWaiting) String() string {
+	return tl.Pretty(o)
 }
 
 // TLEncryptedChatRequested represents ctor encryptedChatRequested#c878527e id:int access_hash:long date:int admin_id:int participant_id:int g_a:bytes = EncryptedChat from telegram.tl
@@ -17198,6 +19522,10 @@ func (o *TLEncryptedChatRequested) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.AdminId)
 	w.WriteInt(o.ParticipantId)
 	w.WriteBlob(o.GA)
+}
+
+func (o *TLEncryptedChatRequested) String() string {
+	return tl.Pretty(o)
 }
 
 // TLEncryptedChat represents ctor encryptedChat#fa56ce36 id:int access_hash:long date:int admin_id:int participant_id:int g_a_or_b:bytes key_fingerprint:long = EncryptedChat from telegram.tl
@@ -17237,6 +19565,10 @@ func (o *TLEncryptedChat) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.KeyFingerprint)
 }
 
+func (o *TLEncryptedChat) String() string {
+	return tl.Pretty(o)
+}
+
 // TLEncryptedChatDiscarded represents ctor encryptedChatDiscarded#13d6dd27 id:int = EncryptedChat from telegram.tl
 type TLEncryptedChatDiscarded struct {
 	Id int // id:int
@@ -17256,6 +19588,10 @@ func (o *TLEncryptedChatDiscarded) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Id)
 }
 
+func (o *TLEncryptedChatDiscarded) String() string {
+	return tl.Pretty(o)
+}
+
 // TLEncryptedFileEmpty represents ctor encryptedFileEmpty#c21f497e = EncryptedFile from telegram.tl
 type TLEncryptedFileEmpty struct {
 }
@@ -17270,6 +19606,10 @@ func (o *TLEncryptedFileEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLEncryptedFileEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLEncryptedFileEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLEncryptedFile represents ctor encryptedFile#4a70994c id:long access_hash:long size:int dc_id:int key_fingerprint:int = EncryptedFile from telegram.tl
@@ -17303,6 +19643,10 @@ func (o *TLEncryptedFile) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.KeyFingerprint)
 }
 
+func (o *TLEncryptedFile) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputEncryptedFileEmpty represents ctor inputEncryptedFileEmpty#1837c364 = InputEncryptedFile from telegram.tl
 type TLInputEncryptedFileEmpty struct {
 }
@@ -17317,6 +19661,10 @@ func (o *TLInputEncryptedFileEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputEncryptedFileEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputEncryptedFileEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputEncryptedFileUploaded represents ctor inputEncryptedFileUploaded#64bd0306 id:long parts:int md5_checksum:string key_fingerprint:int = InputEncryptedFile from telegram.tl
@@ -17347,6 +19695,10 @@ func (o *TLInputEncryptedFileUploaded) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.KeyFingerprint)
 }
 
+func (o *TLInputEncryptedFileUploaded) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputEncryptedFile represents ctor inputEncryptedFile#5a17b5e5 id:long access_hash:long = InputEncryptedFile from telegram.tl
 type TLInputEncryptedFile struct {
 	Id         uint64 // id:long
@@ -17367,6 +19719,10 @@ func (o *TLInputEncryptedFile) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputEncryptedFile) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
 	w.WriteUint64(o.AccessHash)
+}
+
+func (o *TLInputEncryptedFile) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputEncryptedFileBigUploaded represents ctor inputEncryptedFileBigUploaded#2dc173c8 id:long parts:int key_fingerprint:int = InputEncryptedFile from telegram.tl
@@ -17392,6 +19748,10 @@ func (o *TLInputEncryptedFileBigUploaded) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
 	w.WriteInt(o.Parts)
 	w.WriteInt(o.KeyFingerprint)
+}
+
+func (o *TLInputEncryptedFileBigUploaded) String() string {
+	return tl.Pretty(o)
 }
 
 // TLEncryptedMessage represents ctor encryptedMessage#ed18c118 random_id:long chat_id:int date:int bytes:bytes file:EncryptedFile = EncryptedMessage from telegram.tl
@@ -17426,6 +19786,10 @@ func (o *TLEncryptedMessage) WriteBareTo(w *tl.Writer) {
 	o.File.WriteBareTo(w)
 }
 
+func (o *TLEncryptedMessage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLEncryptedMessageService represents ctor encryptedMessageService#23734b06 random_id:long chat_id:int date:int bytes:bytes = EncryptedMessage from telegram.tl
 type TLEncryptedMessageService struct {
 	RandomId uint64 // random_id:long
@@ -17454,6 +19818,10 @@ func (o *TLEncryptedMessageService) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.Bytes)
 }
 
+func (o *TLEncryptedMessageService) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesDHConfigNotModified represents ctor messages.dhConfigNotModified#c0e24635 random:bytes = messages.DhConfig from telegram.tl
 type TLMessagesDHConfigNotModified struct {
 	Random []byte // random:bytes
@@ -17471,6 +19839,10 @@ func (o *TLMessagesDHConfigNotModified) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesDHConfigNotModified) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.Random)
+}
+
+func (o *TLMessagesDHConfigNotModified) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesDHConfig represents ctor messages.dhConfig#2c221edd g:int p:bytes version:int random:bytes = messages.DhConfig from telegram.tl
@@ -17501,6 +19873,10 @@ func (o *TLMessagesDHConfig) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.Random)
 }
 
+func (o *TLMessagesDHConfig) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesSentEncryptedMessage represents ctor messages.sentEncryptedMessage#560f8935 date:int = messages.SentEncryptedMessage from telegram.tl
 type TLMessagesSentEncryptedMessage struct {
 	Date int // date:int
@@ -17518,6 +19894,10 @@ func (o *TLMessagesSentEncryptedMessage) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesSentEncryptedMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
+}
+
+func (o *TLMessagesSentEncryptedMessage) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSentEncryptedFile represents ctor messages.sentEncryptedFile#9493ff32 date:int file:EncryptedFile = messages.SentEncryptedMessage from telegram.tl
@@ -17543,6 +19923,10 @@ func (o *TLMessagesSentEncryptedFile) WriteBareTo(w *tl.Writer) {
 	o.File.WriteBareTo(w)
 }
 
+func (o *TLMessagesSentEncryptedFile) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputDocumentEmpty represents ctor inputDocumentEmpty#72f0eaae = InputDocument from telegram.tl
 type TLInputDocumentEmpty struct {
 }
@@ -17557,6 +19941,10 @@ func (o *TLInputDocumentEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputDocumentEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputDocumentEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputDocument represents ctor inputDocument#18798952 id:long access_hash:long = InputDocument from telegram.tl
@@ -17581,6 +19969,10 @@ func (o *TLInputDocument) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.AccessHash)
 }
 
+func (o *TLInputDocument) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDocumentEmpty represents ctor documentEmpty#36f8c871 id:long = Document from telegram.tl
 type TLDocumentEmpty struct {
 	Id uint64 // id:long
@@ -17598,6 +19990,10 @@ func (o *TLDocumentEmpty) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLDocumentEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
+}
+
+func (o *TLDocumentEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLDocument represents ctor document#87232bc7 id:long access_hash:long date:int mime_type:string size:int thumb:PhotoSize dc_id:int version:int attributes:Vector<DocumentAttribute> = Document from telegram.tl
@@ -17655,6 +20051,10 @@ func (o *TLDocument) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLDocument) String() string {
+	return tl.Pretty(o)
+}
+
 // TLNotifyPeer represents ctor notifyPeer#9fd40bd8 peer:Peer = NotifyPeer from telegram.tl
 type TLNotifyPeer struct {
 	Peer TLPeerType // peer:Peer
@@ -17675,6 +20075,10 @@ func (o *TLNotifyPeer) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 }
 
+func (o *TLNotifyPeer) String() string {
+	return tl.Pretty(o)
+}
+
 // TLNotifyUsers represents ctor notifyUsers#b4c83b4c = NotifyPeer from telegram.tl
 type TLNotifyUsers struct {
 }
@@ -17689,6 +20093,10 @@ func (o *TLNotifyUsers) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLNotifyUsers) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLNotifyUsers) String() string {
+	return tl.Pretty(o)
 }
 
 // TLNotifyChats represents ctor notifyChats#c007cec3 = NotifyPeer from telegram.tl
@@ -17707,6 +20115,10 @@ func (o *TLNotifyChats) ReadBareFrom(r *tl.Reader) {
 func (o *TLNotifyChats) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLNotifyChats) String() string {
+	return tl.Pretty(o)
+}
+
 // TLNotifyAll represents ctor notifyAll#74d07c60 = NotifyPeer from telegram.tl
 type TLNotifyAll struct {
 }
@@ -17721,6 +20133,10 @@ func (o *TLNotifyAll) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLNotifyAll) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLNotifyAll) String() string {
+	return tl.Pretty(o)
 }
 
 // TLSendMessageTypingAction represents ctor sendMessageTypingAction#16bf744e = SendMessageAction from telegram.tl
@@ -17739,6 +20155,10 @@ func (o *TLSendMessageTypingAction) ReadBareFrom(r *tl.Reader) {
 func (o *TLSendMessageTypingAction) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLSendMessageTypingAction) String() string {
+	return tl.Pretty(o)
+}
+
 // TLSendMessageCancelAction represents ctor sendMessageCancelAction#fd5ec8f5 = SendMessageAction from telegram.tl
 type TLSendMessageCancelAction struct {
 }
@@ -17755,6 +20175,10 @@ func (o *TLSendMessageCancelAction) ReadBareFrom(r *tl.Reader) {
 func (o *TLSendMessageCancelAction) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLSendMessageCancelAction) String() string {
+	return tl.Pretty(o)
+}
+
 // TLSendMessageRecordVideoAction represents ctor sendMessageRecordVideoAction#a187d66f = SendMessageAction from telegram.tl
 type TLSendMessageRecordVideoAction struct {
 }
@@ -17769,6 +20193,10 @@ func (o *TLSendMessageRecordVideoAction) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLSendMessageRecordVideoAction) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLSendMessageRecordVideoAction) String() string {
+	return tl.Pretty(o)
 }
 
 // TLSendMessageUploadVideoAction represents ctor sendMessageUploadVideoAction#e9763aec progress:int = SendMessageAction from telegram.tl
@@ -17790,6 +20218,10 @@ func (o *TLSendMessageUploadVideoAction) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Progress)
 }
 
+func (o *TLSendMessageUploadVideoAction) String() string {
+	return tl.Pretty(o)
+}
+
 // TLSendMessageRecordAudioAction represents ctor sendMessageRecordAudioAction#d52f73f7 = SendMessageAction from telegram.tl
 type TLSendMessageRecordAudioAction struct {
 }
@@ -17804,6 +20236,10 @@ func (o *TLSendMessageRecordAudioAction) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLSendMessageRecordAudioAction) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLSendMessageRecordAudioAction) String() string {
+	return tl.Pretty(o)
 }
 
 // TLSendMessageUploadAudioAction represents ctor sendMessageUploadAudioAction#f351d7ab progress:int = SendMessageAction from telegram.tl
@@ -17825,6 +20261,10 @@ func (o *TLSendMessageUploadAudioAction) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Progress)
 }
 
+func (o *TLSendMessageUploadAudioAction) String() string {
+	return tl.Pretty(o)
+}
+
 // TLSendMessageUploadPhotoAction represents ctor sendMessageUploadPhotoAction#d1d34a26 progress:int = SendMessageAction from telegram.tl
 type TLSendMessageUploadPhotoAction struct {
 	Progress int // progress:int
@@ -17842,6 +20282,10 @@ func (o *TLSendMessageUploadPhotoAction) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLSendMessageUploadPhotoAction) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Progress)
+}
+
+func (o *TLSendMessageUploadPhotoAction) String() string {
+	return tl.Pretty(o)
 }
 
 // TLSendMessageUploadDocumentAction represents ctor sendMessageUploadDocumentAction#aa0cd9e4 progress:int = SendMessageAction from telegram.tl
@@ -17863,6 +20307,10 @@ func (o *TLSendMessageUploadDocumentAction) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Progress)
 }
 
+func (o *TLSendMessageUploadDocumentAction) String() string {
+	return tl.Pretty(o)
+}
+
 // TLSendMessageGeoLocationAction represents ctor sendMessageGeoLocationAction#176f8ba1 = SendMessageAction from telegram.tl
 type TLSendMessageGeoLocationAction struct {
 }
@@ -17877,6 +20325,10 @@ func (o *TLSendMessageGeoLocationAction) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLSendMessageGeoLocationAction) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLSendMessageGeoLocationAction) String() string {
+	return tl.Pretty(o)
 }
 
 // TLSendMessageChooseContactAction represents ctor sendMessageChooseContactAction#628cbc6f = SendMessageAction from telegram.tl
@@ -17895,6 +20347,10 @@ func (o *TLSendMessageChooseContactAction) ReadBareFrom(r *tl.Reader) {
 func (o *TLSendMessageChooseContactAction) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLSendMessageChooseContactAction) String() string {
+	return tl.Pretty(o)
+}
+
 // TLSendMessageGamePlayAction represents ctor sendMessageGamePlayAction#dd6a8f48 = SendMessageAction from telegram.tl
 type TLSendMessageGamePlayAction struct {
 }
@@ -17909,6 +20365,10 @@ func (o *TLSendMessageGamePlayAction) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLSendMessageGamePlayAction) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLSendMessageGamePlayAction) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPrivacyKeyStatusTimestamp represents ctor inputPrivacyKeyStatusTimestamp#4f96cb18 = InputPrivacyKey from telegram.tl
@@ -17927,6 +20387,10 @@ func (o *TLInputPrivacyKeyStatusTimestamp) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputPrivacyKeyStatusTimestamp) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputPrivacyKeyStatusTimestamp) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputPrivacyKeyChatInvite represents ctor inputPrivacyKeyChatInvite#bdfb0426 = InputPrivacyKey from telegram.tl
 type TLInputPrivacyKeyChatInvite struct {
 }
@@ -17941,6 +20405,10 @@ func (o *TLInputPrivacyKeyChatInvite) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputPrivacyKeyChatInvite) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputPrivacyKeyChatInvite) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPrivacyKeyPhoneCall represents ctor inputPrivacyKeyPhoneCall#fabadc5f = InputPrivacyKey from telegram.tl
@@ -17959,6 +20427,10 @@ func (o *TLInputPrivacyKeyPhoneCall) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputPrivacyKeyPhoneCall) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputPrivacyKeyPhoneCall) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPrivacyKeyStatusTimestamp represents ctor privacyKeyStatusTimestamp#bc2eab30 = PrivacyKey from telegram.tl
 type TLPrivacyKeyStatusTimestamp struct {
 }
@@ -17973,6 +20445,10 @@ func (o *TLPrivacyKeyStatusTimestamp) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPrivacyKeyStatusTimestamp) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPrivacyKeyStatusTimestamp) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPrivacyKeyChatInvite represents ctor privacyKeyChatInvite#500e6dfa = PrivacyKey from telegram.tl
@@ -17991,6 +20467,10 @@ func (o *TLPrivacyKeyChatInvite) ReadBareFrom(r *tl.Reader) {
 func (o *TLPrivacyKeyChatInvite) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLPrivacyKeyChatInvite) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPrivacyKeyPhoneCall represents ctor privacyKeyPhoneCall#3d662b7b = PrivacyKey from telegram.tl
 type TLPrivacyKeyPhoneCall struct {
 }
@@ -18005,6 +20485,10 @@ func (o *TLPrivacyKeyPhoneCall) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPrivacyKeyPhoneCall) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPrivacyKeyPhoneCall) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPrivacyValueAllowContacts represents ctor inputPrivacyValueAllowContacts#0d09e07b = InputPrivacyRule from telegram.tl
@@ -18023,6 +20507,10 @@ func (o *TLInputPrivacyValueAllowContacts) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputPrivacyValueAllowContacts) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputPrivacyValueAllowContacts) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputPrivacyValueAllowAll represents ctor inputPrivacyValueAllowAll#184b35ce = InputPrivacyRule from telegram.tl
 type TLInputPrivacyValueAllowAll struct {
 }
@@ -18037,6 +20525,10 @@ func (o *TLInputPrivacyValueAllowAll) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputPrivacyValueAllowAll) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputPrivacyValueAllowAll) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPrivacyValueAllowUsers represents ctor inputPrivacyValueAllowUsers#131cc67f users:Vector<InputUser> = InputPrivacyRule from telegram.tl
@@ -18069,6 +20561,10 @@ func (o *TLInputPrivacyValueAllowUsers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLInputPrivacyValueAllowUsers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputPrivacyValueDisallowContacts represents ctor inputPrivacyValueDisallowContacts#0ba52007 = InputPrivacyRule from telegram.tl
 type TLInputPrivacyValueDisallowContacts struct {
 }
@@ -18085,6 +20581,10 @@ func (o *TLInputPrivacyValueDisallowContacts) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputPrivacyValueDisallowContacts) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLInputPrivacyValueDisallowContacts) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputPrivacyValueDisallowAll represents ctor inputPrivacyValueDisallowAll#d66b66c9 = InputPrivacyRule from telegram.tl
 type TLInputPrivacyValueDisallowAll struct {
 }
@@ -18099,6 +20599,10 @@ func (o *TLInputPrivacyValueDisallowAll) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputPrivacyValueDisallowAll) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputPrivacyValueDisallowAll) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPrivacyValueDisallowUsers represents ctor inputPrivacyValueDisallowUsers#90110467 users:Vector<InputUser> = InputPrivacyRule from telegram.tl
@@ -18131,6 +20635,10 @@ func (o *TLInputPrivacyValueDisallowUsers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLInputPrivacyValueDisallowUsers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPrivacyValueAllowContacts represents ctor privacyValueAllowContacts#fffe1bac = PrivacyRule from telegram.tl
 type TLPrivacyValueAllowContacts struct {
 }
@@ -18147,6 +20655,10 @@ func (o *TLPrivacyValueAllowContacts) ReadBareFrom(r *tl.Reader) {
 func (o *TLPrivacyValueAllowContacts) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLPrivacyValueAllowContacts) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPrivacyValueAllowAll represents ctor privacyValueAllowAll#65427b82 = PrivacyRule from telegram.tl
 type TLPrivacyValueAllowAll struct {
 }
@@ -18161,6 +20673,10 @@ func (o *TLPrivacyValueAllowAll) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPrivacyValueAllowAll) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPrivacyValueAllowAll) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPrivacyValueAllowUsers represents ctor privacyValueAllowUsers#4d5bbe0c users:Vector<int> = PrivacyRule from telegram.tl
@@ -18192,6 +20708,10 @@ func (o *TLPrivacyValueAllowUsers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPrivacyValueAllowUsers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPrivacyValueDisallowContacts represents ctor privacyValueDisallowContacts#f888fa1a = PrivacyRule from telegram.tl
 type TLPrivacyValueDisallowContacts struct {
 }
@@ -18208,6 +20728,10 @@ func (o *TLPrivacyValueDisallowContacts) ReadBareFrom(r *tl.Reader) {
 func (o *TLPrivacyValueDisallowContacts) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLPrivacyValueDisallowContacts) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPrivacyValueDisallowAll represents ctor privacyValueDisallowAll#8b73e763 = PrivacyRule from telegram.tl
 type TLPrivacyValueDisallowAll struct {
 }
@@ -18222,6 +20746,10 @@ func (o *TLPrivacyValueDisallowAll) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPrivacyValueDisallowAll) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPrivacyValueDisallowAll) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPrivacyValueDisallowUsers represents ctor privacyValueDisallowUsers#0c7f49b7 users:Vector<int> = PrivacyRule from telegram.tl
@@ -18253,6 +20781,10 @@ func (o *TLPrivacyValueDisallowUsers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPrivacyValueDisallowUsers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDocumentAttributeImageSize represents ctor documentAttributeImageSize#6c37c15c w:int h:int = DocumentAttribute from telegram.tl
 type TLDocumentAttributeImageSize struct {
 	W int // w:int
@@ -18275,6 +20807,10 @@ func (o *TLDocumentAttributeImageSize) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.H)
 }
 
+func (o *TLDocumentAttributeImageSize) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDocumentAttributeAnimated represents ctor documentAttributeAnimated#11b58939 = DocumentAttribute from telegram.tl
 type TLDocumentAttributeAnimated struct {
 }
@@ -18289,6 +20825,10 @@ func (o *TLDocumentAttributeAnimated) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLDocumentAttributeAnimated) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLDocumentAttributeAnimated) String() string {
+	return tl.Pretty(o)
 }
 
 // TLDocumentAttributeSticker represents ctor documentAttributeSticker#6319d612 flags:# flags.1?mask:true alt:string stickerset:InputStickerSet flags.0?mask_coords:MaskCoords = DocumentAttribute from telegram.tl
@@ -18327,6 +20867,10 @@ func (o *TLDocumentAttributeSticker) WriteBareTo(w *tl.Writer) {
 	o.MaskCoords.WriteBareTo(w)
 }
 
+func (o *TLDocumentAttributeSticker) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDocumentAttributeVideo represents ctor documentAttributeVideo#5910cccb duration:int w:int h:int = DocumentAttribute from telegram.tl
 type TLDocumentAttributeVideo struct {
 	Duration int // duration:int
@@ -18350,6 +20894,10 @@ func (o *TLDocumentAttributeVideo) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Duration)
 	w.WriteInt(o.W)
 	w.WriteInt(o.H)
+}
+
+func (o *TLDocumentAttributeVideo) String() string {
+	return tl.Pretty(o)
 }
 
 // TLDocumentAttributeAudio represents ctor documentAttributeAudio#9852f9c6 flags:# flags.10?voice:true duration:int flags.0?title:string flags.1?performer:string flags.2?waveform:bytes = DocumentAttribute from telegram.tl
@@ -18385,6 +20933,10 @@ func (o *TLDocumentAttributeAudio) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.Waveform)
 }
 
+func (o *TLDocumentAttributeAudio) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDocumentAttributeFilename represents ctor documentAttributeFilename#15590068 file_name:string = DocumentAttribute from telegram.tl
 type TLDocumentAttributeFilename struct {
 	FileName string // file_name:string
@@ -18404,6 +20956,10 @@ func (o *TLDocumentAttributeFilename) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.FileName)
 }
 
+func (o *TLDocumentAttributeFilename) String() string {
+	return tl.Pretty(o)
+}
+
 // TLDocumentAttributeHasStickers represents ctor documentAttributeHasStickers#9801d2f7 = DocumentAttribute from telegram.tl
 type TLDocumentAttributeHasStickers struct {
 }
@@ -18420,6 +20976,10 @@ func (o *TLDocumentAttributeHasStickers) ReadBareFrom(r *tl.Reader) {
 func (o *TLDocumentAttributeHasStickers) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLDocumentAttributeHasStickers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesStickersNotModified represents ctor messages.stickersNotModified#f1749a22 = messages.Stickers from telegram.tl
 type TLMessagesStickersNotModified struct {
 }
@@ -18434,6 +20994,10 @@ func (o *TLMessagesStickersNotModified) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessagesStickersNotModified) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessagesStickersNotModified) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesStickers represents ctor messages.stickers#8a8ecd32 hash:string stickers:Vector<Document> = messages.Stickers from telegram.tl
@@ -18469,6 +21033,10 @@ func (o *TLMessagesStickers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesStickers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesAllStickersNotModified represents ctor messages.allStickersNotModified#e86602c3 = messages.AllStickers from telegram.tl
 type TLMessagesAllStickersNotModified struct {
 }
@@ -18483,6 +21051,10 @@ func (o *TLMessagesAllStickersNotModified) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessagesAllStickersNotModified) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessagesAllStickersNotModified) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesAllStickers represents ctor messages.allStickers#edfd405f hash:int sets:Vector<StickerSet> = messages.AllStickers from telegram.tl
@@ -18522,6 +21094,10 @@ func (o *TLMessagesAllStickers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesAllStickers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLWebPageEmpty represents ctor webPageEmpty#eb1477e8 id:long = WebPage from telegram.tl
 type TLWebPageEmpty struct {
 	Id uint64 // id:long
@@ -18539,6 +21115,10 @@ func (o *TLWebPageEmpty) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLWebPageEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
+}
+
+func (o *TLWebPageEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLWebPagePending represents ctor webPagePending#c586da1c id:long date:int = WebPage from telegram.tl
@@ -18561,6 +21141,10 @@ func (o *TLWebPagePending) ReadBareFrom(r *tl.Reader) {
 func (o *TLWebPagePending) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
 	w.WriteInt(o.Date)
+}
+
+func (o *TLWebPagePending) String() string {
+	return tl.Pretty(o)
 }
 
 // TLWebPage represents ctor webPage#5f07b4bc flags:# id:long url:string display_url:string hash:int flags.0?type:string flags.1?site_name:string flags.2?title:string flags.3?description:string flags.4?photo:Photo flags.5?embed_url:string flags.5?embed_type:string flags.6?embed_width:int flags.6?embed_height:int flags.7?duration:int flags.8?author:string flags.9?document:Document flags.10?cached_page:Page = WebPage from telegram.tl
@@ -18636,6 +21220,10 @@ func (o *TLWebPage) WriteBareTo(w *tl.Writer) {
 	o.CachedPage.WriteBareTo(w)
 }
 
+func (o *TLWebPage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLWebPageNotModified represents ctor webPageNotModified#85849473 = WebPage from telegram.tl
 type TLWebPageNotModified struct {
 }
@@ -18650,6 +21238,10 @@ func (o *TLWebPageNotModified) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLWebPageNotModified) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLWebPageNotModified) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountNoPassword represents ctor account.noPassword#96dabc18 new_salt:bytes email_unconfirmed_pattern:string = account.Password from telegram.tl
@@ -18672,6 +21264,10 @@ func (o *TLAccountNoPassword) ReadBareFrom(r *tl.Reader) {
 func (o *TLAccountNoPassword) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.NewSalt)
 	w.WriteString(o.EmailUnconfirmedPattern)
+}
+
+func (o *TLAccountNoPassword) String() string {
+	return tl.Pretty(o)
 }
 
 // TLAccountPassword represents ctor account.password#7c18141c current_salt:bytes new_salt:bytes hint:string has_recovery:Bool email_unconfirmed_pattern:string = account.Password from telegram.tl
@@ -18710,6 +21306,10 @@ func (o *TLAccountPassword) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.EmailUnconfirmedPattern)
 }
 
+func (o *TLAccountPassword) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChatInviteEmpty represents ctor chatInviteEmpty#69df3769 = ExportedChatInvite from telegram.tl
 type TLChatInviteEmpty struct {
 }
@@ -18724,6 +21324,10 @@ func (o *TLChatInviteEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLChatInviteEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLChatInviteEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChatInviteExported represents ctor chatInviteExported#fc2e05bc link:string = ExportedChatInvite from telegram.tl
@@ -18745,6 +21349,10 @@ func (o *TLChatInviteExported) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Link)
 }
 
+func (o *TLChatInviteExported) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChatInviteAlready represents ctor chatInviteAlready#5a686d7c chat:Chat = ChatInvite from telegram.tl
 type TLChatInviteAlready struct {
 	Chat TLChatType // chat:Chat
@@ -18763,6 +21371,10 @@ func (o *TLChatInviteAlready) ReadBareFrom(r *tl.Reader) {
 func (o *TLChatInviteAlready) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Chat.Cmd())
 	o.Chat.WriteBareTo(w)
+}
+
+func (o *TLChatInviteAlready) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChatInvite represents ctor chatInvite#db74f558 flags:# flags.0?channel:true flags.1?broadcast:true flags.2?public:true flags.3?megagroup:true title:string photo:ChatPhoto participants_count:int flags.4?participants:Vector<User> = ChatInvite from telegram.tl
@@ -18816,6 +21428,10 @@ func (o *TLChatInvite) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChatInvite) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputStickerSetEmpty represents ctor inputStickerSetEmpty#ffb62b95 = InputStickerSet from telegram.tl
 type TLInputStickerSetEmpty struct {
 }
@@ -18830,6 +21446,10 @@ func (o *TLInputStickerSetEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputStickerSetEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputStickerSetEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputStickerSetID represents ctor inputStickerSetID#9de7a269 id:long access_hash:long = InputStickerSet from telegram.tl
@@ -18854,6 +21474,10 @@ func (o *TLInputStickerSetID) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.AccessHash)
 }
 
+func (o *TLInputStickerSetID) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputStickerSetShortName represents ctor inputStickerSetShortName#861cc8a0 short_name:string = InputStickerSet from telegram.tl
 type TLInputStickerSetShortName struct {
 	ShortName string // short_name:string
@@ -18873,6 +21497,10 @@ func (o *TLInputStickerSetShortName) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.ShortName)
 }
 
+func (o *TLInputStickerSetShortName) String() string {
+	return tl.Pretty(o)
+}
+
 // TLKeyboardButton represents ctor keyboardButton#a2fa4880 text:string = KeyboardButton from telegram.tl
 type TLKeyboardButton struct {
 	Text string // text:string
@@ -18890,6 +21518,10 @@ func (o *TLKeyboardButton) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLKeyboardButton) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
+}
+
+func (o *TLKeyboardButton) String() string {
+	return tl.Pretty(o)
 }
 
 // TLKeyboardButtonUrl represents ctor keyboardButtonUrl#258aff05 text:string url:string = KeyboardButton from telegram.tl
@@ -18914,6 +21546,10 @@ func (o *TLKeyboardButtonUrl) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Url)
 }
 
+func (o *TLKeyboardButtonUrl) String() string {
+	return tl.Pretty(o)
+}
+
 // TLKeyboardButtonCallback represents ctor keyboardButtonCallback#683a5e46 text:string data:bytes = KeyboardButton from telegram.tl
 type TLKeyboardButtonCallback struct {
 	Text string // text:string
@@ -18936,6 +21572,10 @@ func (o *TLKeyboardButtonCallback) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.Data)
 }
 
+func (o *TLKeyboardButtonCallback) String() string {
+	return tl.Pretty(o)
+}
+
 // TLKeyboardButtonRequestPhone represents ctor keyboardButtonRequestPhone#b16a6c29 text:string = KeyboardButton from telegram.tl
 type TLKeyboardButtonRequestPhone struct {
 	Text string // text:string
@@ -18955,6 +21595,10 @@ func (o *TLKeyboardButtonRequestPhone) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
 }
 
+func (o *TLKeyboardButtonRequestPhone) String() string {
+	return tl.Pretty(o)
+}
+
 // TLKeyboardButtonRequestGeoLocation represents ctor keyboardButtonRequestGeoLocation#fc796b3f text:string = KeyboardButton from telegram.tl
 type TLKeyboardButtonRequestGeoLocation struct {
 	Text string // text:string
@@ -18972,6 +21616,10 @@ func (o *TLKeyboardButtonRequestGeoLocation) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLKeyboardButtonRequestGeoLocation) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
+}
+
+func (o *TLKeyboardButtonRequestGeoLocation) String() string {
+	return tl.Pretty(o)
 }
 
 // TLKeyboardButtonSwitchInline represents ctor keyboardButtonSwitchInline#0568a748 flags:# flags.0?same_peer:true text:string query:string = KeyboardButton from telegram.tl
@@ -19001,6 +21649,10 @@ func (o *TLKeyboardButtonSwitchInline) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Query)
 }
 
+func (o *TLKeyboardButtonSwitchInline) String() string {
+	return tl.Pretty(o)
+}
+
 // TLKeyboardButtonGame represents ctor keyboardButtonGame#50f41ccf text:string = KeyboardButton from telegram.tl
 type TLKeyboardButtonGame struct {
 	Text string // text:string
@@ -19020,6 +21672,10 @@ func (o *TLKeyboardButtonGame) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
 }
 
+func (o *TLKeyboardButtonGame) String() string {
+	return tl.Pretty(o)
+}
+
 // TLKeyboardButtonBuy represents ctor keyboardButtonBuy#afd93fbb text:string = KeyboardButton from telegram.tl
 type TLKeyboardButtonBuy struct {
 	Text string // text:string
@@ -19037,6 +21693,10 @@ func (o *TLKeyboardButtonBuy) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLKeyboardButtonBuy) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
+}
+
+func (o *TLKeyboardButtonBuy) String() string {
+	return tl.Pretty(o)
 }
 
 // TLReplyKeyboardHide represents ctor replyKeyboardHide#a03e5b85 flags:# flags.2?selective:true = ReplyMarkup from telegram.tl
@@ -19060,6 +21720,10 @@ func (o *TLReplyKeyboardHide) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 }
 
+func (o *TLReplyKeyboardHide) String() string {
+	return tl.Pretty(o)
+}
+
 // TLReplyKeyboardForceReply represents ctor replyKeyboardForceReply#f4108aa0 flags:# flags.1?single_use:true flags.2?selective:true = ReplyMarkup from telegram.tl
 type TLReplyKeyboardForceReply struct {
 	Flags     uint // flags:#
@@ -19081,6 +21745,10 @@ func (o *TLReplyKeyboardForceReply) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLReplyKeyboardForceReply) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLReplyKeyboardForceReply) String() string {
+	return tl.Pretty(o)
 }
 
 // TLReplyKeyboardMarkup represents ctor replyKeyboardMarkup#3502758c flags:# flags.0?resize:true flags.1?single_use:true flags.2?selective:true rows:Vector<KeyboardButtonRow> = ReplyMarkup from telegram.tl
@@ -19126,6 +21794,10 @@ func (o *TLReplyKeyboardMarkup) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLReplyKeyboardMarkup) String() string {
+	return tl.Pretty(o)
+}
+
 // TLReplyInlineMarkup represents ctor replyInlineMarkup#48a30254 rows:Vector<KeyboardButtonRow> = ReplyMarkup from telegram.tl
 type TLReplyInlineMarkup struct {
 	Rows []*TLKeyboardButtonRow // rows:Vector<KeyboardButtonRow>
@@ -19160,6 +21832,10 @@ func (o *TLReplyInlineMarkup) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLReplyInlineMarkup) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageEntityUnknown represents ctor messageEntityUnknown#bb92ba95 offset:int length:int = MessageEntity from telegram.tl
 type TLMessageEntityUnknown struct {
 	Offset int // offset:int
@@ -19180,6 +21856,10 @@ func (o *TLMessageEntityUnknown) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageEntityUnknown) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Length)
+}
+
+func (o *TLMessageEntityUnknown) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageEntityMention represents ctor messageEntityMention#fa04579d offset:int length:int = MessageEntity from telegram.tl
@@ -19204,6 +21884,10 @@ func (o *TLMessageEntityMention) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Length)
 }
 
+func (o *TLMessageEntityMention) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageEntityHashtag represents ctor messageEntityHashtag#6f635b0d offset:int length:int = MessageEntity from telegram.tl
 type TLMessageEntityHashtag struct {
 	Offset int // offset:int
@@ -19224,6 +21908,10 @@ func (o *TLMessageEntityHashtag) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageEntityHashtag) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Length)
+}
+
+func (o *TLMessageEntityHashtag) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageEntityBotCommand represents ctor messageEntityBotCommand#6cef8ac7 offset:int length:int = MessageEntity from telegram.tl
@@ -19248,6 +21936,10 @@ func (o *TLMessageEntityBotCommand) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Length)
 }
 
+func (o *TLMessageEntityBotCommand) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageEntityUrl represents ctor messageEntityUrl#6ed02538 offset:int length:int = MessageEntity from telegram.tl
 type TLMessageEntityUrl struct {
 	Offset int // offset:int
@@ -19268,6 +21960,10 @@ func (o *TLMessageEntityUrl) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageEntityUrl) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Length)
+}
+
+func (o *TLMessageEntityUrl) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageEntityEmail represents ctor messageEntityEmail#64e475c2 offset:int length:int = MessageEntity from telegram.tl
@@ -19292,6 +21988,10 @@ func (o *TLMessageEntityEmail) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Length)
 }
 
+func (o *TLMessageEntityEmail) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageEntityBold represents ctor messageEntityBold#bd610bc9 offset:int length:int = MessageEntity from telegram.tl
 type TLMessageEntityBold struct {
 	Offset int // offset:int
@@ -19312,6 +22012,10 @@ func (o *TLMessageEntityBold) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageEntityBold) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Length)
+}
+
+func (o *TLMessageEntityBold) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageEntityItalic represents ctor messageEntityItalic#826f8b60 offset:int length:int = MessageEntity from telegram.tl
@@ -19336,6 +22040,10 @@ func (o *TLMessageEntityItalic) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Length)
 }
 
+func (o *TLMessageEntityItalic) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageEntityCode represents ctor messageEntityCode#28a20571 offset:int length:int = MessageEntity from telegram.tl
 type TLMessageEntityCode struct {
 	Offset int // offset:int
@@ -19356,6 +22064,10 @@ func (o *TLMessageEntityCode) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageEntityCode) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Length)
+}
+
+func (o *TLMessageEntityCode) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessageEntityPre represents ctor messageEntityPre#73924be0 offset:int length:int language:string = MessageEntity from telegram.tl
@@ -19383,6 +22095,10 @@ func (o *TLMessageEntityPre) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Language)
 }
 
+func (o *TLMessageEntityPre) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageEntityTextUrl represents ctor messageEntityTextUrl#76a6d327 offset:int length:int url:string = MessageEntity from telegram.tl
 type TLMessageEntityTextUrl struct {
 	Offset int    // offset:int
@@ -19408,6 +22124,10 @@ func (o *TLMessageEntityTextUrl) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Url)
 }
 
+func (o *TLMessageEntityTextUrl) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessageEntityMentionName represents ctor messageEntityMentionName#352dca58 offset:int length:int user_id:int = MessageEntity from telegram.tl
 type TLMessageEntityMentionName struct {
 	Offset int // offset:int
@@ -19431,6 +22151,10 @@ func (o *TLMessageEntityMentionName) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Length)
 	w.WriteInt(o.UserId)
+}
+
+func (o *TLMessageEntityMentionName) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputMessageEntityMentionName represents ctor inputMessageEntityMentionName#208e68c9 offset:int length:int user_id:InputUser = MessageEntity from telegram.tl
@@ -19459,6 +22183,10 @@ func (o *TLInputMessageEntityMentionName) WriteBareTo(w *tl.Writer) {
 	o.UserId.WriteBareTo(w)
 }
 
+func (o *TLInputMessageEntityMentionName) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputChannelEmpty represents ctor inputChannelEmpty#ee8c1e86 = InputChannel from telegram.tl
 type TLInputChannelEmpty struct {
 }
@@ -19473,6 +22201,10 @@ func (o *TLInputChannelEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputChannelEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLInputChannelEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputChannel represents ctor inputChannel#afeb712e channel_id:int access_hash:long = InputChannel from telegram.tl
@@ -19495,6 +22227,10 @@ func (o *TLInputChannel) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ChannelId)
 	w.WriteUint64(o.AccessHash)
+}
+
+func (o *TLInputChannel) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatesChannelDifferenceEmpty represents ctor updates.channelDifferenceEmpty#3e11affb flags:# flags.0?final:true pts:int flags.1?timeout:int = updates.ChannelDifference from telegram.tl
@@ -19522,6 +22258,10 @@ func (o *TLUpdatesChannelDifferenceEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.Timeout)
+}
+
+func (o *TLUpdatesChannelDifferenceEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatesChannelDifferenceTooLong represents ctor updates.channelDifferenceTooLong#410dee07 flags:# flags.0?final:true pts:int flags.1?timeout:int top_message:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = updates.ChannelDifference from telegram.tl
@@ -19603,6 +22343,10 @@ func (o *TLUpdatesChannelDifferenceTooLong) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
 	}
+}
+
+func (o *TLUpdatesChannelDifferenceTooLong) String() string {
+	return tl.Pretty(o)
 }
 
 // TLUpdatesChannelDifference represents ctor updates.channelDifference#2064674e flags:# flags.0?final:true pts:int flags.1?timeout:int new_messages:Vector<Message> other_updates:Vector<Update> chats:Vector<Chat> users:Vector<User> = updates.ChannelDifference from telegram.tl
@@ -19688,6 +22432,10 @@ func (o *TLUpdatesChannelDifference) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdatesChannelDifference) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelMessagesFilterEmpty represents ctor channelMessagesFilterEmpty#94d42ee7 = ChannelMessagesFilter from telegram.tl
 type TLChannelMessagesFilterEmpty struct {
 }
@@ -19702,6 +22450,10 @@ func (o *TLChannelMessagesFilterEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLChannelMessagesFilterEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLChannelMessagesFilterEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelMessagesFilter represents ctor channelMessagesFilter#cd77d957 flags:# flags.1?exclude_new_messages:true ranges:Vector<MessageRange> = ChannelMessagesFilter from telegram.tl
@@ -19743,6 +22495,10 @@ func (o *TLChannelMessagesFilter) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLChannelMessagesFilter) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelParticipant represents ctor channelParticipant#15ebac1d user_id:int date:int = ChannelParticipant from telegram.tl
 type TLChannelParticipant struct {
 	UserId int // user_id:int
@@ -19763,6 +22519,10 @@ func (o *TLChannelParticipant) ReadBareFrom(r *tl.Reader) {
 func (o *TLChannelParticipant) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 	w.WriteInt(o.Date)
+}
+
+func (o *TLChannelParticipant) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelParticipantSelf represents ctor channelParticipantSelf#a3289a6d user_id:int inviter_id:int date:int = ChannelParticipant from telegram.tl
@@ -19790,6 +22550,10 @@ func (o *TLChannelParticipantSelf) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 }
 
+func (o *TLChannelParticipantSelf) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelParticipantModerator represents ctor channelParticipantModerator#91057fef user_id:int inviter_id:int date:int = ChannelParticipant from telegram.tl
 type TLChannelParticipantModerator struct {
 	UserId    int // user_id:int
@@ -19813,6 +22577,10 @@ func (o *TLChannelParticipantModerator) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 	w.WriteInt(o.InviterId)
 	w.WriteInt(o.Date)
+}
+
+func (o *TLChannelParticipantModerator) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelParticipantEditor represents ctor channelParticipantEditor#98192d61 user_id:int inviter_id:int date:int = ChannelParticipant from telegram.tl
@@ -19840,6 +22608,10 @@ func (o *TLChannelParticipantEditor) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 }
 
+func (o *TLChannelParticipantEditor) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelParticipantKicked represents ctor channelParticipantKicked#8cc5e69a user_id:int kicked_by:int date:int = ChannelParticipant from telegram.tl
 type TLChannelParticipantKicked struct {
 	UserId   int // user_id:int
@@ -19865,6 +22637,10 @@ func (o *TLChannelParticipantKicked) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Date)
 }
 
+func (o *TLChannelParticipantKicked) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelParticipantCreator represents ctor channelParticipantCreator#e3e2e1f9 user_id:int = ChannelParticipant from telegram.tl
 type TLChannelParticipantCreator struct {
 	UserId int // user_id:int
@@ -19884,6 +22660,10 @@ func (o *TLChannelParticipantCreator) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UserId)
 }
 
+func (o *TLChannelParticipantCreator) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelParticipantsRecent represents ctor channelParticipantsRecent#de3f3c79 = ChannelParticipantsFilter from telegram.tl
 type TLChannelParticipantsRecent struct {
 }
@@ -19898,6 +22678,10 @@ func (o *TLChannelParticipantsRecent) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLChannelParticipantsRecent) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLChannelParticipantsRecent) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelParticipantsAdmins represents ctor channelParticipantsAdmins#b4608969 = ChannelParticipantsFilter from telegram.tl
@@ -19916,6 +22700,10 @@ func (o *TLChannelParticipantsAdmins) ReadBareFrom(r *tl.Reader) {
 func (o *TLChannelParticipantsAdmins) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLChannelParticipantsAdmins) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelParticipantsKicked represents ctor channelParticipantsKicked#3c37bb7a = ChannelParticipantsFilter from telegram.tl
 type TLChannelParticipantsKicked struct {
 }
@@ -19930,6 +22718,10 @@ func (o *TLChannelParticipantsKicked) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLChannelParticipantsKicked) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLChannelParticipantsKicked) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelParticipantsBots represents ctor channelParticipantsBots#b0d1865b = ChannelParticipantsFilter from telegram.tl
@@ -19948,6 +22740,10 @@ func (o *TLChannelParticipantsBots) ReadBareFrom(r *tl.Reader) {
 func (o *TLChannelParticipantsBots) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLChannelParticipantsBots) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelRoleEmpty represents ctor channelRoleEmpty#b285a0c6 = ChannelParticipantRole from telegram.tl
 type TLChannelRoleEmpty struct {
 }
@@ -19962,6 +22758,10 @@ func (o *TLChannelRoleEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLChannelRoleEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLChannelRoleEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLChannelRoleModerator represents ctor channelRoleModerator#9618d975 = ChannelParticipantRole from telegram.tl
@@ -19980,6 +22780,10 @@ func (o *TLChannelRoleModerator) ReadBareFrom(r *tl.Reader) {
 func (o *TLChannelRoleModerator) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLChannelRoleModerator) String() string {
+	return tl.Pretty(o)
+}
+
 // TLChannelRoleEditor represents ctor channelRoleEditor#820bfe8c = ChannelParticipantRole from telegram.tl
 type TLChannelRoleEditor struct {
 }
@@ -19994,6 +22798,10 @@ func (o *TLChannelRoleEditor) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLChannelRoleEditor) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLChannelRoleEditor) String() string {
+	return tl.Pretty(o)
 }
 
 // TLFoundGif represents ctor foundGif#162ecc1f url:string thumb_url:string content_url:string content_type:string w:int h:int = FoundGif from telegram.tl
@@ -20030,6 +22838,10 @@ func (o *TLFoundGif) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.H)
 }
 
+func (o *TLFoundGif) String() string {
+	return tl.Pretty(o)
+}
+
 // TLFoundGifCached represents ctor foundGifCached#9c750409 url:string photo:Photo document:Document = FoundGif from telegram.tl
 type TLFoundGifCached struct {
 	Url      string         // url:string
@@ -20057,6 +22869,10 @@ func (o *TLFoundGifCached) WriteBareTo(w *tl.Writer) {
 	o.Document.WriteBareTo(w)
 }
 
+func (o *TLFoundGifCached) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesSavedGifsNotModified represents ctor messages.savedGifsNotModified#e8025ca2 = messages.SavedGifs from telegram.tl
 type TLMessagesSavedGifsNotModified struct {
 }
@@ -20071,6 +22887,10 @@ func (o *TLMessagesSavedGifsNotModified) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessagesSavedGifsNotModified) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessagesSavedGifsNotModified) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesSavedGifs represents ctor messages.savedGifs#2e0709a5 hash:int gifs:Vector<Document> = messages.SavedGifs from telegram.tl
@@ -20106,6 +22926,10 @@ func (o *TLMessagesSavedGifs) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesSavedGifs) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputBotInlineMessageMediaAuto represents ctor inputBotInlineMessageMediaAuto#292fed13 flags:# caption:string flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
 type TLInputBotInlineMessageMediaAuto struct {
 	Flags       uint              // flags:#
@@ -20130,6 +22954,10 @@ func (o *TLInputBotInlineMessageMediaAuto) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Caption)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
+}
+
+func (o *TLInputBotInlineMessageMediaAuto) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputBotInlineMessageText represents ctor inputBotInlineMessageText#3dcd7a87 flags:# flags.0?no_webpage:true message:string flags.1?entities:Vector<MessageEntity> flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
@@ -20174,6 +23002,10 @@ func (o *TLInputBotInlineMessageText) WriteBareTo(w *tl.Writer) {
 	o.ReplyMarkup.WriteBareTo(w)
 }
 
+func (o *TLInputBotInlineMessageText) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputBotInlineMessageMediaGeo represents ctor inputBotInlineMessageMediaGeo#f4a59de1 flags:# geo_point:InputGeoPoint flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
 type TLInputBotInlineMessageMediaGeo struct {
 	Flags       uint                // flags:#
@@ -20199,6 +23031,10 @@ func (o *TLInputBotInlineMessageMediaGeo) WriteBareTo(w *tl.Writer) {
 	o.GeoPoint.WriteBareTo(w)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
+}
+
+func (o *TLInputBotInlineMessageMediaGeo) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputBotInlineMessageMediaVenue represents ctor inputBotInlineMessageMediaVenue#aaafadc8 flags:# geo_point:InputGeoPoint title:string address:string provider:string venue_id:string flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
@@ -20240,6 +23076,10 @@ func (o *TLInputBotInlineMessageMediaVenue) WriteBareTo(w *tl.Writer) {
 	o.ReplyMarkup.WriteBareTo(w)
 }
 
+func (o *TLInputBotInlineMessageMediaVenue) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputBotInlineMessageMediaContact represents ctor inputBotInlineMessageMediaContact#2daf01a7 flags:# phone_number:string first_name:string last_name:string flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
 type TLInputBotInlineMessageMediaContact struct {
 	Flags       uint              // flags:#
@@ -20272,6 +23112,10 @@ func (o *TLInputBotInlineMessageMediaContact) WriteBareTo(w *tl.Writer) {
 	o.ReplyMarkup.WriteBareTo(w)
 }
 
+func (o *TLInputBotInlineMessageMediaContact) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputBotInlineMessageGame represents ctor inputBotInlineMessageGame#4b425864 flags:# flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from telegram.tl
 type TLInputBotInlineMessageGame struct {
 	Flags       uint              // flags:#
@@ -20293,6 +23137,10 @@ func (o *TLInputBotInlineMessageGame) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
+}
+
+func (o *TLInputBotInlineMessageGame) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputBotInlineResult represents ctor inputBotInlineResult#2cbbe15a flags:# id:string type:string flags.1?title:string flags.2?description:string flags.3?url:string flags.4?thumb_url:string flags.5?content_url:string flags.5?content_type:string flags.6?w:int flags.6?h:int flags.7?duration:int send_message:InputBotInlineMessage = InputBotInlineResult from telegram.tl
@@ -20351,6 +23199,10 @@ func (o *TLInputBotInlineResult) WriteBareTo(w *tl.Writer) {
 	o.SendMessage.WriteBareTo(w)
 }
 
+func (o *TLInputBotInlineResult) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputBotInlineResultPhoto represents ctor inputBotInlineResultPhoto#a8d864a7 id:string type:string photo:InputPhoto send_message:InputBotInlineMessage = InputBotInlineResult from telegram.tl
 type TLInputBotInlineResultPhoto struct {
 	Id          string                      // id:string
@@ -20379,6 +23231,10 @@ func (o *TLInputBotInlineResultPhoto) WriteBareTo(w *tl.Writer) {
 	o.Photo.WriteBareTo(w)
 	w.WriteCmd(o.SendMessage.Cmd())
 	o.SendMessage.WriteBareTo(w)
+}
+
+func (o *TLInputBotInlineResultPhoto) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputBotInlineResultDocument represents ctor inputBotInlineResultDocument#fff8fdc4 flags:# id:string type:string flags.1?title:string flags.2?description:string document:InputDocument send_message:InputBotInlineMessage = InputBotInlineResult from telegram.tl
@@ -20420,6 +23276,10 @@ func (o *TLInputBotInlineResultDocument) WriteBareTo(w *tl.Writer) {
 	o.SendMessage.WriteBareTo(w)
 }
 
+func (o *TLInputBotInlineResultDocument) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputBotInlineResultGame represents ctor inputBotInlineResultGame#4fa417f2 id:string short_name:string send_message:InputBotInlineMessage = InputBotInlineResult from telegram.tl
 type TLInputBotInlineResultGame struct {
 	Id          string                      // id:string
@@ -20446,6 +23306,10 @@ func (o *TLInputBotInlineResultGame) WriteBareTo(w *tl.Writer) {
 	o.SendMessage.WriteBareTo(w)
 }
 
+func (o *TLInputBotInlineResultGame) String() string {
+	return tl.Pretty(o)
+}
+
 // TLBotInlineMessageMediaAuto represents ctor botInlineMessageMediaAuto#0a74b15b flags:# caption:string flags.2?reply_markup:ReplyMarkup = BotInlineMessage from telegram.tl
 type TLBotInlineMessageMediaAuto struct {
 	Flags       uint              // flags:#
@@ -20470,6 +23334,10 @@ func (o *TLBotInlineMessageMediaAuto) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Caption)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
+}
+
+func (o *TLBotInlineMessageMediaAuto) String() string {
+	return tl.Pretty(o)
 }
 
 // TLBotInlineMessageText represents ctor botInlineMessageText#8c7f65e2 flags:# flags.0?no_webpage:true message:string flags.1?entities:Vector<MessageEntity> flags.2?reply_markup:ReplyMarkup = BotInlineMessage from telegram.tl
@@ -20514,6 +23382,10 @@ func (o *TLBotInlineMessageText) WriteBareTo(w *tl.Writer) {
 	o.ReplyMarkup.WriteBareTo(w)
 }
 
+func (o *TLBotInlineMessageText) String() string {
+	return tl.Pretty(o)
+}
+
 // TLBotInlineMessageMediaGeo represents ctor botInlineMessageMediaGeo#3a8fd8b8 flags:# geo:GeoPoint flags.2?reply_markup:ReplyMarkup = BotInlineMessage from telegram.tl
 type TLBotInlineMessageMediaGeo struct {
 	Flags       uint              // flags:#
@@ -20539,6 +23411,10 @@ func (o *TLBotInlineMessageMediaGeo) WriteBareTo(w *tl.Writer) {
 	o.Geo.WriteBareTo(w)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
+}
+
+func (o *TLBotInlineMessageMediaGeo) String() string {
+	return tl.Pretty(o)
 }
 
 // TLBotInlineMessageMediaVenue represents ctor botInlineMessageMediaVenue#4366232e flags:# geo:GeoPoint title:string address:string provider:string venue_id:string flags.2?reply_markup:ReplyMarkup = BotInlineMessage from telegram.tl
@@ -20580,6 +23456,10 @@ func (o *TLBotInlineMessageMediaVenue) WriteBareTo(w *tl.Writer) {
 	o.ReplyMarkup.WriteBareTo(w)
 }
 
+func (o *TLBotInlineMessageMediaVenue) String() string {
+	return tl.Pretty(o)
+}
+
 // TLBotInlineMessageMediaContact represents ctor botInlineMessageMediaContact#35edb4d4 flags:# phone_number:string first_name:string last_name:string flags.2?reply_markup:ReplyMarkup = BotInlineMessage from telegram.tl
 type TLBotInlineMessageMediaContact struct {
 	Flags       uint              // flags:#
@@ -20610,6 +23490,10 @@ func (o *TLBotInlineMessageMediaContact) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.LastName)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
+}
+
+func (o *TLBotInlineMessageMediaContact) String() string {
+	return tl.Pretty(o)
 }
 
 // TLBotInlineResult represents ctor botInlineResult#9bebaeb9 flags:# id:string type:string flags.1?title:string flags.2?description:string flags.3?url:string flags.4?thumb_url:string flags.5?content_url:string flags.5?content_type:string flags.6?w:int flags.6?h:int flags.7?duration:int send_message:BotInlineMessage = BotInlineResult from telegram.tl
@@ -20668,6 +23552,10 @@ func (o *TLBotInlineResult) WriteBareTo(w *tl.Writer) {
 	o.SendMessage.WriteBareTo(w)
 }
 
+func (o *TLBotInlineResult) String() string {
+	return tl.Pretty(o)
+}
+
 // TLBotInlineMediaResult represents ctor botInlineMediaResult#17db940b flags:# id:string type:string flags.0?photo:Photo flags.1?document:Document flags.2?title:string flags.3?description:string send_message:BotInlineMessage = BotInlineResult from telegram.tl
 type TLBotInlineMediaResult struct {
 	Flags       uint                   // flags:#
@@ -20711,6 +23599,10 @@ func (o *TLBotInlineMediaResult) WriteBareTo(w *tl.Writer) {
 	o.SendMessage.WriteBareTo(w)
 }
 
+func (o *TLBotInlineMediaResult) String() string {
+	return tl.Pretty(o)
+}
+
 // TLTopPeerCategoryBotsPM represents ctor topPeerCategoryBotsPM#ab661b5b = TopPeerCategory from telegram.tl
 type TLTopPeerCategoryBotsPM struct {
 }
@@ -20725,6 +23617,10 @@ func (o *TLTopPeerCategoryBotsPM) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLTopPeerCategoryBotsPM) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLTopPeerCategoryBotsPM) String() string {
+	return tl.Pretty(o)
 }
 
 // TLTopPeerCategoryBotsInline represents ctor topPeerCategoryBotsInline#148677e2 = TopPeerCategory from telegram.tl
@@ -20743,6 +23639,10 @@ func (o *TLTopPeerCategoryBotsInline) ReadBareFrom(r *tl.Reader) {
 func (o *TLTopPeerCategoryBotsInline) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLTopPeerCategoryBotsInline) String() string {
+	return tl.Pretty(o)
+}
+
 // TLTopPeerCategoryCorrespondents represents ctor topPeerCategoryCorrespondents#0637b7ed = TopPeerCategory from telegram.tl
 type TLTopPeerCategoryCorrespondents struct {
 }
@@ -20757,6 +23657,10 @@ func (o *TLTopPeerCategoryCorrespondents) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLTopPeerCategoryCorrespondents) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLTopPeerCategoryCorrespondents) String() string {
+	return tl.Pretty(o)
 }
 
 // TLTopPeerCategoryGroups represents ctor topPeerCategoryGroups#bd17a14a = TopPeerCategory from telegram.tl
@@ -20775,6 +23679,10 @@ func (o *TLTopPeerCategoryGroups) ReadBareFrom(r *tl.Reader) {
 func (o *TLTopPeerCategoryGroups) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLTopPeerCategoryGroups) String() string {
+	return tl.Pretty(o)
+}
+
 // TLTopPeerCategoryChannels represents ctor topPeerCategoryChannels#161d9628 = TopPeerCategory from telegram.tl
 type TLTopPeerCategoryChannels struct {
 }
@@ -20791,6 +23699,10 @@ func (o *TLTopPeerCategoryChannels) ReadBareFrom(r *tl.Reader) {
 func (o *TLTopPeerCategoryChannels) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLTopPeerCategoryChannels) String() string {
+	return tl.Pretty(o)
+}
+
 // TLContactsTopPeersNotModified represents ctor contacts.topPeersNotModified#de266ef5 = contacts.TopPeers from telegram.tl
 type TLContactsTopPeersNotModified struct {
 }
@@ -20805,6 +23717,10 @@ func (o *TLContactsTopPeersNotModified) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLContactsTopPeersNotModified) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLContactsTopPeersNotModified) String() string {
+	return tl.Pretty(o)
 }
 
 // TLContactsTopPeers represents ctor contacts.topPeers#70b772a8 categories:Vector<TopPeerCategoryPeers> chats:Vector<Chat> users:Vector<User> = contacts.TopPeers from telegram.tl
@@ -20869,6 +23785,10 @@ func (o *TLContactsTopPeers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLContactsTopPeers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesFeaturedStickersNotModified represents ctor messages.featuredStickersNotModified#04ede3cf = messages.FeaturedStickers from telegram.tl
 type TLMessagesFeaturedStickersNotModified struct {
 }
@@ -20883,6 +23803,10 @@ func (o *TLMessagesFeaturedStickersNotModified) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessagesFeaturedStickersNotModified) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessagesFeaturedStickersNotModified) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesFeaturedStickers represents ctor messages.featuredStickers#f89d88e5 hash:int sets:Vector<StickerSetCovered> unread:Vector<long> = messages.FeaturedStickers from telegram.tl
@@ -20931,6 +23855,10 @@ func (o *TLMessagesFeaturedStickers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesFeaturedStickers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesRecentStickersNotModified represents ctor messages.recentStickersNotModified#0b17f890 = messages.RecentStickers from telegram.tl
 type TLMessagesRecentStickersNotModified struct {
 }
@@ -20945,6 +23873,10 @@ func (o *TLMessagesRecentStickersNotModified) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessagesRecentStickersNotModified) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessagesRecentStickersNotModified) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesRecentStickers represents ctor messages.recentStickers#5ce20970 hash:int stickers:Vector<Document> = messages.RecentStickers from telegram.tl
@@ -20980,6 +23912,10 @@ func (o *TLMessagesRecentStickers) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesRecentStickers) String() string {
+	return tl.Pretty(o)
+}
+
 // TLMessagesStickerSetInstallResultSuccess represents ctor messages.stickerSetInstallResultSuccess#38641628 = messages.StickerSetInstallResult from telegram.tl
 type TLMessagesStickerSetInstallResultSuccess struct {
 }
@@ -20994,6 +23930,10 @@ func (o *TLMessagesStickerSetInstallResultSuccess) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLMessagesStickerSetInstallResultSuccess) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLMessagesStickerSetInstallResultSuccess) String() string {
+	return tl.Pretty(o)
 }
 
 // TLMessagesStickerSetInstallResultArchive represents ctor messages.stickerSetInstallResultArchive#35e410a8 sets:Vector<StickerSetCovered> = messages.StickerSetInstallResult from telegram.tl
@@ -21026,6 +23966,10 @@ func (o *TLMessagesStickerSetInstallResultArchive) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesStickerSetInstallResultArchive) String() string {
+	return tl.Pretty(o)
+}
+
 // TLStickerSetCovered represents ctor stickerSetCovered#6410a5d2 set:StickerSet cover:Document = StickerSetCovered from telegram.tl
 type TLStickerSetCovered struct {
 	Set   *TLStickerSet  // set:StickerSet
@@ -21052,6 +23996,10 @@ func (o *TLStickerSetCovered) WriteBareTo(w *tl.Writer) {
 	o.Set.WriteBareTo(w)
 	w.WriteCmd(o.Cover.Cmd())
 	o.Cover.WriteBareTo(w)
+}
+
+func (o *TLStickerSetCovered) String() string {
+	return tl.Pretty(o)
 }
 
 // TLStickerSetMultiCovered represents ctor stickerSetMultiCovered#3407e51b set:StickerSet covers:Vector<Document> = StickerSetCovered from telegram.tl
@@ -21092,6 +24040,10 @@ func (o *TLStickerSetMultiCovered) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLStickerSetMultiCovered) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputStickeredMediaPhoto represents ctor inputStickeredMediaPhoto#4a992157 id:InputPhoto = InputStickeredMedia from telegram.tl
 type TLInputStickeredMediaPhoto struct {
 	Id TLInputPhotoType // id:InputPhoto
@@ -21110,6 +24062,10 @@ func (o *TLInputStickeredMediaPhoto) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputStickeredMediaPhoto) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Id.Cmd())
 	o.Id.WriteBareTo(w)
+}
+
+func (o *TLInputStickeredMediaPhoto) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputStickeredMediaDocument represents ctor inputStickeredMediaDocument#0438865b id:InputDocument = InputStickeredMedia from telegram.tl
@@ -21132,6 +24088,10 @@ func (o *TLInputStickeredMediaDocument) WriteBareTo(w *tl.Writer) {
 	o.Id.WriteBareTo(w)
 }
 
+func (o *TLInputStickeredMediaDocument) String() string {
+	return tl.Pretty(o)
+}
+
 // TLInputGameID represents ctor inputGameID#032c3e77 id:long access_hash:long = InputGame from telegram.tl
 type TLInputGameID struct {
 	Id         uint64 // id:long
@@ -21152,6 +24112,10 @@ func (o *TLInputGameID) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputGameID) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
 	w.WriteUint64(o.AccessHash)
+}
+
+func (o *TLInputGameID) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputGameShortName represents ctor inputGameShortName#c331e80a bot_id:InputUser short_name:string = InputGame from telegram.tl
@@ -21177,6 +24141,10 @@ func (o *TLInputGameShortName) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.ShortName)
 }
 
+func (o *TLInputGameShortName) String() string {
+	return tl.Pretty(o)
+}
+
 // TLTextEmpty represents ctor textEmpty#dc3d824f = RichText from telegram.tl
 type TLTextEmpty struct {
 }
@@ -21191,6 +24159,10 @@ func (o *TLTextEmpty) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLTextEmpty) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLTextEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLTextPlain represents ctor textPlain#744694e0 text:string = RichText from telegram.tl
@@ -21210,6 +24182,10 @@ func (o *TLTextPlain) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLTextPlain) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
+}
+
+func (o *TLTextPlain) String() string {
+	return tl.Pretty(o)
 }
 
 // TLTextBold represents ctor textBold#6724abc4 text:RichText = RichText from telegram.tl
@@ -21232,6 +24208,10 @@ func (o *TLTextBold) WriteBareTo(w *tl.Writer) {
 	o.Text.WriteBareTo(w)
 }
 
+func (o *TLTextBold) String() string {
+	return tl.Pretty(o)
+}
+
 // TLTextItalic represents ctor textItalic#d912a59c text:RichText = RichText from telegram.tl
 type TLTextItalic struct {
 	Text TLRichTextType // text:RichText
@@ -21250,6 +24230,10 @@ func (o *TLTextItalic) ReadBareFrom(r *tl.Reader) {
 func (o *TLTextItalic) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Text.Cmd())
 	o.Text.WriteBareTo(w)
+}
+
+func (o *TLTextItalic) String() string {
+	return tl.Pretty(o)
 }
 
 // TLTextUnderline represents ctor textUnderline#c12622c4 text:RichText = RichText from telegram.tl
@@ -21272,6 +24256,10 @@ func (o *TLTextUnderline) WriteBareTo(w *tl.Writer) {
 	o.Text.WriteBareTo(w)
 }
 
+func (o *TLTextUnderline) String() string {
+	return tl.Pretty(o)
+}
+
 // TLTextStrike represents ctor textStrike#9bf8bb95 text:RichText = RichText from telegram.tl
 type TLTextStrike struct {
 	Text TLRichTextType // text:RichText
@@ -21292,6 +24280,10 @@ func (o *TLTextStrike) WriteBareTo(w *tl.Writer) {
 	o.Text.WriteBareTo(w)
 }
 
+func (o *TLTextStrike) String() string {
+	return tl.Pretty(o)
+}
+
 // TLTextFixed represents ctor textFixed#6c3f19b9 text:RichText = RichText from telegram.tl
 type TLTextFixed struct {
 	Text TLRichTextType // text:RichText
@@ -21310,6 +24302,10 @@ func (o *TLTextFixed) ReadBareFrom(r *tl.Reader) {
 func (o *TLTextFixed) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Text.Cmd())
 	o.Text.WriteBareTo(w)
+}
+
+func (o *TLTextFixed) String() string {
+	return tl.Pretty(o)
 }
 
 // TLTextUrl represents ctor textUrl#3c2884c1 text:RichText url:string webpage_id:long = RichText from telegram.tl
@@ -21338,6 +24334,10 @@ func (o *TLTextUrl) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.WebpageId)
 }
 
+func (o *TLTextUrl) String() string {
+	return tl.Pretty(o)
+}
+
 // TLTextEmail represents ctor textEmail#de5a0dd6 text:RichText email:string = RichText from telegram.tl
 type TLTextEmail struct {
 	Text  TLRichTextType // text:RichText
@@ -21359,6 +24359,10 @@ func (o *TLTextEmail) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Text.Cmd())
 	o.Text.WriteBareTo(w)
 	w.WriteString(o.Email)
+}
+
+func (o *TLTextEmail) String() string {
+	return tl.Pretty(o)
 }
 
 // TLTextConcat represents ctor textConcat#7e6260d7 texts:Vector<RichText> = RichText from telegram.tl
@@ -21391,6 +24395,10 @@ func (o *TLTextConcat) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLTextConcat) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockUnsupported represents ctor pageBlockUnsupported#13567e8a = PageBlock from telegram.tl
 type TLPageBlockUnsupported struct {
 }
@@ -21405,6 +24413,10 @@ func (o *TLPageBlockUnsupported) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPageBlockUnsupported) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPageBlockUnsupported) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPageBlockTitle represents ctor pageBlockTitle#70abc3fd text:RichText = PageBlock from telegram.tl
@@ -21427,6 +24439,10 @@ func (o *TLPageBlockTitle) WriteBareTo(w *tl.Writer) {
 	o.Text.WriteBareTo(w)
 }
 
+func (o *TLPageBlockTitle) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockSubtitle represents ctor pageBlockSubtitle#8ffa9a1f text:RichText = PageBlock from telegram.tl
 type TLPageBlockSubtitle struct {
 	Text TLRichTextType // text:RichText
@@ -21445,6 +24461,10 @@ func (o *TLPageBlockSubtitle) ReadBareFrom(r *tl.Reader) {
 func (o *TLPageBlockSubtitle) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Text.Cmd())
 	o.Text.WriteBareTo(w)
+}
+
+func (o *TLPageBlockSubtitle) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPageBlockAuthorDate represents ctor pageBlockAuthorDate#baafe5e0 author:RichText published_date:int = PageBlock from telegram.tl
@@ -21470,6 +24490,10 @@ func (o *TLPageBlockAuthorDate) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.PublishedDate)
 }
 
+func (o *TLPageBlockAuthorDate) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockHeader represents ctor pageBlockHeader#bfd064ec text:RichText = PageBlock from telegram.tl
 type TLPageBlockHeader struct {
 	Text TLRichTextType // text:RichText
@@ -21488,6 +24512,10 @@ func (o *TLPageBlockHeader) ReadBareFrom(r *tl.Reader) {
 func (o *TLPageBlockHeader) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Text.Cmd())
 	o.Text.WriteBareTo(w)
+}
+
+func (o *TLPageBlockHeader) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPageBlockSubheader represents ctor pageBlockSubheader#f12bb6e1 text:RichText = PageBlock from telegram.tl
@@ -21510,6 +24538,10 @@ func (o *TLPageBlockSubheader) WriteBareTo(w *tl.Writer) {
 	o.Text.WriteBareTo(w)
 }
 
+func (o *TLPageBlockSubheader) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockParagraph represents ctor pageBlockParagraph#467a0766 text:RichText = PageBlock from telegram.tl
 type TLPageBlockParagraph struct {
 	Text TLRichTextType // text:RichText
@@ -21528,6 +24560,10 @@ func (o *TLPageBlockParagraph) ReadBareFrom(r *tl.Reader) {
 func (o *TLPageBlockParagraph) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Text.Cmd())
 	o.Text.WriteBareTo(w)
+}
+
+func (o *TLPageBlockParagraph) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPageBlockPreformatted represents ctor pageBlockPreformatted#c070d93e text:RichText language:string = PageBlock from telegram.tl
@@ -21553,6 +24589,10 @@ func (o *TLPageBlockPreformatted) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Language)
 }
 
+func (o *TLPageBlockPreformatted) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockFooter represents ctor pageBlockFooter#48870999 text:RichText = PageBlock from telegram.tl
 type TLPageBlockFooter struct {
 	Text TLRichTextType // text:RichText
@@ -21573,6 +24613,10 @@ func (o *TLPageBlockFooter) WriteBareTo(w *tl.Writer) {
 	o.Text.WriteBareTo(w)
 }
 
+func (o *TLPageBlockFooter) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockDivider represents ctor pageBlockDivider#db20b188 = PageBlock from telegram.tl
 type TLPageBlockDivider struct {
 }
@@ -21587,6 +24631,10 @@ func (o *TLPageBlockDivider) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPageBlockDivider) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPageBlockDivider) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPageBlockAnchor represents ctor pageBlockAnchor#ce0d37b0 name:string = PageBlock from telegram.tl
@@ -21606,6 +24654,10 @@ func (o *TLPageBlockAnchor) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPageBlockAnchor) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Name)
+}
+
+func (o *TLPageBlockAnchor) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPageBlockList represents ctor pageBlockList#3a58c7f4 ordered:Bool items:Vector<RichText> = PageBlock from telegram.tl
@@ -21646,6 +24698,10 @@ func (o *TLPageBlockList) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPageBlockList) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockBlockquote represents ctor pageBlockBlockquote#263d7c26 text:RichText caption:RichText = PageBlock from telegram.tl
 type TLPageBlockBlockquote struct {
 	Text    TLRichTextType // text:RichText
@@ -21668,6 +24724,10 @@ func (o *TLPageBlockBlockquote) WriteBareTo(w *tl.Writer) {
 	o.Text.WriteBareTo(w)
 	w.WriteCmd(o.Caption.Cmd())
 	o.Caption.WriteBareTo(w)
+}
+
+func (o *TLPageBlockBlockquote) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPageBlockPullquote represents ctor pageBlockPullquote#4f4456d3 text:RichText caption:RichText = PageBlock from telegram.tl
@@ -21694,6 +24754,10 @@ func (o *TLPageBlockPullquote) WriteBareTo(w *tl.Writer) {
 	o.Caption.WriteBareTo(w)
 }
 
+func (o *TLPageBlockPullquote) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockPhoto represents ctor pageBlockPhoto#e9c69982 photo_id:long caption:RichText = PageBlock from telegram.tl
 type TLPageBlockPhoto struct {
 	PhotoId uint64         // photo_id:long
@@ -21715,6 +24779,10 @@ func (o *TLPageBlockPhoto) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.PhotoId)
 	w.WriteCmd(o.Caption.Cmd())
 	o.Caption.WriteBareTo(w)
+}
+
+func (o *TLPageBlockPhoto) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPageBlockVideo represents ctor pageBlockVideo#d9d71866 flags:# flags.0?autoplay:true flags.1?loop:true video_id:long caption:RichText = PageBlock from telegram.tl
@@ -21747,6 +24815,10 @@ func (o *TLPageBlockVideo) WriteBareTo(w *tl.Writer) {
 	o.Caption.WriteBareTo(w)
 }
 
+func (o *TLPageBlockVideo) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockCover represents ctor pageBlockCover#39f23300 cover:PageBlock = PageBlock from telegram.tl
 type TLPageBlockCover struct {
 	Cover TLPageBlockType // cover:PageBlock
@@ -21765,6 +24837,10 @@ func (o *TLPageBlockCover) ReadBareFrom(r *tl.Reader) {
 func (o *TLPageBlockCover) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Cover.Cmd())
 	o.Cover.WriteBareTo(w)
+}
+
+func (o *TLPageBlockCover) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPageBlockEmbed represents ctor pageBlockEmbed#cde200d1 flags:# flags.0?full_width:true flags.3?allow_scrolling:true flags.1?url:string flags.2?html:string flags.4?poster_photo_id:long w:int h:int caption:RichText = PageBlock from telegram.tl
@@ -21807,6 +24883,10 @@ func (o *TLPageBlockEmbed) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.H)
 	w.WriteCmd(o.Caption.Cmd())
 	o.Caption.WriteBareTo(w)
+}
+
+func (o *TLPageBlockEmbed) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPageBlockEmbedPost represents ctor pageBlockEmbedPost#292c7be9 url:string webpage_id:long author_photo_id:long author:string date:int blocks:Vector<PageBlock> caption:RichText = PageBlock from telegram.tl
@@ -21858,6 +24938,10 @@ func (o *TLPageBlockEmbedPost) WriteBareTo(w *tl.Writer) {
 	o.Caption.WriteBareTo(w)
 }
 
+func (o *TLPageBlockEmbedPost) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockCollage represents ctor pageBlockCollage#08b31c4f items:Vector<PageBlock> caption:RichText = PageBlock from telegram.tl
 type TLPageBlockCollage struct {
 	Items   []TLPageBlockType // items:Vector<PageBlock>
@@ -21892,6 +24976,10 @@ func (o *TLPageBlockCollage) WriteBareTo(w *tl.Writer) {
 	o.Caption.WriteBareTo(w)
 }
 
+func (o *TLPageBlockCollage) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageBlockSlideshow represents ctor pageBlockSlideshow#130c8963 items:Vector<PageBlock> caption:RichText = PageBlock from telegram.tl
 type TLPageBlockSlideshow struct {
 	Items   []TLPageBlockType // items:Vector<PageBlock>
@@ -21924,6 +25012,10 @@ func (o *TLPageBlockSlideshow) WriteBareTo(w *tl.Writer) {
 	}
 	w.WriteCmd(o.Caption.Cmd())
 	o.Caption.WriteBareTo(w)
+}
+
+func (o *TLPageBlockSlideshow) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPagePart represents ctor pagePart#8dee6c44 blocks:Vector<PageBlock> photos:Vector<Photo> videos:Vector<Document> = Page from telegram.tl
@@ -21984,6 +25076,10 @@ func (o *TLPagePart) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPagePart) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPageFull represents ctor pageFull#d7a19d69 blocks:Vector<PageBlock> photos:Vector<Photo> videos:Vector<Document> = Page from telegram.tl
 type TLPageFull struct {
 	Blocks []TLPageBlockType // blocks:Vector<PageBlock>
@@ -22042,6 +25138,10 @@ func (o *TLPageFull) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPageFull) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneCallDiscardReasonMissed represents ctor phoneCallDiscardReasonMissed#85e42301 = PhoneCallDiscardReason from telegram.tl
 type TLPhoneCallDiscardReasonMissed struct {
 }
@@ -22056,6 +25156,10 @@ func (o *TLPhoneCallDiscardReasonMissed) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPhoneCallDiscardReasonMissed) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPhoneCallDiscardReasonMissed) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhoneCallDiscardReasonDisconnect represents ctor phoneCallDiscardReasonDisconnect#e095c1a0 = PhoneCallDiscardReason from telegram.tl
@@ -22074,6 +25178,10 @@ func (o *TLPhoneCallDiscardReasonDisconnect) ReadBareFrom(r *tl.Reader) {
 func (o *TLPhoneCallDiscardReasonDisconnect) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLPhoneCallDiscardReasonDisconnect) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneCallDiscardReasonHangup represents ctor phoneCallDiscardReasonHangup#57adc690 = PhoneCallDiscardReason from telegram.tl
 type TLPhoneCallDiscardReasonHangup struct {
 }
@@ -22090,6 +25198,10 @@ func (o *TLPhoneCallDiscardReasonHangup) ReadBareFrom(r *tl.Reader) {
 func (o *TLPhoneCallDiscardReasonHangup) WriteBareTo(w *tl.Writer) {
 }
 
+func (o *TLPhoneCallDiscardReasonHangup) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneCallDiscardReasonBusy represents ctor phoneCallDiscardReasonBusy#faf7e8c9 = PhoneCallDiscardReason from telegram.tl
 type TLPhoneCallDiscardReasonBusy struct {
 }
@@ -22104,6 +25216,10 @@ func (o *TLPhoneCallDiscardReasonBusy) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPhoneCallDiscardReasonBusy) WriteBareTo(w *tl.Writer) {
+}
+
+func (o *TLPhoneCallDiscardReasonBusy) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPaymentsPaymentResult represents ctor payments.paymentResult#4e5f810d updates:Updates = payments.PaymentResult from telegram.tl
@@ -22126,6 +25242,10 @@ func (o *TLPaymentsPaymentResult) WriteBareTo(w *tl.Writer) {
 	o.Updates.WriteBareTo(w)
 }
 
+func (o *TLPaymentsPaymentResult) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPaymentsPaymentVerficationNeeded represents ctor payments.paymentVerficationNeeded#6b56b921 url:string = payments.PaymentResult from telegram.tl
 type TLPaymentsPaymentVerficationNeeded struct {
 	Url string // url:string
@@ -22143,6 +25263,10 @@ func (o *TLPaymentsPaymentVerficationNeeded) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPaymentsPaymentVerficationNeeded) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Url)
+}
+
+func (o *TLPaymentsPaymentVerficationNeeded) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPaymentCredentialsSaved represents ctor inputPaymentCredentialsSaved#c10eb2cf id:string tmp_password:bytes = InputPaymentCredentials from telegram.tl
@@ -22165,6 +25289,10 @@ func (o *TLInputPaymentCredentialsSaved) ReadBareFrom(r *tl.Reader) {
 func (o *TLInputPaymentCredentialsSaved) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Id)
 	w.WriteBlob(o.TmpPassword)
+}
+
+func (o *TLInputPaymentCredentialsSaved) String() string {
+	return tl.Pretty(o)
 }
 
 // TLInputPaymentCredentials represents ctor inputPaymentCredentials#3417d728 flags:# flags.0?save:true data:DataJSON = InputPaymentCredentials from telegram.tl
@@ -22196,6 +25324,10 @@ func (o *TLInputPaymentCredentials) WriteBareTo(w *tl.Writer) {
 	o.Data.WriteBareTo(w)
 }
 
+func (o *TLInputPaymentCredentials) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneCallEmpty represents ctor phoneCallEmpty#5366c915 id:long = PhoneCall from telegram.tl
 type TLPhoneCallEmpty struct {
 	Id uint64 // id:long
@@ -22213,6 +25345,10 @@ func (o *TLPhoneCallEmpty) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPhoneCallEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.Id)
+}
+
+func (o *TLPhoneCallEmpty) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhoneCallWaiting represents ctor phoneCallWaiting#1b8f4ad1 flags:# id:long access_hash:long date:int admin_id:int participant_id:int protocol:PhoneCallProtocol flags.0?receive_date:int = PhoneCall from telegram.tl
@@ -22260,6 +25396,10 @@ func (o *TLPhoneCallWaiting) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ReceiveDate)
 }
 
+func (o *TLPhoneCallWaiting) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneCallRequested represents ctor phoneCallRequested#83761ce4 id:long access_hash:long date:int admin_id:int participant_id:int g_a_hash:bytes protocol:PhoneCallProtocol = PhoneCall from telegram.tl
 type TLPhoneCallRequested struct {
 	Id            uint64               // id:long
@@ -22302,6 +25442,10 @@ func (o *TLPhoneCallRequested) WriteBareTo(w *tl.Writer) {
 	o.Protocol.WriteBareTo(w)
 }
 
+func (o *TLPhoneCallRequested) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneCallAccepted represents ctor phoneCallAccepted#6d003d3f id:long access_hash:long date:int admin_id:int participant_id:int g_b:bytes protocol:PhoneCallProtocol = PhoneCall from telegram.tl
 type TLPhoneCallAccepted struct {
 	Id            uint64               // id:long
@@ -22342,6 +25486,10 @@ func (o *TLPhoneCallAccepted) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.GB)
 	w.WriteCmd(TagPhoneCallProtocol)
 	o.Protocol.WriteBareTo(w)
+}
+
+func (o *TLPhoneCallAccepted) String() string {
+	return tl.Pretty(o)
 }
 
 // TLPhoneCall represents ctor phoneCall#ffe6ab67 id:long access_hash:long date:int admin_id:int participant_id:int g_a_or_b:bytes key_fingerprint:long protocol:PhoneCallProtocol connection:PhoneConnection alternative_connections:Vector<PhoneConnection> start_date:int = PhoneCall from telegram.tl
@@ -22418,6 +25566,10 @@ func (o *TLPhoneCall) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.StartDate)
 }
 
+func (o *TLPhoneCall) String() string {
+	return tl.Pretty(o)
+}
+
 // TLPhoneCallDiscarded represents ctor phoneCallDiscarded#50ca4de1 flags:# flags.2?need_rating:true flags.3?need_debug:true id:long flags.0?reason:PhoneCallDiscardReason flags.1?duration:int = PhoneCall from telegram.tl
 type TLPhoneCallDiscarded struct {
 	Flags      uint                         // flags:#
@@ -22449,6 +25601,10 @@ func (o *TLPhoneCallDiscarded) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Reason.Cmd())
 	o.Reason.WriteBareTo(w)
 	w.WriteInt(o.Duration)
+}
+
+func (o *TLPhoneCallDiscarded) String() string {
+	return tl.Pretty(o)
 }
 
 var Schema = &tl.Schema{

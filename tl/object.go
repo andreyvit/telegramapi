@@ -2,6 +2,8 @@ package tl
 
 import (
 	"fmt"
+
+	"github.com/kr/pretty"
 )
 
 type Object interface {
@@ -12,6 +14,23 @@ type Object interface {
 
 type Schema struct {
 	Factory func(uint32) Object
+}
+
+func (schema *Schema) ReadBoxedObject(raw []byte) (Object, error) {
+	var r Reader
+	r.Reset(raw)
+	o := schema.ReadBoxedObjectFrom(&r)
+	r.ExpectEOF()
+
+	return o, r.Err()
+}
+
+func (schema *Schema) MustReadBoxedObject(raw []byte) Object {
+	o, err := schema.ReadBoxedObject(raw)
+	if err != nil {
+		panic(err)
+	}
+	return o
 }
 
 func (schema *Schema) ReadBoxedObjectFrom(r *Reader) Object {
@@ -33,4 +52,8 @@ func (schema *Schema) ReadLimitedBoxedObjectFrom(r *Reader, cmds ...uint32) Obje
 	} else {
 		return nil
 	}
+}
+
+func Pretty(o Object) string {
+	return pretty.Sprint(o)
 }

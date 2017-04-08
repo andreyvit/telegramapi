@@ -78,6 +78,7 @@ func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 	}
 
 	rm.AppendGoDefs(buf, CodeGenOptions{
+		SkipUtil:     options.SkipPrelude,
 		SkipSwitch:   options.SkipPrelude,
 		SkipComments: options.SkipPrelude,
 	})

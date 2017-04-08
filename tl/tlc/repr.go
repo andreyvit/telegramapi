@@ -7,6 +7,7 @@ import (
 )
 
 type CodeGenOptions struct {
+	SkipUtil     bool
 	SkipSwitch   bool
 	SkipComments bool
 }
@@ -895,6 +896,15 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 		ar.TypeRepr.AppendWriteStmt(buf, "\t", "o."+ar.GoName)
 	}
 	buf.WriteString("}\n")
+
+	if !options.SkipUtil {
+		buf.WriteString("\n")
+		buf.WriteString("func (o *")
+		buf.WriteString(r.GoName)
+		buf.WriteString(") String() string {\n")
+		buf.WriteString("\treturn tl.Pretty(o)\n")
+		buf.WriteString("}\n")
+	}
 }
 
 func (r *StructRepr) GoType() string {
