@@ -71,6 +71,7 @@ func ParseLine(line string, state ParseState) (*Def, ParseState, error) {
 		return nil, state, lex.Err()
 	}
 	def.IsFunc = state.InsideFuncs
+	def.OriginalStr = line
 	return def, state, nil
 }
 
@@ -92,6 +93,7 @@ func scanDef(lex *lexer) (*Def, bool) {
 
 	if lex.Op("?") {
 		def.IsWeird = true
+		def.IsQuestionMark = true
 	}
 
 	for lex.Op("{") {

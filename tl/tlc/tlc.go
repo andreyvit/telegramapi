@@ -40,10 +40,25 @@ func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 		}
 		buf.WriteString(")\n")
 
-		buf.WriteString("\n")
-		buf.WriteString("const (\n")
 		idx := 0
+		prevOrigin := ""
 		for _, comb := range sch.Combs() {
+			if comb.IsInternal {
+				continue
+			}
+
+			if comb.Origin != prevOrigin {
+				if idx > 0 {
+					buf.WriteString(")\n")
+				}
+				buf.WriteString("\n")
+				buf.WriteString("// from ")
+				buf.WriteString(comb.Origin)
+				buf.WriteString("\n")
+				buf.WriteString("const (\n")
+				prevOrigin = comb.Origin
+				idx = 0
+			}
 			// if comb.Tag == 0 {
 			// 	continue
 			// }
@@ -61,7 +76,7 @@ func GenerateGoCode(sch *tlschema.Schema, options Options) string {
 	}
 
 	rm.AppendGoDefs(buf, CodeGenOptions{
-		SkipUtils:    options.SkipPrelude,
+		SkipSwitch:   options.SkipPrelude,
 		SkipComments: options.SkipPrelude,
 	})
 

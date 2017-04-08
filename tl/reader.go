@@ -2,6 +2,7 @@ package tl
 
 import (
 	"errors"
+	"math"
 	"math/big"
 	"time"
 )
@@ -135,6 +136,9 @@ func (r *Reader) ReadInt() int {
 func (r *Reader) ReadCmd() uint32 {
 	return r.ReadUint32()
 }
+func (r *Reader) PeekCmd() uint32 {
+	return r.PeekUint32()
+}
 func (r *Reader) StartInnerCmd() uint32 {
 	r.cmd = r.PeekUint32()
 	return r.cmd
@@ -145,6 +149,13 @@ func (r *Reader) ReadTimeSec32() time.Time {
 		return time.Time{}
 	}
 	return time.Unix(int64(u), 0)
+}
+func (r *Reader) ReadFloat64() float64 {
+	u, ok := r.TryReadUint64()
+	if !ok {
+		return 0
+	}
+	return math.Float64frombits(u)
 }
 
 func (r *Reader) TryReadUint64() (uint64, bool) {

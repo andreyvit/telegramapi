@@ -7,14 +7,13 @@ import (
 )
 
 type CodeGenOptions struct {
-	SkipUtils    bool
+	SkipSwitch   bool
 	SkipComments bool
 }
 
 type Resolver interface {
 	ResolveTypeExpr(expr tlschema.TypeExpr, context string) Repr
 	AddContributor(c Contributor) Contributor
-	FindType(name string) *tlschema.Type
 	FindComb(name string) *tlschema.Comb
 }
 
@@ -244,6 +243,42 @@ func (r *UnixTimeRepr) GoImports() []string {
 	return []string{"time"}
 }
 
+type NatRepr struct {
+}
+
+func (r *NatRepr) Specialize(typ tlschema.TypeExpr) Repr {
+	return specializeOnlyBare(r, typ)
+}
+func (r *NatRepr) Resolve(resolver Resolver) error {
+	return nil
+}
+func (r *NatRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
+	buf.WriteString(indent)
+	buf.WriteString(dst)
+	buf.WriteString(" = ")
+	buf.WriteString("uint(r.ReadUint32())")
+	buf.WriteString("\n")
+}
+func (r *NatRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
+	buf.WriteString(indent)
+	buf.WriteString("w.WriteUint32(uint32(")
+	buf.WriteString(src)
+	buf.WriteString("))\n")
+}
+func (r *NatRepr) AppendSwitchCase(buf *bytes.Buffer, indent string) {
+}
+func (r *NatRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
+}
+func (r *NatRepr) GoType() string {
+	return "uint"
+}
+func (r *NatRepr) InternalTypeID() string {
+	return "nat"
+}
+func (r *NatRepr) GoImports() []string {
+	return nil
+}
+
 type IntRepr struct {
 }
 
@@ -268,10 +303,8 @@ func (r *IntRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
 }
 func (r *IntRepr) AppendSwitchCase(buf *bytes.Buffer, indent string) {
 }
-
 func (r *IntRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 }
-
 func (r *IntRepr) GoType() string {
 	return "int"
 }
@@ -406,6 +439,152 @@ func (r *Int256Repr) GoImports() []string {
 	return nil
 }
 
+type DoubleRepr struct {
+}
+
+func (r *DoubleRepr) Specialize(typ tlschema.TypeExpr) Repr {
+	return specializeOnlyBare(r, typ)
+}
+func (r *DoubleRepr) Resolve(resolver Resolver) error {
+	return nil
+}
+func (r *DoubleRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
+	buf.WriteString(indent)
+	buf.WriteString(dst)
+	buf.WriteString(" = ")
+	buf.WriteString("r.ReadFloat64()")
+	buf.WriteString("\n")
+}
+func (r *DoubleRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
+	buf.WriteString(indent)
+	buf.WriteString("w.WriteFloat64(")
+	buf.WriteString(src)
+	buf.WriteString(")\n")
+}
+func (r *DoubleRepr) AppendSwitchCase(buf *bytes.Buffer, indent string) {
+}
+
+func (r *DoubleRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
+}
+
+func (r *DoubleRepr) GoType() string {
+	return "float64"
+}
+func (r *DoubleRepr) InternalTypeID() string {
+	return "double"
+}
+func (r *DoubleRepr) GoImports() []string {
+	return nil
+}
+
+type BoolRepr struct {
+	trueComb  *tlschema.Comb
+	falseComb *tlschema.Comb
+}
+
+func (r *BoolRepr) Specialize(typ tlschema.TypeExpr) Repr {
+	return specializeOnlyNonBare(r, typ)
+}
+func (r *BoolRepr) Resolve(resolver Resolver) error {
+	r.trueComb = resolver.FindComb("boolTrue")
+	if r.trueComb == nil {
+		return errors.New("'true' constructor not found")
+	}
+	r.falseComb = resolver.FindComb("boolFalse")
+	if r.falseComb == nil {
+		return errors.New("'true' constructor not found")
+	}
+	return nil
+}
+func (r *BoolRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
+	buf.WriteString(indent)
+	buf.WriteString("r.ExpectCmd(")
+	buf.WriteString(IDConstName(r.trueComb))
+	buf.WriteString(", ")
+	buf.WriteString(IDConstName(r.falseComb))
+	buf.WriteString(")\n")
+
+	buf.WriteString(indent)
+	buf.WriteString(dst)
+	buf.WriteString(" = ")
+	buf.WriteString("(r.ReadCmd() == ")
+	buf.WriteString(IDConstName(r.trueComb))
+	buf.WriteString(")\n")
+}
+func (r *BoolRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
+	buf.WriteString(indent)
+	buf.WriteString("if ")
+	buf.WriteString(src)
+	buf.WriteString("{\n")
+
+	buf.WriteString(indent)
+	buf.WriteString(indent)
+	buf.WriteString("w.WriteCmd(")
+	buf.WriteString(IDConstName(r.trueComb))
+	buf.WriteString(")\n")
+
+	buf.WriteString(indent)
+	buf.WriteString("} else {\n")
+
+	buf.WriteString(indent)
+	buf.WriteString(indent)
+	buf.WriteString("w.WriteCmd(")
+	buf.WriteString(IDConstName(r.falseComb))
+	buf.WriteString(")\n")
+
+	buf.WriteString(indent)
+	buf.WriteString("}\n")
+}
+func (r *BoolRepr) AppendSwitchCase(buf *bytes.Buffer, indent string) {
+}
+
+func (r *BoolRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
+}
+func (r *BoolRepr) GoType() string {
+	return "bool"
+}
+func (r *BoolRepr) InternalTypeID() string {
+	return "bool"
+}
+func (r *BoolRepr) GoImports() []string {
+	return nil
+}
+
+type TrueRepr struct {
+	trueComb *tlschema.Comb
+}
+
+func (r *TrueRepr) Specialize(typ tlschema.TypeExpr) Repr {
+	return specializeBare(r, r.trueComb, typ)
+}
+func (r *TrueRepr) Resolve(resolver Resolver) error {
+	r.trueComb = resolver.FindComb("true")
+	if r.trueComb == nil {
+		return errors.New("'true' constructor not found")
+	}
+	return nil
+}
+func (r *TrueRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
+	buf.WriteString(indent)
+	buf.WriteString(dst)
+	buf.WriteString(" = true\n")
+}
+func (r *TrueRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
+}
+func (r *TrueRepr) AppendSwitchCase(buf *bytes.Buffer, indent string) {
+}
+func (r *TrueRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
+}
+func (r *TrueRepr) GoType() string {
+	return "bool"
+}
+func (r *TrueRepr) InternalTypeID() string {
+	return "true"
+}
+func (r *TrueRepr) GoImports() []string {
+	return nil
+}
+
 type ObjectRepr struct {
 }
 
@@ -419,7 +598,7 @@ func (r *ObjectRepr) Resolve(resolver Resolver) error {
 func (r *ObjectRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
 	buf.WriteString(indent)
 	buf.WriteString(dst)
-	buf.WriteString(" = ReadBoxedObjectFrom(r)\n")
+	buf.WriteString(" = Schema.ReadBoxedObjectFrom(r)\n")
 }
 func (r *ObjectRepr) AppendWriteStmt(buf *bytes.Buffer, indent, src string) {
 	// buf.WriteString(indent)
@@ -593,7 +772,7 @@ type StructRepr struct {
 }
 
 type ArgRepr struct {
-	// Arg    *tlschema.Arg
+	Arg        tlschema.Arg
 	TLName     string
 	GoName     string
 	TypeRepr   Repr
@@ -607,7 +786,7 @@ func (r *StructRepr) Specialize(typ tlschema.TypeExpr) Repr {
 func (r *StructRepr) Resolve(resolver Resolver) error {
 	for _, arg := range r.Ctor.Args {
 		ar := ArgRepr{
-			// Arg:    &arg,
+			Arg:        arg,
 			TLName:     arg.Name,
 			GoName:     tlschema.ToGoName(arg.Name),
 			TypeRepr:   resolver.ResolveTypeExpr(arg.Type, r.TLName+":"+arg.Name),
@@ -646,17 +825,9 @@ func (r *StructRepr) AppendSwitchCase(buf *bytes.Buffer, indent string) {
 
 	buf.WriteString(indent)
 	buf.WriteString(indent)
-	buf.WriteString("s := new(")
+	buf.WriteString("return new(")
 	buf.WriteString(r.GoName)
 	buf.WriteString(")\n")
-
-	buf.WriteString(indent)
-	buf.WriteString(indent)
-	buf.WriteString("s.ReadBareFrom(r)\n")
-
-	buf.WriteString(indent)
-	buf.WriteString(indent)
-	buf.WriteString("return s\n")
 }
 
 func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
@@ -665,8 +836,9 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 		buf.WriteString("// ")
 		buf.WriteString(r.GoName)
 		buf.WriteString(" represents ")
-		buf.WriteString(r.TLName)
-		buf.WriteString(" from TL schema")
+		buf.WriteString(r.Ctor.String())
+		buf.WriteString(" from ")
+		buf.WriteString(r.Ctor.Origin)
 		buf.WriteString("\n")
 	}
 
@@ -681,9 +853,7 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 		buf.WriteString(ar.TypeRepr.GoType())
 		if !options.SkipComments {
 			buf.WriteString("  // ")
-			buf.WriteString(ar.TLName)
-			buf.WriteString(": ")
-			buf.WriteString(ar.TLTypeName)
+			buf.WriteString(ar.Arg.String())
 		}
 		buf.WriteString("\n")
 	}
@@ -692,7 +862,7 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 
 	if r.GoMarkerFuncName != "" {
 		buf.WriteString("\n")
-		buf.WriteString("func (s *")
+		buf.WriteString("func (o *")
 		buf.WriteString(r.GoName)
 		buf.WriteString(") ")
 		buf.WriteString(r.GoMarkerFuncName)
@@ -700,7 +870,7 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 	}
 
 	buf.WriteString("\n")
-	buf.WriteString("func (s *")
+	buf.WriteString("func (o *")
 	buf.WriteString(r.GoName)
 	buf.WriteString(") Cmd() uint32 {\n")
 	buf.WriteString("\treturn ")
@@ -709,20 +879,20 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 	buf.WriteString("}\n")
 
 	buf.WriteString("\n")
-	buf.WriteString("func (s *")
+	buf.WriteString("func (o *")
 	buf.WriteString(r.GoName)
 	buf.WriteString(") ReadBareFrom(r *tl.Reader) {\n")
 	for _, ar := range r.ArgReprs {
-		ar.TypeRepr.AppendReadStmt(buf, "\t", "s."+ar.GoName)
+		ar.TypeRepr.AppendReadStmt(buf, "\t", "o."+ar.GoName)
 	}
 	buf.WriteString("}\n")
 
 	buf.WriteString("\n")
-	buf.WriteString("func (s *")
+	buf.WriteString("func (o *")
 	buf.WriteString(r.GoName)
 	buf.WriteString(") WriteBareTo(w *tl.Writer) {\n")
 	for _, ar := range r.ArgReprs {
-		ar.TypeRepr.AppendWriteStmt(buf, "\t", "s."+ar.GoName)
+		ar.TypeRepr.AppendWriteStmt(buf, "\t", "o."+ar.GoName)
 	}
 	buf.WriteString("}\n")
 }
@@ -762,11 +932,13 @@ func (r *MultiCtorRepr) Resolve(resolver Resolver) error {
 func (r *MultiCtorRepr) AppendReadStmt(buf *bytes.Buffer, indent, dst string) {
 	buf.WriteString(indent)
 	buf.WriteString(dst)
-	buf.WriteString(" = ReadLimitedBoxedObjectFrom(r")
+	buf.WriteString(" = Schema.ReadLimitedBoxedObjectFrom(r")
 	for _, struc := range r.Structs {
 		buf.WriteString(", ")
 		buf.WriteString(IDConstName(struc.Ctor))
 	}
+	buf.WriteString(").(")
+	buf.WriteString(r.GoName)
 	buf.WriteString(")\n")
 }
 
@@ -790,7 +962,8 @@ func (r *MultiCtorRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) 
 		buf.WriteString(r.GoName)
 		buf.WriteString(" represents ")
 		buf.WriteString(r.TLName)
-		buf.WriteString(" from TL schema")
+		buf.WriteString(" from ")
+		buf.WriteString(r.Structs[0].Ctor.Origin)
 		buf.WriteString("\n")
 	}
 	buf.WriteString("type ")
@@ -806,7 +979,7 @@ func (r *MultiCtorRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) 
 }
 
 func (r *MultiCtorRepr) GoType() string {
-	return "tl.Object"
+	return r.GoName
 }
 func (r *MultiCtorRepr) InternalTypeID() string {
 	return r.TLName

@@ -45,12 +45,27 @@ func main() {
 	sch := new(tlschema.Schema)
 
 	for _, schemaName := range flag.Args() {
-
 		var schema string
+		var options tlschema.ParseOptions
 		if schemaName == "mtproto" {
 			schema = knownschemas.MTProtoSchema
+			options.Origin = schemaName + ".tl"
+			options.Alterations = &tlschema.Alterations{
+				Renamings: map[string]string{
+					"message": "proto_message",
+					"Message": "ProtoMessage",
+				},
+			}
+			options.FixZeroTagsIn = map[string]bool{
+				"int":     true,
+				"long":    true,
+				"double":  true,
+				"string":  true,
+				"message": true,
+			}
 		} else if schemaName == "telegram" {
 			schema = knownschemas.TelegramSchema
+			options.Origin = schemaName + ".tl"
 		} else if strings.Contains(schemaName, ".") {
 			fmt.Fprintf(os.Stderr, "** Reading schema from file isn't implemented yet\n")
 			os.Exit(1)
@@ -59,7 +74,11 @@ func main() {
 			os.Exit(1)
 		}
 
-		sch.MustParse(schema)
+		err := sch.Parse(schema, options)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "** Failed to parse schema %s: %v\n", schemaName, err)
+			os.Exit(1)
+		}
 	}
 
 	options := tlc.Options{

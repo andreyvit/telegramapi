@@ -2,6 +2,7 @@ package tl
 
 import (
 	"bytes"
+	"math"
 	"math/big"
 	"time"
 )
@@ -70,6 +71,9 @@ func (w *Writer) WriteInt(v int) {
 }
 func (w *Writer) WriteTimeSec32(tm time.Time) {
 	w.WriteUint32(uint32(tm.Unix()))
+}
+func (w *Writer) WriteFloat64(v float64) {
+	w.WriteUint64(math.Float64bits(v))
 }
 
 func (w *Writer) Write(v []byte) {

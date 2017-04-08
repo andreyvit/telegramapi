@@ -7,6 +7,9 @@ import (
 type Comb struct {
 	*Def
 	TypeStr string
+
+	Origin   string
+	Priority Priority
 }
 
 func (c *Comb) FullName() string {
@@ -16,6 +19,9 @@ func (c *Comb) FullName() string {
 type Type struct {
 	Name  ScopedName
 	Ctors []*Comb
+
+	Origin   string
+	Priority Priority
 }
 
 func (t *Type) String() string {

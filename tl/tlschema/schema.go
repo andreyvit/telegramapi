@@ -1,11 +1,13 @@
 package tlschema
 
 import (
+	"fmt"
+)
+
 // "fmt"
 // 	"log"
 // 	"strconv"
 // 	"strings"
-)
 
 type Schema struct {
 	combs        []*Comb
@@ -60,14 +62,40 @@ func (sch *Schema) Type(name string) *Type {
 
 func MustParse(text string) *Schema {
 	sch := new(Schema)
-	sch.MustParse(text)
+	err := sch.Parse(text, ParseOptions{
+		FixZeroTags: true,
+	})
+	if err != nil {
+		panic(err)
+	}
 	return sch
 }
 
-func (sch *Schema) MustParse(text string) {
+type Priority int
+
+const (
+	PriorityNormal       Priority = 0
+	PriorityJustADefault          = -10
+	PriorityOverride              = 10
+)
+
+type ParseOptions struct {
+	Origin   string
+	Priority Priority
+
+	FixZeroTags   bool
+	FixZeroTagsIn map[string]bool
+	AllowZeroTags bool
+
+	MarkInternal bool
+
+	Alterations *Alterations
+}
+
+func (sch *Schema) Parse(text string, options ParseOptions) error {
 	defs, err := Parse(text)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if sch.tagsToCombs == nil {
@@ -77,19 +105,63 @@ func (sch *Schema) MustParse(text string) {
 	}
 
 	for _, def := range defs {
-		sch.addComb(&Comb{Def: def})
+		if def.Tag == 0 {
+			if options.FixZeroTags || (options.FixZeroTagsIn != nil && options.FixZeroTagsIn[def.CombName.Full()]) {
+				err = def.FixTag()
+				if err != nil {
+					return err
+				}
+			} else if !options.AllowZeroTags {
+				return fmt.Errorf("zero tag in %q from %s", def.OriginalStr, options.Origin)
+			}
+		}
+
+		if options.Alterations != nil {
+			def.Alter(options.Alterations)
+		}
+
+		err = def.Simplify()
+		if err != nil {
+			return err
+		}
+
+		if options.MarkInternal {
+			def.IsInternal = true
+		}
+
+		err = sch.addComb(&Comb{Def: def, Origin: options.Origin, Priority: options.Priority})
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
-func (sch *Schema) addComb(comb *Comb) {
-	if comb.Tag != 0 && sch.tagsToCombs[comb.Tag] != nil {
-		return
-		// 	panic(fmt.Sprintf("tag %08x conflict between %s and %s", comb.Tag, sch.tagsToCombs[comb.Tag].CombName.String(), comb.CombName.String()))
-	}
+func (sch *Schema) addComb(comb *Comb) error {
 	name := comb.CombName.Full()
-	if name != "" && sch.namesToCombs[name] != nil {
-		return
-		// panic(fmt.Sprintf("name conflict for %q between %08x and %08x", name, comb.Tag, sch.namesToCombs[name].Tag))
+	if name != "" {
+		if alt := sch.namesToCombs[name]; alt != nil {
+			if alt.Priority == comb.Priority {
+				return fmt.Errorf("duplicate combinators: %s#%08x in %s and %s#%08x in %s", name, alt.Tag, alt.Origin, name, comb.Tag, comb.Origin)
+			} else if alt.Priority > comb.Priority {
+				return nil
+			} else {
+				sch.removeComb(alt)
+			}
+		}
+	}
+
+	if comb.Tag != 0 {
+		if alt := sch.tagsToCombs[comb.Tag]; alt != nil {
+			if alt.Priority == comb.Priority {
+				return fmt.Errorf("tag %08x conflict between %s (in %s) and %s (in %s)", comb.Tag, alt.CombName.String(), alt.Origin, comb.CombName.String(), comb.Origin)
+			} else if alt.Priority > comb.Priority {
+				return nil
+			} else {
+				sch.removeComb(alt)
+			}
+		}
 	}
 
 	sch.combs = append(sch.combs, comb)
@@ -111,13 +183,48 @@ func (sch *Schema) addComb(comb *Comb) {
 		typ := sch.namesToTypes[comb.TypeStr]
 		if typ == nil {
 			if comb.ResultType.Name.IsBare() {
-				panic("bare result type: " + comb.ResultType.String())
+				return fmt.Errorf("bare result type: %v", comb.ResultType.String())
 			}
-			typ = &Type{Name: comb.ResultType.Name}
+			typ = &Type{Name: comb.ResultType.Name, Origin: comb.Origin}
 			sch.types = append(sch.types, typ)
 			sch.namesToTypes[comb.TypeStr] = typ
 		}
 		typ.Ctors = append(typ.Ctors, comb)
+	}
+
+	return nil
+}
+
+func (sch *Schema) removeComb(comb *Comb) {
+	name := comb.CombName.Full()
+
+	if comb.Tag != 0 {
+		delete(sch.tagsToCombs, comb.Tag)
+	}
+
+	if name != "" {
+		delete(sch.namesToCombs, name)
+	}
+
+	for i, c := range sch.combs {
+		if c == comb {
+			sch.combs = append(sch.combs[:i], sch.combs[i+1:]...)
+			break
+		}
+	}
+
+	if !comb.IsFunc && comb.ResultType.IsJustTypeName() {
+		typ := sch.namesToTypes[comb.TypeStr]
+		if typ != nil {
+			delete(sch.namesToTypes, comb.TypeStr)
+
+			for i, t := range sch.types {
+				if t == typ {
+					sch.types = append(sch.types[:i], sch.types[i+1:]...)
+					break
+				}
+			}
+		}
 	}
 }
 

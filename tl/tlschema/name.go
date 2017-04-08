@@ -41,6 +41,15 @@ func (n ScopedName) IsBare() bool {
 	panic("ScopedName.IsBare does not support empty names")
 }
 
+func (n *ScopedName) Alter(alter *Alterations) {
+	if alter == nil || alter.Renamings == nil {
+		return
+	}
+	if nn := alter.Renamings[n.full]; nn != "" {
+		*n = MakeScopedName(nn)
+	}
+}
+
 func MakeScopedNameComponents(scope, short string) ScopedName {
 	if scope == "" {
 		return ScopedName{short, 0}

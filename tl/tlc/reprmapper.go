@@ -21,6 +21,7 @@ type ReprMapper struct {
 	typeReprs map[string]GenericRepr
 
 	typeOverrides map[string]string
+	typeAliases   map[string]string
 
 	contribByName map[string]Contributor
 	contributors  []Contributor
@@ -45,34 +46,43 @@ func NewReprMapper(sch *tlschema.Schema) *ReprMapper {
 
 			"server_DH_inner_data:server_time": "unixtime_",
 		},
+		typeAliases: map[string]string{
+			"#": "nat",
+		},
 		contribByName: make(map[string]Contributor),
 		finalized:     make(map[string]bool),
 	}
 
-	rm.schema.MustParse("string ? = String")
-	rm.schema.MustParse("int ? = Int")
-	rm.schema.MustParse("long ? = Long")
-	rm.schema.MustParse("int128 ? = Int128")
-	rm.schema.MustParse("int256 ? = Int256")
-	rm.schema.MustParse("bytes ? = Bytes")
-	rm.schema.MustParse("bigint_ ? = BigInt_")
-	rm.schema.MustParse("unixtime_ ? = UnixTime_")
-	rm.schema.MustParse("object ? = Object")
-	rm.schema.MustParse("vector#1cb5c415 ? = Vector")
-
-	rm.typeReprs["String"] = &StringRepr{}
-	rm.typeReprs["Int"] = &IntRepr{}
-	rm.typeReprs["Long"] = &LongRepr{}
-	rm.typeReprs["Int128"] = &Int128Repr{}
-	rm.typeReprs["Int256"] = &Int256Repr{}
-	rm.typeReprs["Bytes"] = &BytesRepr{}
-	rm.typeReprs["BigInt_"] = &BigIntRepr{}
-	rm.typeReprs["UnixTime_"] = &UnixTimeRepr{}
-	rm.typeReprs["Object"] = &ObjectRepr{}
-	rm.typeReprs["Vector"] = &GenericVectorRepr{}
+	rm.AddSpecialType("True", "true#3fedd339 = True", &TrueRepr{}, false)
+	rm.AddSpecialType("Bool", "boolFalse#bc799737 = Bool;\nboolTrue#997275b5 = Bool;", &BoolRepr{}, false)
+	rm.AddSpecialType("String", "string ? = String", &StringRepr{}, false)
+	rm.AddSpecialType("Nat", "nat ? = Nat", &NatRepr{}, true)
+	rm.AddSpecialType("Int", "int ? = Int", &IntRepr{}, false)
+	rm.AddSpecialType("Long", "long ? = Long", &LongRepr{}, false)
+	rm.AddSpecialType("Int128", "int128 ? = Int128", &Int128Repr{}, true)
+	rm.AddSpecialType("Int256", "int256 ? = Int256", &Int256Repr{}, true)
+	rm.AddSpecialType("Double", "double ? = Double", &DoubleRepr{}, false)
+	rm.AddSpecialType("Bytes", "bytes ? = Bytes", &BytesRepr{}, false)
+	rm.AddSpecialType("BigInt_", "bigint_ ? = BigInt_", &BigIntRepr{}, true)
+	rm.AddSpecialType("UnixTime_", "unixtime_ ? = UnixTime_", &UnixTimeRepr{}, true)
+	rm.AddSpecialType("Object", "object ? = Object", &ObjectRepr{}, false)
+	rm.AddSpecialType("Vector", "vector#1cb5c415 ? = Vector", &GenericVectorRepr{}, false)
 
 	rm.analyze()
 	return rm
+}
+
+func (rm *ReprMapper) AddSpecialType(name, def string, gr GenericRepr, internal bool) {
+	err := rm.schema.Parse(def, tlschema.ParseOptions{
+		Origin:       "builtin",
+		FixZeroTags:  true,
+		Priority:     tlschema.PriorityOverride,
+		MarkInternal: internal,
+	})
+	if err != nil {
+		panic(err)
+	}
+	rm.typeReprs[name] = gr
 }
 
 func (rm *ReprMapper) analyze() {
@@ -88,8 +98,6 @@ func (rm *ReprMapper) analyze() {
 		}
 		rm.AddContributor(sr)
 	}
-
-	rm.Finalize()
 }
 
 func (rm *ReprMapper) AddContributor(c Contributor) Contributor {
@@ -147,6 +155,9 @@ func (rm *ReprMapper) ResolveTypeExpr(expr tlschema.TypeExpr, context string) Re
 	if override := rm.typeOverrides[context]; override != "" {
 		expr.Name = tlschema.MakeScopedName(override)
 	}
+	if alias := rm.typeAliases[expr.Name.Full()]; alias != "" {
+		expr.Name = tlschema.MakeScopedName(alias)
+	}
 
 	if expr.Name.IsBare() {
 		comb := rm.schema.ByName(expr.Name.Full())
@@ -172,10 +183,6 @@ func (rm *ReprMapper) ResolveTypeExpr(expr tlschema.TypeExpr, context string) Re
 
 	repr = &UnsupportedRepr{expr.String(), "failed to specialize"}
 	return rm.AddContributor(repr).(Repr)
-}
-
-func (rm *ReprMapper) FindType(name string) *tlschema.Type {
-	return rm.schema.Type(name)
 }
 
 func (rm *ReprMapper) FindComb(name string) *tlschema.Comb {
@@ -229,28 +236,20 @@ func (rm *ReprMapper) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 		c.AppendGoDefs(buf, options)
 	}
 
-	buf.WriteString("\n")
-	buf.WriteString("func ReadBoxedObjectFrom(r *tl.Reader) tl.Object {\n")
-	buf.WriteString("\tcmd := r.ReadCmd()\n")
-	buf.WriteString("\tswitch cmd {\n")
-	for _, c := range rm.contributors {
-		if gr, ok := c.(GenericRepr); ok {
-			gr.AppendSwitchCase(buf, "\t")
-		}
-	}
-	buf.WriteString("\tdefault:\n")
-	buf.WriteString("\t\treturn nil\n")
-	buf.WriteString("\t}\n")
-	buf.WriteString("}\n")
-
-	if !options.SkipUtils {
+	if !options.SkipSwitch {
 		buf.WriteString("\n")
-		buf.WriteString("func ReadLimitedBoxedObjectFrom(r *tl.Reader, cmds ...uint32) tl.Object {\n")
-		buf.WriteString("\tif r.ExpectCmd(cmds...) {\n")
-		buf.WriteString("\t\treturn ReadBoxedObjectFrom(r)\n")
-		buf.WriteString("\t} else {\n")
-		buf.WriteString("\t\treturn nil\n")
-		buf.WriteString("\t}\n")
+		buf.WriteString("var Schema = &tl.Schema{\n")
+		buf.WriteString("\tFactory: func(cmd uint32) tl.Object {\n")
+		buf.WriteString("\t\tswitch cmd {\n")
+		for _, c := range rm.contributors {
+			if gr, ok := c.(GenericRepr); ok {
+				gr.AppendSwitchCase(buf, "\t\t")
+			}
+		}
+		buf.WriteString("\t\tdefault:\n")
+		buf.WriteString("\t\t\treturn nil\n")
+		buf.WriteString("\t\t}\n")
+		buf.WriteString("\t},\n")
 		buf.WriteString("}\n")
 	}
 }
