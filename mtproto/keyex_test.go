@@ -162,7 +162,7 @@ func TestKeyExchange(t *testing.T) {
 	// --- req 1
 
 	framer.MsgIDOverride = 0x51e57ac42770964a
-	msgbytes, err := framer.Format(MsgFromObj(keyex.Start()))
+	msgbytes, _, err := framer.Format(MsgFromObj(keyex.Start()))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -189,7 +189,7 @@ func TestKeyExchange(t *testing.T) {
 		t.Fatal("no reply to res_pq")
 	}
 	framer.MsgIDOverride = 0x51e57ac917717a27
-	msgbytes, err = framer.Format(MsgFromObj(msg))
+	msgbytes, _, err = framer.Format(MsgFromObj(msg))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -219,7 +219,7 @@ func TestKeyExchange(t *testing.T) {
 		t.Fatal("no reply to server_DH_params_ok")
 	}
 	framer.MsgIDOverride = 0x51e57acd2aa32c6d
-	msgbytes, err = framer.Format(MsgFromObj(msg))
+	msgbytes, _, err = framer.Format(MsgFromObj(msg))
 	if err != nil {
 		t.Fatal(err)
 	}

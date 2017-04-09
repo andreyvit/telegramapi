@@ -11,6 +11,9 @@ type Options struct {
 	Endpoint  string
 	PublicKey string
 	Verbose   int
+
+	APIID   int
+	APIHash string
 }
 
 type Conn struct {
@@ -18,7 +21,7 @@ type Conn struct {
 
 	pubKey *rsa.PublicKey
 
-	session *mtproto.Session
+	Session *mtproto.Session
 }
 
 // const msgUseLayer18 uint32 = 0x1c900537
@@ -51,18 +54,18 @@ func Connect(options Options) (*Conn, error) {
 		Options: options,
 		pubKey:  pubKey,
 
-		session: session,
+		Session: session,
 	}, nil
 }
 
 func (c *Conn) Close() {
-	c.session.Close()
+	c.Session.Close()
 }
 
 func (c *Conn) Run() {
-	c.session.Run()
+	c.Session.Run()
 }
 
 func (c *Conn) Err() error {
-	return c.session.Err()
+	return c.Session.Err()
 }

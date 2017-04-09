@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/andreyvit/telegramapi"
+	"github.com/andreyvit/telegramapi/mtproto"
 )
 
 const testEndpoint = "149.154.167.40:443"
@@ -25,20 +27,27 @@ Slv8kg9qv1m6XHVQY3PnEw+QQtqSIXklHwIDAQAB
 `
 
 func main() {
+	var err error
+
 	options := telegramapi.Options{
 		Endpoint:  productionEndpoint,
 		PublicKey: publicKey,
 		Verbose:   2,
 	}
 
-	appID := os.Getenv("TG_APP_ID")
-	if appID == "" {
+	apiID := os.Getenv("TG_APP_ID")
+	if apiID == "" {
 		fmt.Fprintf(os.Stderr, "** missing TG_APP_ID env variable\n")
 		os.Exit(64) // EX_USAGE
 	}
+	options.APIID, err = strconv.Atoi(apiID)
+	if apiID == "" {
+		fmt.Fprintf(os.Stderr, "** invalid TG_APP_ID\n")
+		os.Exit(64) // EX_USAGE
+	}
 
-	apiHash := os.Getenv("TG_API_HASH")
-	if apiHash == "" {
+	options.APIHash = os.Getenv("TG_API_HASH")
+	if options.APIHash == "" {
 		fmt.Fprintf(os.Stderr, "** missing TG_API_HASH env variable\n")
 		os.Exit(64) // EX_USAGE
 	}
@@ -51,17 +60,45 @@ func main() {
 	defer conn.Close()
 	log.Printf("✓ Connected")
 
-	conn.Run()
-	err = conn.Err()
+	go run(conn)
+
+	err = doit(conn)
 	if err != nil {
-		log.Printf("** ERROR: %v", err)
-		os.Exit(1)
+		log.Printf("** ERROR: process: %v", err)
 	}
 
 	log.Printf("✓ DONE")
 }
 
-func doit(options telegramapi.Options) error {
+func run(tg *telegramapi.Conn) {
+	tg.Run()
+	err := tg.Err()
+	if err != nil {
+		log.Printf("** ERROR: session: %v", err)
+		os.Exit(1)
+	}
+}
+
+func doit(tg *telegramapi.Conn) error {
+	tg.Session.WaitReady()
+
+	r, err := tg.Session.Send(&mtproto.TLHelpGetNearestDC{})
+	if err != nil {
+		return err
+	}
+
+	r, err = tg.Session.Send(&mtproto.TLAuthSendCode{
+		Flags:         1,
+		PhoneNumber:   "79061932959",
+		CurrentNumber: true,
+		APIID:         tg.APIID,
+		APIHash:       tg.APIHash,
+	})
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Got auth.sendCode response: %v", r)
 
 	// for {
 	// 	msg, err := conn.ReadMessage(2 * time.Second)

@@ -28,7 +28,7 @@ func (fr *Framer) SetAuth(auth *AuthResult) {
 	}
 }
 
-func (fr *Framer) Format(msg Msg) ([]byte, error) {
+func (fr *Framer) Format(msg Msg) ([]byte, uint64, error) {
 	var msgID uint64
 	if fr.MsgIDOverride != 0 {
 		msgID = fr.MsgIDOverride
@@ -73,7 +73,7 @@ func (fr *Framer) Format(msg Msg) ([]byte, error) {
 			_, err := io.ReadFull(fr.RandomReader, padding[:pad])
 			if err != nil {
 				log.Printf("failed to read padding (%d): %v", pad, err)
-				return nil, err
+				return nil, 0, err
 			}
 			w.Write(padding[:pad])
 		}
@@ -88,7 +88,7 @@ func (fr *Framer) Format(msg Msg) ([]byte, error) {
 		encrypted, err := AESIGEPadEncrypt(nil, data, key[:], iv[:], nil)
 		if err != nil {
 			log.Printf("encryption failed: %v", pad, err)
-			return nil, err
+			return nil, 0, err
 		}
 
 		w.Clear()
@@ -97,7 +97,7 @@ func (fr *Framer) Format(msg Msg) ([]byte, error) {
 		w.Write(encrypted)
 	}
 
-	return w.Bytes(), nil
+	return w.Bytes(), msgID, nil
 }
 
 func (fr *Framer) Parse(raw []byte) (Msg, error) {

@@ -10,6 +10,7 @@ import (
 	"github.com/andreyvit/telegramapi/tl/knownschemas"
 	"io"
 	"log"
+	"sync"
 
 	"github.com/andreyvit/telegramapi/tl"
 )
@@ -43,11 +44,16 @@ type Session struct {
 
 	connKeyExDone bool
 	connInitSent  bool
+	inFlight      map[uint64]*rpcInFlight
 
 	failc  chan error
-	sendc  chan Msg
+	sendc  chan outgoingMsg
 	closec chan struct{}
 	eventc chan uint32
+
+	stateMut  sync.Mutex
+	stateCond *sync.Cond
+	isReady   bool
 
 	err error
 }
@@ -55,8 +61,22 @@ type Session struct {
 const (
 	PseudoIDInvalidCommand uint32 = iota
 	PseudoIDKeyExStart
-	PseudoIDHandshakeDone
 )
+
+type outgoingMsg struct {
+	Obj   tl.Object
+	Reply chan<- reply
+}
+
+type reply struct {
+	Obj tl.Object
+	Err error
+}
+
+type rpcInFlight struct {
+	MsgID uint64
+	Reply chan<- reply
+}
 
 func NewSession(transport Transport, options SessionOptions) *Session {
 	s := &Session{
@@ -67,13 +87,15 @@ func NewSession(transport Transport, options SessionOptions) *Session {
 			PubKey: options.PubKey,
 		},
 
+		inFlight: make(map[uint64]*rpcInFlight),
+
 		failc:  make(chan error, 1),
-		sendc:  make(chan Msg, 1),
+		sendc:  make(chan outgoingMsg, 1),
 		closec: make(chan struct{}),
 		eventc: make(chan uint32, 10),
 	}
+	s.stateCond = sync.NewCond(&s.stateMut)
 	s.AddHandler(s.handleKeyEx)
-	s.AddHandler(s.handleConfig)
 	s.AddHandler(s.handleRPCResult)
 	return s
 }
@@ -83,8 +105,30 @@ func (sess *Session) AddHandler(handler func(cmd uint32, o tl.Object) ([]tl.Obje
 	sess.handlers = append(sess.handlers, h)
 }
 
-func (sess *Session) Send(msg Msg) {
-	sess.sendc <- msg
+func (sess *Session) WaitReady() {
+	sess.stateMut.Lock()
+	defer sess.stateMut.Unlock()
+
+	for !sess.isReady {
+		sess.stateCond.Wait()
+	}
+}
+
+func (sess *Session) RunJob(f func() error) {
+	go func() {
+		sess.WaitReady()
+		err := f()
+		if err != nil {
+			sess.failInternal(err)
+		}
+	}()
+}
+
+func (sess *Session) Send(o tl.Object) (tl.Object, error) {
+	replyc := make(chan reply)
+	sess.sendc <- outgoingMsg{o, replyc}
+	reply := <-replyc
+	return reply.Obj, reply.Err
 }
 
 func (sess *Session) Err() error {
@@ -118,6 +162,8 @@ loop:
 				}
 				break loop
 			}
+		case msg := <-sess.sendc:
+			sess.sendInternal(msg.Obj, msg.Reply)
 		case err := <-sess.failc:
 			sess.failInternal(err)
 		case pseudocmd := <-sess.eventc:
@@ -183,7 +229,7 @@ func (sess *Session) failInternal(err error) {
 	}
 }
 
-func (sess *Session) sendInternal(o tl.Object) {
+func (sess *Session) sendInternal(o tl.Object, replyc chan<- reply) {
 	if sess.err != nil {
 		return
 	}
@@ -205,16 +251,20 @@ func (sess *Session) sendInternal(o tl.Object) {
 
 	msg := MsgFromObj(o)
 
-	raw, err := sess.framer.Format(msg)
+	raw, msgID, err := sess.framer.Format(msg)
 	if err != nil {
 		sess.failInternal(err)
 		return
 	}
 
 	if sess.options.Verbose >= 2 {
-		log.Printf("mtproto.Session sending %s (%v bytes, %v): %v", o, len(msg.Payload), msg.Type, hex.EncodeToString(msg.Payload))
+		log.Printf("mtproto.Session sending %s (%v bytes, %v, msgID %08x)", o, len(msg.Payload), msg.Type, msgID)
 	} else if sess.options.Verbose >= 1 {
-		log.Printf("mtproto.Session sending %s (%v bytes, %v)", tl.Name(o), len(msg.Payload), msg.Type)
+		log.Printf("mtproto.Session sending %s (%v bytes, %v, msgID %08x)", tl.Name(o), len(msg.Payload), msg.Type, msgID)
+	}
+
+	if replyc != nil {
+		sess.startPendingRPC(msgID, replyc)
 	}
 
 	err = sess.transport.Send(raw)
@@ -222,6 +272,26 @@ func (sess *Session) sendInternal(o tl.Object) {
 		sess.failInternal(err)
 		return
 	}
+}
+
+func (sess *Session) startPendingRPC(msgID uint64, replyc chan<- reply) {
+	if sess.inFlight[msgID] != nil {
+		panic("duplicate msgID")
+	}
+
+	infl := &rpcInFlight{msgID, replyc}
+	sess.inFlight[msgID] = infl
+}
+
+func (sess *Session) finishPendingRPC(msgID uint64, obj tl.Object, err error) {
+	infl := sess.inFlight[msgID]
+	if infl == nil {
+		log.Printf("WARNING: dropping reply to unknown msgID %08x: %v, %v", msgID, obj, err)
+		return
+	}
+	delete(sess.inFlight, msgID)
+
+	infl.Reply <- reply{obj, err}
 }
 
 func (sess *Session) handle(msg []byte) {
@@ -271,7 +341,7 @@ func (sess *Session) invokeHandlersInternal(o tl.Object) {
 		sess.failInternal(err)
 	} else {
 		for _, msg := range msgs {
-			sess.sendInternal(msg)
+			sess.sendInternal(msg, nil)
 		}
 	}
 }
@@ -308,7 +378,7 @@ func (sess *Session) broadcastInternal(cmd uint32) {
 			return
 		}
 		for _, msg := range msgs {
-			sess.sendInternal(msg)
+			sess.sendInternal(msg, nil)
 		}
 	}
 }
@@ -341,25 +411,11 @@ func (sess *Session) handleKeyEx(cmd uint32, o tl.Object) ([]tl.Object, error) {
 	}
 }
 
-func (sess *Session) handleConfig(cmd uint32, o tl.Object) ([]tl.Object, error) {
-	if cmd == PseudoIDHandshakeDone {
-		msg := &TLHelpGetNearestDC{}
-		return []tl.Object{msg}, nil
-	} else {
-		return nil, ErrCmdNotHandled
-	}
-}
-
 func (sess *Session) handleRPCResult(cmd uint32, o tl.Object) ([]tl.Object, error) {
 	switch o := o.(type) {
 	case *TLRPCResult:
-		msgs, err := sess.invokeHandlersInternalReturnCmds(o.Result)
-		if err == ErrCmdNotHandled {
-			sess.logDroppedIncomingMsg(o.Result)
-			return nil, nil
-		} else {
-			return msgs, err
-		}
+		sess.finishPendingRPC(o.ReqMsgID, o.Result, nil)
+		return nil, nil
 	case *TLMsgContainer:
 		var replies []tl.Object
 		for _, msg := range o.Messages {
@@ -398,8 +454,13 @@ func (sess *Session) ApplyAuth(auth *AuthResult) {
 	}
 
 	sess.framer.SetAuth(auth)
+
+	sess.stateMut.Lock()
+	defer sess.stateMut.Unlock()
+
 	sess.connKeyExDone = true
-	sess.Notify(PseudoIDHandshakeDone)
+	sess.isReady = true
+	sess.stateCond.Broadcast()
 }
 
 func (sess *Session) Close() {
