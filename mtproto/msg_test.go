@@ -12,7 +12,7 @@ func TestMsgType(t *testing.T) {
 		expected MsgType
 	}{
 		{&TLReqPQ{}, KeyExMsg},
-		{&TLNearestDc{}, ContentMsg},
+		{&TLNearestDC{}, ContentMsg},
 	}
 	for _, tt := range tests {
 		actual := MsgFromObj(tt.input).Type

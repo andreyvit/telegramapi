@@ -311,7 +311,7 @@ func (kex *KeyEx) handleServerDHParamsOK(o *TLServerDHParamsOK) (tl.Object, erro
 	// RESPONSE
 
 	replyInner := &TLClientDHInnerData{
-		RetryId: retryID,
+		RetryID: retryID,
 		GB:      gb,
 	}
 	copy(replyInner.Nonce[:], kex.nonce[:])

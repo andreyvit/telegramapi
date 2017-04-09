@@ -17,14 +17,19 @@ func TestToGoName(t *testing.T) {
 		{"res_pq_test", "ResPQTest"},
 		{"res_pqTest", "ResPQTest"},
 		{"res_pqrTest", "ResPqrTest"},
+		{"nearest_dc", "NearestDC"},
+		{"bad_rpc_result", "BadRPCResult"},
+		{"api_id", "APIID"},
+		{"msg_id", "MsgID"},
+		{"msg_ids", "MsgIDs"},
 	}
 
 	for _, tt := range tests {
 		actual := ToGoName(tt.input)
 		if actual != tt.expected {
-			t.Errorf("ToGoName(%q) == %q, expected %q", tt.input, actual, tt.expected)
+			t.Errorf("! ToGoName(%q) == %q, expected %q", tt.input, actual, tt.expected)
 		} else {
-			t.Logf("ToGoName(%q) == %q", tt.input, actual)
+			t.Logf("✓ ToGoName(%q) == %q", tt.input, actual)
 		}
 	}
 }

@@ -15,39 +15,39 @@ func TestSimple(t *testing.T) {
     `)
 	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
-        type TLNearestDc struct {
+        type TLNearestDC struct {
             Country   string
-            ThisDc    int   
-            NearestDc int   
+            ThisDC    int   
+            NearestDC int   
         }
 
-        func (o *TLNearestDc) Cmd() uint32 {
-            return TagNearestDc
+        func (o *TLNearestDC) Cmd() uint32 {
+            return TagNearestDC
         }
 
-        func (o *TLNearestDc) ReadBareFrom(r *tl.Reader) {
+        func (o *TLNearestDC) ReadBareFrom(r *tl.Reader) {
             o.Country = r.ReadString()
-            o.ThisDc = r.ReadInt()
-            o.NearestDc = r.ReadInt()
+            o.ThisDC = r.ReadInt()
+            o.NearestDC = r.ReadInt()
         }
 
-        func (o *TLNearestDc) WriteBareTo(w *tl.Writer) {
+        func (o *TLNearestDC) WriteBareTo(w *tl.Writer) {
             w.WriteString(o.Country)
-            w.WriteInt(o.ThisDc)
-            w.WriteInt(o.NearestDc)
+            w.WriteInt(o.ThisDC)
+            w.WriteInt(o.NearestDC)
         }
 
-        type TLHelpGetNearestDc struct {
+        type TLHelpGetNearestDC struct {
         }
 
-        func (o *TLHelpGetNearestDc) Cmd() uint32 {
-            return TagHelpGetNearestDc
+        func (o *TLHelpGetNearestDC) Cmd() uint32 {
+            return TagHelpGetNearestDC
         }
 
-        func (o *TLHelpGetNearestDc) ReadBareFrom(r *tl.Reader) {
+        func (o *TLHelpGetNearestDC) ReadBareFrom(r *tl.Reader) {
         }
 
-        func (o *TLHelpGetNearestDc) WriteBareTo(w *tl.Writer) {
+        func (o *TLHelpGetNearestDC) WriteBareTo(w *tl.Writer) {
         }
     `
 	a, e := diff.TrimLinesInString(code), diff.TrimLinesInString(expected)

@@ -75,15 +75,29 @@ func (n ScopedName) GoName() string {
 	}
 }
 
-var abbrevs = []string{"Dh", "Ok", "Pq", "RPC", "Ip"}
+var abbrevs = [][]byte{[]byte("DH"), []byte("OK"), []byte("PQ"), []byte("RPC"), []byte("IP"), []byte("DC"), []byte("ID"), []byte("IDs"), []byte("API")}
+var badAbbrevs [][]byte
+
+func init() {
+	badAbbrevs = make([][]byte, len(abbrevs))
+	for i, a := range abbrevs {
+		bad := make([]byte, len(a))
+		for k, b := range a {
+			if k == 0 {
+				bad[k] = byte(unicode.ToUpper(rune(b)))
+			} else {
+				bad[k] = byte(unicode.ToLower(rune(b)))
+			}
+		}
+		badAbbrevs[i] = bad
+	}
+}
 
 func checkAbbrevs(suffix []byte) {
 	n := len(suffix)
-	for _, a := range abbrevs {
-		if len(a) == n && bytes.Equal([]byte(a), suffix) {
-			for i := range suffix {
-				suffix[i] = byte(unicode.ToUpper(rune(suffix[i])))
-			}
+	for i, a := range badAbbrevs {
+		if len(a) == n && bytes.Equal(a, suffix) {
+			copy(suffix, abbrevs[i])
 			return
 		}
 	}

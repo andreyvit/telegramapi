@@ -41,6 +41,9 @@ type Session struct {
 	keyex     *KeyEx
 	handlers  []Handler
 
+	connKeyExDone bool
+	connInitSent  bool
+
 	failc  chan error
 	sendc  chan Msg
 	closec chan struct{}
@@ -185,6 +188,21 @@ func (sess *Session) sendInternal(o tl.Object) {
 		return
 	}
 
+	if sess.connKeyExDone && !sess.connInitSent {
+		o = &TLInvokeWithLayer{
+			Layer: knownschemas.TelegramLayer,
+			Query: &TLInitConnection{
+				APIID:         88766,
+				DeviceModel:   "Mac",
+				SystemVersion: "10.11",
+				AppVersion:    "0.1",
+				LangCode:      "en",
+				Query:         o,
+			},
+		}
+		sess.connInitSent = true
+	}
+
 	msg := MsgFromObj(o)
 
 	raw, err := sess.framer.Format(msg)
@@ -248,15 +266,19 @@ func (sess *Session) doHandle(raw []byte) error {
 func (sess *Session) invokeHandlersInternal(o tl.Object) {
 	msgs, err := sess.invokeHandlersInternalReturnCmds(o)
 	if err == ErrCmdNotHandled {
-		if sess.options.Verbose >= 1 {
-			log.Printf("mtproto.Session: dropping unhandled message %v", o)
-		}
+		sess.logDroppedIncomingMsg(o)
 	} else if err != nil {
 		sess.failInternal(err)
 	} else {
 		for _, msg := range msgs {
 			sess.sendInternal(msg)
 		}
+	}
+}
+
+func (sess *Session) logDroppedIncomingMsg(o tl.Object) {
+	if sess.options.Verbose >= 1 {
+		log.Printf("mtproto.Session: dropping unhandled message %v", o)
 	}
 }
 
@@ -292,7 +314,7 @@ func (sess *Session) broadcastInternal(cmd uint32) {
 }
 
 func (sess *Session) handleKeyEx(cmd uint32, o tl.Object) ([]tl.Object, error) {
-	if sess.keyex.IsFinished() {
+	if sess.connKeyExDone {
 		return nil, ErrCmdNotHandled
 	}
 
@@ -321,17 +343,7 @@ func (sess *Session) handleKeyEx(cmd uint32, o tl.Object) ([]tl.Object, error) {
 
 func (sess *Session) handleConfig(cmd uint32, o tl.Object) ([]tl.Object, error) {
 	if cmd == PseudoIDHandshakeDone {
-		msg := &TLInvokeWithLayer{
-			Layer: knownschemas.TelegramLayer,
-			Query: &TLInitConnection{
-				ApiId:         88766,
-				DeviceModel:   "Mac",
-				SystemVersion: "10.11",
-				AppVersion:    "0.1",
-				LangCode:      "en",
-				Query:         &TLHelpGetNearestDc{},
-			},
-		}
+		msg := &TLHelpGetNearestDC{}
 		return []tl.Object{msg}, nil
 	} else {
 		return nil, ErrCmdNotHandled
@@ -340,8 +352,37 @@ func (sess *Session) handleConfig(cmd uint32, o tl.Object) ([]tl.Object, error) 
 
 func (sess *Session) handleRPCResult(cmd uint32, o tl.Object) ([]tl.Object, error) {
 	switch o := o.(type) {
-	case *TLRpcResult:
-		return sess.invokeHandlersInternalReturnCmds(o.Result)
+	case *TLRPCResult:
+		msgs, err := sess.invokeHandlersInternalReturnCmds(o.Result)
+		if err == ErrCmdNotHandled {
+			sess.logDroppedIncomingMsg(o.Result)
+			return nil, nil
+		} else {
+			return msgs, err
+		}
+	case *TLMsgContainer:
+		var replies []tl.Object
+		for _, msg := range o.Messages {
+			// TODO: verify msg.MsgId
+			// TODO: verify msg.Seqno
+			r, err := sess.invokeHandlersInternalReturnCmds(msg.Body)
+			if err == ErrCmdNotHandled {
+				sess.logDroppedIncomingMsg(msg.Body)
+			} else if err != nil {
+				return nil, err
+			}
+			replies = append(replies, r...)
+		}
+		return replies, nil
+	case *TLNewSessionCreated:
+		log.Printf("NOTICE: %v", o)
+		return nil, nil
+	case *TLMsgsAck:
+		for _, msgID := range o.MsgIDs {
+			// TODO: ack
+			log.Printf("TODO: ack'ed %08x", msgID)
+		}
+		return nil, nil
 	default:
 		return nil, ErrCmdNotHandled
 	}
@@ -357,6 +398,7 @@ func (sess *Session) ApplyAuth(auth *AuthResult) {
 	}
 
 	sess.framer.SetAuth(auth)
+	sess.connKeyExDone = true
 	sess.Notify(PseudoIDHandshakeDone)
 }
 
