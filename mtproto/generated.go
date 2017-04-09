@@ -19,11 +19,11 @@ const (
 	TagDHGenOK                        = 0x3bcbf734
 	TagDHGenRetry                     = 0x46dc1fb9
 	TagDHGenFail                      = 0xa69dae02
-	TagRpcResult                      = 0xf35c6d01
-	TagRpcError                       = 0x2144ca19
-	TagRpcAnswerUnknown               = 0x5e2ad36e
-	TagRpcAnswerDroppedRunning        = 0xcd78e586
-	TagRpcAnswerDropped               = 0xa43ad8b7
+	TagRPCResult                      = 0xf35c6d01
+	TagRPCError                       = 0x2144ca19
+	TagRPCAnswerUnknown               = 0x5e2ad36e
+	TagRPCAnswerDroppedRunning        = 0xcd78e586
+	TagRPCAnswerDropped               = 0xa43ad8b7
 	TagFutureSalt                     = 0x0949d9dc
 	TagFutureSalts                    = 0xae500895
 	TagPong                           = 0x347773c5
@@ -46,7 +46,7 @@ const (
 	TagReqPQ                          = 0x60469778
 	TagReqDHParams                    = 0xd712e4be
 	TagSetClientDHParams              = 0xf5045f1f
-	TagRpcDropAnswer                  = 0x58e4a740
+	TagRPCDropAnswer                  = 0x58e4a740
 	TagGetFutureSalts                 = 0xb921bd04
 	TagPing                           = 0x7abe77ec
 	TagPingDelayDisconnect            = 0xf3427b8c
@@ -242,7 +242,7 @@ const (
 	TagUpdateEncryptedMessagesRead                   = 0x38fe25b7
 	TagUpdateChatParticipantAdd                      = 0xea4b0e5c
 	TagUpdateChatParticipantDelete                   = 0x6e5f8c22
-	TagUpdateDcOptions                               = 0x8e5e9873
+	TagUpdateDCOptions                               = 0x8e5e9873
 	TagUpdateUserBlocked                             = 0x80ece81a
 	TagUpdateNotifySettings                          = 0xbec268ef
 	TagUpdateServiceNotification                     = 0xebe46819
@@ -301,9 +301,9 @@ const (
 	TagPhotosPhotosSlice                             = 0x15051f54
 	TagPhotosPhoto                                   = 0x20212ca8
 	TagUploadFile                                    = 0x096a18d5
-	TagDcOption                                      = 0x05d8c6cc
+	TagDCOption                                      = 0x05d8c6cc
 	TagConfig                                        = 0xcb601684
-	TagNearestDc                                     = 0x8e1a1775
+	TagNearestDC                                     = 0x8e1a1775
 	TagHelpAppUpdate                                 = 0x8987f311
 	TagHelpNoAppUpdate                               = 0xc45a6536
 	TagHelpInviteText                                = 0x18cb9f78
@@ -753,7 +753,7 @@ const (
 	TagUploadSaveBigFilePart                         = 0xde7b673d
 	TagUploadGetWebFile                              = 0x24e6818d
 	TagHelpGetConfig                                 = 0xc4f9186b
-	TagHelpGetNearestDc                              = 0x1fb33026
+	TagHelpGetNearestDC                              = 0x1fb33026
 	TagHelpGetAppUpdate                              = 0xae2de196
 	TagHelpSaveAppLog                                = 0x6f02f748
 	TagHelpGetInviteText                             = 0x4d392343
@@ -838,11 +838,11 @@ var combOrigins = map[uint32]SchemaOrigin{
 	TagDHGenOK:                                SchemaOriginMTProto,
 	TagDHGenRetry:                             SchemaOriginMTProto,
 	TagDHGenFail:                              SchemaOriginMTProto,
-	TagRpcResult:                              SchemaOriginMTProto,
-	TagRpcError:                               SchemaOriginMTProto,
-	TagRpcAnswerUnknown:                       SchemaOriginMTProto,
-	TagRpcAnswerDroppedRunning:                SchemaOriginMTProto,
-	TagRpcAnswerDropped:                       SchemaOriginMTProto,
+	TagRPCResult:                              SchemaOriginMTProto,
+	TagRPCError:                               SchemaOriginMTProto,
+	TagRPCAnswerUnknown:                       SchemaOriginMTProto,
+	TagRPCAnswerDroppedRunning:                SchemaOriginMTProto,
+	TagRPCAnswerDropped:                       SchemaOriginMTProto,
 	TagFutureSalt:                             SchemaOriginMTProto,
 	TagFutureSalts:                            SchemaOriginMTProto,
 	TagPong:                                   SchemaOriginMTProto,
@@ -865,7 +865,7 @@ var combOrigins = map[uint32]SchemaOrigin{
 	TagReqPQ:                                  SchemaOriginMTProto,
 	TagReqDHParams:                            SchemaOriginMTProto,
 	TagSetClientDHParams:                      SchemaOriginMTProto,
-	TagRpcDropAnswer:                          SchemaOriginMTProto,
+	TagRPCDropAnswer:                          SchemaOriginMTProto,
 	TagGetFutureSalts:                         SchemaOriginMTProto,
 	TagPing:                                   SchemaOriginMTProto,
 	TagPingDelayDisconnect:                    SchemaOriginMTProto,
@@ -1057,7 +1057,7 @@ var combOrigins = map[uint32]SchemaOrigin{
 	TagUpdateEncryptedMessagesRead:            SchemaOriginTelegram,
 	TagUpdateChatParticipantAdd:               SchemaOriginTelegram,
 	TagUpdateChatParticipantDelete:            SchemaOriginTelegram,
-	TagUpdateDcOptions:                        SchemaOriginTelegram,
+	TagUpdateDCOptions:                        SchemaOriginTelegram,
 	TagUpdateUserBlocked:                      SchemaOriginTelegram,
 	TagUpdateNotifySettings:                   SchemaOriginTelegram,
 	TagUpdateServiceNotification:              SchemaOriginTelegram,
@@ -1116,9 +1116,9 @@ var combOrigins = map[uint32]SchemaOrigin{
 	TagPhotosPhotosSlice:                      SchemaOriginTelegram,
 	TagPhotosPhoto:                            SchemaOriginTelegram,
 	TagUploadFile:                             SchemaOriginTelegram,
-	TagDcOption:                               SchemaOriginTelegram,
+	TagDCOption:                               SchemaOriginTelegram,
 	TagConfig:                                 SchemaOriginTelegram,
-	TagNearestDc:                              SchemaOriginTelegram,
+	TagNearestDC:                              SchemaOriginTelegram,
 	TagHelpAppUpdate:                          SchemaOriginTelegram,
 	TagHelpNoAppUpdate:                        SchemaOriginTelegram,
 	TagHelpInviteText:                         SchemaOriginTelegram,
@@ -1568,7 +1568,7 @@ var combOrigins = map[uint32]SchemaOrigin{
 	TagUploadSaveBigFilePart:            SchemaOriginTelegram,
 	TagUploadGetWebFile:                 SchemaOriginTelegram,
 	TagHelpGetConfig:                    SchemaOriginTelegram,
-	TagHelpGetNearestDc:                 SchemaOriginTelegram,
+	TagHelpGetNearestDC:                 SchemaOriginTelegram,
 	TagHelpGetAppUpdate:                 SchemaOriginTelegram,
 	TagHelpSaveAppLog:                   SchemaOriginTelegram,
 	TagHelpGetInviteText:                SchemaOriginTelegram,
@@ -1755,7 +1755,7 @@ func (o *TLServerDHInnerData) String() string {
 type TLClientDHInnerData struct {
 	Nonce       [16]byte // nonce:int128
 	ServerNonce [16]byte // server_nonce:int128
-	RetryId     uint64   // retry_id:long
+	RetryID     uint64   // retry_id:long
 	GB          *big.Int // g_b:bytes
 }
 
@@ -1766,14 +1766,14 @@ func (o *TLClientDHInnerData) Cmd() uint32 {
 func (o *TLClientDHInnerData) ReadBareFrom(r *tl.Reader) {
 	r.ReadUint128(o.Nonce[:])
 	r.ReadUint128(o.ServerNonce[:])
-	o.RetryId = r.ReadUint64()
+	o.RetryID = r.ReadUint64()
 	o.GB = r.ReadBigInt()
 }
 
 func (o *TLClientDHInnerData) WriteBareTo(w *tl.Writer) {
 	w.WriteUint128(o.Nonce[:])
 	w.WriteUint128(o.ServerNonce[:])
-	w.WriteUint64(o.RetryId)
+	w.WriteUint64(o.RetryID)
 	w.WriteBigInt(o.GB)
 }
 
@@ -1789,58 +1789,58 @@ type TLSetClientDHParamsAnswerType interface {
 	WriteBareTo(w *tl.Writer)
 }
 
-// TLRpcResult represents ctor rpc_result#f35c6d01 req_msg_id:long result:Object = RpcResult from MTProto
-type TLRpcResult struct {
-	ReqMsgId uint64    // req_msg_id:long
+// TLRPCResult represents ctor rpc_result#f35c6d01 req_msg_id:long result:Object = RpcResult from MTProto
+type TLRPCResult struct {
+	ReqMsgID uint64    // req_msg_id:long
 	Result   tl.Object // result:Object
 }
 
-func (o *TLRpcResult) Cmd() uint32 {
-	return TagRpcResult
+func (o *TLRPCResult) Cmd() uint32 {
+	return TagRPCResult
 }
 
-func (o *TLRpcResult) ReadBareFrom(r *tl.Reader) {
-	o.ReqMsgId = r.ReadUint64()
+func (o *TLRPCResult) ReadBareFrom(r *tl.Reader) {
+	o.ReqMsgID = r.ReadUint64()
 	o.Result = Schema.ReadBoxedObjectFrom(r)
 }
 
-func (o *TLRpcResult) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.ReqMsgId)
+func (o *TLRPCResult) WriteBareTo(w *tl.Writer) {
+	w.WriteUint64(o.ReqMsgID)
 	w.WriteCmd(o.Result.Cmd())
 	o.Result.WriteBareTo(w)
 }
 
-func (o *TLRpcResult) String() string {
+func (o *TLRPCResult) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcError represents ctor rpc_error#2144ca19 error_code:int error_message:string = RpcError from MTProto
-type TLRpcError struct {
+// TLRPCError represents ctor rpc_error#2144ca19 error_code:int error_message:string = RpcError from MTProto
+type TLRPCError struct {
 	ErrorCode    int    // error_code:int
 	ErrorMessage string // error_message:string
 }
 
-func (o *TLRpcError) Cmd() uint32 {
-	return TagRpcError
+func (o *TLRPCError) Cmd() uint32 {
+	return TagRPCError
 }
 
-func (o *TLRpcError) ReadBareFrom(r *tl.Reader) {
+func (o *TLRPCError) ReadBareFrom(r *tl.Reader) {
 	o.ErrorCode = r.ReadInt()
 	o.ErrorMessage = r.ReadString()
 }
 
-func (o *TLRpcError) WriteBareTo(w *tl.Writer) {
+func (o *TLRPCError) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ErrorCode)
 	w.WriteString(o.ErrorMessage)
 }
 
-func (o *TLRpcError) String() string {
+func (o *TLRPCError) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcDropAnswerType represents RpcDropAnswer from MTProto
-type TLRpcDropAnswerType interface {
-	IsTLRpcDropAnswer()
+// TLRPCDropAnswerType represents RpcDropAnswer from MTProto
+type TLRPCDropAnswerType interface {
+	IsTLRPCDropAnswer()
 	Cmd() uint32
 	ReadBareFrom(r *tl.Reader)
 	WriteBareTo(w *tl.Writer)
@@ -1875,7 +1875,7 @@ func (o *TLFutureSalt) String() string {
 
 // TLFutureSalts represents ctor future_salts#ae500895 req_msg_id:long now:int salts:vector<future_salt> = FutureSalts from MTProto
 type TLFutureSalts struct {
-	ReqMsgId uint64          // req_msg_id:long
+	ReqMsgID uint64          // req_msg_id:long
 	Now      int             // now:int
 	Salts    []*TLFutureSalt // salts:vector<future_salt>
 }
@@ -1885,7 +1885,7 @@ func (o *TLFutureSalts) Cmd() uint32 {
 }
 
 func (o *TLFutureSalts) ReadBareFrom(r *tl.Reader) {
-	o.ReqMsgId = r.ReadUint64()
+	o.ReqMsgID = r.ReadUint64()
 	o.Now = r.ReadInt()
 	o.Salts = make([]*TLFutureSalt, r.ReadInt())
 	for i := 0; i < len(o.Salts); i++ {
@@ -1895,7 +1895,7 @@ func (o *TLFutureSalts) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLFutureSalts) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.ReqMsgId)
+	w.WriteUint64(o.ReqMsgID)
 	w.WriteInt(o.Now)
 	w.WriteInt(len(o.Salts))
 	for i := 0; i < len(o.Salts); i++ {
@@ -1909,8 +1909,8 @@ func (o *TLFutureSalts) String() string {
 
 // TLPong represents ctor pong#347773c5 msg_id:long ping_id:long = Pong from MTProto
 type TLPong struct {
-	MsgId  uint64 // msg_id:long
-	PingId uint64 // ping_id:long
+	MsgID  uint64 // msg_id:long
+	PingID uint64 // ping_id:long
 }
 
 func (o *TLPong) Cmd() uint32 {
@@ -1918,13 +1918,13 @@ func (o *TLPong) Cmd() uint32 {
 }
 
 func (o *TLPong) ReadBareFrom(r *tl.Reader) {
-	o.MsgId = r.ReadUint64()
-	o.PingId = r.ReadUint64()
+	o.MsgID = r.ReadUint64()
+	o.PingID = r.ReadUint64()
 }
 
 func (o *TLPong) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.MsgId)
-	w.WriteUint64(o.PingId)
+	w.WriteUint64(o.MsgID)
+	w.WriteUint64(o.PingID)
 }
 
 func (o *TLPong) String() string {
@@ -1941,8 +1941,8 @@ type TLDestroySessionResType interface {
 
 // TLNewSessionCreated represents ctor new_session_created#9ec20908 first_msg_id:long unique_id:long server_salt:long = NewSession from MTProto
 type TLNewSessionCreated struct {
-	FirstMsgId uint64 // first_msg_id:long
-	UniqueId   uint64 // unique_id:long
+	FirstMsgID uint64 // first_msg_id:long
+	UniqueID   uint64 // unique_id:long
 	ServerSalt uint64 // server_salt:long
 }
 
@@ -1951,14 +1951,14 @@ func (o *TLNewSessionCreated) Cmd() uint32 {
 }
 
 func (o *TLNewSessionCreated) ReadBareFrom(r *tl.Reader) {
-	o.FirstMsgId = r.ReadUint64()
-	o.UniqueId = r.ReadUint64()
+	o.FirstMsgID = r.ReadUint64()
+	o.UniqueID = r.ReadUint64()
 	o.ServerSalt = r.ReadUint64()
 }
 
 func (o *TLNewSessionCreated) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.FirstMsgId)
-	w.WriteUint64(o.UniqueId)
+	w.WriteUint64(o.FirstMsgID)
+	w.WriteUint64(o.UniqueID)
 	w.WriteUint64(o.ServerSalt)
 }
 
@@ -1996,7 +1996,7 @@ func (o *TLMsgContainer) String() string {
 
 // TLProtoMessage represents ctor proto_message#5bb8e511 msg_id:long seqno:int bytes:int body:Object = ProtoMessage from MTProto
 type TLProtoMessage struct {
-	MsgId uint64    // msg_id:long
+	MsgID uint64    // msg_id:long
 	Seqno int       // seqno:int
 	Bytes int       // bytes:int
 	Body  tl.Object // body:Object
@@ -2007,14 +2007,14 @@ func (o *TLProtoMessage) Cmd() uint32 {
 }
 
 func (o *TLProtoMessage) ReadBareFrom(r *tl.Reader) {
-	o.MsgId = r.ReadUint64()
+	o.MsgID = r.ReadUint64()
 	o.Seqno = r.ReadInt()
 	o.Bytes = r.ReadInt()
 	o.Body = Schema.ReadBoxedObjectFrom(r)
 }
 
 func (o *TLProtoMessage) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.MsgId)
+	w.WriteUint64(o.MsgID)
 	w.WriteInt(o.Seqno)
 	w.WriteInt(o.Bytes)
 	w.WriteCmd(o.Body.Cmd())
@@ -2049,7 +2049,7 @@ func (o *TLMsgCopy) String() string {
 
 // TLMsgsAck represents ctor msgs_ack#62d6b459 msg_ids:Vector<long> = MsgsAck from MTProto
 type TLMsgsAck struct {
-	MsgIds []uint64 // msg_ids:Vector<long>
+	MsgIDs []uint64 // msg_ids:Vector<long>
 }
 
 func (o *TLMsgsAck) Cmd() uint32 {
@@ -2060,17 +2060,17 @@ func (o *TLMsgsAck) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.MsgIds = make([]uint64, r.ReadInt())
-	for i := 0; i < len(o.MsgIds); i++ {
-		o.MsgIds[i] = r.ReadUint64()
+	o.MsgIDs = make([]uint64, r.ReadInt())
+	for i := 0; i < len(o.MsgIDs); i++ {
+		o.MsgIDs[i] = r.ReadUint64()
 	}
 }
 
 func (o *TLMsgsAck) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.MsgIds))
-	for i := 0; i < len(o.MsgIds); i++ {
-		w.WriteUint64(o.MsgIds[i])
+	w.WriteInt(len(o.MsgIDs))
+	for i := 0; i < len(o.MsgIDs); i++ {
+		w.WriteUint64(o.MsgIDs[i])
 	}
 }
 
@@ -2088,7 +2088,7 @@ type TLBadMsgNotificationType interface {
 
 // TLMsgResendReq represents ctor msg_resend_req#7d861a08 msg_ids:Vector<long> = MsgResendReq from MTProto
 type TLMsgResendReq struct {
-	MsgIds []uint64 // msg_ids:Vector<long>
+	MsgIDs []uint64 // msg_ids:Vector<long>
 }
 
 func (o *TLMsgResendReq) Cmd() uint32 {
@@ -2099,17 +2099,17 @@ func (o *TLMsgResendReq) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.MsgIds = make([]uint64, r.ReadInt())
-	for i := 0; i < len(o.MsgIds); i++ {
-		o.MsgIds[i] = r.ReadUint64()
+	o.MsgIDs = make([]uint64, r.ReadInt())
+	for i := 0; i < len(o.MsgIDs); i++ {
+		o.MsgIDs[i] = r.ReadUint64()
 	}
 }
 
 func (o *TLMsgResendReq) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.MsgIds))
-	for i := 0; i < len(o.MsgIds); i++ {
-		w.WriteUint64(o.MsgIds[i])
+	w.WriteInt(len(o.MsgIDs))
+	for i := 0; i < len(o.MsgIDs); i++ {
+		w.WriteUint64(o.MsgIDs[i])
 	}
 }
 
@@ -2119,7 +2119,7 @@ func (o *TLMsgResendReq) String() string {
 
 // TLMsgsStateReq represents ctor msgs_state_req#da69fb52 msg_ids:Vector<long> = MsgsStateReq from MTProto
 type TLMsgsStateReq struct {
-	MsgIds []uint64 // msg_ids:Vector<long>
+	MsgIDs []uint64 // msg_ids:Vector<long>
 }
 
 func (o *TLMsgsStateReq) Cmd() uint32 {
@@ -2130,17 +2130,17 @@ func (o *TLMsgsStateReq) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.MsgIds = make([]uint64, r.ReadInt())
-	for i := 0; i < len(o.MsgIds); i++ {
-		o.MsgIds[i] = r.ReadUint64()
+	o.MsgIDs = make([]uint64, r.ReadInt())
+	for i := 0; i < len(o.MsgIDs); i++ {
+		o.MsgIDs[i] = r.ReadUint64()
 	}
 }
 
 func (o *TLMsgsStateReq) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.MsgIds))
-	for i := 0; i < len(o.MsgIds); i++ {
-		w.WriteUint64(o.MsgIds[i])
+	w.WriteInt(len(o.MsgIDs))
+	for i := 0; i < len(o.MsgIDs); i++ {
+		w.WriteUint64(o.MsgIDs[i])
 	}
 }
 
@@ -2150,7 +2150,7 @@ func (o *TLMsgsStateReq) String() string {
 
 // TLMsgsStateInfo represents ctor msgs_state_info#04deb57d req_msg_id:long info:bytes = MsgsStateInfo from MTProto
 type TLMsgsStateInfo struct {
-	ReqMsgId uint64 // req_msg_id:long
+	ReqMsgID uint64 // req_msg_id:long
 	Info     []byte // info:bytes
 }
 
@@ -2159,12 +2159,12 @@ func (o *TLMsgsStateInfo) Cmd() uint32 {
 }
 
 func (o *TLMsgsStateInfo) ReadBareFrom(r *tl.Reader) {
-	o.ReqMsgId = r.ReadUint64()
+	o.ReqMsgID = r.ReadUint64()
 	o.Info = r.ReadBlob()
 }
 
 func (o *TLMsgsStateInfo) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.ReqMsgId)
+	w.WriteUint64(o.ReqMsgID)
 	w.WriteBlob(o.Info)
 }
 
@@ -2174,7 +2174,7 @@ func (o *TLMsgsStateInfo) String() string {
 
 // TLMsgsAllInfo represents ctor msgs_all_info#8cc0d131 msg_ids:Vector<long> info:bytes = MsgsAllInfo from MTProto
 type TLMsgsAllInfo struct {
-	MsgIds []uint64 // msg_ids:Vector<long>
+	MsgIDs []uint64 // msg_ids:Vector<long>
 	Info   []byte   // info:bytes
 }
 
@@ -2186,18 +2186,18 @@ func (o *TLMsgsAllInfo) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.MsgIds = make([]uint64, r.ReadInt())
-	for i := 0; i < len(o.MsgIds); i++ {
-		o.MsgIds[i] = r.ReadUint64()
+	o.MsgIDs = make([]uint64, r.ReadInt())
+	for i := 0; i < len(o.MsgIDs); i++ {
+		o.MsgIDs[i] = r.ReadUint64()
 	}
 	o.Info = r.ReadBlob()
 }
 
 func (o *TLMsgsAllInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.MsgIds))
-	for i := 0; i < len(o.MsgIds); i++ {
-		w.WriteUint64(o.MsgIds[i])
+	w.WriteInt(len(o.MsgIDs))
+	for i := 0; i < len(o.MsgIDs); i++ {
+		w.WriteUint64(o.MsgIDs[i])
 	}
 	w.WriteBlob(o.Info)
 }
@@ -2274,7 +2274,7 @@ type TLInputUserType interface {
 
 // TLInputPhoneContact represents ctor inputPhoneContact#f392b7f4 client_id:long phone:string first_name:string last_name:string = InputContact from Telegram
 type TLInputPhoneContact struct {
-	ClientId  uint64 // client_id:long
+	ClientID  uint64 // client_id:long
 	Phone     string // phone:string
 	FirstName string // first_name:string
 	LastName  string // last_name:string
@@ -2285,14 +2285,14 @@ func (o *TLInputPhoneContact) Cmd() uint32 {
 }
 
 func (o *TLInputPhoneContact) ReadBareFrom(r *tl.Reader) {
-	o.ClientId = r.ReadUint64()
+	o.ClientID = r.ReadUint64()
 	o.Phone = r.ReadString()
 	o.FirstName = r.ReadString()
 	o.LastName = r.ReadString()
 }
 
 func (o *TLInputPhoneContact) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.ClientId)
+	w.WriteUint64(o.ClientID)
 	w.WriteString(o.Phone)
 	w.WriteString(o.FirstName)
 	w.WriteString(o.LastName)
@@ -2498,8 +2498,8 @@ type TLDialog struct {
 	Pinned          bool                     // flags.2?pinned:true
 	Peer            TLPeerType               // peer:Peer
 	TopMessage      int                      // top_message:int
-	ReadInboxMaxId  int                      // read_inbox_max_id:int
-	ReadOutboxMaxId int                      // read_outbox_max_id:int
+	ReadInboxMaxID  int                      // read_inbox_max_id:int
+	ReadOutboxMaxID int                      // read_outbox_max_id:int
 	UnreadCount     int                      // unread_count:int
 	NotifySettings  TLPeerNotifySettingsType // notify_settings:PeerNotifySettings
 	Pts             int                      // flags.0?pts:int
@@ -2515,8 +2515,8 @@ func (o *TLDialog) ReadBareFrom(r *tl.Reader) {
 	o.Pinned = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
 	o.TopMessage = r.ReadInt()
-	o.ReadInboxMaxId = r.ReadInt()
-	o.ReadOutboxMaxId = r.ReadInt()
+	o.ReadInboxMaxID = r.ReadInt()
+	o.ReadOutboxMaxID = r.ReadInt()
 	o.UnreadCount = r.ReadInt()
 	o.NotifySettings = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerNotifySettingsEmpty, TagPeerNotifySettings).(TLPeerNotifySettingsType)
 	o.Pts = r.ReadInt()
@@ -2528,8 +2528,8 @@ func (o *TLDialog) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
 	w.WriteInt(o.TopMessage)
-	w.WriteInt(o.ReadInboxMaxId)
-	w.WriteInt(o.ReadOutboxMaxId)
+	w.WriteInt(o.ReadInboxMaxID)
+	w.WriteInt(o.ReadOutboxMaxID)
 	w.WriteInt(o.UnreadCount)
 	w.WriteCmd(o.NotifySettings.Cmd())
 	o.NotifySettings.WriteBareTo(w)
@@ -2659,7 +2659,7 @@ func (o *TLAuthAuthorization) String() string {
 
 // TLAuthExportedAuthorization represents ctor auth.exportedAuthorization#df969c2d id:int bytes:bytes = auth.ExportedAuthorization from Telegram
 type TLAuthExportedAuthorization struct {
-	Id    int    // id:int
+	ID    int    // id:int
 	Bytes []byte // bytes:bytes
 }
 
@@ -2668,12 +2668,12 @@ func (o *TLAuthExportedAuthorization) Cmd() uint32 {
 }
 
 func (o *TLAuthExportedAuthorization) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Bytes = r.ReadBlob()
 }
 
 func (o *TLAuthExportedAuthorization) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteBlob(o.Bytes)
 }
 
@@ -2846,7 +2846,7 @@ func (o *TLUserFull) String() string {
 
 // TLContact represents ctor contact#f911c994 user_id:int mutual:Bool = Contact from Telegram
 type TLContact struct {
-	UserId int  // user_id:int
+	UserID int  // user_id:int
 	Mutual bool // mutual:Bool
 }
 
@@ -2855,13 +2855,13 @@ func (o *TLContact) Cmd() uint32 {
 }
 
 func (o *TLContact) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Mutual = (r.ReadCmd() == TagBoolTrue)
 }
 
 func (o *TLContact) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	if o.Mutual {
 		w.WriteCmd(TagBoolTrue)
 	} else {
@@ -2875,8 +2875,8 @@ func (o *TLContact) String() string {
 
 // TLImportedContact represents ctor importedContact#d0028438 user_id:int client_id:long = ImportedContact from Telegram
 type TLImportedContact struct {
-	UserId   int    // user_id:int
-	ClientId uint64 // client_id:long
+	UserID   int    // user_id:int
+	ClientID uint64 // client_id:long
 }
 
 func (o *TLImportedContact) Cmd() uint32 {
@@ -2884,13 +2884,13 @@ func (o *TLImportedContact) Cmd() uint32 {
 }
 
 func (o *TLImportedContact) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
-	o.ClientId = r.ReadUint64()
+	o.UserID = r.ReadInt()
+	o.ClientID = r.ReadUint64()
 }
 
 func (o *TLImportedContact) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
-	w.WriteUint64(o.ClientId)
+	w.WriteInt(o.UserID)
+	w.WriteUint64(o.ClientID)
 }
 
 func (o *TLImportedContact) String() string {
@@ -2899,7 +2899,7 @@ func (o *TLImportedContact) String() string {
 
 // TLContactBlocked represents ctor contactBlocked#561bc879 user_id:int date:int = ContactBlocked from Telegram
 type TLContactBlocked struct {
-	UserId int // user_id:int
+	UserID int // user_id:int
 	Date   int // date:int
 }
 
@@ -2908,12 +2908,12 @@ func (o *TLContactBlocked) Cmd() uint32 {
 }
 
 func (o *TLContactBlocked) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLContactBlocked) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteInt(o.Date)
 }
 
@@ -2923,7 +2923,7 @@ func (o *TLContactBlocked) String() string {
 
 // TLContactStatus represents ctor contactStatus#d3680c61 user_id:int status:UserStatus = ContactStatus from Telegram
 type TLContactStatus struct {
-	UserId int              // user_id:int
+	UserID int              // user_id:int
 	Status TLUserStatusType // status:UserStatus
 }
 
@@ -2932,12 +2932,12 @@ func (o *TLContactStatus) Cmd() uint32 {
 }
 
 func (o *TLContactStatus) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Status = Schema.ReadLimitedBoxedObjectFrom(r, TagUserStatusEmpty, TagUserStatusOnline, TagUserStatusOffline, TagUserStatusRecently, TagUserStatusLastWeek, TagUserStatusLastMonth).(TLUserStatusType)
 }
 
 func (o *TLContactStatus) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteCmd(o.Status.Cmd())
 	o.Status.WriteBareTo(w)
 }
@@ -3293,39 +3293,39 @@ func (o *TLUploadFile) String() string {
 	return tl.Pretty(o)
 }
 
-// TLDcOption represents ctor dcOption#05d8c6cc flags:# flags.0?ipv6:true flags.1?media_only:true flags.2?tcpo_only:true id:int ip_address:string port:int = DcOption from Telegram
-type TLDcOption struct {
+// TLDCOption represents ctor dcOption#05d8c6cc flags:# flags.0?ipv6:true flags.1?media_only:true flags.2?tcpo_only:true id:int ip_address:string port:int = DcOption from Telegram
+type TLDCOption struct {
 	Flags     uint   // flags:#
 	Ipv6      bool   // flags.0?ipv6:true
 	MediaOnly bool   // flags.1?media_only:true
 	TcpoOnly  bool   // flags.2?tcpo_only:true
-	Id        int    // id:int
+	ID        int    // id:int
 	IPAddress string // ip_address:string
 	Port      int    // port:int
 }
 
-func (o *TLDcOption) Cmd() uint32 {
-	return TagDcOption
+func (o *TLDCOption) Cmd() uint32 {
+	return TagDCOption
 }
 
-func (o *TLDcOption) ReadBareFrom(r *tl.Reader) {
+func (o *TLDCOption) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Ipv6 = true
 	o.MediaOnly = true
 	o.TcpoOnly = true
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.IPAddress = r.ReadString()
 	o.Port = r.ReadInt()
 }
 
-func (o *TLDcOption) WriteBareTo(w *tl.Writer) {
+func (o *TLDCOption) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteString(o.IPAddress)
 	w.WriteInt(o.Port)
 }
 
-func (o *TLDcOption) String() string {
+func (o *TLDCOption) String() string {
 	return tl.Pretty(o)
 }
 
@@ -3336,8 +3336,8 @@ type TLConfig struct {
 	Date                  int                  // date:int
 	Expires               int                  // expires:int
 	TestMode              bool                 // test_mode:Bool
-	ThisDc                int                  // this_dc:int
-	DcOptions             []*TLDcOption        // dc_options:Vector<DcOption>
+	ThisDC                int                  // this_dc:int
+	DCOptions             []*TLDCOption        // dc_options:Vector<DcOption>
 	ChatSizeMax           int                  // chat_size_max:int
 	MegagroupSizeMax      int                  // megagroup_size_max:int
 	ForwardedCountMax     int                  // forwarded_count_max:int
@@ -3375,17 +3375,17 @@ func (o *TLConfig) ReadBareFrom(r *tl.Reader) {
 	o.Expires = r.ReadInt()
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.TestMode = (r.ReadCmd() == TagBoolTrue)
-	o.ThisDc = r.ReadInt()
+	o.ThisDC = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.DcOptions = make([]*TLDcOption, r.ReadInt())
-	for i := 0; i < len(o.DcOptions); i++ {
-		if cmd := r.ReadCmd(); cmd != TagDcOption {
+	o.DCOptions = make([]*TLDCOption, r.ReadInt())
+	for i := 0; i < len(o.DCOptions); i++ {
+		if cmd := r.ReadCmd(); cmd != TagDCOption {
 			r.Fail(errors.New("expected: dcOption"))
 		}
-		o.DcOptions[i] = new(TLDcOption)
-		o.DcOptions[i].ReadBareFrom(r)
+		o.DCOptions[i] = new(TLDCOption)
+		o.DCOptions[i].ReadBareFrom(r)
 	}
 	o.ChatSizeMax = r.ReadInt()
 	o.MegagroupSizeMax = r.ReadInt()
@@ -3432,12 +3432,12 @@ func (o *TLConfig) WriteBareTo(w *tl.Writer) {
 	} else {
 		w.WriteCmd(TagBoolFalse)
 	}
-	w.WriteInt(o.ThisDc)
+	w.WriteInt(o.ThisDC)
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.DcOptions))
-	for i := 0; i < len(o.DcOptions); i++ {
-		w.WriteCmd(TagDcOption)
-		o.DcOptions[i].WriteBareTo(w)
+	w.WriteInt(len(o.DCOptions))
+	for i := 0; i < len(o.DCOptions); i++ {
+		w.WriteCmd(TagDCOption)
+		o.DCOptions[i].WriteBareTo(w)
 	}
 	w.WriteInt(o.ChatSizeMax)
 	w.WriteInt(o.MegagroupSizeMax)
@@ -3474,30 +3474,30 @@ func (o *TLConfig) String() string {
 	return tl.Pretty(o)
 }
 
-// TLNearestDc represents ctor nearestDc#8e1a1775 country:string this_dc:int nearest_dc:int = NearestDc from Telegram
-type TLNearestDc struct {
+// TLNearestDC represents ctor nearestDc#8e1a1775 country:string this_dc:int nearest_dc:int = NearestDc from Telegram
+type TLNearestDC struct {
 	Country   string // country:string
-	ThisDc    int    // this_dc:int
-	NearestDc int    // nearest_dc:int
+	ThisDC    int    // this_dc:int
+	NearestDC int    // nearest_dc:int
 }
 
-func (o *TLNearestDc) Cmd() uint32 {
-	return TagNearestDc
+func (o *TLNearestDC) Cmd() uint32 {
+	return TagNearestDC
 }
 
-func (o *TLNearestDc) ReadBareFrom(r *tl.Reader) {
+func (o *TLNearestDC) ReadBareFrom(r *tl.Reader) {
 	o.Country = r.ReadString()
-	o.ThisDc = r.ReadInt()
-	o.NearestDc = r.ReadInt()
+	o.ThisDC = r.ReadInt()
+	o.NearestDC = r.ReadInt()
 }
 
-func (o *TLNearestDc) WriteBareTo(w *tl.Writer) {
+func (o *TLNearestDC) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Country)
-	w.WriteInt(o.ThisDc)
-	w.WriteInt(o.NearestDc)
+	w.WriteInt(o.ThisDC)
+	w.WriteInt(o.NearestDC)
 }
 
-func (o *TLNearestDc) String() string {
+func (o *TLNearestDC) String() string {
 	return tl.Pretty(o)
 }
 
@@ -3540,7 +3540,7 @@ type TLEncryptedChatType interface {
 
 // TLInputEncryptedChat represents ctor inputEncryptedChat#f141b5e1 chat_id:int access_hash:long = InputEncryptedChat from Telegram
 type TLInputEncryptedChat struct {
-	ChatId     int    // chat_id:int
+	ChatID     int    // chat_id:int
 	AccessHash uint64 // access_hash:long
 }
 
@@ -3549,12 +3549,12 @@ func (o *TLInputEncryptedChat) Cmd() uint32 {
 }
 
 func (o *TLInputEncryptedChat) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputEncryptedChat) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -3947,7 +3947,7 @@ type TLAuthorization struct {
 	DeviceModel   string // device_model:string
 	Platform      string // platform:string
 	SystemVersion string // system_version:string
-	ApiId         int    // api_id:int
+	APIID         int    // api_id:int
 	AppName       string // app_name:string
 	AppVersion    string // app_version:string
 	DateCreated   int    // date_created:int
@@ -3967,7 +3967,7 @@ func (o *TLAuthorization) ReadBareFrom(r *tl.Reader) {
 	o.DeviceModel = r.ReadString()
 	o.Platform = r.ReadString()
 	o.SystemVersion = r.ReadString()
-	o.ApiId = r.ReadInt()
+	o.APIID = r.ReadInt()
 	o.AppName = r.ReadString()
 	o.AppVersion = r.ReadString()
 	o.DateCreated = r.ReadInt()
@@ -3983,7 +3983,7 @@ func (o *TLAuthorization) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.DeviceModel)
 	w.WriteString(o.Platform)
 	w.WriteString(o.SystemVersion)
-	w.WriteInt(o.ApiId)
+	w.WriteInt(o.APIID)
 	w.WriteString(o.AppName)
 	w.WriteString(o.AppVersion)
 	w.WriteInt(o.DateCreated)
@@ -4118,7 +4118,7 @@ func (o *TLAuthPasswordRecovery) String() string {
 
 // TLReceivedNotifyMessage represents ctor receivedNotifyMessage#a384b779 id:int flags:int = ReceivedNotifyMessage from Telegram
 type TLReceivedNotifyMessage struct {
-	Id    int // id:int
+	ID    int // id:int
 	Flags int // flags:int
 }
 
@@ -4127,12 +4127,12 @@ func (o *TLReceivedNotifyMessage) Cmd() uint32 {
 }
 
 func (o *TLReceivedNotifyMessage) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Flags = r.ReadInt()
 }
 
 func (o *TLReceivedNotifyMessage) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteInt(o.Flags)
 }
 
@@ -4171,7 +4171,7 @@ type TLStickerSet struct {
 	Archived   bool   // flags.1?archived:true
 	Official   bool   // flags.2?official:true
 	Masks      bool   // flags.3?masks:true
-	Id         uint64 // id:long
+	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 	Title      string // title:string
 	ShortName  string // short_name:string
@@ -4189,7 +4189,7 @@ func (o *TLStickerSet) ReadBareFrom(r *tl.Reader) {
 	o.Archived = true
 	o.Official = true
 	o.Masks = true
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Title = r.ReadString()
 	o.ShortName = r.ReadString()
@@ -4199,7 +4199,7 @@ func (o *TLStickerSet) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLStickerSet) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteString(o.Title)
 	w.WriteString(o.ShortName)
@@ -4295,7 +4295,7 @@ func (o *TLBotCommand) String() string {
 
 // TLBotInfo represents ctor botInfo#98e81d3a user_id:int description:string commands:Vector<BotCommand> = BotInfo from Telegram
 type TLBotInfo struct {
-	UserId      int             // user_id:int
+	UserID      int             // user_id:int
 	Description string          // description:string
 	Commands    []*TLBotCommand // commands:Vector<BotCommand>
 }
@@ -4305,7 +4305,7 @@ func (o *TLBotInfo) Cmd() uint32 {
 }
 
 func (o *TLBotInfo) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Description = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -4321,7 +4321,7 @@ func (o *TLBotInfo) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLBotInfo) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteString(o.Description)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Commands))
@@ -4451,8 +4451,8 @@ func (o *TLContactsResolvedPeer) String() string {
 
 // TLMessageRange represents ctor messageRange#0ae30253 min_id:int max_id:int = MessageRange from Telegram
 type TLMessageRange struct {
-	MinId int // min_id:int
-	MaxId int // max_id:int
+	MinID int // min_id:int
+	MaxID int // max_id:int
 }
 
 func (o *TLMessageRange) Cmd() uint32 {
@@ -4460,13 +4460,13 @@ func (o *TLMessageRange) Cmd() uint32 {
 }
 
 func (o *TLMessageRange) ReadBareFrom(r *tl.Reader) {
-	o.MinId = r.ReadInt()
-	o.MaxId = r.ReadInt()
+	o.MinID = r.ReadInt()
+	o.MaxID = r.ReadInt()
 }
 
 func (o *TLMessageRange) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.MinId)
-	w.WriteInt(o.MaxId)
+	w.WriteInt(o.MinID)
+	w.WriteInt(o.MaxID)
 }
 
 func (o *TLMessageRange) String() string {
@@ -4706,7 +4706,7 @@ type TLBotInlineResultType interface {
 type TLMessagesBotResults struct {
 	Flags      uint                    // flags:#
 	Gallery    bool                    // flags.0?gallery:true
-	QueryId    uint64                  // query_id:long
+	QueryID    uint64                  // query_id:long
 	NextOffset string                  // flags.1?next_offset:string
 	SwitchPm   *TLInlineBotSwitchPM    // flags.2?switch_pm:InlineBotSwitchPM
 	Results    []TLBotInlineResultType // results:Vector<BotInlineResult>
@@ -4720,7 +4720,7 @@ func (o *TLMessagesBotResults) Cmd() uint32 {
 func (o *TLMessagesBotResults) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Gallery = true
-	o.QueryId = r.ReadUint64()
+	o.QueryID = r.ReadUint64()
 	o.NextOffset = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagInlineBotSwitchPM {
 		r.Fail(errors.New("expected: inlineBotSwitchPM"))
@@ -4739,7 +4739,7 @@ func (o *TLMessagesBotResults) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesBotResults) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.QueryId)
+	w.WriteUint64(o.QueryID)
 	w.WriteString(o.NextOffset)
 	w.WriteCmd(TagInlineBotSwitchPM)
 	o.SwitchPm.WriteBareTo(w)
@@ -4780,9 +4780,9 @@ func (o *TLExportedMessageLink) String() string {
 // TLMessageFwdHeader represents ctor messageFwdHeader#c786ddcb flags:# flags.0?from_id:int date:int flags.1?channel_id:int flags.2?channel_post:int = MessageFwdHeader from Telegram
 type TLMessageFwdHeader struct {
 	Flags       uint // flags:#
-	FromId      int  // flags.0?from_id:int
+	FromID      int  // flags.0?from_id:int
 	Date        int  // date:int
-	ChannelId   int  // flags.1?channel_id:int
+	ChannelID   int  // flags.1?channel_id:int
 	ChannelPost int  // flags.2?channel_post:int
 }
 
@@ -4792,17 +4792,17 @@ func (o *TLMessageFwdHeader) Cmd() uint32 {
 
 func (o *TLMessageFwdHeader) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.FromId = r.ReadInt()
+	o.FromID = r.ReadInt()
 	o.Date = r.ReadInt()
-	o.ChannelId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
 	o.ChannelPost = r.ReadInt()
 }
 
 func (o *TLMessageFwdHeader) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.FromId)
+	w.WriteInt(o.FromID)
 	w.WriteInt(o.Date)
-	w.WriteInt(o.ChannelId)
+	w.WriteInt(o.ChannelID)
 	w.WriteInt(o.ChannelPost)
 }
 
@@ -4885,8 +4885,8 @@ func (o *TLMessagesMessageEditData) String() string {
 
 // TLInputBotInlineMessageID represents ctor inputBotInlineMessageID#890c3d89 dc_id:int id:long access_hash:long = InputBotInlineMessageID from Telegram
 type TLInputBotInlineMessageID struct {
-	DcId       int    // dc_id:int
-	Id         uint64 // id:long
+	DCID       int    // dc_id:int
+	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 }
 
@@ -4895,14 +4895,14 @@ func (o *TLInputBotInlineMessageID) Cmd() uint32 {
 }
 
 func (o *TLInputBotInlineMessageID) ReadBareFrom(r *tl.Reader) {
-	o.DcId = r.ReadInt()
-	o.Id = r.ReadUint64()
+	o.DCID = r.ReadInt()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputBotInlineMessageID) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.DcId)
-	w.WriteUint64(o.Id)
+	w.WriteInt(o.DCID)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -5220,7 +5220,7 @@ type TLInputStickeredMediaType interface {
 // TLGame represents ctor game#bdf9653b flags:# id:long access_hash:long short_name:string title:string description:string photo:Photo flags.0?document:Document = Game from Telegram
 type TLGame struct {
 	Flags       uint           // flags:#
-	Id          uint64         // id:long
+	ID          uint64         // id:long
 	AccessHash  uint64         // access_hash:long
 	ShortName   string         // short_name:string
 	Title       string         // title:string
@@ -5235,7 +5235,7 @@ func (o *TLGame) Cmd() uint32 {
 
 func (o *TLGame) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.ShortName = r.ReadString()
 	o.Title = r.ReadString()
@@ -5246,7 +5246,7 @@ func (o *TLGame) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLGame) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteString(o.ShortName)
 	w.WriteString(o.Title)
@@ -5272,7 +5272,7 @@ type TLInputGameType interface {
 // TLHighScore represents ctor highScore#58fffcd0 pos:int user_id:int score:int = HighScore from Telegram
 type TLHighScore struct {
 	Pos    int // pos:int
-	UserId int // user_id:int
+	UserID int // user_id:int
 	Score  int // score:int
 }
 
@@ -5282,13 +5282,13 @@ func (o *TLHighScore) Cmd() uint32 {
 
 func (o *TLHighScore) ReadBareFrom(r *tl.Reader) {
 	o.Pos = r.ReadInt()
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Score = r.ReadInt()
 }
 
 func (o *TLHighScore) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Pos)
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteInt(o.Score)
 }
 
@@ -5479,8 +5479,8 @@ func (o *TLInvoice) String() string {
 
 // TLPaymentCharge represents ctor paymentCharge#ea02c27e id:string provider_charge_id:string = PaymentCharge from Telegram
 type TLPaymentCharge struct {
-	Id               string // id:string
-	ProviderChargeId string // provider_charge_id:string
+	ID               string // id:string
+	ProviderChargeID string // provider_charge_id:string
 }
 
 func (o *TLPaymentCharge) Cmd() uint32 {
@@ -5488,13 +5488,13 @@ func (o *TLPaymentCharge) Cmd() uint32 {
 }
 
 func (o *TLPaymentCharge) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadString()
-	o.ProviderChargeId = r.ReadString()
+	o.ID = r.ReadString()
+	o.ProviderChargeID = r.ReadString()
 }
 
 func (o *TLPaymentCharge) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Id)
-	w.WriteString(o.ProviderChargeId)
+	w.WriteString(o.ID)
+	w.WriteString(o.ProviderChargeID)
 }
 
 func (o *TLPaymentCharge) String() string {
@@ -5577,7 +5577,7 @@ func (o *TLPaymentRequestedInfo) String() string {
 
 // TLPaymentSavedCredentialsCard represents ctor paymentSavedCredentialsCard#cdc27a1f id:string title:string = PaymentSavedCredentials from Telegram
 type TLPaymentSavedCredentialsCard struct {
-	Id    string // id:string
+	ID    string // id:string
 	Title string // title:string
 }
 
@@ -5586,12 +5586,12 @@ func (o *TLPaymentSavedCredentialsCard) Cmd() uint32 {
 }
 
 func (o *TLPaymentSavedCredentialsCard) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	o.Title = r.ReadString()
 }
 
 func (o *TLPaymentSavedCredentialsCard) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteString(o.Title)
 }
 
@@ -5606,7 +5606,7 @@ type TLWebDocument struct {
 	Size       int                       // size:int
 	MimeType   string                    // mime_type:string
 	Attributes []TLDocumentAttributeType // attributes:Vector<DocumentAttribute>
-	DcId       int                       // dc_id:int
+	DCID       int                       // dc_id:int
 }
 
 func (o *TLWebDocument) Cmd() uint32 {
@@ -5625,7 +5625,7 @@ func (o *TLWebDocument) ReadBareFrom(r *tl.Reader) {
 	for i := 0; i < len(o.Attributes); i++ {
 		o.Attributes[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentAttributeImageSize, TagDocumentAttributeAnimated, TagDocumentAttributeSticker, TagDocumentAttributeVideo, TagDocumentAttributeAudio, TagDocumentAttributeFilename, TagDocumentAttributeHasStickers).(TLDocumentAttributeType)
 	}
-	o.DcId = r.ReadInt()
+	o.DCID = r.ReadInt()
 }
 
 func (o *TLWebDocument) WriteBareTo(w *tl.Writer) {
@@ -5639,7 +5639,7 @@ func (o *TLWebDocument) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(o.Attributes[i].Cmd())
 		o.Attributes[i].WriteBareTo(w)
 	}
-	w.WriteInt(o.DcId)
+	w.WriteInt(o.DCID)
 }
 
 func (o *TLWebDocument) String() string {
@@ -5750,9 +5750,9 @@ type TLPaymentsPaymentForm struct {
 	Flags              uint                           // flags:#
 	CanSaveCredentials bool                           // flags.2?can_save_credentials:true
 	PasswordMissing    bool                           // flags.3?password_missing:true
-	BotId              int                            // bot_id:int
+	BotID              int                            // bot_id:int
 	Invoice            *TLInvoice                     // invoice:Invoice
-	ProviderId         int                            // provider_id:int
+	ProviderID         int                            // provider_id:int
 	Url                string                         // url:string
 	NativeProvider     string                         // flags.4?native_provider:string
 	NativeParams       *TLDataJSON                    // flags.4?native_params:DataJSON
@@ -5769,13 +5769,13 @@ func (o *TLPaymentsPaymentForm) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.CanSaveCredentials = true
 	o.PasswordMissing = true
-	o.BotId = r.ReadInt()
+	o.BotID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagInvoice {
 		r.Fail(errors.New("expected: invoice"))
 	}
 	o.Invoice = new(TLInvoice)
 	o.Invoice.ReadBareFrom(r)
-	o.ProviderId = r.ReadInt()
+	o.ProviderID = r.ReadInt()
 	o.Url = r.ReadString()
 	o.NativeProvider = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagDataJSON {
@@ -5804,10 +5804,10 @@ func (o *TLPaymentsPaymentForm) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPaymentsPaymentForm) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.BotId)
+	w.WriteInt(o.BotID)
 	w.WriteCmd(TagInvoice)
 	o.Invoice.WriteBareTo(w)
-	w.WriteInt(o.ProviderId)
+	w.WriteInt(o.ProviderID)
 	w.WriteString(o.Url)
 	w.WriteString(o.NativeProvider)
 	w.WriteCmd(TagDataJSON)
@@ -5831,7 +5831,7 @@ func (o *TLPaymentsPaymentForm) String() string {
 // TLPaymentsValidatedRequestedInfo represents ctor payments.validatedRequestedInfo#d1451883 flags:# flags.0?id:string flags.1?shipping_options:Vector<ShippingOption> = payments.ValidatedRequestedInfo from Telegram
 type TLPaymentsValidatedRequestedInfo struct {
 	Flags           uint                // flags:#
-	Id              string              // flags.0?id:string
+	ID              string              // flags.0?id:string
 	ShippingOptions []*TLShippingOption // flags.1?shipping_options:Vector<ShippingOption>
 }
 
@@ -5841,7 +5841,7 @@ func (o *TLPaymentsValidatedRequestedInfo) Cmd() uint32 {
 
 func (o *TLPaymentsValidatedRequestedInfo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -5857,7 +5857,7 @@ func (o *TLPaymentsValidatedRequestedInfo) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPaymentsValidatedRequestedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.ShippingOptions))
 	for i := 0; i < len(o.ShippingOptions); i++ {
@@ -5882,9 +5882,9 @@ type TLPaymentsPaymentResultType interface {
 type TLPaymentsPaymentReceipt struct {
 	Flags            uint                    // flags:#
 	Date             int                     // date:int
-	BotId            int                     // bot_id:int
+	BotID            int                     // bot_id:int
 	Invoice          *TLInvoice              // invoice:Invoice
-	ProviderId       int                     // provider_id:int
+	ProviderID       int                     // provider_id:int
 	Info             *TLPaymentRequestedInfo // flags.0?info:PaymentRequestedInfo
 	Shipping         *TLShippingOption       // flags.1?shipping:ShippingOption
 	Currency         string                  // currency:string
@@ -5900,13 +5900,13 @@ func (o *TLPaymentsPaymentReceipt) Cmd() uint32 {
 func (o *TLPaymentsPaymentReceipt) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Date = r.ReadInt()
-	o.BotId = r.ReadInt()
+	o.BotID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagInvoice {
 		r.Fail(errors.New("expected: invoice"))
 	}
 	o.Invoice = new(TLInvoice)
 	o.Invoice.ReadBareFrom(r)
-	o.ProviderId = r.ReadInt()
+	o.ProviderID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
 		r.Fail(errors.New("expected: paymentRequestedInfo"))
 	}
@@ -5932,10 +5932,10 @@ func (o *TLPaymentsPaymentReceipt) ReadBareFrom(r *tl.Reader) {
 func (o *TLPaymentsPaymentReceipt) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.Date)
-	w.WriteInt(o.BotId)
+	w.WriteInt(o.BotID)
 	w.WriteCmd(TagInvoice)
 	o.Invoice.WriteBareTo(w)
-	w.WriteInt(o.ProviderId)
+	w.WriteInt(o.ProviderID)
 	w.WriteCmd(TagPaymentRequestedInfo)
 	o.Info.WriteBareTo(w)
 	w.WriteCmd(TagShippingOption)
@@ -6020,7 +6020,7 @@ func (o *TLAccountTmpPassword) String() string {
 
 // TLShippingOption represents ctor shippingOption#b6213cdf id:string title:string prices:Vector<LabeledPrice> = ShippingOption from Telegram
 type TLShippingOption struct {
-	Id     string            // id:string
+	ID     string            // id:string
 	Title  string            // title:string
 	Prices []*TLLabeledPrice // prices:Vector<LabeledPrice>
 }
@@ -6030,7 +6030,7 @@ func (o *TLShippingOption) Cmd() uint32 {
 }
 
 func (o *TLShippingOption) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	o.Title = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -6046,7 +6046,7 @@ func (o *TLShippingOption) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLShippingOption) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteString(o.Title)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Prices))
@@ -6062,7 +6062,7 @@ func (o *TLShippingOption) String() string {
 
 // TLInputPhoneCall represents ctor inputPhoneCall#1e36fded id:long access_hash:long = InputPhoneCall from Telegram
 type TLInputPhoneCall struct {
-	Id         uint64 // id:long
+	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 }
 
@@ -6071,12 +6071,12 @@ func (o *TLInputPhoneCall) Cmd() uint32 {
 }
 
 func (o *TLInputPhoneCall) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputPhoneCall) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -6094,7 +6094,7 @@ type TLPhoneCallType interface {
 
 // TLPhoneConnection represents ctor phoneConnection#9d4c17c0 id:long ip:string ipv6:string port:int peer_tag:bytes = PhoneConnection from Telegram
 type TLPhoneConnection struct {
-	Id      uint64 // id:long
+	ID      uint64 // id:long
 	IP      string // ip:string
 	Ipv6    string // ipv6:string
 	Port    int    // port:int
@@ -6106,7 +6106,7 @@ func (o *TLPhoneConnection) Cmd() uint32 {
 }
 
 func (o *TLPhoneConnection) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.IP = r.ReadString()
 	o.Ipv6 = r.ReadString()
 	o.Port = r.ReadInt()
@@ -6114,7 +6114,7 @@ func (o *TLPhoneConnection) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPhoneConnection) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteString(o.IP)
 	w.WriteString(o.Ipv6)
 	w.WriteInt(o.Port)
@@ -6276,24 +6276,24 @@ func (o *TLSetClientDHParams) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcDropAnswer represents func rpc_drop_answer#58e4a740 req_msg_id:long = RpcDropAnswer from MTProto
-type TLRpcDropAnswer struct {
-	ReqMsgId uint64 // req_msg_id:long
+// TLRPCDropAnswer represents func rpc_drop_answer#58e4a740 req_msg_id:long = RpcDropAnswer from MTProto
+type TLRPCDropAnswer struct {
+	ReqMsgID uint64 // req_msg_id:long
 }
 
-func (o *TLRpcDropAnswer) Cmd() uint32 {
-	return TagRpcDropAnswer
+func (o *TLRPCDropAnswer) Cmd() uint32 {
+	return TagRPCDropAnswer
 }
 
-func (o *TLRpcDropAnswer) ReadBareFrom(r *tl.Reader) {
-	o.ReqMsgId = r.ReadUint64()
+func (o *TLRPCDropAnswer) ReadBareFrom(r *tl.Reader) {
+	o.ReqMsgID = r.ReadUint64()
 }
 
-func (o *TLRpcDropAnswer) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.ReqMsgId)
+func (o *TLRPCDropAnswer) WriteBareTo(w *tl.Writer) {
+	w.WriteUint64(o.ReqMsgID)
 }
 
-func (o *TLRpcDropAnswer) String() string {
+func (o *TLRPCDropAnswer) String() string {
 	return tl.Pretty(o)
 }
 
@@ -6320,7 +6320,7 @@ func (o *TLGetFutureSalts) String() string {
 
 // TLPing represents func ping#7abe77ec ping_id:long = Pong from MTProto
 type TLPing struct {
-	PingId uint64 // ping_id:long
+	PingID uint64 // ping_id:long
 }
 
 func (o *TLPing) Cmd() uint32 {
@@ -6328,11 +6328,11 @@ func (o *TLPing) Cmd() uint32 {
 }
 
 func (o *TLPing) ReadBareFrom(r *tl.Reader) {
-	o.PingId = r.ReadUint64()
+	o.PingID = r.ReadUint64()
 }
 
 func (o *TLPing) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.PingId)
+	w.WriteUint64(o.PingID)
 }
 
 func (o *TLPing) String() string {
@@ -6341,7 +6341,7 @@ func (o *TLPing) String() string {
 
 // TLPingDelayDisconnect represents func ping_delay_disconnect#f3427b8c ping_id:long disconnect_delay:int = Pong from MTProto
 type TLPingDelayDisconnect struct {
-	PingId          uint64 // ping_id:long
+	PingID          uint64 // ping_id:long
 	DisconnectDelay int    // disconnect_delay:int
 }
 
@@ -6350,12 +6350,12 @@ func (o *TLPingDelayDisconnect) Cmd() uint32 {
 }
 
 func (o *TLPingDelayDisconnect) ReadBareFrom(r *tl.Reader) {
-	o.PingId = r.ReadUint64()
+	o.PingID = r.ReadUint64()
 	o.DisconnectDelay = r.ReadInt()
 }
 
 func (o *TLPingDelayDisconnect) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.PingId)
+	w.WriteUint64(o.PingID)
 	w.WriteInt(o.DisconnectDelay)
 }
 
@@ -6365,7 +6365,7 @@ func (o *TLPingDelayDisconnect) String() string {
 
 // TLDestroySession represents func destroy_session#e7512126 session_id:long = DestroySessionRes from MTProto
 type TLDestroySession struct {
-	SessionId uint64 // session_id:long
+	SessionID uint64 // session_id:long
 }
 
 func (o *TLDestroySession) Cmd() uint32 {
@@ -6373,11 +6373,11 @@ func (o *TLDestroySession) Cmd() uint32 {
 }
 
 func (o *TLDestroySession) ReadBareFrom(r *tl.Reader) {
-	o.SessionId = r.ReadUint64()
+	o.SessionID = r.ReadUint64()
 }
 
 func (o *TLDestroySession) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.SessionId)
+	w.WriteUint64(o.SessionID)
 }
 
 func (o *TLDestroySession) String() string {
@@ -6413,7 +6413,7 @@ func (o *TLHttpWait) String() string {
 
 // TLInvokeAfterMsg represents func invokeAfterMsg#cb9f372d {X:Type} msg_id:long query:Object = Object from Telegram
 type TLInvokeAfterMsg struct {
-	MsgId uint64    // msg_id:long
+	MsgID uint64    // msg_id:long
 	Query tl.Object // query:Object
 }
 
@@ -6422,12 +6422,12 @@ func (o *TLInvokeAfterMsg) Cmd() uint32 {
 }
 
 func (o *TLInvokeAfterMsg) ReadBareFrom(r *tl.Reader) {
-	o.MsgId = r.ReadUint64()
+	o.MsgID = r.ReadUint64()
 	o.Query = Schema.ReadBoxedObjectFrom(r)
 }
 
 func (o *TLInvokeAfterMsg) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.MsgId)
+	w.WriteUint64(o.MsgID)
 	w.WriteCmd(o.Query.Cmd())
 	o.Query.WriteBareTo(w)
 }
@@ -6438,7 +6438,7 @@ func (o *TLInvokeAfterMsg) String() string {
 
 // TLInvokeAfterMsgs represents func invokeAfterMsgs#3dc4b4f0 {X:Type} msg_ids:Vector<long> query:Object = Object from Telegram
 type TLInvokeAfterMsgs struct {
-	MsgIds []uint64  // msg_ids:Vector<long>
+	MsgIDs []uint64  // msg_ids:Vector<long>
 	Query  tl.Object // query:Object
 }
 
@@ -6450,18 +6450,18 @@ func (o *TLInvokeAfterMsgs) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.MsgIds = make([]uint64, r.ReadInt())
-	for i := 0; i < len(o.MsgIds); i++ {
-		o.MsgIds[i] = r.ReadUint64()
+	o.MsgIDs = make([]uint64, r.ReadInt())
+	for i := 0; i < len(o.MsgIDs); i++ {
+		o.MsgIDs[i] = r.ReadUint64()
 	}
 	o.Query = Schema.ReadBoxedObjectFrom(r)
 }
 
 func (o *TLInvokeAfterMsgs) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.MsgIds))
-	for i := 0; i < len(o.MsgIds); i++ {
-		w.WriteUint64(o.MsgIds[i])
+	w.WriteInt(len(o.MsgIDs))
+	for i := 0; i < len(o.MsgIDs); i++ {
+		w.WriteUint64(o.MsgIDs[i])
 	}
 	w.WriteCmd(o.Query.Cmd())
 	o.Query.WriteBareTo(w)
@@ -6473,7 +6473,7 @@ func (o *TLInvokeAfterMsgs) String() string {
 
 // TLInitConnection represents func initConnection#69796de9 {X:Type} api_id:int device_model:string system_version:string app_version:string lang_code:string query:Object = Object from Telegram
 type TLInitConnection struct {
-	ApiId         int       // api_id:int
+	APIID         int       // api_id:int
 	DeviceModel   string    // device_model:string
 	SystemVersion string    // system_version:string
 	AppVersion    string    // app_version:string
@@ -6486,7 +6486,7 @@ func (o *TLInitConnection) Cmd() uint32 {
 }
 
 func (o *TLInitConnection) ReadBareFrom(r *tl.Reader) {
-	o.ApiId = r.ReadInt()
+	o.APIID = r.ReadInt()
 	o.DeviceModel = r.ReadString()
 	o.SystemVersion = r.ReadString()
 	o.AppVersion = r.ReadString()
@@ -6495,7 +6495,7 @@ func (o *TLInitConnection) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInitConnection) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ApiId)
+	w.WriteInt(o.APIID)
 	w.WriteString(o.DeviceModel)
 	w.WriteString(o.SystemVersion)
 	w.WriteString(o.AppVersion)
@@ -6582,8 +6582,8 @@ type TLAuthSendCode struct {
 	AllowFlashcall bool   // flags.0?allow_flashcall:true
 	PhoneNumber    string // phone_number:string
 	CurrentNumber  bool   // flags.0?current_number:Bool
-	ApiId          int    // api_id:int
-	ApiHash        string // api_hash:string
+	APIID          int    // api_id:int
+	APIHash        string // api_hash:string
 }
 
 func (o *TLAuthSendCode) Cmd() uint32 {
@@ -6596,8 +6596,8 @@ func (o *TLAuthSendCode) ReadBareFrom(r *tl.Reader) {
 	o.PhoneNumber = r.ReadString()
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.CurrentNumber = (r.ReadCmd() == TagBoolTrue)
-	o.ApiId = r.ReadInt()
-	o.ApiHash = r.ReadString()
+	o.APIID = r.ReadInt()
+	o.APIHash = r.ReadString()
 }
 
 func (o *TLAuthSendCode) WriteBareTo(w *tl.Writer) {
@@ -6608,8 +6608,8 @@ func (o *TLAuthSendCode) WriteBareTo(w *tl.Writer) {
 	} else {
 		w.WriteCmd(TagBoolFalse)
 	}
-	w.WriteInt(o.ApiId)
-	w.WriteString(o.ApiHash)
+	w.WriteInt(o.APIID)
+	w.WriteString(o.APIHash)
 }
 
 func (o *TLAuthSendCode) String() string {
@@ -6748,7 +6748,7 @@ func (o *TLAuthSendInvites) String() string {
 
 // TLAuthExportAuthorization represents func auth.exportAuthorization#e5bfffcd dc_id:int = auth.ExportedAuthorization from Telegram
 type TLAuthExportAuthorization struct {
-	DcId int // dc_id:int
+	DCID int // dc_id:int
 }
 
 func (o *TLAuthExportAuthorization) Cmd() uint32 {
@@ -6756,11 +6756,11 @@ func (o *TLAuthExportAuthorization) Cmd() uint32 {
 }
 
 func (o *TLAuthExportAuthorization) ReadBareFrom(r *tl.Reader) {
-	o.DcId = r.ReadInt()
+	o.DCID = r.ReadInt()
 }
 
 func (o *TLAuthExportAuthorization) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.DcId)
+	w.WriteInt(o.DCID)
 }
 
 func (o *TLAuthExportAuthorization) String() string {
@@ -6769,7 +6769,7 @@ func (o *TLAuthExportAuthorization) String() string {
 
 // TLAuthImportAuthorization represents func auth.importAuthorization#e3ef9613 id:int bytes:bytes = auth.Authorization from Telegram
 type TLAuthImportAuthorization struct {
-	Id    int    // id:int
+	ID    int    // id:int
 	Bytes []byte // bytes:bytes
 }
 
@@ -6778,12 +6778,12 @@ func (o *TLAuthImportAuthorization) Cmd() uint32 {
 }
 
 func (o *TLAuthImportAuthorization) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Bytes = r.ReadBlob()
 }
 
 func (o *TLAuthImportAuthorization) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteBlob(o.Bytes)
 }
 
@@ -6793,7 +6793,7 @@ func (o *TLAuthImportAuthorization) String() string {
 
 // TLAuthBindTempAuthKey represents func auth.bindTempAuthKey#cdd42a05 perm_auth_key_id:long nonce:long expires_at:int encrypted_message:bytes = Bool from Telegram
 type TLAuthBindTempAuthKey struct {
-	PermAuthKeyId    uint64 // perm_auth_key_id:long
+	PermAuthKeyID    uint64 // perm_auth_key_id:long
 	Nonce            uint64 // nonce:long
 	ExpiresAt        int    // expires_at:int
 	EncryptedMessage []byte // encrypted_message:bytes
@@ -6804,14 +6804,14 @@ func (o *TLAuthBindTempAuthKey) Cmd() uint32 {
 }
 
 func (o *TLAuthBindTempAuthKey) ReadBareFrom(r *tl.Reader) {
-	o.PermAuthKeyId = r.ReadUint64()
+	o.PermAuthKeyID = r.ReadUint64()
 	o.Nonce = r.ReadUint64()
 	o.ExpiresAt = r.ReadInt()
 	o.EncryptedMessage = r.ReadBlob()
 }
 
 func (o *TLAuthBindTempAuthKey) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.PermAuthKeyId)
+	w.WriteUint64(o.PermAuthKeyID)
 	w.WriteUint64(o.Nonce)
 	w.WriteInt(o.ExpiresAt)
 	w.WriteBlob(o.EncryptedMessage)
@@ -6824,8 +6824,8 @@ func (o *TLAuthBindTempAuthKey) String() string {
 // TLAuthImportBotAuthorization represents func auth.importBotAuthorization#67a3ff2c flags:int api_id:int api_hash:string bot_auth_token:string = auth.Authorization from Telegram
 type TLAuthImportBotAuthorization struct {
 	Flags        int    // flags:int
-	ApiId        int    // api_id:int
-	ApiHash      string // api_hash:string
+	APIID        int    // api_id:int
+	APIHash      string // api_hash:string
 	BotAuthToken string // bot_auth_token:string
 }
 
@@ -6835,15 +6835,15 @@ func (o *TLAuthImportBotAuthorization) Cmd() uint32 {
 
 func (o *TLAuthImportBotAuthorization) ReadBareFrom(r *tl.Reader) {
 	o.Flags = r.ReadInt()
-	o.ApiId = r.ReadInt()
-	o.ApiHash = r.ReadString()
+	o.APIID = r.ReadInt()
+	o.APIHash = r.ReadString()
 	o.BotAuthToken = r.ReadString()
 }
 
 func (o *TLAuthImportBotAuthorization) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Flags)
-	w.WriteInt(o.ApiId)
-	w.WriteString(o.ApiHash)
+	w.WriteInt(o.APIID)
+	w.WriteString(o.APIHash)
 	w.WriteString(o.BotAuthToken)
 }
 
@@ -7646,7 +7646,7 @@ func (o *TLAccountGetTmpPassword) String() string {
 
 // TLUsersGetUsers represents func users.getUsers#0d91a548 id:Vector<InputUser> = Vector<User> from Telegram
 type TLUsersGetUsers struct {
-	Id []TLInputUserType // id:Vector<InputUser>
+	ID []TLInputUserType // id:Vector<InputUser>
 }
 
 func (o *TLUsersGetUsers) Cmd() uint32 {
@@ -7657,18 +7657,18 @@ func (o *TLUsersGetUsers) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]TLInputUserType, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ID = make([]TLInputUserType, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	}
 }
 
 func (o *TLUsersGetUsers) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteCmd(o.Id[i].Cmd())
-		o.Id[i].WriteBareTo(w)
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteCmd(o.ID[i].Cmd())
+		o.ID[i].WriteBareTo(w)
 	}
 }
 
@@ -7678,7 +7678,7 @@ func (o *TLUsersGetUsers) String() string {
 
 // TLUsersGetFullUser represents func users.getFullUser#ca30a5b1 id:InputUser = UserFull from Telegram
 type TLUsersGetFullUser struct {
-	Id TLInputUserType // id:InputUser
+	ID TLInputUserType // id:InputUser
 }
 
 func (o *TLUsersGetFullUser) Cmd() uint32 {
@@ -7686,12 +7686,12 @@ func (o *TLUsersGetFullUser) Cmd() uint32 {
 }
 
 func (o *TLUsersGetFullUser) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 }
 
 func (o *TLUsersGetFullUser) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 }
 
 func (o *TLUsersGetFullUser) String() string {
@@ -7783,7 +7783,7 @@ func (o *TLContactsImportContacts) String() string {
 
 // TLContactsDeleteContact represents func contacts.deleteContact#8e953744 id:InputUser = contacts.Link from Telegram
 type TLContactsDeleteContact struct {
-	Id TLInputUserType // id:InputUser
+	ID TLInputUserType // id:InputUser
 }
 
 func (o *TLContactsDeleteContact) Cmd() uint32 {
@@ -7791,12 +7791,12 @@ func (o *TLContactsDeleteContact) Cmd() uint32 {
 }
 
 func (o *TLContactsDeleteContact) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 }
 
 func (o *TLContactsDeleteContact) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 }
 
 func (o *TLContactsDeleteContact) String() string {
@@ -7805,7 +7805,7 @@ func (o *TLContactsDeleteContact) String() string {
 
 // TLContactsDeleteContacts represents func contacts.deleteContacts#59ab389e id:Vector<InputUser> = Bool from Telegram
 type TLContactsDeleteContacts struct {
-	Id []TLInputUserType // id:Vector<InputUser>
+	ID []TLInputUserType // id:Vector<InputUser>
 }
 
 func (o *TLContactsDeleteContacts) Cmd() uint32 {
@@ -7816,18 +7816,18 @@ func (o *TLContactsDeleteContacts) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]TLInputUserType, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ID = make([]TLInputUserType, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	}
 }
 
 func (o *TLContactsDeleteContacts) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteCmd(o.Id[i].Cmd())
-		o.Id[i].WriteBareTo(w)
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteCmd(o.ID[i].Cmd())
+		o.ID[i].WriteBareTo(w)
 	}
 }
 
@@ -7837,7 +7837,7 @@ func (o *TLContactsDeleteContacts) String() string {
 
 // TLContactsBlock represents func contacts.block#332b49fc id:InputUser = Bool from Telegram
 type TLContactsBlock struct {
-	Id TLInputUserType // id:InputUser
+	ID TLInputUserType // id:InputUser
 }
 
 func (o *TLContactsBlock) Cmd() uint32 {
@@ -7845,12 +7845,12 @@ func (o *TLContactsBlock) Cmd() uint32 {
 }
 
 func (o *TLContactsBlock) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 }
 
 func (o *TLContactsBlock) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 }
 
 func (o *TLContactsBlock) String() string {
@@ -7859,7 +7859,7 @@ func (o *TLContactsBlock) String() string {
 
 // TLContactsUnblock represents func contacts.unblock#e54100bd id:InputUser = Bool from Telegram
 type TLContactsUnblock struct {
-	Id TLInputUserType // id:InputUser
+	ID TLInputUserType // id:InputUser
 }
 
 func (o *TLContactsUnblock) Cmd() uint32 {
@@ -7867,12 +7867,12 @@ func (o *TLContactsUnblock) Cmd() uint32 {
 }
 
 func (o *TLContactsUnblock) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 }
 
 func (o *TLContactsUnblock) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 }
 
 func (o *TLContactsUnblock) String() string {
@@ -8065,7 +8065,7 @@ func (o *TLContactsResetTopPeerRating) String() string {
 
 // TLMessagesGetMessages represents func messages.getMessages#4222fa74 id:Vector<int> = messages.Messages from Telegram
 type TLMessagesGetMessages struct {
-	Id []int // id:Vector<int>
+	ID []int // id:Vector<int>
 }
 
 func (o *TLMessagesGetMessages) Cmd() uint32 {
@@ -8076,17 +8076,17 @@ func (o *TLMessagesGetMessages) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]int, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = r.ReadInt()
+	o.ID = make([]int, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = r.ReadInt()
 	}
 }
 
 func (o *TLMessagesGetMessages) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteInt(o.Id[i])
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteInt(o.ID[i])
 	}
 }
 
@@ -8099,7 +8099,7 @@ type TLMessagesGetDialogs struct {
 	Flags         uint            // flags:#
 	ExcludePinned bool            // flags.0?exclude_pinned:true
 	OffsetDate    int             // offset_date:int
-	OffsetId      int             // offset_id:int
+	OffsetID      int             // offset_id:int
 	OffsetPeer    TLInputPeerType // offset_peer:InputPeer
 	Limit         int             // limit:int
 }
@@ -8112,7 +8112,7 @@ func (o *TLMessagesGetDialogs) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.ExcludePinned = true
 	o.OffsetDate = r.ReadInt()
-	o.OffsetId = r.ReadInt()
+	o.OffsetID = r.ReadInt()
 	o.OffsetPeer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 	o.Limit = r.ReadInt()
 }
@@ -8120,7 +8120,7 @@ func (o *TLMessagesGetDialogs) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesGetDialogs) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.OffsetDate)
-	w.WriteInt(o.OffsetId)
+	w.WriteInt(o.OffsetID)
 	w.WriteCmd(o.OffsetPeer.Cmd())
 	o.OffsetPeer.WriteBareTo(w)
 	w.WriteInt(o.Limit)
@@ -8133,12 +8133,12 @@ func (o *TLMessagesGetDialogs) String() string {
 // TLMessagesGetHistory represents func messages.getHistory#afa92846 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int = messages.Messages from Telegram
 type TLMessagesGetHistory struct {
 	Peer       TLInputPeerType // peer:InputPeer
-	OffsetId   int             // offset_id:int
+	OffsetID   int             // offset_id:int
 	OffsetDate int             // offset_date:int
 	AddOffset  int             // add_offset:int
 	Limit      int             // limit:int
-	MaxId      int             // max_id:int
-	MinId      int             // min_id:int
+	MaxID      int             // max_id:int
+	MinID      int             // min_id:int
 }
 
 func (o *TLMessagesGetHistory) Cmd() uint32 {
@@ -8147,23 +8147,23 @@ func (o *TLMessagesGetHistory) Cmd() uint32 {
 
 func (o *TLMessagesGetHistory) ReadBareFrom(r *tl.Reader) {
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.OffsetId = r.ReadInt()
+	o.OffsetID = r.ReadInt()
 	o.OffsetDate = r.ReadInt()
 	o.AddOffset = r.ReadInt()
 	o.Limit = r.ReadInt()
-	o.MaxId = r.ReadInt()
-	o.MinId = r.ReadInt()
+	o.MaxID = r.ReadInt()
+	o.MinID = r.ReadInt()
 }
 
 func (o *TLMessagesGetHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.OffsetId)
+	w.WriteInt(o.OffsetID)
 	w.WriteInt(o.OffsetDate)
 	w.WriteInt(o.AddOffset)
 	w.WriteInt(o.Limit)
-	w.WriteInt(o.MaxId)
-	w.WriteInt(o.MinId)
+	w.WriteInt(o.MaxID)
+	w.WriteInt(o.MinID)
 }
 
 func (o *TLMessagesGetHistory) String() string {
@@ -8179,7 +8179,7 @@ type TLMessagesSearch struct {
 	MinDate int                  // min_date:int
 	MaxDate int                  // max_date:int
 	Offset  int                  // offset:int
-	MaxId   int                  // max_id:int
+	MaxID   int                  // max_id:int
 	Limit   int                  // limit:int
 }
 
@@ -8195,7 +8195,7 @@ func (o *TLMessagesSearch) ReadBareFrom(r *tl.Reader) {
 	o.MinDate = r.ReadInt()
 	o.MaxDate = r.ReadInt()
 	o.Offset = r.ReadInt()
-	o.MaxId = r.ReadInt()
+	o.MaxID = r.ReadInt()
 	o.Limit = r.ReadInt()
 }
 
@@ -8209,7 +8209,7 @@ func (o *TLMessagesSearch) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.MinDate)
 	w.WriteInt(o.MaxDate)
 	w.WriteInt(o.Offset)
-	w.WriteInt(o.MaxId)
+	w.WriteInt(o.MaxID)
 	w.WriteInt(o.Limit)
 }
 
@@ -8220,7 +8220,7 @@ func (o *TLMessagesSearch) String() string {
 // TLMessagesReadHistory represents func messages.readHistory#0e306d3a peer:InputPeer max_id:int = messages.AffectedMessages from Telegram
 type TLMessagesReadHistory struct {
 	Peer  TLInputPeerType // peer:InputPeer
-	MaxId int             // max_id:int
+	MaxID int             // max_id:int
 }
 
 func (o *TLMessagesReadHistory) Cmd() uint32 {
@@ -8229,13 +8229,13 @@ func (o *TLMessagesReadHistory) Cmd() uint32 {
 
 func (o *TLMessagesReadHistory) ReadBareFrom(r *tl.Reader) {
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.MaxId = r.ReadInt()
+	o.MaxID = r.ReadInt()
 }
 
 func (o *TLMessagesReadHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.MaxId)
+	w.WriteInt(o.MaxID)
 }
 
 func (o *TLMessagesReadHistory) String() string {
@@ -8247,7 +8247,7 @@ type TLMessagesDeleteHistory struct {
 	Flags     uint            // flags:#
 	JustClear bool            // flags.0?just_clear:true
 	Peer      TLInputPeerType // peer:InputPeer
-	MaxId     int             // max_id:int
+	MaxID     int             // max_id:int
 }
 
 func (o *TLMessagesDeleteHistory) Cmd() uint32 {
@@ -8258,14 +8258,14 @@ func (o *TLMessagesDeleteHistory) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.JustClear = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.MaxId = r.ReadInt()
+	o.MaxID = r.ReadInt()
 }
 
 func (o *TLMessagesDeleteHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.MaxId)
+	w.WriteInt(o.MaxID)
 }
 
 func (o *TLMessagesDeleteHistory) String() string {
@@ -8276,7 +8276,7 @@ func (o *TLMessagesDeleteHistory) String() string {
 type TLMessagesDeleteMessages struct {
 	Flags  uint  // flags:#
 	Revoke bool  // flags.0?revoke:true
-	Id     []int // id:Vector<int>
+	ID     []int // id:Vector<int>
 }
 
 func (o *TLMessagesDeleteMessages) Cmd() uint32 {
@@ -8289,18 +8289,18 @@ func (o *TLMessagesDeleteMessages) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]int, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = r.ReadInt()
+	o.ID = make([]int, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = r.ReadInt()
 	}
 }
 
 func (o *TLMessagesDeleteMessages) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteInt(o.Id[i])
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteInt(o.ID[i])
 	}
 }
 
@@ -8310,7 +8310,7 @@ func (o *TLMessagesDeleteMessages) String() string {
 
 // TLMessagesReceivedMessages represents func messages.receivedMessages#05a954c0 max_id:int = Vector<ReceivedNotifyMessage> from Telegram
 type TLMessagesReceivedMessages struct {
-	MaxId int // max_id:int
+	MaxID int // max_id:int
 }
 
 func (o *TLMessagesReceivedMessages) Cmd() uint32 {
@@ -8318,11 +8318,11 @@ func (o *TLMessagesReceivedMessages) Cmd() uint32 {
 }
 
 func (o *TLMessagesReceivedMessages) ReadBareFrom(r *tl.Reader) {
-	o.MaxId = r.ReadInt()
+	o.MaxID = r.ReadInt()
 }
 
 func (o *TLMessagesReceivedMessages) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.MaxId)
+	w.WriteInt(o.MaxID)
 }
 
 func (o *TLMessagesReceivedMessages) String() string {
@@ -8363,9 +8363,9 @@ type TLMessagesSendMessage struct {
 	Background   bool                  // flags.6?background:true
 	ClearDraft   bool                  // flags.7?clear_draft:true
 	Peer         TLInputPeerType       // peer:InputPeer
-	ReplyToMsgId int                   // flags.0?reply_to_msg_id:int
+	ReplyToMsgID int                   // flags.0?reply_to_msg_id:int
 	Message      string                // message:string
-	RandomId     uint64                // random_id:long
+	RandomID     uint64                // random_id:long
 	ReplyMarkup  TLReplyMarkupType     // flags.2?reply_markup:ReplyMarkup
 	Entities     []TLMessageEntityType // flags.3?entities:Vector<MessageEntity>
 }
@@ -8381,9 +8381,9 @@ func (o *TLMessagesSendMessage) ReadBareFrom(r *tl.Reader) {
 	o.Background = true
 	o.ClearDraft = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.ReplyToMsgId = r.ReadInt()
+	o.ReplyToMsgID = r.ReadInt()
 	o.Message = r.ReadString()
-	o.RandomId = r.ReadUint64()
+	o.RandomID = r.ReadUint64()
 	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -8398,9 +8398,9 @@ func (o *TLMessagesSendMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.ReplyToMsgId)
+	w.WriteInt(o.ReplyToMsgID)
 	w.WriteString(o.Message)
-	w.WriteUint64(o.RandomId)
+	w.WriteUint64(o.RandomID)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
 	w.WriteCmd(TagVector)
@@ -8422,9 +8422,9 @@ type TLMessagesSendMedia struct {
 	Background   bool              // flags.6?background:true
 	ClearDraft   bool              // flags.7?clear_draft:true
 	Peer         TLInputPeerType   // peer:InputPeer
-	ReplyToMsgId int               // flags.0?reply_to_msg_id:int
+	ReplyToMsgID int               // flags.0?reply_to_msg_id:int
 	Media        TLInputMediaType  // media:InputMedia
-	RandomId     uint64            // random_id:long
+	RandomID     uint64            // random_id:long
 	ReplyMarkup  TLReplyMarkupType // flags.2?reply_markup:ReplyMarkup
 }
 
@@ -8438,9 +8438,9 @@ func (o *TLMessagesSendMedia) ReadBareFrom(r *tl.Reader) {
 	o.Background = true
 	o.ClearDraft = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.ReplyToMsgId = r.ReadInt()
+	o.ReplyToMsgID = r.ReadInt()
 	o.Media = Schema.ReadLimitedBoxedObjectFrom(r, TagInputMediaEmpty, TagInputMediaUploadedPhoto, TagInputMediaPhoto, TagInputMediaGeoPoint, TagInputMediaContact, TagInputMediaUploadedDocument, TagInputMediaUploadedThumbDocument, TagInputMediaDocument, TagInputMediaVenue, TagInputMediaGifExternal, TagInputMediaPhotoExternal, TagInputMediaDocumentExternal, TagInputMediaGame, TagInputMediaInvoice).(TLInputMediaType)
-	o.RandomId = r.ReadUint64()
+	o.RandomID = r.ReadUint64()
 	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 }
 
@@ -8448,10 +8448,10 @@ func (o *TLMessagesSendMedia) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.ReplyToMsgId)
+	w.WriteInt(o.ReplyToMsgID)
 	w.WriteCmd(o.Media.Cmd())
 	o.Media.WriteBareTo(w)
-	w.WriteUint64(o.RandomId)
+	w.WriteUint64(o.RandomID)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
 }
@@ -8467,8 +8467,8 @@ type TLMessagesForwardMessages struct {
 	Background  bool            // flags.6?background:true
 	WithMyScore bool            // flags.8?with_my_score:true
 	FromPeer    TLInputPeerType // from_peer:InputPeer
-	Id          []int           // id:Vector<int>
-	RandomId    []uint64        // random_id:Vector<long>
+	ID          []int           // id:Vector<int>
+	RandomID    []uint64        // random_id:Vector<long>
 	ToPeer      TLInputPeerType // to_peer:InputPeer
 }
 
@@ -8485,16 +8485,16 @@ func (o *TLMessagesForwardMessages) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]int, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = r.ReadInt()
+	o.ID = make([]int, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = r.ReadInt()
 	}
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.RandomId = make([]uint64, r.ReadInt())
-	for i := 0; i < len(o.RandomId); i++ {
-		o.RandomId[i] = r.ReadUint64()
+	o.RandomID = make([]uint64, r.ReadInt())
+	for i := 0; i < len(o.RandomID); i++ {
+		o.RandomID[i] = r.ReadUint64()
 	}
 	o.ToPeer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 }
@@ -8504,14 +8504,14 @@ func (o *TLMessagesForwardMessages) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.FromPeer.Cmd())
 	o.FromPeer.WriteBareTo(w)
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteInt(o.Id[i])
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteInt(o.ID[i])
 	}
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.RandomId))
-	for i := 0; i < len(o.RandomId); i++ {
-		w.WriteUint64(o.RandomId[i])
+	w.WriteInt(len(o.RandomID))
+	for i := 0; i < len(o.RandomID); i++ {
+		w.WriteUint64(o.RandomID[i])
 	}
 	w.WriteCmd(o.ToPeer.Cmd())
 	o.ToPeer.WriteBareTo(w)
@@ -8589,7 +8589,7 @@ func (o *TLMessagesGetPeerSettings) String() string {
 
 // TLMessagesGetChats represents func messages.getChats#3c6aa187 id:Vector<int> = messages.Chats from Telegram
 type TLMessagesGetChats struct {
-	Id []int // id:Vector<int>
+	ID []int // id:Vector<int>
 }
 
 func (o *TLMessagesGetChats) Cmd() uint32 {
@@ -8600,17 +8600,17 @@ func (o *TLMessagesGetChats) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]int, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = r.ReadInt()
+	o.ID = make([]int, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = r.ReadInt()
 	}
 }
 
 func (o *TLMessagesGetChats) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteInt(o.Id[i])
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteInt(o.ID[i])
 	}
 }
 
@@ -8620,7 +8620,7 @@ func (o *TLMessagesGetChats) String() string {
 
 // TLMessagesGetFullChat represents func messages.getFullChat#3b831c66 chat_id:int = messages.ChatFull from Telegram
 type TLMessagesGetFullChat struct {
-	ChatId int // chat_id:int
+	ChatID int // chat_id:int
 }
 
 func (o *TLMessagesGetFullChat) Cmd() uint32 {
@@ -8628,11 +8628,11 @@ func (o *TLMessagesGetFullChat) Cmd() uint32 {
 }
 
 func (o *TLMessagesGetFullChat) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 }
 
 func (o *TLMessagesGetFullChat) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 }
 
 func (o *TLMessagesGetFullChat) String() string {
@@ -8641,7 +8641,7 @@ func (o *TLMessagesGetFullChat) String() string {
 
 // TLMessagesEditChatTitle represents func messages.editChatTitle#dc452855 chat_id:int title:string = Updates from Telegram
 type TLMessagesEditChatTitle struct {
-	ChatId int    // chat_id:int
+	ChatID int    // chat_id:int
 	Title  string // title:string
 }
 
@@ -8650,12 +8650,12 @@ func (o *TLMessagesEditChatTitle) Cmd() uint32 {
 }
 
 func (o *TLMessagesEditChatTitle) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 	o.Title = r.ReadString()
 }
 
 func (o *TLMessagesEditChatTitle) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 	w.WriteString(o.Title)
 }
 
@@ -8665,7 +8665,7 @@ func (o *TLMessagesEditChatTitle) String() string {
 
 // TLMessagesEditChatPhoto represents func messages.editChatPhoto#ca4c79d8 chat_id:int photo:InputChatPhoto = Updates from Telegram
 type TLMessagesEditChatPhoto struct {
-	ChatId int                  // chat_id:int
+	ChatID int                  // chat_id:int
 	Photo  TLInputChatPhotoType // photo:InputChatPhoto
 }
 
@@ -8674,12 +8674,12 @@ func (o *TLMessagesEditChatPhoto) Cmd() uint32 {
 }
 
 func (o *TLMessagesEditChatPhoto) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChatPhotoEmpty, TagInputChatUploadedPhoto, TagInputChatPhoto).(TLInputChatPhotoType)
 }
 
 func (o *TLMessagesEditChatPhoto) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 	w.WriteCmd(o.Photo.Cmd())
 	o.Photo.WriteBareTo(w)
 }
@@ -8690,8 +8690,8 @@ func (o *TLMessagesEditChatPhoto) String() string {
 
 // TLMessagesAddChatUser represents func messages.addChatUser#f9a0aa09 chat_id:int user_id:InputUser fwd_limit:int = Updates from Telegram
 type TLMessagesAddChatUser struct {
-	ChatId   int             // chat_id:int
-	UserId   TLInputUserType // user_id:InputUser
+	ChatID   int             // chat_id:int
+	UserID   TLInputUserType // user_id:InputUser
 	FwdLimit int             // fwd_limit:int
 }
 
@@ -8700,15 +8700,15 @@ func (o *TLMessagesAddChatUser) Cmd() uint32 {
 }
 
 func (o *TLMessagesAddChatUser) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ChatID = r.ReadInt()
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	o.FwdLimit = r.ReadInt()
 }
 
 func (o *TLMessagesAddChatUser) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteInt(o.ChatID)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 	w.WriteInt(o.FwdLimit)
 }
 
@@ -8718,8 +8718,8 @@ func (o *TLMessagesAddChatUser) String() string {
 
 // TLMessagesDeleteChatUser represents func messages.deleteChatUser#e0611f16 chat_id:int user_id:InputUser = Updates from Telegram
 type TLMessagesDeleteChatUser struct {
-	ChatId int             // chat_id:int
-	UserId TLInputUserType // user_id:InputUser
+	ChatID int             // chat_id:int
+	UserID TLInputUserType // user_id:InputUser
 }
 
 func (o *TLMessagesDeleteChatUser) Cmd() uint32 {
@@ -8727,14 +8727,14 @@ func (o *TLMessagesDeleteChatUser) Cmd() uint32 {
 }
 
 func (o *TLMessagesDeleteChatUser) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ChatID = r.ReadInt()
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 }
 
 func (o *TLMessagesDeleteChatUser) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteInt(o.ChatID)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 }
 
 func (o *TLMessagesDeleteChatUser) String() string {
@@ -8779,8 +8779,8 @@ func (o *TLMessagesCreateChat) String() string {
 // TLMessagesForwardMessage represents func messages.forwardMessage#33963bf9 peer:InputPeer id:int random_id:long = Updates from Telegram
 type TLMessagesForwardMessage struct {
 	Peer     TLInputPeerType // peer:InputPeer
-	Id       int             // id:int
-	RandomId uint64          // random_id:long
+	ID       int             // id:int
+	RandomID uint64          // random_id:long
 }
 
 func (o *TLMessagesForwardMessage) Cmd() uint32 {
@@ -8789,15 +8789,15 @@ func (o *TLMessagesForwardMessage) Cmd() uint32 {
 
 func (o *TLMessagesForwardMessage) ReadBareFrom(r *tl.Reader) {
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.Id = r.ReadInt()
-	o.RandomId = r.ReadUint64()
+	o.ID = r.ReadInt()
+	o.RandomID = r.ReadUint64()
 }
 
 func (o *TLMessagesForwardMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.Id)
-	w.WriteUint64(o.RandomId)
+	w.WriteInt(o.ID)
+	w.WriteUint64(o.RandomID)
 }
 
 func (o *TLMessagesForwardMessage) String() string {
@@ -8830,8 +8830,8 @@ func (o *TLMessagesGetDHConfig) String() string {
 
 // TLMessagesRequestEncryption represents func messages.requestEncryption#f64daf43 user_id:InputUser random_id:int g_a:bytes = EncryptedChat from Telegram
 type TLMessagesRequestEncryption struct {
-	UserId   TLInputUserType // user_id:InputUser
-	RandomId int             // random_id:int
+	UserID   TLInputUserType // user_id:InputUser
+	RandomID int             // random_id:int
 	GA       []byte          // g_a:bytes
 }
 
@@ -8840,15 +8840,15 @@ func (o *TLMessagesRequestEncryption) Cmd() uint32 {
 }
 
 func (o *TLMessagesRequestEncryption) ReadBareFrom(r *tl.Reader) {
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
-	o.RandomId = r.ReadInt()
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.RandomID = r.ReadInt()
 	o.GA = r.ReadBlob()
 }
 
 func (o *TLMessagesRequestEncryption) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
-	w.WriteInt(o.RandomId)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
+	w.WriteInt(o.RandomID)
 	w.WriteBlob(o.GA)
 }
 
@@ -8890,7 +8890,7 @@ func (o *TLMessagesAcceptEncryption) String() string {
 
 // TLMessagesDiscardEncryption represents func messages.discardEncryption#edd923c5 chat_id:int = Bool from Telegram
 type TLMessagesDiscardEncryption struct {
-	ChatId int // chat_id:int
+	ChatID int // chat_id:int
 }
 
 func (o *TLMessagesDiscardEncryption) Cmd() uint32 {
@@ -8898,11 +8898,11 @@ func (o *TLMessagesDiscardEncryption) Cmd() uint32 {
 }
 
 func (o *TLMessagesDiscardEncryption) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 }
 
 func (o *TLMessagesDiscardEncryption) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 }
 
 func (o *TLMessagesDiscardEncryption) String() string {
@@ -8975,7 +8975,7 @@ func (o *TLMessagesReadEncryptedHistory) String() string {
 // TLMessagesSendEncrypted represents func messages.sendEncrypted#a9776773 peer:InputEncryptedChat random_id:long data:bytes = messages.SentEncryptedMessage from Telegram
 type TLMessagesSendEncrypted struct {
 	Peer     *TLInputEncryptedChat // peer:InputEncryptedChat
-	RandomId uint64                // random_id:long
+	RandomID uint64                // random_id:long
 	Data     []byte                // data:bytes
 }
 
@@ -8989,14 +8989,14 @@ func (o *TLMessagesSendEncrypted) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Peer = new(TLInputEncryptedChat)
 	o.Peer.ReadBareFrom(r)
-	o.RandomId = r.ReadUint64()
+	o.RandomID = r.ReadUint64()
 	o.Data = r.ReadBlob()
 }
 
 func (o *TLMessagesSendEncrypted) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagInputEncryptedChat)
 	o.Peer.WriteBareTo(w)
-	w.WriteUint64(o.RandomId)
+	w.WriteUint64(o.RandomID)
 	w.WriteBlob(o.Data)
 }
 
@@ -9007,7 +9007,7 @@ func (o *TLMessagesSendEncrypted) String() string {
 // TLMessagesSendEncryptedFile represents func messages.sendEncryptedFile#9a901b66 peer:InputEncryptedChat random_id:long data:bytes file:InputEncryptedFile = messages.SentEncryptedMessage from Telegram
 type TLMessagesSendEncryptedFile struct {
 	Peer     *TLInputEncryptedChat    // peer:InputEncryptedChat
-	RandomId uint64                   // random_id:long
+	RandomID uint64                   // random_id:long
 	Data     []byte                   // data:bytes
 	File     TLInputEncryptedFileType // file:InputEncryptedFile
 }
@@ -9022,7 +9022,7 @@ func (o *TLMessagesSendEncryptedFile) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Peer = new(TLInputEncryptedChat)
 	o.Peer.ReadBareFrom(r)
-	o.RandomId = r.ReadUint64()
+	o.RandomID = r.ReadUint64()
 	o.Data = r.ReadBlob()
 	o.File = Schema.ReadLimitedBoxedObjectFrom(r, TagInputEncryptedFileEmpty, TagInputEncryptedFileUploaded, TagInputEncryptedFile, TagInputEncryptedFileBigUploaded).(TLInputEncryptedFileType)
 }
@@ -9030,7 +9030,7 @@ func (o *TLMessagesSendEncryptedFile) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesSendEncryptedFile) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagInputEncryptedChat)
 	o.Peer.WriteBareTo(w)
-	w.WriteUint64(o.RandomId)
+	w.WriteUint64(o.RandomID)
 	w.WriteBlob(o.Data)
 	w.WriteCmd(o.File.Cmd())
 	o.File.WriteBareTo(w)
@@ -9043,7 +9043,7 @@ func (o *TLMessagesSendEncryptedFile) String() string {
 // TLMessagesSendEncryptedService represents func messages.sendEncryptedService#32d439a4 peer:InputEncryptedChat random_id:long data:bytes = messages.SentEncryptedMessage from Telegram
 type TLMessagesSendEncryptedService struct {
 	Peer     *TLInputEncryptedChat // peer:InputEncryptedChat
-	RandomId uint64                // random_id:long
+	RandomID uint64                // random_id:long
 	Data     []byte                // data:bytes
 }
 
@@ -9057,14 +9057,14 @@ func (o *TLMessagesSendEncryptedService) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Peer = new(TLInputEncryptedChat)
 	o.Peer.ReadBareFrom(r)
-	o.RandomId = r.ReadUint64()
+	o.RandomID = r.ReadUint64()
 	o.Data = r.ReadBlob()
 }
 
 func (o *TLMessagesSendEncryptedService) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagInputEncryptedChat)
 	o.Peer.WriteBareTo(w)
-	w.WriteUint64(o.RandomId)
+	w.WriteUint64(o.RandomID)
 	w.WriteBlob(o.Data)
 }
 
@@ -9121,7 +9121,7 @@ func (o *TLMessagesReportEncryptedSpam) String() string {
 
 // TLMessagesReadMessageContents represents func messages.readMessageContents#36a73f77 id:Vector<int> = messages.AffectedMessages from Telegram
 type TLMessagesReadMessageContents struct {
-	Id []int // id:Vector<int>
+	ID []int // id:Vector<int>
 }
 
 func (o *TLMessagesReadMessageContents) Cmd() uint32 {
@@ -9132,17 +9132,17 @@ func (o *TLMessagesReadMessageContents) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]int, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = r.ReadInt()
+	o.ID = make([]int, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = r.ReadInt()
 	}
 }
 
 func (o *TLMessagesReadMessageContents) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteInt(o.Id[i])
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteInt(o.ID[i])
 	}
 }
 
@@ -9194,7 +9194,7 @@ func (o *TLMessagesGetWebPagePreview) String() string {
 
 // TLMessagesExportChatInvite represents func messages.exportChatInvite#7d885289 chat_id:int = ExportedChatInvite from Telegram
 type TLMessagesExportChatInvite struct {
-	ChatId int // chat_id:int
+	ChatID int // chat_id:int
 }
 
 func (o *TLMessagesExportChatInvite) Cmd() uint32 {
@@ -9202,11 +9202,11 @@ func (o *TLMessagesExportChatInvite) Cmd() uint32 {
 }
 
 func (o *TLMessagesExportChatInvite) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 }
 
 func (o *TLMessagesExportChatInvite) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 }
 
 func (o *TLMessagesExportChatInvite) String() string {
@@ -9333,7 +9333,7 @@ func (o *TLMessagesUninstallStickerSet) String() string {
 type TLMessagesStartBot struct {
 	Bot        TLInputUserType // bot:InputUser
 	Peer       TLInputPeerType // peer:InputPeer
-	RandomId   uint64          // random_id:long
+	RandomID   uint64          // random_id:long
 	StartParam string          // start_param:string
 }
 
@@ -9344,7 +9344,7 @@ func (o *TLMessagesStartBot) Cmd() uint32 {
 func (o *TLMessagesStartBot) ReadBareFrom(r *tl.Reader) {
 	o.Bot = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.RandomId = r.ReadUint64()
+	o.RandomID = r.ReadUint64()
 	o.StartParam = r.ReadString()
 }
 
@@ -9353,7 +9353,7 @@ func (o *TLMessagesStartBot) WriteBareTo(w *tl.Writer) {
 	o.Bot.WriteBareTo(w)
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteUint64(o.RandomId)
+	w.WriteUint64(o.RandomID)
 	w.WriteString(o.StartParam)
 }
 
@@ -9364,7 +9364,7 @@ func (o *TLMessagesStartBot) String() string {
 // TLMessagesGetMessagesViews represents func messages.getMessagesViews#c4c8a55d peer:InputPeer id:Vector<int> increment:Bool = Vector<int> from Telegram
 type TLMessagesGetMessagesViews struct {
 	Peer      TLInputPeerType // peer:InputPeer
-	Id        []int           // id:Vector<int>
+	ID        []int           // id:Vector<int>
 	Increment bool            // increment:Bool
 }
 
@@ -9377,9 +9377,9 @@ func (o *TLMessagesGetMessagesViews) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]int, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = r.ReadInt()
+	o.ID = make([]int, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = r.ReadInt()
 	}
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Increment = (r.ReadCmd() == TagBoolTrue)
@@ -9389,9 +9389,9 @@ func (o *TLMessagesGetMessagesViews) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteInt(o.Id[i])
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteInt(o.ID[i])
 	}
 	if o.Increment {
 		w.WriteCmd(TagBoolTrue)
@@ -9406,7 +9406,7 @@ func (o *TLMessagesGetMessagesViews) String() string {
 
 // TLMessagesToggleChatAdmins represents func messages.toggleChatAdmins#ec8bd9e1 chat_id:int enabled:Bool = Updates from Telegram
 type TLMessagesToggleChatAdmins struct {
-	ChatId  int  // chat_id:int
+	ChatID  int  // chat_id:int
 	Enabled bool // enabled:Bool
 }
 
@@ -9415,13 +9415,13 @@ func (o *TLMessagesToggleChatAdmins) Cmd() uint32 {
 }
 
 func (o *TLMessagesToggleChatAdmins) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Enabled = (r.ReadCmd() == TagBoolTrue)
 }
 
 func (o *TLMessagesToggleChatAdmins) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 	if o.Enabled {
 		w.WriteCmd(TagBoolTrue)
 	} else {
@@ -9435,8 +9435,8 @@ func (o *TLMessagesToggleChatAdmins) String() string {
 
 // TLMessagesEditChatAdmin represents func messages.editChatAdmin#a9e69f2e chat_id:int user_id:InputUser is_admin:Bool = Bool from Telegram
 type TLMessagesEditChatAdmin struct {
-	ChatId  int             // chat_id:int
-	UserId  TLInputUserType // user_id:InputUser
+	ChatID  int             // chat_id:int
+	UserID  TLInputUserType // user_id:InputUser
 	IsAdmin bool            // is_admin:Bool
 }
 
@@ -9445,16 +9445,16 @@ func (o *TLMessagesEditChatAdmin) Cmd() uint32 {
 }
 
 func (o *TLMessagesEditChatAdmin) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ChatID = r.ReadInt()
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.IsAdmin = (r.ReadCmd() == TagBoolTrue)
 }
 
 func (o *TLMessagesEditChatAdmin) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteInt(o.ChatID)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 	if o.IsAdmin {
 		w.WriteCmd(TagBoolTrue)
 	} else {
@@ -9468,7 +9468,7 @@ func (o *TLMessagesEditChatAdmin) String() string {
 
 // TLMessagesMigrateChat represents func messages.migrateChat#15a3b8e3 chat_id:int = Updates from Telegram
 type TLMessagesMigrateChat struct {
-	ChatId int // chat_id:int
+	ChatID int // chat_id:int
 }
 
 func (o *TLMessagesMigrateChat) Cmd() uint32 {
@@ -9476,11 +9476,11 @@ func (o *TLMessagesMigrateChat) Cmd() uint32 {
 }
 
 func (o *TLMessagesMigrateChat) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 }
 
 func (o *TLMessagesMigrateChat) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 }
 
 func (o *TLMessagesMigrateChat) String() string {
@@ -9492,7 +9492,7 @@ type TLMessagesSearchGlobal struct {
 	Q          string          // q:string
 	OffsetDate int             // offset_date:int
 	OffsetPeer TLInputPeerType // offset_peer:InputPeer
-	OffsetId   int             // offset_id:int
+	OffsetID   int             // offset_id:int
 	Limit      int             // limit:int
 }
 
@@ -9504,7 +9504,7 @@ func (o *TLMessagesSearchGlobal) ReadBareFrom(r *tl.Reader) {
 	o.Q = r.ReadString()
 	o.OffsetDate = r.ReadInt()
 	o.OffsetPeer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.OffsetId = r.ReadInt()
+	o.OffsetID = r.ReadInt()
 	o.Limit = r.ReadInt()
 }
 
@@ -9513,7 +9513,7 @@ func (o *TLMessagesSearchGlobal) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.OffsetDate)
 	w.WriteCmd(o.OffsetPeer.Cmd())
 	o.OffsetPeer.WriteBareTo(w)
-	w.WriteInt(o.OffsetId)
+	w.WriteInt(o.OffsetID)
 	w.WriteInt(o.Limit)
 }
 
@@ -9631,7 +9631,7 @@ func (o *TLMessagesGetSavedGifs) String() string {
 
 // TLMessagesSaveGif represents func messages.saveGif#327a30cb id:InputDocument unsave:Bool = Bool from Telegram
 type TLMessagesSaveGif struct {
-	Id     TLInputDocumentType // id:InputDocument
+	ID     TLInputDocumentType // id:InputDocument
 	Unsave bool                // unsave:Bool
 }
 
@@ -9640,14 +9640,14 @@ func (o *TLMessagesSaveGif) Cmd() uint32 {
 }
 
 func (o *TLMessagesSaveGif) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Unsave = (r.ReadCmd() == TagBoolTrue)
 }
 
 func (o *TLMessagesSaveGif) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 	if o.Unsave {
 		w.WriteCmd(TagBoolTrue)
 	} else {
@@ -9703,7 +9703,7 @@ type TLMessagesSetInlineBotResults struct {
 	Flags      uint                         // flags:#
 	Gallery    bool                         // flags.0?gallery:true
 	Private    bool                         // flags.1?private:true
-	QueryId    uint64                       // query_id:long
+	QueryID    uint64                       // query_id:long
 	Results    []TLInputBotInlineResultType // results:Vector<InputBotInlineResult>
 	CacheTime  int                          // cache_time:int
 	NextOffset string                       // flags.2?next_offset:string
@@ -9718,7 +9718,7 @@ func (o *TLMessagesSetInlineBotResults) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Gallery = true
 	o.Private = true
-	o.QueryId = r.ReadUint64()
+	o.QueryID = r.ReadUint64()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -9737,7 +9737,7 @@ func (o *TLMessagesSetInlineBotResults) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesSetInlineBotResults) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.QueryId)
+	w.WriteUint64(o.QueryID)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Results))
 	for i := 0; i < len(o.Results); i++ {
@@ -9761,10 +9761,10 @@ type TLMessagesSendInlineBotResult struct {
 	Background   bool            // flags.6?background:true
 	ClearDraft   bool            // flags.7?clear_draft:true
 	Peer         TLInputPeerType // peer:InputPeer
-	ReplyToMsgId int             // flags.0?reply_to_msg_id:int
-	RandomId     uint64          // random_id:long
-	QueryId      uint64          // query_id:long
-	Id           string          // id:string
+	ReplyToMsgID int             // flags.0?reply_to_msg_id:int
+	RandomID     uint64          // random_id:long
+	QueryID      uint64          // query_id:long
+	ID           string          // id:string
 }
 
 func (o *TLMessagesSendInlineBotResult) Cmd() uint32 {
@@ -9777,20 +9777,20 @@ func (o *TLMessagesSendInlineBotResult) ReadBareFrom(r *tl.Reader) {
 	o.Background = true
 	o.ClearDraft = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.ReplyToMsgId = r.ReadInt()
-	o.RandomId = r.ReadUint64()
-	o.QueryId = r.ReadUint64()
-	o.Id = r.ReadString()
+	o.ReplyToMsgID = r.ReadInt()
+	o.RandomID = r.ReadUint64()
+	o.QueryID = r.ReadUint64()
+	o.ID = r.ReadString()
 }
 
 func (o *TLMessagesSendInlineBotResult) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.ReplyToMsgId)
-	w.WriteUint64(o.RandomId)
-	w.WriteUint64(o.QueryId)
-	w.WriteString(o.Id)
+	w.WriteInt(o.ReplyToMsgID)
+	w.WriteUint64(o.RandomID)
+	w.WriteUint64(o.QueryID)
+	w.WriteString(o.ID)
 }
 
 func (o *TLMessagesSendInlineBotResult) String() string {
@@ -9800,7 +9800,7 @@ func (o *TLMessagesSendInlineBotResult) String() string {
 // TLMessagesGetMessageEditData represents func messages.getMessageEditData#fda68d36 peer:InputPeer id:int = messages.MessageEditData from Telegram
 type TLMessagesGetMessageEditData struct {
 	Peer TLInputPeerType // peer:InputPeer
-	Id   int             // id:int
+	ID   int             // id:int
 }
 
 func (o *TLMessagesGetMessageEditData) Cmd() uint32 {
@@ -9809,13 +9809,13 @@ func (o *TLMessagesGetMessageEditData) Cmd() uint32 {
 
 func (o *TLMessagesGetMessageEditData) ReadBareFrom(r *tl.Reader) {
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 }
 
 func (o *TLMessagesGetMessageEditData) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 }
 
 func (o *TLMessagesGetMessageEditData) String() string {
@@ -9827,7 +9827,7 @@ type TLMessagesEditMessage struct {
 	Flags       uint                  // flags:#
 	NoWebpage   bool                  // flags.1?no_webpage:true
 	Peer        TLInputPeerType       // peer:InputPeer
-	Id          int                   // id:int
+	ID          int                   // id:int
 	Message     string                // flags.11?message:string
 	ReplyMarkup TLReplyMarkupType     // flags.2?reply_markup:ReplyMarkup
 	Entities    []TLMessageEntityType // flags.3?entities:Vector<MessageEntity>
@@ -9841,7 +9841,7 @@ func (o *TLMessagesEditMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.NoWebpage = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Message = r.ReadString()
 	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 	if cmd := r.ReadCmd(); cmd != TagVector {
@@ -9857,7 +9857,7 @@ func (o *TLMessagesEditMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteString(o.Message)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
@@ -9877,7 +9877,7 @@ func (o *TLMessagesEditMessage) String() string {
 type TLMessagesEditInlineBotMessage struct {
 	Flags       uint                       // flags:#
 	NoWebpage   bool                       // flags.1?no_webpage:true
-	Id          *TLInputBotInlineMessageID // id:InputBotInlineMessageID
+	ID          *TLInputBotInlineMessageID // id:InputBotInlineMessageID
 	Message     string                     // flags.11?message:string
 	ReplyMarkup TLReplyMarkupType          // flags.2?reply_markup:ReplyMarkup
 	Entities    []TLMessageEntityType      // flags.3?entities:Vector<MessageEntity>
@@ -9893,8 +9893,8 @@ func (o *TLMessagesEditInlineBotMessage) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagInputBotInlineMessageID {
 		r.Fail(errors.New("expected: inputBotInlineMessageID"))
 	}
-	o.Id = new(TLInputBotInlineMessageID)
-	o.Id.ReadBareFrom(r)
+	o.ID = new(TLInputBotInlineMessageID)
+	o.ID.ReadBareFrom(r)
 	o.Message = r.ReadString()
 	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 	if cmd := r.ReadCmd(); cmd != TagVector {
@@ -9909,7 +9909,7 @@ func (o *TLMessagesEditInlineBotMessage) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesEditInlineBotMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(TagInputBotInlineMessageID)
-	o.Id.WriteBareTo(w)
+	o.ID.WriteBareTo(w)
 	w.WriteString(o.Message)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
@@ -9930,7 +9930,7 @@ type TLMessagesGetBotCallbackAnswer struct {
 	Flags uint            // flags:#
 	Game  bool            // flags.1?game:true
 	Peer  TLInputPeerType // peer:InputPeer
-	MsgId int             // msg_id:int
+	MsgID int             // msg_id:int
 	Data  []byte          // flags.0?data:bytes
 }
 
@@ -9942,7 +9942,7 @@ func (o *TLMessagesGetBotCallbackAnswer) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Game = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.MsgId = r.ReadInt()
+	o.MsgID = r.ReadInt()
 	o.Data = r.ReadBlob()
 }
 
@@ -9950,7 +9950,7 @@ func (o *TLMessagesGetBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.MsgId)
+	w.WriteInt(o.MsgID)
 	w.WriteBlob(o.Data)
 }
 
@@ -9962,7 +9962,7 @@ func (o *TLMessagesGetBotCallbackAnswer) String() string {
 type TLMessagesSetBotCallbackAnswer struct {
 	Flags     uint   // flags:#
 	Alert     bool   // flags.1?alert:true
-	QueryId   uint64 // query_id:long
+	QueryID   uint64 // query_id:long
 	Message   string // flags.0?message:string
 	Url       string // flags.2?url:string
 	CacheTime int    // cache_time:int
@@ -9975,7 +9975,7 @@ func (o *TLMessagesSetBotCallbackAnswer) Cmd() uint32 {
 func (o *TLMessagesSetBotCallbackAnswer) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Alert = true
-	o.QueryId = r.ReadUint64()
+	o.QueryID = r.ReadUint64()
 	o.Message = r.ReadString()
 	o.Url = r.ReadString()
 	o.CacheTime = r.ReadInt()
@@ -9983,7 +9983,7 @@ func (o *TLMessagesSetBotCallbackAnswer) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesSetBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.QueryId)
+	w.WriteUint64(o.QueryID)
 	w.WriteString(o.Message)
 	w.WriteString(o.Url)
 	w.WriteInt(o.CacheTime)
@@ -10029,7 +10029,7 @@ func (o *TLMessagesGetPeerDialogs) String() string {
 type TLMessagesSaveDraft struct {
 	Flags        uint                  // flags:#
 	NoWebpage    bool                  // flags.1?no_webpage:true
-	ReplyToMsgId int                   // flags.0?reply_to_msg_id:int
+	ReplyToMsgID int                   // flags.0?reply_to_msg_id:int
 	Peer         TLInputPeerType       // peer:InputPeer
 	Message      string                // message:string
 	Entities     []TLMessageEntityType // flags.3?entities:Vector<MessageEntity>
@@ -10042,7 +10042,7 @@ func (o *TLMessagesSaveDraft) Cmd() uint32 {
 func (o *TLMessagesSaveDraft) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.NoWebpage = true
-	o.ReplyToMsgId = r.ReadInt()
+	o.ReplyToMsgID = r.ReadInt()
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 	o.Message = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagVector {
@@ -10056,7 +10056,7 @@ func (o *TLMessagesSaveDraft) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesSaveDraft) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.ReplyToMsgId)
+	w.WriteInt(o.ReplyToMsgID)
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
 	w.WriteString(o.Message)
@@ -10113,7 +10113,7 @@ func (o *TLMessagesGetFeaturedStickers) String() string {
 
 // TLMessagesReadFeaturedStickers represents func messages.readFeaturedStickers#5b118126 id:Vector<long> = Bool from Telegram
 type TLMessagesReadFeaturedStickers struct {
-	Id []uint64 // id:Vector<long>
+	ID []uint64 // id:Vector<long>
 }
 
 func (o *TLMessagesReadFeaturedStickers) Cmd() uint32 {
@@ -10124,17 +10124,17 @@ func (o *TLMessagesReadFeaturedStickers) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]uint64, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = r.ReadUint64()
+	o.ID = make([]uint64, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = r.ReadUint64()
 	}
 }
 
 func (o *TLMessagesReadFeaturedStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteUint64(o.Id[i])
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteUint64(o.ID[i])
 	}
 }
 
@@ -10172,7 +10172,7 @@ func (o *TLMessagesGetRecentStickers) String() string {
 type TLMessagesSaveRecentSticker struct {
 	Flags    uint                // flags:#
 	Attached bool                // flags.0?attached:true
-	Id       TLInputDocumentType // id:InputDocument
+	ID       TLInputDocumentType // id:InputDocument
 	Unsave   bool                // unsave:Bool
 }
 
@@ -10183,15 +10183,15 @@ func (o *TLMessagesSaveRecentSticker) Cmd() uint32 {
 func (o *TLMessagesSaveRecentSticker) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Attached = true
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Unsave = (r.ReadCmd() == TagBoolTrue)
 }
 
 func (o *TLMessagesSaveRecentSticker) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 	if o.Unsave {
 		w.WriteCmd(TagBoolTrue)
 	} else {
@@ -10230,7 +10230,7 @@ func (o *TLMessagesClearRecentStickers) String() string {
 type TLMessagesGetArchivedStickers struct {
 	Flags    uint   // flags:#
 	Masks    bool   // flags.0?masks:true
-	OffsetId uint64 // offset_id:long
+	OffsetID uint64 // offset_id:long
 	Limit    int    // limit:int
 }
 
@@ -10241,13 +10241,13 @@ func (o *TLMessagesGetArchivedStickers) Cmd() uint32 {
 func (o *TLMessagesGetArchivedStickers) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Masks = true
-	o.OffsetId = r.ReadUint64()
+	o.OffsetID = r.ReadUint64()
 	o.Limit = r.ReadInt()
 }
 
 func (o *TLMessagesGetArchivedStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.OffsetId)
+	w.WriteUint64(o.OffsetID)
 	w.WriteInt(o.Limit)
 }
 
@@ -10304,8 +10304,8 @@ type TLMessagesSetGameScore struct {
 	EditMessage bool            // flags.0?edit_message:true
 	Force       bool            // flags.1?force:true
 	Peer        TLInputPeerType // peer:InputPeer
-	Id          int             // id:int
-	UserId      TLInputUserType // user_id:InputUser
+	ID          int             // id:int
+	UserID      TLInputUserType // user_id:InputUser
 	Score       int             // score:int
 }
 
@@ -10318,8 +10318,8 @@ func (o *TLMessagesSetGameScore) ReadBareFrom(r *tl.Reader) {
 	o.EditMessage = true
 	o.Force = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.Id = r.ReadInt()
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ID = r.ReadInt()
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	o.Score = r.ReadInt()
 }
 
@@ -10327,9 +10327,9 @@ func (o *TLMessagesSetGameScore) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.Id)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteInt(o.ID)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 	w.WriteInt(o.Score)
 }
 
@@ -10342,8 +10342,8 @@ type TLMessagesSetInlineGameScore struct {
 	Flags       uint                       // flags:#
 	EditMessage bool                       // flags.0?edit_message:true
 	Force       bool                       // flags.1?force:true
-	Id          *TLInputBotInlineMessageID // id:InputBotInlineMessageID
-	UserId      TLInputUserType            // user_id:InputUser
+	ID          *TLInputBotInlineMessageID // id:InputBotInlineMessageID
+	UserID      TLInputUserType            // user_id:InputUser
 	Score       int                        // score:int
 }
 
@@ -10358,18 +10358,18 @@ func (o *TLMessagesSetInlineGameScore) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagInputBotInlineMessageID {
 		r.Fail(errors.New("expected: inputBotInlineMessageID"))
 	}
-	o.Id = new(TLInputBotInlineMessageID)
-	o.Id.ReadBareFrom(r)
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ID = new(TLInputBotInlineMessageID)
+	o.ID.ReadBareFrom(r)
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	o.Score = r.ReadInt()
 }
 
 func (o *TLMessagesSetInlineGameScore) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(TagInputBotInlineMessageID)
-	o.Id.WriteBareTo(w)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	o.ID.WriteBareTo(w)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 	w.WriteInt(o.Score)
 }
 
@@ -10380,8 +10380,8 @@ func (o *TLMessagesSetInlineGameScore) String() string {
 // TLMessagesGetGameHighScores represents func messages.getGameHighScores#e822649d peer:InputPeer id:int user_id:InputUser = messages.HighScores from Telegram
 type TLMessagesGetGameHighScores struct {
 	Peer   TLInputPeerType // peer:InputPeer
-	Id     int             // id:int
-	UserId TLInputUserType // user_id:InputUser
+	ID     int             // id:int
+	UserID TLInputUserType // user_id:InputUser
 }
 
 func (o *TLMessagesGetGameHighScores) Cmd() uint32 {
@@ -10390,16 +10390,16 @@ func (o *TLMessagesGetGameHighScores) Cmd() uint32 {
 
 func (o *TLMessagesGetGameHighScores) ReadBareFrom(r *tl.Reader) {
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.Id = r.ReadInt()
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ID = r.ReadInt()
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 }
 
 func (o *TLMessagesGetGameHighScores) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.Id)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteInt(o.ID)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 }
 
 func (o *TLMessagesGetGameHighScores) String() string {
@@ -10408,8 +10408,8 @@ func (o *TLMessagesGetGameHighScores) String() string {
 
 // TLMessagesGetInlineGameHighScores represents func messages.getInlineGameHighScores#0f635e1b id:InputBotInlineMessageID user_id:InputUser = messages.HighScores from Telegram
 type TLMessagesGetInlineGameHighScores struct {
-	Id     *TLInputBotInlineMessageID // id:InputBotInlineMessageID
-	UserId TLInputUserType            // user_id:InputUser
+	ID     *TLInputBotInlineMessageID // id:InputBotInlineMessageID
+	UserID TLInputUserType            // user_id:InputUser
 }
 
 func (o *TLMessagesGetInlineGameHighScores) Cmd() uint32 {
@@ -10420,16 +10420,16 @@ func (o *TLMessagesGetInlineGameHighScores) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagInputBotInlineMessageID {
 		r.Fail(errors.New("expected: inputBotInlineMessageID"))
 	}
-	o.Id = new(TLInputBotInlineMessageID)
-	o.Id.ReadBareFrom(r)
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.ID = new(TLInputBotInlineMessageID)
+	o.ID.ReadBareFrom(r)
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 }
 
 func (o *TLMessagesGetInlineGameHighScores) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagInputBotInlineMessageID)
-	o.Id.WriteBareTo(w)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	o.ID.WriteBareTo(w)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 }
 
 func (o *TLMessagesGetInlineGameHighScores) String() string {
@@ -10438,8 +10438,8 @@ func (o *TLMessagesGetInlineGameHighScores) String() string {
 
 // TLMessagesGetCommonChats represents func messages.getCommonChats#0d0a48c4 user_id:InputUser max_id:int limit:int = messages.Chats from Telegram
 type TLMessagesGetCommonChats struct {
-	UserId TLInputUserType // user_id:InputUser
-	MaxId  int             // max_id:int
+	UserID TLInputUserType // user_id:InputUser
+	MaxID  int             // max_id:int
 	Limit  int             // limit:int
 }
 
@@ -10448,15 +10448,15 @@ func (o *TLMessagesGetCommonChats) Cmd() uint32 {
 }
 
 func (o *TLMessagesGetCommonChats) ReadBareFrom(r *tl.Reader) {
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
-	o.MaxId = r.ReadInt()
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.MaxID = r.ReadInt()
 	o.Limit = r.ReadInt()
 }
 
 func (o *TLMessagesGetCommonChats) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
-	w.WriteInt(o.MaxId)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
+	w.WriteInt(o.MaxID)
 	w.WriteInt(o.Limit)
 }
 
@@ -10466,7 +10466,7 @@ func (o *TLMessagesGetCommonChats) String() string {
 
 // TLMessagesGetAllChats represents func messages.getAllChats#eba80ff0 except_ids:Vector<int> = messages.Chats from Telegram
 type TLMessagesGetAllChats struct {
-	ExceptIds []int // except_ids:Vector<int>
+	ExceptIDs []int // except_ids:Vector<int>
 }
 
 func (o *TLMessagesGetAllChats) Cmd() uint32 {
@@ -10477,17 +10477,17 @@ func (o *TLMessagesGetAllChats) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.ExceptIds = make([]int, r.ReadInt())
-	for i := 0; i < len(o.ExceptIds); i++ {
-		o.ExceptIds[i] = r.ReadInt()
+	o.ExceptIDs = make([]int, r.ReadInt())
+	for i := 0; i < len(o.ExceptIDs); i++ {
+		o.ExceptIDs[i] = r.ReadInt()
 	}
 }
 
 func (o *TLMessagesGetAllChats) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.ExceptIds))
-	for i := 0; i < len(o.ExceptIds); i++ {
-		w.WriteInt(o.ExceptIds[i])
+	w.WriteInt(len(o.ExceptIDs))
+	for i := 0; i < len(o.ExceptIDs); i++ {
+		w.WriteInt(o.ExceptIDs[i])
 	}
 }
 
@@ -10604,7 +10604,7 @@ func (o *TLMessagesGetPinnedDialogs) String() string {
 // TLMessagesSetBotShippingResults represents func messages.setBotShippingResults#e5f672fa flags:# query_id:long flags.0?error:string flags.1?shipping_options:Vector<ShippingOption> = Bool from Telegram
 type TLMessagesSetBotShippingResults struct {
 	Flags           uint                // flags:#
-	QueryId         uint64              // query_id:long
+	QueryID         uint64              // query_id:long
 	Error           string              // flags.0?error:string
 	ShippingOptions []*TLShippingOption // flags.1?shipping_options:Vector<ShippingOption>
 }
@@ -10615,7 +10615,7 @@ func (o *TLMessagesSetBotShippingResults) Cmd() uint32 {
 
 func (o *TLMessagesSetBotShippingResults) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.QueryId = r.ReadUint64()
+	o.QueryID = r.ReadUint64()
 	o.Error = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -10632,7 +10632,7 @@ func (o *TLMessagesSetBotShippingResults) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessagesSetBotShippingResults) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.QueryId)
+	w.WriteUint64(o.QueryID)
 	w.WriteString(o.Error)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.ShippingOptions))
@@ -10650,7 +10650,7 @@ func (o *TLMessagesSetBotShippingResults) String() string {
 type TLMessagesSetBotPrecheckoutResults struct {
 	Flags   uint   // flags:#
 	Success bool   // flags.1?success:true
-	QueryId uint64 // query_id:long
+	QueryID uint64 // query_id:long
 	Error   string // flags.0?error:string
 }
 
@@ -10661,13 +10661,13 @@ func (o *TLMessagesSetBotPrecheckoutResults) Cmd() uint32 {
 func (o *TLMessagesSetBotPrecheckoutResults) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Success = true
-	o.QueryId = r.ReadUint64()
+	o.QueryID = r.ReadUint64()
 	o.Error = r.ReadString()
 }
 
 func (o *TLMessagesSetBotPrecheckoutResults) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.QueryId)
+	w.WriteUint64(o.QueryID)
 	w.WriteString(o.Error)
 }
 
@@ -10765,7 +10765,7 @@ func (o *TLUpdatesGetChannelDifference) String() string {
 
 // TLPhotosUpdateProfilePhoto represents func photos.updateProfilePhoto#f0bb5152 id:InputPhoto = UserProfilePhoto from Telegram
 type TLPhotosUpdateProfilePhoto struct {
-	Id TLInputPhotoType // id:InputPhoto
+	ID TLInputPhotoType // id:InputPhoto
 }
 
 func (o *TLPhotosUpdateProfilePhoto) Cmd() uint32 {
@@ -10773,12 +10773,12 @@ func (o *TLPhotosUpdateProfilePhoto) Cmd() uint32 {
 }
 
 func (o *TLPhotosUpdateProfilePhoto) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
 }
 
 func (o *TLPhotosUpdateProfilePhoto) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 }
 
 func (o *TLPhotosUpdateProfilePhoto) String() string {
@@ -10809,7 +10809,7 @@ func (o *TLPhotosUploadProfilePhoto) String() string {
 
 // TLPhotosDeletePhotos represents func photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long> from Telegram
 type TLPhotosDeletePhotos struct {
-	Id []TLInputPhotoType // id:Vector<InputPhoto>
+	ID []TLInputPhotoType // id:Vector<InputPhoto>
 }
 
 func (o *TLPhotosDeletePhotos) Cmd() uint32 {
@@ -10820,18 +10820,18 @@ func (o *TLPhotosDeletePhotos) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]TLInputPhotoType, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
+	o.ID = make([]TLInputPhotoType, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
 	}
 }
 
 func (o *TLPhotosDeletePhotos) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteCmd(o.Id[i].Cmd())
-		o.Id[i].WriteBareTo(w)
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteCmd(o.ID[i].Cmd())
+		o.ID[i].WriteBareTo(w)
 	}
 }
 
@@ -10841,9 +10841,9 @@ func (o *TLPhotosDeletePhotos) String() string {
 
 // TLPhotosGetUserPhotos represents func photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos from Telegram
 type TLPhotosGetUserPhotos struct {
-	UserId TLInputUserType // user_id:InputUser
+	UserID TLInputUserType // user_id:InputUser
 	Offset int             // offset:int
-	MaxId  uint64          // max_id:long
+	MaxID  uint64          // max_id:long
 	Limit  int             // limit:int
 }
 
@@ -10852,17 +10852,17 @@ func (o *TLPhotosGetUserPhotos) Cmd() uint32 {
 }
 
 func (o *TLPhotosGetUserPhotos) ReadBareFrom(r *tl.Reader) {
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	o.Offset = r.ReadInt()
-	o.MaxId = r.ReadUint64()
+	o.MaxID = r.ReadUint64()
 	o.Limit = r.ReadInt()
 }
 
 func (o *TLPhotosGetUserPhotos) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 	w.WriteInt(o.Offset)
-	w.WriteUint64(o.MaxId)
+	w.WriteUint64(o.MaxID)
 	w.WriteInt(o.Limit)
 }
 
@@ -10872,7 +10872,7 @@ func (o *TLPhotosGetUserPhotos) String() string {
 
 // TLUploadSaveFilePart represents func upload.saveFilePart#b304a621 file_id:long file_part:int bytes:bytes = Bool from Telegram
 type TLUploadSaveFilePart struct {
-	FileId   uint64 // file_id:long
+	FileID   uint64 // file_id:long
 	FilePart int    // file_part:int
 	Bytes    []byte // bytes:bytes
 }
@@ -10882,13 +10882,13 @@ func (o *TLUploadSaveFilePart) Cmd() uint32 {
 }
 
 func (o *TLUploadSaveFilePart) ReadBareFrom(r *tl.Reader) {
-	o.FileId = r.ReadUint64()
+	o.FileID = r.ReadUint64()
 	o.FilePart = r.ReadInt()
 	o.Bytes = r.ReadBlob()
 }
 
 func (o *TLUploadSaveFilePart) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.FileId)
+	w.WriteUint64(o.FileID)
 	w.WriteInt(o.FilePart)
 	w.WriteBlob(o.Bytes)
 }
@@ -10927,7 +10927,7 @@ func (o *TLUploadGetFile) String() string {
 
 // TLUploadSaveBigFilePart represents func upload.saveBigFilePart#de7b673d file_id:long file_part:int file_total_parts:int bytes:bytes = Bool from Telegram
 type TLUploadSaveBigFilePart struct {
-	FileId         uint64 // file_id:long
+	FileID         uint64 // file_id:long
 	FilePart       int    // file_part:int
 	FileTotalParts int    // file_total_parts:int
 	Bytes          []byte // bytes:bytes
@@ -10938,14 +10938,14 @@ func (o *TLUploadSaveBigFilePart) Cmd() uint32 {
 }
 
 func (o *TLUploadSaveBigFilePart) ReadBareFrom(r *tl.Reader) {
-	o.FileId = r.ReadUint64()
+	o.FileID = r.ReadUint64()
 	o.FilePart = r.ReadInt()
 	o.FileTotalParts = r.ReadInt()
 	o.Bytes = r.ReadBlob()
 }
 
 func (o *TLUploadSaveBigFilePart) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.FileId)
+	w.WriteUint64(o.FileID)
 	w.WriteInt(o.FilePart)
 	w.WriteInt(o.FileTotalParts)
 	w.WriteBlob(o.Bytes)
@@ -11005,21 +11005,21 @@ func (o *TLHelpGetConfig) String() string {
 	return tl.Pretty(o)
 }
 
-// TLHelpGetNearestDc represents func help.getNearestDc#1fb33026 = NearestDc from Telegram
-type TLHelpGetNearestDc struct {
+// TLHelpGetNearestDC represents func help.getNearestDc#1fb33026 = NearestDc from Telegram
+type TLHelpGetNearestDC struct {
 }
 
-func (o *TLHelpGetNearestDc) Cmd() uint32 {
-	return TagHelpGetNearestDc
+func (o *TLHelpGetNearestDC) Cmd() uint32 {
+	return TagHelpGetNearestDC
 }
 
-func (o *TLHelpGetNearestDc) ReadBareFrom(r *tl.Reader) {
+func (o *TLHelpGetNearestDC) ReadBareFrom(r *tl.Reader) {
 }
 
-func (o *TLHelpGetNearestDc) WriteBareTo(w *tl.Writer) {
+func (o *TLHelpGetNearestDC) WriteBareTo(w *tl.Writer) {
 }
 
-func (o *TLHelpGetNearestDc) String() string {
+func (o *TLHelpGetNearestDC) String() string {
 	return tl.Pretty(o)
 }
 
@@ -11179,7 +11179,7 @@ func (o *TLHelpSetBotUpdatesStatus) String() string {
 // TLChannelsReadHistory represents func channels.readHistory#cc104937 channel:InputChannel max_id:int = Bool from Telegram
 type TLChannelsReadHistory struct {
 	Channel TLInputChannelType // channel:InputChannel
-	MaxId   int                // max_id:int
+	MaxID   int                // max_id:int
 }
 
 func (o *TLChannelsReadHistory) Cmd() uint32 {
@@ -11188,13 +11188,13 @@ func (o *TLChannelsReadHistory) Cmd() uint32 {
 
 func (o *TLChannelsReadHistory) ReadBareFrom(r *tl.Reader) {
 	o.Channel = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
-	o.MaxId = r.ReadInt()
+	o.MaxID = r.ReadInt()
 }
 
 func (o *TLChannelsReadHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
-	w.WriteInt(o.MaxId)
+	w.WriteInt(o.MaxID)
 }
 
 func (o *TLChannelsReadHistory) String() string {
@@ -11204,7 +11204,7 @@ func (o *TLChannelsReadHistory) String() string {
 // TLChannelsDeleteMessages represents func channels.deleteMessages#84c1fd4e channel:InputChannel id:Vector<int> = messages.AffectedMessages from Telegram
 type TLChannelsDeleteMessages struct {
 	Channel TLInputChannelType // channel:InputChannel
-	Id      []int              // id:Vector<int>
+	ID      []int              // id:Vector<int>
 }
 
 func (o *TLChannelsDeleteMessages) Cmd() uint32 {
@@ -11216,9 +11216,9 @@ func (o *TLChannelsDeleteMessages) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]int, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = r.ReadInt()
+	o.ID = make([]int, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = r.ReadInt()
 	}
 }
 
@@ -11226,9 +11226,9 @@ func (o *TLChannelsDeleteMessages) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteInt(o.Id[i])
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteInt(o.ID[i])
 	}
 }
 
@@ -11239,7 +11239,7 @@ func (o *TLChannelsDeleteMessages) String() string {
 // TLChannelsDeleteUserHistory represents func channels.deleteUserHistory#d10dd71b channel:InputChannel user_id:InputUser = messages.AffectedHistory from Telegram
 type TLChannelsDeleteUserHistory struct {
 	Channel TLInputChannelType // channel:InputChannel
-	UserId  TLInputUserType    // user_id:InputUser
+	UserID  TLInputUserType    // user_id:InputUser
 }
 
 func (o *TLChannelsDeleteUserHistory) Cmd() uint32 {
@@ -11248,14 +11248,14 @@ func (o *TLChannelsDeleteUserHistory) Cmd() uint32 {
 
 func (o *TLChannelsDeleteUserHistory) ReadBareFrom(r *tl.Reader) {
 	o.Channel = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 }
 
 func (o *TLChannelsDeleteUserHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 }
 
 func (o *TLChannelsDeleteUserHistory) String() string {
@@ -11265,8 +11265,8 @@ func (o *TLChannelsDeleteUserHistory) String() string {
 // TLChannelsReportSpam represents func channels.reportSpam#fe087810 channel:InputChannel user_id:InputUser id:Vector<int> = Bool from Telegram
 type TLChannelsReportSpam struct {
 	Channel TLInputChannelType // channel:InputChannel
-	UserId  TLInputUserType    // user_id:InputUser
-	Id      []int              // id:Vector<int>
+	UserID  TLInputUserType    // user_id:InputUser
+	ID      []int              // id:Vector<int>
 }
 
 func (o *TLChannelsReportSpam) Cmd() uint32 {
@@ -11275,25 +11275,25 @@ func (o *TLChannelsReportSpam) Cmd() uint32 {
 
 func (o *TLChannelsReportSpam) ReadBareFrom(r *tl.Reader) {
 	o.Channel = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]int, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = r.ReadInt()
+	o.ID = make([]int, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = r.ReadInt()
 	}
 }
 
 func (o *TLChannelsReportSpam) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteInt(o.Id[i])
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteInt(o.ID[i])
 	}
 }
 
@@ -11304,7 +11304,7 @@ func (o *TLChannelsReportSpam) String() string {
 // TLChannelsGetMessages represents func channels.getMessages#93d7b347 channel:InputChannel id:Vector<int> = messages.Messages from Telegram
 type TLChannelsGetMessages struct {
 	Channel TLInputChannelType // channel:InputChannel
-	Id      []int              // id:Vector<int>
+	ID      []int              // id:Vector<int>
 }
 
 func (o *TLChannelsGetMessages) Cmd() uint32 {
@@ -11316,9 +11316,9 @@ func (o *TLChannelsGetMessages) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]int, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = r.ReadInt()
+	o.ID = make([]int, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = r.ReadInt()
 	}
 }
 
@@ -11326,9 +11326,9 @@ func (o *TLChannelsGetMessages) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteInt(o.Id[i])
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteInt(o.ID[i])
 	}
 }
 
@@ -11371,7 +11371,7 @@ func (o *TLChannelsGetParticipants) String() string {
 // TLChannelsGetParticipant represents func channels.getParticipant#546dd7a6 channel:InputChannel user_id:InputUser = channels.ChannelParticipant from Telegram
 type TLChannelsGetParticipant struct {
 	Channel TLInputChannelType // channel:InputChannel
-	UserId  TLInputUserType    // user_id:InputUser
+	UserID  TLInputUserType    // user_id:InputUser
 }
 
 func (o *TLChannelsGetParticipant) Cmd() uint32 {
@@ -11380,14 +11380,14 @@ func (o *TLChannelsGetParticipant) Cmd() uint32 {
 
 func (o *TLChannelsGetParticipant) ReadBareFrom(r *tl.Reader) {
 	o.Channel = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 }
 
 func (o *TLChannelsGetParticipant) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 }
 
 func (o *TLChannelsGetParticipant) String() string {
@@ -11396,7 +11396,7 @@ func (o *TLChannelsGetParticipant) String() string {
 
 // TLChannelsGetChannels represents func channels.getChannels#0a7f6bbb id:Vector<InputChannel> = messages.Chats from Telegram
 type TLChannelsGetChannels struct {
-	Id []TLInputChannelType // id:Vector<InputChannel>
+	ID []TLInputChannelType // id:Vector<InputChannel>
 }
 
 func (o *TLChannelsGetChannels) Cmd() uint32 {
@@ -11407,18 +11407,18 @@ func (o *TLChannelsGetChannels) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.Id = make([]TLInputChannelType, r.ReadInt())
-	for i := 0; i < len(o.Id); i++ {
-		o.Id[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
+	o.ID = make([]TLInputChannelType, r.ReadInt())
+	for i := 0; i < len(o.ID); i++ {
+		o.ID[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
 	}
 }
 
 func (o *TLChannelsGetChannels) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Id))
-	for i := 0; i < len(o.Id); i++ {
-		w.WriteCmd(o.Id[i].Cmd())
-		o.Id[i].WriteBareTo(w)
+	w.WriteInt(len(o.ID))
+	for i := 0; i < len(o.ID); i++ {
+		w.WriteCmd(o.ID[i].Cmd())
+		o.ID[i].WriteBareTo(w)
 	}
 }
 
@@ -11507,7 +11507,7 @@ func (o *TLChannelsEditAbout) String() string {
 // TLChannelsEditAdmin represents func channels.editAdmin#eb7611d0 channel:InputChannel user_id:InputUser role:ChannelParticipantRole = Updates from Telegram
 type TLChannelsEditAdmin struct {
 	Channel TLInputChannelType           // channel:InputChannel
-	UserId  TLInputUserType              // user_id:InputUser
+	UserID  TLInputUserType              // user_id:InputUser
 	Role    TLChannelParticipantRoleType // role:ChannelParticipantRole
 }
 
@@ -11517,15 +11517,15 @@ func (o *TLChannelsEditAdmin) Cmd() uint32 {
 
 func (o *TLChannelsEditAdmin) ReadBareFrom(r *tl.Reader) {
 	o.Channel = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	o.Role = Schema.ReadLimitedBoxedObjectFrom(r, TagChannelRoleEmpty, TagChannelRoleModerator, TagChannelRoleEditor).(TLChannelParticipantRoleType)
 }
 
 func (o *TLChannelsEditAdmin) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 	w.WriteCmd(o.Role.Cmd())
 	o.Role.WriteBareTo(w)
 }
@@ -11718,7 +11718,7 @@ func (o *TLChannelsInviteToChannel) String() string {
 // TLChannelsKickFromChannel represents func channels.kickFromChannel#a672de14 channel:InputChannel user_id:InputUser kicked:Bool = Updates from Telegram
 type TLChannelsKickFromChannel struct {
 	Channel TLInputChannelType // channel:InputChannel
-	UserId  TLInputUserType    // user_id:InputUser
+	UserID  TLInputUserType    // user_id:InputUser
 	Kicked  bool               // kicked:Bool
 }
 
@@ -11728,7 +11728,7 @@ func (o *TLChannelsKickFromChannel) Cmd() uint32 {
 
 func (o *TLChannelsKickFromChannel) ReadBareFrom(r *tl.Reader) {
 	o.Channel = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Kicked = (r.ReadCmd() == TagBoolTrue)
 }
@@ -11736,8 +11736,8 @@ func (o *TLChannelsKickFromChannel) ReadBareFrom(r *tl.Reader) {
 func (o *TLChannelsKickFromChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 	if o.Kicked {
 		w.WriteCmd(TagBoolTrue)
 	} else {
@@ -11826,7 +11826,7 @@ func (o *TLChannelsToggleInvites) String() string {
 // TLChannelsExportMessageLink represents func channels.exportMessageLink#c846d22d channel:InputChannel id:int = ExportedMessageLink from Telegram
 type TLChannelsExportMessageLink struct {
 	Channel TLInputChannelType // channel:InputChannel
-	Id      int                // id:int
+	ID      int                // id:int
 }
 
 func (o *TLChannelsExportMessageLink) Cmd() uint32 {
@@ -11835,13 +11835,13 @@ func (o *TLChannelsExportMessageLink) Cmd() uint32 {
 
 func (o *TLChannelsExportMessageLink) ReadBareFrom(r *tl.Reader) {
 	o.Channel = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 }
 
 func (o *TLChannelsExportMessageLink) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 }
 
 func (o *TLChannelsExportMessageLink) String() string {
@@ -11883,7 +11883,7 @@ type TLChannelsUpdatePinnedMessage struct {
 	Flags   uint               // flags:#
 	Silent  bool               // flags.0?silent:true
 	Channel TLInputChannelType // channel:InputChannel
-	Id      int                // id:int
+	ID      int                // id:int
 }
 
 func (o *TLChannelsUpdatePinnedMessage) Cmd() uint32 {
@@ -11894,14 +11894,14 @@ func (o *TLChannelsUpdatePinnedMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Silent = true
 	o.Channel = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 }
 
 func (o *TLChannelsUpdatePinnedMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 }
 
 func (o *TLChannelsUpdatePinnedMessage) String() string {
@@ -11957,7 +11957,7 @@ func (o *TLBotsSendCustomRequest) String() string {
 
 // TLBotsAnswerWebhookJSONQuery represents func bots.answerWebhookJSONQuery#e6213f4d query_id:long data:DataJSON = Bool from Telegram
 type TLBotsAnswerWebhookJSONQuery struct {
-	QueryId uint64      // query_id:long
+	QueryID uint64      // query_id:long
 	Data    *TLDataJSON // data:DataJSON
 }
 
@@ -11966,7 +11966,7 @@ func (o *TLBotsAnswerWebhookJSONQuery) Cmd() uint32 {
 }
 
 func (o *TLBotsAnswerWebhookJSONQuery) ReadBareFrom(r *tl.Reader) {
-	o.QueryId = r.ReadUint64()
+	o.QueryID = r.ReadUint64()
 	if cmd := r.ReadCmd(); cmd != TagDataJSON {
 		r.Fail(errors.New("expected: dataJSON"))
 	}
@@ -11975,7 +11975,7 @@ func (o *TLBotsAnswerWebhookJSONQuery) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLBotsAnswerWebhookJSONQuery) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.QueryId)
+	w.WriteUint64(o.QueryID)
 	w.WriteCmd(TagDataJSON)
 	o.Data.WriteBareTo(w)
 }
@@ -11986,7 +11986,7 @@ func (o *TLBotsAnswerWebhookJSONQuery) String() string {
 
 // TLPaymentsGetPaymentForm represents func payments.getPaymentForm#99f09745 msg_id:int = payments.PaymentForm from Telegram
 type TLPaymentsGetPaymentForm struct {
-	MsgId int // msg_id:int
+	MsgID int // msg_id:int
 }
 
 func (o *TLPaymentsGetPaymentForm) Cmd() uint32 {
@@ -11994,11 +11994,11 @@ func (o *TLPaymentsGetPaymentForm) Cmd() uint32 {
 }
 
 func (o *TLPaymentsGetPaymentForm) ReadBareFrom(r *tl.Reader) {
-	o.MsgId = r.ReadInt()
+	o.MsgID = r.ReadInt()
 }
 
 func (o *TLPaymentsGetPaymentForm) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.MsgId)
+	w.WriteInt(o.MsgID)
 }
 
 func (o *TLPaymentsGetPaymentForm) String() string {
@@ -12007,7 +12007,7 @@ func (o *TLPaymentsGetPaymentForm) String() string {
 
 // TLPaymentsGetPaymentReceipt represents func payments.getPaymentReceipt#a092a980 msg_id:int = payments.PaymentReceipt from Telegram
 type TLPaymentsGetPaymentReceipt struct {
-	MsgId int // msg_id:int
+	MsgID int // msg_id:int
 }
 
 func (o *TLPaymentsGetPaymentReceipt) Cmd() uint32 {
@@ -12015,11 +12015,11 @@ func (o *TLPaymentsGetPaymentReceipt) Cmd() uint32 {
 }
 
 func (o *TLPaymentsGetPaymentReceipt) ReadBareFrom(r *tl.Reader) {
-	o.MsgId = r.ReadInt()
+	o.MsgID = r.ReadInt()
 }
 
 func (o *TLPaymentsGetPaymentReceipt) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.MsgId)
+	w.WriteInt(o.MsgID)
 }
 
 func (o *TLPaymentsGetPaymentReceipt) String() string {
@@ -12030,7 +12030,7 @@ func (o *TLPaymentsGetPaymentReceipt) String() string {
 type TLPaymentsValidateRequestedInfo struct {
 	Flags uint                    // flags:#
 	Save  bool                    // flags.0?save:true
-	MsgId int                     // msg_id:int
+	MsgID int                     // msg_id:int
 	Info  *TLPaymentRequestedInfo // info:PaymentRequestedInfo
 }
 
@@ -12041,7 +12041,7 @@ func (o *TLPaymentsValidateRequestedInfo) Cmd() uint32 {
 func (o *TLPaymentsValidateRequestedInfo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Save = true
-	o.MsgId = r.ReadInt()
+	o.MsgID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
 		r.Fail(errors.New("expected: paymentRequestedInfo"))
 	}
@@ -12051,7 +12051,7 @@ func (o *TLPaymentsValidateRequestedInfo) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPaymentsValidateRequestedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.MsgId)
+	w.WriteInt(o.MsgID)
 	w.WriteCmd(TagPaymentRequestedInfo)
 	o.Info.WriteBareTo(w)
 }
@@ -12063,9 +12063,9 @@ func (o *TLPaymentsValidateRequestedInfo) String() string {
 // TLPaymentsSendPaymentForm represents func payments.sendPaymentForm#2b8879b3 flags:# msg_id:int flags.0?requested_info_id:string flags.1?shipping_option_id:string credentials:InputPaymentCredentials = payments.PaymentResult from Telegram
 type TLPaymentsSendPaymentForm struct {
 	Flags            uint                          // flags:#
-	MsgId            int                           // msg_id:int
-	RequestedInfoId  string                        // flags.0?requested_info_id:string
-	ShippingOptionId string                        // flags.1?shipping_option_id:string
+	MsgID            int                           // msg_id:int
+	RequestedInfoID  string                        // flags.0?requested_info_id:string
+	ShippingOptionID string                        // flags.1?shipping_option_id:string
 	Credentials      TLInputPaymentCredentialsType // credentials:InputPaymentCredentials
 }
 
@@ -12075,17 +12075,17 @@ func (o *TLPaymentsSendPaymentForm) Cmd() uint32 {
 
 func (o *TLPaymentsSendPaymentForm) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.MsgId = r.ReadInt()
-	o.RequestedInfoId = r.ReadString()
-	o.ShippingOptionId = r.ReadString()
+	o.MsgID = r.ReadInt()
+	o.RequestedInfoID = r.ReadString()
+	o.ShippingOptionID = r.ReadString()
 	o.Credentials = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPaymentCredentialsSaved, TagInputPaymentCredentials).(TLInputPaymentCredentialsType)
 }
 
 func (o *TLPaymentsSendPaymentForm) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.MsgId)
-	w.WriteString(o.RequestedInfoId)
-	w.WriteString(o.ShippingOptionId)
+	w.WriteInt(o.MsgID)
+	w.WriteString(o.RequestedInfoID)
+	w.WriteString(o.ShippingOptionID)
 	w.WriteCmd(o.Credentials.Cmd())
 	o.Credentials.WriteBareTo(w)
 }
@@ -12157,8 +12157,8 @@ func (o *TLPhoneGetCallConfig) String() string {
 
 // TLPhoneRequestCall represents func phone.requestCall#5b95b3d4 user_id:InputUser random_id:int g_a_hash:bytes protocol:PhoneCallProtocol = phone.PhoneCall from Telegram
 type TLPhoneRequestCall struct {
-	UserId   TLInputUserType      // user_id:InputUser
-	RandomId int                  // random_id:int
+	UserID   TLInputUserType      // user_id:InputUser
+	RandomID int                  // random_id:int
 	GAHash   []byte               // g_a_hash:bytes
 	Protocol *TLPhoneCallProtocol // protocol:PhoneCallProtocol
 }
@@ -12168,8 +12168,8 @@ func (o *TLPhoneRequestCall) Cmd() uint32 {
 }
 
 func (o *TLPhoneRequestCall) ReadBareFrom(r *tl.Reader) {
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
-	o.RandomId = r.ReadInt()
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.RandomID = r.ReadInt()
 	o.GAHash = r.ReadBlob()
 	if cmd := r.ReadCmd(); cmd != TagPhoneCallProtocol {
 		r.Fail(errors.New("expected: phoneCallProtocol"))
@@ -12179,9 +12179,9 @@ func (o *TLPhoneRequestCall) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPhoneRequestCall) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
-	w.WriteInt(o.RandomId)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
+	w.WriteInt(o.RandomID)
 	w.WriteBlob(o.GAHash)
 	w.WriteCmd(TagPhoneCallProtocol)
 	o.Protocol.WriteBareTo(w)
@@ -12299,7 +12299,7 @@ type TLPhoneDiscardCall struct {
 	Peer         *TLInputPhoneCall            // peer:InputPhoneCall
 	Duration     int                          // duration:int
 	Reason       TLPhoneCallDiscardReasonType // reason:PhoneCallDiscardReason
-	ConnectionId uint64                       // connection_id:long
+	ConnectionID uint64                       // connection_id:long
 }
 
 func (o *TLPhoneDiscardCall) Cmd() uint32 {
@@ -12314,7 +12314,7 @@ func (o *TLPhoneDiscardCall) ReadBareFrom(r *tl.Reader) {
 	o.Peer.ReadBareFrom(r)
 	o.Duration = r.ReadInt()
 	o.Reason = Schema.ReadLimitedBoxedObjectFrom(r, TagPhoneCallDiscardReasonMissed, TagPhoneCallDiscardReasonDisconnect, TagPhoneCallDiscardReasonHangup, TagPhoneCallDiscardReasonBusy).(TLPhoneCallDiscardReasonType)
-	o.ConnectionId = r.ReadUint64()
+	o.ConnectionID = r.ReadUint64()
 }
 
 func (o *TLPhoneDiscardCall) WriteBareTo(w *tl.Writer) {
@@ -12323,7 +12323,7 @@ func (o *TLPhoneDiscardCall) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Duration)
 	w.WriteCmd(o.Reason.Cmd())
 	o.Reason.WriteBareTo(w)
-	w.WriteUint64(o.ConnectionId)
+	w.WriteUint64(o.ConnectionID)
 }
 
 func (o *TLPhoneDiscardCall) String() string {
@@ -12541,78 +12541,78 @@ func (o *TLDHGenFail) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcAnswerUnknown represents ctor rpc_answer_unknown#5e2ad36e = RpcDropAnswer from MTProto
-type TLRpcAnswerUnknown struct {
+// TLRPCAnswerUnknown represents ctor rpc_answer_unknown#5e2ad36e = RpcDropAnswer from MTProto
+type TLRPCAnswerUnknown struct {
 }
 
-func (o *TLRpcAnswerUnknown) IsTLRpcDropAnswer() {}
+func (o *TLRPCAnswerUnknown) IsTLRPCDropAnswer() {}
 
-func (o *TLRpcAnswerUnknown) Cmd() uint32 {
-	return TagRpcAnswerUnknown
+func (o *TLRPCAnswerUnknown) Cmd() uint32 {
+	return TagRPCAnswerUnknown
 }
 
-func (o *TLRpcAnswerUnknown) ReadBareFrom(r *tl.Reader) {
+func (o *TLRPCAnswerUnknown) ReadBareFrom(r *tl.Reader) {
 }
 
-func (o *TLRpcAnswerUnknown) WriteBareTo(w *tl.Writer) {
+func (o *TLRPCAnswerUnknown) WriteBareTo(w *tl.Writer) {
 }
 
-func (o *TLRpcAnswerUnknown) String() string {
+func (o *TLRPCAnswerUnknown) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcAnswerDroppedRunning represents ctor rpc_answer_dropped_running#cd78e586 = RpcDropAnswer from MTProto
-type TLRpcAnswerDroppedRunning struct {
+// TLRPCAnswerDroppedRunning represents ctor rpc_answer_dropped_running#cd78e586 = RpcDropAnswer from MTProto
+type TLRPCAnswerDroppedRunning struct {
 }
 
-func (o *TLRpcAnswerDroppedRunning) IsTLRpcDropAnswer() {}
+func (o *TLRPCAnswerDroppedRunning) IsTLRPCDropAnswer() {}
 
-func (o *TLRpcAnswerDroppedRunning) Cmd() uint32 {
-	return TagRpcAnswerDroppedRunning
+func (o *TLRPCAnswerDroppedRunning) Cmd() uint32 {
+	return TagRPCAnswerDroppedRunning
 }
 
-func (o *TLRpcAnswerDroppedRunning) ReadBareFrom(r *tl.Reader) {
+func (o *TLRPCAnswerDroppedRunning) ReadBareFrom(r *tl.Reader) {
 }
 
-func (o *TLRpcAnswerDroppedRunning) WriteBareTo(w *tl.Writer) {
+func (o *TLRPCAnswerDroppedRunning) WriteBareTo(w *tl.Writer) {
 }
 
-func (o *TLRpcAnswerDroppedRunning) String() string {
+func (o *TLRPCAnswerDroppedRunning) String() string {
 	return tl.Pretty(o)
 }
 
-// TLRpcAnswerDropped represents ctor rpc_answer_dropped#a43ad8b7 msg_id:long seq_no:int bytes:int = RpcDropAnswer from MTProto
-type TLRpcAnswerDropped struct {
-	MsgId uint64 // msg_id:long
+// TLRPCAnswerDropped represents ctor rpc_answer_dropped#a43ad8b7 msg_id:long seq_no:int bytes:int = RpcDropAnswer from MTProto
+type TLRPCAnswerDropped struct {
+	MsgID uint64 // msg_id:long
 	SeqNo int    // seq_no:int
 	Bytes int    // bytes:int
 }
 
-func (o *TLRpcAnswerDropped) IsTLRpcDropAnswer() {}
+func (o *TLRPCAnswerDropped) IsTLRPCDropAnswer() {}
 
-func (o *TLRpcAnswerDropped) Cmd() uint32 {
-	return TagRpcAnswerDropped
+func (o *TLRPCAnswerDropped) Cmd() uint32 {
+	return TagRPCAnswerDropped
 }
 
-func (o *TLRpcAnswerDropped) ReadBareFrom(r *tl.Reader) {
-	o.MsgId = r.ReadUint64()
+func (o *TLRPCAnswerDropped) ReadBareFrom(r *tl.Reader) {
+	o.MsgID = r.ReadUint64()
 	o.SeqNo = r.ReadInt()
 	o.Bytes = r.ReadInt()
 }
 
-func (o *TLRpcAnswerDropped) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.MsgId)
+func (o *TLRPCAnswerDropped) WriteBareTo(w *tl.Writer) {
+	w.WriteUint64(o.MsgID)
 	w.WriteInt(o.SeqNo)
 	w.WriteInt(o.Bytes)
 }
 
-func (o *TLRpcAnswerDropped) String() string {
+func (o *TLRPCAnswerDropped) String() string {
 	return tl.Pretty(o)
 }
 
 // TLDestroySessionOK represents ctor destroy_session_ok#e22045fc session_id:long = DestroySessionRes from MTProto
 type TLDestroySessionOK struct {
-	SessionId uint64 // session_id:long
+	SessionID uint64 // session_id:long
 }
 
 func (o *TLDestroySessionOK) IsTLDestroySessionRes() {}
@@ -12622,11 +12622,11 @@ func (o *TLDestroySessionOK) Cmd() uint32 {
 }
 
 func (o *TLDestroySessionOK) ReadBareFrom(r *tl.Reader) {
-	o.SessionId = r.ReadUint64()
+	o.SessionID = r.ReadUint64()
 }
 
 func (o *TLDestroySessionOK) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.SessionId)
+	w.WriteUint64(o.SessionID)
 }
 
 func (o *TLDestroySessionOK) String() string {
@@ -12635,7 +12635,7 @@ func (o *TLDestroySessionOK) String() string {
 
 // TLDestroySessionNone represents ctor destroy_session_none#62d350c9 session_id:long = DestroySessionRes from MTProto
 type TLDestroySessionNone struct {
-	SessionId uint64 // session_id:long
+	SessionID uint64 // session_id:long
 }
 
 func (o *TLDestroySessionNone) IsTLDestroySessionRes() {}
@@ -12645,11 +12645,11 @@ func (o *TLDestroySessionNone) Cmd() uint32 {
 }
 
 func (o *TLDestroySessionNone) ReadBareFrom(r *tl.Reader) {
-	o.SessionId = r.ReadUint64()
+	o.SessionID = r.ReadUint64()
 }
 
 func (o *TLDestroySessionNone) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.SessionId)
+	w.WriteUint64(o.SessionID)
 }
 
 func (o *TLDestroySessionNone) String() string {
@@ -12658,7 +12658,7 @@ func (o *TLDestroySessionNone) String() string {
 
 // TLMessageEmpty represents ctor messageEmpty#83e5de54 id:int = Message from Telegram
 type TLMessageEmpty struct {
-	Id int // id:int
+	ID int // id:int
 }
 
 func (o *TLMessageEmpty) IsTLMessage() {}
@@ -12668,11 +12668,11 @@ func (o *TLMessageEmpty) Cmd() uint32 {
 }
 
 func (o *TLMessageEmpty) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 }
 
 func (o *TLMessageEmpty) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 }
 
 func (o *TLMessageEmpty) String() string {
@@ -12687,12 +12687,12 @@ type TLMessage struct {
 	MediaUnread  bool                  // flags.5?media_unread:true
 	Silent       bool                  // flags.13?silent:true
 	Post         bool                  // flags.14?post:true
-	Id           int                   // id:int
-	FromId       int                   // flags.8?from_id:int
-	ToId         TLPeerType            // to_id:Peer
+	ID           int                   // id:int
+	FromID       int                   // flags.8?from_id:int
+	ToID         TLPeerType            // to_id:Peer
 	FwdFrom      *TLMessageFwdHeader   // flags.2?fwd_from:MessageFwdHeader
-	ViaBotId     int                   // flags.11?via_bot_id:int
-	ReplyToMsgId int                   // flags.3?reply_to_msg_id:int
+	ViaBotID     int                   // flags.11?via_bot_id:int
+	ReplyToMsgID int                   // flags.3?reply_to_msg_id:int
 	Date         int                   // date:int
 	Message      string                // message:string
 	Media        TLMessageMediaType    // flags.9?media:MessageMedia
@@ -12715,16 +12715,16 @@ func (o *TLMessage) ReadBareFrom(r *tl.Reader) {
 	o.MediaUnread = true
 	o.Silent = true
 	o.Post = true
-	o.Id = r.ReadInt()
-	o.FromId = r.ReadInt()
-	o.ToId = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
+	o.ID = r.ReadInt()
+	o.FromID = r.ReadInt()
+	o.ToID = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
 	if cmd := r.ReadCmd(); cmd != TagMessageFwdHeader {
 		r.Fail(errors.New("expected: messageFwdHeader"))
 	}
 	o.FwdFrom = new(TLMessageFwdHeader)
 	o.FwdFrom.ReadBareFrom(r)
-	o.ViaBotId = r.ReadInt()
-	o.ReplyToMsgId = r.ReadInt()
+	o.ViaBotID = r.ReadInt()
+	o.ReplyToMsgID = r.ReadInt()
 	o.Date = r.ReadInt()
 	o.Message = r.ReadString()
 	o.Media = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageMediaEmpty, TagMessageMediaPhoto, TagMessageMediaGeo, TagMessageMediaContact, TagMessageMediaUnsupported, TagMessageMediaDocument, TagMessageMediaWebPage, TagMessageMediaVenue, TagMessageMediaGame, TagMessageMediaInvoice).(TLMessageMediaType)
@@ -12742,14 +12742,14 @@ func (o *TLMessage) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
-	w.WriteInt(o.FromId)
-	w.WriteCmd(o.ToId.Cmd())
-	o.ToId.WriteBareTo(w)
+	w.WriteInt(o.ID)
+	w.WriteInt(o.FromID)
+	w.WriteCmd(o.ToID.Cmd())
+	o.ToID.WriteBareTo(w)
 	w.WriteCmd(TagMessageFwdHeader)
 	o.FwdFrom.WriteBareTo(w)
-	w.WriteInt(o.ViaBotId)
-	w.WriteInt(o.ReplyToMsgId)
+	w.WriteInt(o.ViaBotID)
+	w.WriteInt(o.ReplyToMsgID)
 	w.WriteInt(o.Date)
 	w.WriteString(o.Message)
 	w.WriteCmd(o.Media.Cmd())
@@ -12778,10 +12778,10 @@ type TLMessageService struct {
 	MediaUnread  bool                // flags.5?media_unread:true
 	Silent       bool                // flags.13?silent:true
 	Post         bool                // flags.14?post:true
-	Id           int                 // id:int
-	FromId       int                 // flags.8?from_id:int
-	ToId         TLPeerType          // to_id:Peer
-	ReplyToMsgId int                 // flags.3?reply_to_msg_id:int
+	ID           int                 // id:int
+	FromID       int                 // flags.8?from_id:int
+	ToID         TLPeerType          // to_id:Peer
+	ReplyToMsgID int                 // flags.3?reply_to_msg_id:int
 	Date         int                 // date:int
 	Action       TLMessageActionType // action:MessageAction
 }
@@ -12799,21 +12799,21 @@ func (o *TLMessageService) ReadBareFrom(r *tl.Reader) {
 	o.MediaUnread = true
 	o.Silent = true
 	o.Post = true
-	o.Id = r.ReadInt()
-	o.FromId = r.ReadInt()
-	o.ToId = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
-	o.ReplyToMsgId = r.ReadInt()
+	o.ID = r.ReadInt()
+	o.FromID = r.ReadInt()
+	o.ToID = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
+	o.ReplyToMsgID = r.ReadInt()
 	o.Date = r.ReadInt()
 	o.Action = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageActionEmpty, TagMessageActionChatCreate, TagMessageActionChatEditTitle, TagMessageActionChatEditPhoto, TagMessageActionChatDeletePhoto, TagMessageActionChatAddUser, TagMessageActionChatDeleteUser, TagMessageActionChatJoinedByLink, TagMessageActionChannelCreate, TagMessageActionChatMigrateTo, TagMessageActionChannelMigrateFrom, TagMessageActionPinMessage, TagMessageActionHistoryClear, TagMessageActionGameScore, TagMessageActionPaymentSentMe, TagMessageActionPaymentSent, TagMessageActionPhoneCall).(TLMessageActionType)
 }
 
 func (o *TLMessageService) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
-	w.WriteInt(o.FromId)
-	w.WriteCmd(o.ToId.Cmd())
-	o.ToId.WriteBareTo(w)
-	w.WriteInt(o.ReplyToMsgId)
+	w.WriteInt(o.ID)
+	w.WriteInt(o.FromID)
+	w.WriteCmd(o.ToID.Cmd())
+	o.ToID.WriteBareTo(w)
+	w.WriteInt(o.ReplyToMsgID)
 	w.WriteInt(o.Date)
 	w.WriteCmd(o.Action.Cmd())
 	o.Action.WriteBareTo(w)
@@ -12825,7 +12825,7 @@ func (o *TLMessageService) String() string {
 
 // TLBadMsgNotification represents ctor bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int = BadMsgNotification from MTProto
 type TLBadMsgNotification struct {
-	BadMsgId    uint64 // bad_msg_id:long
+	BadMsgID    uint64 // bad_msg_id:long
 	BadMsgSeqno int    // bad_msg_seqno:int
 	ErrorCode   int    // error_code:int
 }
@@ -12837,13 +12837,13 @@ func (o *TLBadMsgNotification) Cmd() uint32 {
 }
 
 func (o *TLBadMsgNotification) ReadBareFrom(r *tl.Reader) {
-	o.BadMsgId = r.ReadUint64()
+	o.BadMsgID = r.ReadUint64()
 	o.BadMsgSeqno = r.ReadInt()
 	o.ErrorCode = r.ReadInt()
 }
 
 func (o *TLBadMsgNotification) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.BadMsgId)
+	w.WriteUint64(o.BadMsgID)
 	w.WriteInt(o.BadMsgSeqno)
 	w.WriteInt(o.ErrorCode)
 }
@@ -12854,7 +12854,7 @@ func (o *TLBadMsgNotification) String() string {
 
 // TLBadServerSalt represents ctor bad_server_salt#edab447b bad_msg_id:long bad_msg_seqno:int error_code:int new_server_salt:long = BadMsgNotification from MTProto
 type TLBadServerSalt struct {
-	BadMsgId      uint64 // bad_msg_id:long
+	BadMsgID      uint64 // bad_msg_id:long
 	BadMsgSeqno   int    // bad_msg_seqno:int
 	ErrorCode     int    // error_code:int
 	NewServerSalt uint64 // new_server_salt:long
@@ -12867,14 +12867,14 @@ func (o *TLBadServerSalt) Cmd() uint32 {
 }
 
 func (o *TLBadServerSalt) ReadBareFrom(r *tl.Reader) {
-	o.BadMsgId = r.ReadUint64()
+	o.BadMsgID = r.ReadUint64()
 	o.BadMsgSeqno = r.ReadInt()
 	o.ErrorCode = r.ReadInt()
 	o.NewServerSalt = r.ReadUint64()
 }
 
 func (o *TLBadServerSalt) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.BadMsgId)
+	w.WriteUint64(o.BadMsgID)
 	w.WriteInt(o.BadMsgSeqno)
 	w.WriteInt(o.ErrorCode)
 	w.WriteUint64(o.NewServerSalt)
@@ -12886,8 +12886,8 @@ func (o *TLBadServerSalt) String() string {
 
 // TLMsgDetailedInfo represents ctor msg_detailed_info#276d3ec6 msg_id:long answer_msg_id:long bytes:int status:int = MsgDetailedInfo from MTProto
 type TLMsgDetailedInfo struct {
-	MsgId       uint64 // msg_id:long
-	AnswerMsgId uint64 // answer_msg_id:long
+	MsgID       uint64 // msg_id:long
+	AnswerMsgID uint64 // answer_msg_id:long
 	Bytes       int    // bytes:int
 	Status      int    // status:int
 }
@@ -12899,15 +12899,15 @@ func (o *TLMsgDetailedInfo) Cmd() uint32 {
 }
 
 func (o *TLMsgDetailedInfo) ReadBareFrom(r *tl.Reader) {
-	o.MsgId = r.ReadUint64()
-	o.AnswerMsgId = r.ReadUint64()
+	o.MsgID = r.ReadUint64()
+	o.AnswerMsgID = r.ReadUint64()
 	o.Bytes = r.ReadInt()
 	o.Status = r.ReadInt()
 }
 
 func (o *TLMsgDetailedInfo) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.MsgId)
-	w.WriteUint64(o.AnswerMsgId)
+	w.WriteUint64(o.MsgID)
+	w.WriteUint64(o.AnswerMsgID)
 	w.WriteInt(o.Bytes)
 	w.WriteInt(o.Status)
 }
@@ -12918,7 +12918,7 @@ func (o *TLMsgDetailedInfo) String() string {
 
 // TLMsgNewDetailedInfo represents ctor msg_new_detailed_info#809db6df answer_msg_id:long bytes:int status:int = MsgDetailedInfo from MTProto
 type TLMsgNewDetailedInfo struct {
-	AnswerMsgId uint64 // answer_msg_id:long
+	AnswerMsgID uint64 // answer_msg_id:long
 	Bytes       int    // bytes:int
 	Status      int    // status:int
 }
@@ -12930,13 +12930,13 @@ func (o *TLMsgNewDetailedInfo) Cmd() uint32 {
 }
 
 func (o *TLMsgNewDetailedInfo) ReadBareFrom(r *tl.Reader) {
-	o.AnswerMsgId = r.ReadUint64()
+	o.AnswerMsgID = r.ReadUint64()
 	o.Bytes = r.ReadInt()
 	o.Status = r.ReadInt()
 }
 
 func (o *TLMsgNewDetailedInfo) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.AnswerMsgId)
+	w.WriteUint64(o.AnswerMsgID)
 	w.WriteInt(o.Bytes)
 	w.WriteInt(o.Status)
 }
@@ -12987,7 +12987,7 @@ func (o *TLInputPeerSelf) String() string {
 
 // TLInputPeerChat represents ctor inputPeerChat#179be863 chat_id:int = InputPeer from Telegram
 type TLInputPeerChat struct {
-	ChatId int // chat_id:int
+	ChatID int // chat_id:int
 }
 
 func (o *TLInputPeerChat) IsTLInputPeer() {}
@@ -12997,11 +12997,11 @@ func (o *TLInputPeerChat) Cmd() uint32 {
 }
 
 func (o *TLInputPeerChat) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 }
 
 func (o *TLInputPeerChat) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 }
 
 func (o *TLInputPeerChat) String() string {
@@ -13010,7 +13010,7 @@ func (o *TLInputPeerChat) String() string {
 
 // TLInputPeerUser represents ctor inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer from Telegram
 type TLInputPeerUser struct {
-	UserId     int    // user_id:int
+	UserID     int    // user_id:int
 	AccessHash uint64 // access_hash:long
 }
 
@@ -13021,12 +13021,12 @@ func (o *TLInputPeerUser) Cmd() uint32 {
 }
 
 func (o *TLInputPeerUser) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputPeerUser) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -13036,7 +13036,7 @@ func (o *TLInputPeerUser) String() string {
 
 // TLInputPeerChannel represents ctor inputPeerChannel#20adaef8 channel_id:int access_hash:long = InputPeer from Telegram
 type TLInputPeerChannel struct {
-	ChannelId  int    // channel_id:int
+	ChannelID  int    // channel_id:int
 	AccessHash uint64 // access_hash:long
 }
 
@@ -13047,12 +13047,12 @@ func (o *TLInputPeerChannel) Cmd() uint32 {
 }
 
 func (o *TLInputPeerChannel) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputPeerChannel) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
+	w.WriteInt(o.ChannelID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -13102,7 +13102,7 @@ func (o *TLInputUserSelf) String() string {
 
 // TLInputUser represents ctor inputUser#d8292816 user_id:int access_hash:long = InputUser from Telegram
 type TLInputUser struct {
-	UserId     int    // user_id:int
+	UserID     int    // user_id:int
 	AccessHash uint64 // access_hash:long
 }
 
@@ -13113,12 +13113,12 @@ func (o *TLInputUser) Cmd() uint32 {
 }
 
 func (o *TLInputUser) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputUser) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -13128,7 +13128,7 @@ func (o *TLInputUser) String() string {
 
 // TLInputFile represents ctor inputFile#f52ff27f id:long parts:int name:string md5_checksum:string = InputFile from Telegram
 type TLInputFile struct {
-	Id          uint64 // id:long
+	ID          uint64 // id:long
 	Parts       int    // parts:int
 	Name        string // name:string
 	Md5Checksum string // md5_checksum:string
@@ -13141,14 +13141,14 @@ func (o *TLInputFile) Cmd() uint32 {
 }
 
 func (o *TLInputFile) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.Parts = r.ReadInt()
 	o.Name = r.ReadString()
 	o.Md5Checksum = r.ReadString()
 }
 
 func (o *TLInputFile) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteInt(o.Parts)
 	w.WriteString(o.Name)
 	w.WriteString(o.Md5Checksum)
@@ -13160,7 +13160,7 @@ func (o *TLInputFile) String() string {
 
 // TLInputFileBig represents ctor inputFileBig#fa4f0bb5 id:long parts:int name:string = InputFile from Telegram
 type TLInputFileBig struct {
-	Id    uint64 // id:long
+	ID    uint64 // id:long
 	Parts int    // parts:int
 	Name  string // name:string
 }
@@ -13172,13 +13172,13 @@ func (o *TLInputFileBig) Cmd() uint32 {
 }
 
 func (o *TLInputFileBig) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.Parts = r.ReadInt()
 	o.Name = r.ReadString()
 }
 
 func (o *TLInputFileBig) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteInt(o.Parts)
 	w.WriteString(o.Name)
 }
@@ -13253,7 +13253,7 @@ func (o *TLInputMediaUploadedPhoto) String() string {
 
 // TLInputMediaPhoto represents ctor inputMediaPhoto#e9bfb4f3 id:InputPhoto caption:string = InputMedia from Telegram
 type TLInputMediaPhoto struct {
-	Id      TLInputPhotoType // id:InputPhoto
+	ID      TLInputPhotoType // id:InputPhoto
 	Caption string           // caption:string
 }
 
@@ -13264,13 +13264,13 @@ func (o *TLInputMediaPhoto) Cmd() uint32 {
 }
 
 func (o *TLInputMediaPhoto) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
 	o.Caption = r.ReadString()
 }
 
 func (o *TLInputMediaPhoto) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 	w.WriteString(o.Caption)
 }
 
@@ -13459,7 +13459,7 @@ func (o *TLInputMediaUploadedThumbDocument) String() string {
 
 // TLInputMediaDocument represents ctor inputMediaDocument#1a77f29c id:InputDocument caption:string = InputMedia from Telegram
 type TLInputMediaDocument struct {
-	Id      TLInputDocumentType // id:InputDocument
+	ID      TLInputDocumentType // id:InputDocument
 	Caption string              // caption:string
 }
 
@@ -13470,13 +13470,13 @@ func (o *TLInputMediaDocument) Cmd() uint32 {
 }
 
 func (o *TLInputMediaDocument) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
 	o.Caption = r.ReadString()
 }
 
 func (o *TLInputMediaDocument) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 	w.WriteString(o.Caption)
 }
 
@@ -13490,7 +13490,7 @@ type TLInputMediaVenue struct {
 	Title    string              // title:string
 	Address  string              // address:string
 	Provider string              // provider:string
-	VenueId  string              // venue_id:string
+	VenueID  string              // venue_id:string
 }
 
 func (o *TLInputMediaVenue) IsTLInputMedia() {}
@@ -13504,7 +13504,7 @@ func (o *TLInputMediaVenue) ReadBareFrom(r *tl.Reader) {
 	o.Title = r.ReadString()
 	o.Address = r.ReadString()
 	o.Provider = r.ReadString()
-	o.VenueId = r.ReadString()
+	o.VenueID = r.ReadString()
 }
 
 func (o *TLInputMediaVenue) WriteBareTo(w *tl.Writer) {
@@ -13513,7 +13513,7 @@ func (o *TLInputMediaVenue) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Title)
 	w.WriteString(o.Address)
 	w.WriteString(o.Provider)
-	w.WriteString(o.VenueId)
+	w.WriteString(o.VenueID)
 }
 
 func (o *TLInputMediaVenue) String() string {
@@ -13600,7 +13600,7 @@ func (o *TLInputMediaDocumentExternal) String() string {
 
 // TLInputMediaGame represents ctor inputMediaGame#d33f43f3 id:InputGame = InputMedia from Telegram
 type TLInputMediaGame struct {
-	Id TLInputGameType // id:InputGame
+	ID TLInputGameType // id:InputGame
 }
 
 func (o *TLInputMediaGame) IsTLInputMedia() {}
@@ -13610,12 +13610,12 @@ func (o *TLInputMediaGame) Cmd() uint32 {
 }
 
 func (o *TLInputMediaGame) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputGameID, TagInputGameShortName).(TLInputGameType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputGameID, TagInputGameShortName).(TLInputGameType)
 }
 
 func (o *TLInputMediaGame) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 }
 
 func (o *TLInputMediaGame) String() string {
@@ -13722,7 +13722,7 @@ func (o *TLInputChatUploadedPhoto) String() string {
 
 // TLInputChatPhoto represents ctor inputChatPhoto#8953ad37 id:InputPhoto = InputChatPhoto from Telegram
 type TLInputChatPhoto struct {
-	Id TLInputPhotoType // id:InputPhoto
+	ID TLInputPhotoType // id:InputPhoto
 }
 
 func (o *TLInputChatPhoto) IsTLInputChatPhoto() {}
@@ -13732,12 +13732,12 @@ func (o *TLInputChatPhoto) Cmd() uint32 {
 }
 
 func (o *TLInputChatPhoto) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
 }
 
 func (o *TLInputChatPhoto) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 }
 
 func (o *TLInputChatPhoto) String() string {
@@ -13812,7 +13812,7 @@ func (o *TLInputPhotoEmpty) String() string {
 
 // TLInputPhoto represents ctor inputPhoto#fb95c6c4 id:long access_hash:long = InputPhoto from Telegram
 type TLInputPhoto struct {
-	Id         uint64 // id:long
+	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 }
 
@@ -13823,12 +13823,12 @@ func (o *TLInputPhoto) Cmd() uint32 {
 }
 
 func (o *TLInputPhoto) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputPhoto) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -13838,8 +13838,8 @@ func (o *TLInputPhoto) String() string {
 
 // TLInputFileLocation represents ctor inputFileLocation#14637196 volume_id:long local_id:int secret:long = InputFileLocation from Telegram
 type TLInputFileLocation struct {
-	VolumeId uint64 // volume_id:long
-	LocalId  int    // local_id:int
+	VolumeID uint64 // volume_id:long
+	LocalID  int    // local_id:int
 	Secret   uint64 // secret:long
 }
 
@@ -13850,14 +13850,14 @@ func (o *TLInputFileLocation) Cmd() uint32 {
 }
 
 func (o *TLInputFileLocation) ReadBareFrom(r *tl.Reader) {
-	o.VolumeId = r.ReadUint64()
-	o.LocalId = r.ReadInt()
+	o.VolumeID = r.ReadUint64()
+	o.LocalID = r.ReadInt()
 	o.Secret = r.ReadUint64()
 }
 
 func (o *TLInputFileLocation) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.VolumeId)
-	w.WriteInt(o.LocalId)
+	w.WriteUint64(o.VolumeID)
+	w.WriteInt(o.LocalID)
 	w.WriteUint64(o.Secret)
 }
 
@@ -13867,7 +13867,7 @@ func (o *TLInputFileLocation) String() string {
 
 // TLInputEncryptedFileLocation represents ctor inputEncryptedFileLocation#f5235d55 id:long access_hash:long = InputFileLocation from Telegram
 type TLInputEncryptedFileLocation struct {
-	Id         uint64 // id:long
+	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 }
 
@@ -13878,12 +13878,12 @@ func (o *TLInputEncryptedFileLocation) Cmd() uint32 {
 }
 
 func (o *TLInputEncryptedFileLocation) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputEncryptedFileLocation) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -13893,7 +13893,7 @@ func (o *TLInputEncryptedFileLocation) String() string {
 
 // TLInputDocumentFileLocation represents ctor inputDocumentFileLocation#430f0724 id:long access_hash:long version:int = InputFileLocation from Telegram
 type TLInputDocumentFileLocation struct {
-	Id         uint64 // id:long
+	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 	Version    int    // version:int
 }
@@ -13905,13 +13905,13 @@ func (o *TLInputDocumentFileLocation) Cmd() uint32 {
 }
 
 func (o *TLInputDocumentFileLocation) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Version = r.ReadInt()
 }
 
 func (o *TLInputDocumentFileLocation) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Version)
 }
@@ -13922,7 +13922,7 @@ func (o *TLInputDocumentFileLocation) String() string {
 
 // TLPeerUser represents ctor peerUser#9db1bc6d user_id:int = Peer from Telegram
 type TLPeerUser struct {
-	UserId int // user_id:int
+	UserID int // user_id:int
 }
 
 func (o *TLPeerUser) IsTLPeer() {}
@@ -13932,11 +13932,11 @@ func (o *TLPeerUser) Cmd() uint32 {
 }
 
 func (o *TLPeerUser) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 }
 
 func (o *TLPeerUser) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 }
 
 func (o *TLPeerUser) String() string {
@@ -13945,7 +13945,7 @@ func (o *TLPeerUser) String() string {
 
 // TLPeerChat represents ctor peerChat#bad0e5bb chat_id:int = Peer from Telegram
 type TLPeerChat struct {
-	ChatId int // chat_id:int
+	ChatID int // chat_id:int
 }
 
 func (o *TLPeerChat) IsTLPeer() {}
@@ -13955,11 +13955,11 @@ func (o *TLPeerChat) Cmd() uint32 {
 }
 
 func (o *TLPeerChat) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 }
 
 func (o *TLPeerChat) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 }
 
 func (o *TLPeerChat) String() string {
@@ -13968,7 +13968,7 @@ func (o *TLPeerChat) String() string {
 
 // TLPeerChannel represents ctor peerChannel#bddde532 channel_id:int = Peer from Telegram
 type TLPeerChannel struct {
-	ChannelId int // channel_id:int
+	ChannelID int // channel_id:int
 }
 
 func (o *TLPeerChannel) IsTLPeer() {}
@@ -13978,11 +13978,11 @@ func (o *TLPeerChannel) Cmd() uint32 {
 }
 
 func (o *TLPeerChannel) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
 }
 
 func (o *TLPeerChannel) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
+	w.WriteInt(o.ChannelID)
 }
 
 func (o *TLPeerChannel) String() string {
@@ -14191,8 +14191,8 @@ func (o *TLStorageFileWebp) String() string {
 
 // TLFileLocationUnavailable represents ctor fileLocationUnavailable#7c596b46 volume_id:long local_id:int secret:long = FileLocation from Telegram
 type TLFileLocationUnavailable struct {
-	VolumeId uint64 // volume_id:long
-	LocalId  int    // local_id:int
+	VolumeID uint64 // volume_id:long
+	LocalID  int    // local_id:int
 	Secret   uint64 // secret:long
 }
 
@@ -14203,14 +14203,14 @@ func (o *TLFileLocationUnavailable) Cmd() uint32 {
 }
 
 func (o *TLFileLocationUnavailable) ReadBareFrom(r *tl.Reader) {
-	o.VolumeId = r.ReadUint64()
-	o.LocalId = r.ReadInt()
+	o.VolumeID = r.ReadUint64()
+	o.LocalID = r.ReadInt()
 	o.Secret = r.ReadUint64()
 }
 
 func (o *TLFileLocationUnavailable) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.VolumeId)
-	w.WriteInt(o.LocalId)
+	w.WriteUint64(o.VolumeID)
+	w.WriteInt(o.LocalID)
 	w.WriteUint64(o.Secret)
 }
 
@@ -14220,9 +14220,9 @@ func (o *TLFileLocationUnavailable) String() string {
 
 // TLFileLocation represents ctor fileLocation#53d69076 dc_id:int volume_id:long local_id:int secret:long = FileLocation from Telegram
 type TLFileLocation struct {
-	DcId     int    // dc_id:int
-	VolumeId uint64 // volume_id:long
-	LocalId  int    // local_id:int
+	DCID     int    // dc_id:int
+	VolumeID uint64 // volume_id:long
+	LocalID  int    // local_id:int
 	Secret   uint64 // secret:long
 }
 
@@ -14233,16 +14233,16 @@ func (o *TLFileLocation) Cmd() uint32 {
 }
 
 func (o *TLFileLocation) ReadBareFrom(r *tl.Reader) {
-	o.DcId = r.ReadInt()
-	o.VolumeId = r.ReadUint64()
-	o.LocalId = r.ReadInt()
+	o.DCID = r.ReadInt()
+	o.VolumeID = r.ReadUint64()
+	o.LocalID = r.ReadInt()
 	o.Secret = r.ReadUint64()
 }
 
 func (o *TLFileLocation) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.DcId)
-	w.WriteUint64(o.VolumeId)
-	w.WriteInt(o.LocalId)
+	w.WriteInt(o.DCID)
+	w.WriteUint64(o.VolumeID)
+	w.WriteInt(o.LocalID)
 	w.WriteUint64(o.Secret)
 }
 
@@ -14252,7 +14252,7 @@ func (o *TLFileLocation) String() string {
 
 // TLUserEmpty represents ctor userEmpty#200250ba id:int = User from Telegram
 type TLUserEmpty struct {
-	Id int // id:int
+	ID int // id:int
 }
 
 func (o *TLUserEmpty) IsTLUser() {}
@@ -14262,11 +14262,11 @@ func (o *TLUserEmpty) Cmd() uint32 {
 }
 
 func (o *TLUserEmpty) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 }
 
 func (o *TLUserEmpty) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 }
 
 func (o *TLUserEmpty) String() string {
@@ -14287,7 +14287,7 @@ type TLUser struct {
 	Restricted           bool                   // flags.18?restricted:true
 	Min                  bool                   // flags.20?min:true
 	BotInlineGeo         bool                   // flags.21?bot_inline_geo:true
-	Id                   int                    // id:int
+	ID                   int                    // id:int
 	AccessHash           uint64                 // flags.0?access_hash:long
 	FirstName            string                 // flags.1?first_name:string
 	LastName             string                 // flags.2?last_name:string
@@ -14319,7 +14319,7 @@ func (o *TLUser) ReadBareFrom(r *tl.Reader) {
 	o.Restricted = true
 	o.Min = true
 	o.BotInlineGeo = true
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 	o.FirstName = r.ReadString()
 	o.LastName = r.ReadString()
@@ -14334,7 +14334,7 @@ func (o *TLUser) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUser) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteString(o.FirstName)
 	w.WriteString(o.LastName)
@@ -14375,7 +14375,7 @@ func (o *TLUserProfilePhotoEmpty) String() string {
 
 // TLUserProfilePhoto represents ctor userProfilePhoto#d559d8c8 photo_id:long photo_small:FileLocation photo_big:FileLocation = UserProfilePhoto from Telegram
 type TLUserProfilePhoto struct {
-	PhotoId    uint64             // photo_id:long
+	PhotoID    uint64             // photo_id:long
 	PhotoSmall TLFileLocationType // photo_small:FileLocation
 	PhotoBig   TLFileLocationType // photo_big:FileLocation
 }
@@ -14387,13 +14387,13 @@ func (o *TLUserProfilePhoto) Cmd() uint32 {
 }
 
 func (o *TLUserProfilePhoto) ReadBareFrom(r *tl.Reader) {
-	o.PhotoId = r.ReadUint64()
+	o.PhotoID = r.ReadUint64()
 	o.PhotoSmall = Schema.ReadLimitedBoxedObjectFrom(r, TagFileLocationUnavailable, TagFileLocation).(TLFileLocationType)
 	o.PhotoBig = Schema.ReadLimitedBoxedObjectFrom(r, TagFileLocationUnavailable, TagFileLocation).(TLFileLocationType)
 }
 
 func (o *TLUserProfilePhoto) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.PhotoId)
+	w.WriteUint64(o.PhotoID)
 	w.WriteCmd(o.PhotoSmall.Cmd())
 	o.PhotoSmall.WriteBareTo(w)
 	w.WriteCmd(o.PhotoBig.Cmd())
@@ -14532,7 +14532,7 @@ func (o *TLUserStatusLastMonth) String() string {
 
 // TLChatEmpty represents ctor chatEmpty#9ba2d800 id:int = Chat from Telegram
 type TLChatEmpty struct {
-	Id int // id:int
+	ID int // id:int
 }
 
 func (o *TLChatEmpty) IsTLChat() {}
@@ -14542,11 +14542,11 @@ func (o *TLChatEmpty) Cmd() uint32 {
 }
 
 func (o *TLChatEmpty) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 }
 
 func (o *TLChatEmpty) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 }
 
 func (o *TLChatEmpty) String() string {
@@ -14562,7 +14562,7 @@ type TLChat struct {
 	AdminsEnabled     bool               // flags.3?admins_enabled:true
 	Admin             bool               // flags.4?admin:true
 	Deactivated       bool               // flags.5?deactivated:true
-	Id                int                // id:int
+	ID                int                // id:int
 	Title             string             // title:string
 	Photo             TLChatPhotoType    // photo:ChatPhoto
 	ParticipantsCount int                // participants_count:int
@@ -14585,7 +14585,7 @@ func (o *TLChat) ReadBareFrom(r *tl.Reader) {
 	o.AdminsEnabled = true
 	o.Admin = true
 	o.Deactivated = true
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Title = r.ReadString()
 	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagChatPhotoEmpty, TagChatPhoto).(TLChatPhotoType)
 	o.ParticipantsCount = r.ReadInt()
@@ -14596,7 +14596,7 @@ func (o *TLChat) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLChat) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteString(o.Title)
 	w.WriteCmd(o.Photo.Cmd())
 	o.Photo.WriteBareTo(w)
@@ -14613,7 +14613,7 @@ func (o *TLChat) String() string {
 
 // TLChatForbidden represents ctor chatForbidden#07328bdb id:int title:string = Chat from Telegram
 type TLChatForbidden struct {
-	Id    int    // id:int
+	ID    int    // id:int
 	Title string // title:string
 }
 
@@ -14624,12 +14624,12 @@ func (o *TLChatForbidden) Cmd() uint32 {
 }
 
 func (o *TLChatForbidden) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Title = r.ReadString()
 }
 
 func (o *TLChatForbidden) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteString(o.Title)
 }
 
@@ -14652,7 +14652,7 @@ type TLChannel struct {
 	Democracy         bool            // flags.10?democracy:true
 	Signatures        bool            // flags.11?signatures:true
 	Min               bool            // flags.12?min:true
-	Id                int             // id:int
+	ID                int             // id:int
 	AccessHash        uint64          // flags.13?access_hash:long
 	Title             string          // title:string
 	Username          string          // flags.6?username:string
@@ -14682,7 +14682,7 @@ func (o *TLChannel) ReadBareFrom(r *tl.Reader) {
 	o.Democracy = true
 	o.Signatures = true
 	o.Min = true
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 	o.Title = r.ReadString()
 	o.Username = r.ReadString()
@@ -14694,7 +14694,7 @@ func (o *TLChannel) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteString(o.Title)
 	w.WriteString(o.Username)
@@ -14714,7 +14714,7 @@ type TLChannelForbidden struct {
 	Flags      uint   // flags:#
 	Broadcast  bool   // flags.5?broadcast:true
 	Megagroup  bool   // flags.8?megagroup:true
-	Id         int    // id:int
+	ID         int    // id:int
 	AccessHash uint64 // access_hash:long
 	Title      string // title:string
 }
@@ -14729,14 +14729,14 @@ func (o *TLChannelForbidden) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Broadcast = true
 	o.Megagroup = true
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 	o.Title = r.ReadString()
 }
 
 func (o *TLChannelForbidden) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteString(o.Title)
 }
@@ -14747,7 +14747,7 @@ func (o *TLChannelForbidden) String() string {
 
 // TLChatFull represents ctor chatFull#2e02a614 id:int participants:ChatParticipants chat_photo:Photo notify_settings:PeerNotifySettings exported_invite:ExportedChatInvite bot_info:Vector<BotInfo> = ChatFull from Telegram
 type TLChatFull struct {
-	Id             int                      // id:int
+	ID             int                      // id:int
 	Participants   TLChatParticipantsType   // participants:ChatParticipants
 	ChatPhoto      TLPhotoType              // chat_photo:Photo
 	NotifySettings TLPeerNotifySettingsType // notify_settings:PeerNotifySettings
@@ -14762,7 +14762,7 @@ func (o *TLChatFull) Cmd() uint32 {
 }
 
 func (o *TLChatFull) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Participants = Schema.ReadLimitedBoxedObjectFrom(r, TagChatParticipantsForbidden, TagChatParticipants).(TLChatParticipantsType)
 	o.ChatPhoto = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
 	o.NotifySettings = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerNotifySettingsEmpty, TagPeerNotifySettings).(TLPeerNotifySettingsType)
@@ -14781,7 +14781,7 @@ func (o *TLChatFull) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLChatFull) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteCmd(o.Participants.Cmd())
 	o.Participants.WriteBareTo(w)
 	w.WriteCmd(o.ChatPhoto.Cmd())
@@ -14807,21 +14807,21 @@ type TLChannelFull struct {
 	Flags               uint                     // flags:#
 	CanViewParticipants bool                     // flags.3?can_view_participants:true
 	CanSetUsername      bool                     // flags.6?can_set_username:true
-	Id                  int                      // id:int
+	ID                  int                      // id:int
 	About               string                   // about:string
 	ParticipantsCount   int                      // flags.0?participants_count:int
 	AdminsCount         int                      // flags.1?admins_count:int
 	KickedCount         int                      // flags.2?kicked_count:int
-	ReadInboxMaxId      int                      // read_inbox_max_id:int
-	ReadOutboxMaxId     int                      // read_outbox_max_id:int
+	ReadInboxMaxID      int                      // read_inbox_max_id:int
+	ReadOutboxMaxID     int                      // read_outbox_max_id:int
 	UnreadCount         int                      // unread_count:int
 	ChatPhoto           TLPhotoType              // chat_photo:Photo
 	NotifySettings      TLPeerNotifySettingsType // notify_settings:PeerNotifySettings
 	ExportedInvite      TLExportedChatInviteType // exported_invite:ExportedChatInvite
 	BotInfo             []*TLBotInfo             // bot_info:Vector<BotInfo>
-	MigratedFromChatId  int                      // flags.4?migrated_from_chat_id:int
-	MigratedFromMaxId   int                      // flags.4?migrated_from_max_id:int
-	PinnedMsgId         int                      // flags.5?pinned_msg_id:int
+	MigratedFromChatID  int                      // flags.4?migrated_from_chat_id:int
+	MigratedFromMaxID   int                      // flags.4?migrated_from_max_id:int
+	PinnedMsgID         int                      // flags.5?pinned_msg_id:int
 }
 
 func (o *TLChannelFull) IsTLChatFull() {}
@@ -14834,13 +14834,13 @@ func (o *TLChannelFull) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.CanViewParticipants = true
 	o.CanSetUsername = true
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.About = r.ReadString()
 	o.ParticipantsCount = r.ReadInt()
 	o.AdminsCount = r.ReadInt()
 	o.KickedCount = r.ReadInt()
-	o.ReadInboxMaxId = r.ReadInt()
-	o.ReadOutboxMaxId = r.ReadInt()
+	o.ReadInboxMaxID = r.ReadInt()
+	o.ReadOutboxMaxID = r.ReadInt()
 	o.UnreadCount = r.ReadInt()
 	o.ChatPhoto = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
 	o.NotifySettings = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerNotifySettingsEmpty, TagPeerNotifySettings).(TLPeerNotifySettingsType)
@@ -14856,20 +14856,20 @@ func (o *TLChannelFull) ReadBareFrom(r *tl.Reader) {
 		o.BotInfo[i] = new(TLBotInfo)
 		o.BotInfo[i].ReadBareFrom(r)
 	}
-	o.MigratedFromChatId = r.ReadInt()
-	o.MigratedFromMaxId = r.ReadInt()
-	o.PinnedMsgId = r.ReadInt()
+	o.MigratedFromChatID = r.ReadInt()
+	o.MigratedFromMaxID = r.ReadInt()
+	o.PinnedMsgID = r.ReadInt()
 }
 
 func (o *TLChannelFull) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteString(o.About)
 	w.WriteInt(o.ParticipantsCount)
 	w.WriteInt(o.AdminsCount)
 	w.WriteInt(o.KickedCount)
-	w.WriteInt(o.ReadInboxMaxId)
-	w.WriteInt(o.ReadOutboxMaxId)
+	w.WriteInt(o.ReadInboxMaxID)
+	w.WriteInt(o.ReadOutboxMaxID)
 	w.WriteInt(o.UnreadCount)
 	w.WriteCmd(o.ChatPhoto.Cmd())
 	o.ChatPhoto.WriteBareTo(w)
@@ -14883,9 +14883,9 @@ func (o *TLChannelFull) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(TagBotInfo)
 		o.BotInfo[i].WriteBareTo(w)
 	}
-	w.WriteInt(o.MigratedFromChatId)
-	w.WriteInt(o.MigratedFromMaxId)
-	w.WriteInt(o.PinnedMsgId)
+	w.WriteInt(o.MigratedFromChatID)
+	w.WriteInt(o.MigratedFromMaxID)
+	w.WriteInt(o.PinnedMsgID)
 }
 
 func (o *TLChannelFull) String() string {
@@ -14894,8 +14894,8 @@ func (o *TLChannelFull) String() string {
 
 // TLChatParticipant represents ctor chatParticipant#c8d7493e user_id:int inviter_id:int date:int = ChatParticipant from Telegram
 type TLChatParticipant struct {
-	UserId    int // user_id:int
-	InviterId int // inviter_id:int
+	UserID    int // user_id:int
+	InviterID int // inviter_id:int
 	Date      int // date:int
 }
 
@@ -14906,14 +14906,14 @@ func (o *TLChatParticipant) Cmd() uint32 {
 }
 
 func (o *TLChatParticipant) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
-	o.InviterId = r.ReadInt()
+	o.UserID = r.ReadInt()
+	o.InviterID = r.ReadInt()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLChatParticipant) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
-	w.WriteInt(o.InviterId)
+	w.WriteInt(o.UserID)
+	w.WriteInt(o.InviterID)
 	w.WriteInt(o.Date)
 }
 
@@ -14923,7 +14923,7 @@ func (o *TLChatParticipant) String() string {
 
 // TLChatParticipantCreator represents ctor chatParticipantCreator#da13538a user_id:int = ChatParticipant from Telegram
 type TLChatParticipantCreator struct {
-	UserId int // user_id:int
+	UserID int // user_id:int
 }
 
 func (o *TLChatParticipantCreator) IsTLChatParticipant() {}
@@ -14933,11 +14933,11 @@ func (o *TLChatParticipantCreator) Cmd() uint32 {
 }
 
 func (o *TLChatParticipantCreator) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 }
 
 func (o *TLChatParticipantCreator) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 }
 
 func (o *TLChatParticipantCreator) String() string {
@@ -14946,8 +14946,8 @@ func (o *TLChatParticipantCreator) String() string {
 
 // TLChatParticipantAdmin represents ctor chatParticipantAdmin#e2d6e436 user_id:int inviter_id:int date:int = ChatParticipant from Telegram
 type TLChatParticipantAdmin struct {
-	UserId    int // user_id:int
-	InviterId int // inviter_id:int
+	UserID    int // user_id:int
+	InviterID int // inviter_id:int
 	Date      int // date:int
 }
 
@@ -14958,14 +14958,14 @@ func (o *TLChatParticipantAdmin) Cmd() uint32 {
 }
 
 func (o *TLChatParticipantAdmin) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
-	o.InviterId = r.ReadInt()
+	o.UserID = r.ReadInt()
+	o.InviterID = r.ReadInt()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLChatParticipantAdmin) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
-	w.WriteInt(o.InviterId)
+	w.WriteInt(o.UserID)
+	w.WriteInt(o.InviterID)
 	w.WriteInt(o.Date)
 }
 
@@ -14976,7 +14976,7 @@ func (o *TLChatParticipantAdmin) String() string {
 // TLChatParticipantsForbidden represents ctor chatParticipantsForbidden#fc900c2b flags:# chat_id:int flags.0?self_participant:ChatParticipant = ChatParticipants from Telegram
 type TLChatParticipantsForbidden struct {
 	Flags           uint                  // flags:#
-	ChatId          int                   // chat_id:int
+	ChatID          int                   // chat_id:int
 	SelfParticipant TLChatParticipantType // flags.0?self_participant:ChatParticipant
 }
 
@@ -14988,13 +14988,13 @@ func (o *TLChatParticipantsForbidden) Cmd() uint32 {
 
 func (o *TLChatParticipantsForbidden) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 	o.SelfParticipant = Schema.ReadLimitedBoxedObjectFrom(r, TagChatParticipant, TagChatParticipantCreator, TagChatParticipantAdmin).(TLChatParticipantType)
 }
 
 func (o *TLChatParticipantsForbidden) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 	w.WriteCmd(o.SelfParticipant.Cmd())
 	o.SelfParticipant.WriteBareTo(w)
 }
@@ -15005,7 +15005,7 @@ func (o *TLChatParticipantsForbidden) String() string {
 
 // TLChatParticipants represents ctor chatParticipants#3f460fed chat_id:int participants:Vector<ChatParticipant> version:int = ChatParticipants from Telegram
 type TLChatParticipants struct {
-	ChatId       int                     // chat_id:int
+	ChatID       int                     // chat_id:int
 	Participants []TLChatParticipantType // participants:Vector<ChatParticipant>
 	Version      int                     // version:int
 }
@@ -15017,7 +15017,7 @@ func (o *TLChatParticipants) Cmd() uint32 {
 }
 
 func (o *TLChatParticipants) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -15029,7 +15029,7 @@ func (o *TLChatParticipants) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLChatParticipants) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Participants))
 	for i := 0; i < len(o.Participants); i++ {
@@ -15167,7 +15167,7 @@ type TLMessageMediaContact struct {
 	PhoneNumber string // phone_number:string
 	FirstName   string // first_name:string
 	LastName    string // last_name:string
-	UserId      int    // user_id:int
+	UserID      int    // user_id:int
 }
 
 func (o *TLMessageMediaContact) IsTLMessageMedia() {}
@@ -15180,14 +15180,14 @@ func (o *TLMessageMediaContact) ReadBareFrom(r *tl.Reader) {
 	o.PhoneNumber = r.ReadString()
 	o.FirstName = r.ReadString()
 	o.LastName = r.ReadString()
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 }
 
 func (o *TLMessageMediaContact) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PhoneNumber)
 	w.WriteString(o.FirstName)
 	w.WriteString(o.LastName)
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 }
 
 func (o *TLMessageMediaContact) String() string {
@@ -15271,7 +15271,7 @@ type TLMessageMediaVenue struct {
 	Title    string         // title:string
 	Address  string         // address:string
 	Provider string         // provider:string
-	VenueId  string         // venue_id:string
+	VenueID  string         // venue_id:string
 }
 
 func (o *TLMessageMediaVenue) IsTLMessageMedia() {}
@@ -15285,7 +15285,7 @@ func (o *TLMessageMediaVenue) ReadBareFrom(r *tl.Reader) {
 	o.Title = r.ReadString()
 	o.Address = r.ReadString()
 	o.Provider = r.ReadString()
-	o.VenueId = r.ReadString()
+	o.VenueID = r.ReadString()
 }
 
 func (o *TLMessageMediaVenue) WriteBareTo(w *tl.Writer) {
@@ -15294,7 +15294,7 @@ func (o *TLMessageMediaVenue) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Title)
 	w.WriteString(o.Address)
 	w.WriteString(o.Provider)
-	w.WriteString(o.VenueId)
+	w.WriteString(o.VenueID)
 }
 
 func (o *TLMessageMediaVenue) String() string {
@@ -15337,7 +15337,7 @@ type TLMessageMediaInvoice struct {
 	Title                    string         // title:string
 	Description              string         // description:string
 	Photo                    *TLWebDocument // flags.0?photo:WebDocument
-	ReceiptMsgId             int            // flags.2?receipt_msg_id:int
+	ReceiptMsgID             int            // flags.2?receipt_msg_id:int
 	Currency                 string         // currency:string
 	TotalAmount              uint64         // total_amount:long
 	StartParam               string         // start_param:string
@@ -15360,7 +15360,7 @@ func (o *TLMessageMediaInvoice) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Photo = new(TLWebDocument)
 	o.Photo.ReadBareFrom(r)
-	o.ReceiptMsgId = r.ReadInt()
+	o.ReceiptMsgID = r.ReadInt()
 	o.Currency = r.ReadString()
 	o.TotalAmount = r.ReadUint64()
 	o.StartParam = r.ReadString()
@@ -15372,7 +15372,7 @@ func (o *TLMessageMediaInvoice) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Description)
 	w.WriteCmd(TagWebDocument)
 	o.Photo.WriteBareTo(w)
-	w.WriteInt(o.ReceiptMsgId)
+	w.WriteInt(o.ReceiptMsgID)
 	w.WriteString(o.Currency)
 	w.WriteUint64(o.TotalAmount)
 	w.WriteString(o.StartParam)
@@ -15540,7 +15540,7 @@ func (o *TLMessageActionChatAddUser) String() string {
 
 // TLMessageActionChatDeleteUser represents ctor messageActionChatDeleteUser#b2ae9b0c user_id:int = MessageAction from Telegram
 type TLMessageActionChatDeleteUser struct {
-	UserId int // user_id:int
+	UserID int // user_id:int
 }
 
 func (o *TLMessageActionChatDeleteUser) IsTLMessageAction() {}
@@ -15550,11 +15550,11 @@ func (o *TLMessageActionChatDeleteUser) Cmd() uint32 {
 }
 
 func (o *TLMessageActionChatDeleteUser) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 }
 
 func (o *TLMessageActionChatDeleteUser) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 }
 
 func (o *TLMessageActionChatDeleteUser) String() string {
@@ -15563,7 +15563,7 @@ func (o *TLMessageActionChatDeleteUser) String() string {
 
 // TLMessageActionChatJoinedByLink represents ctor messageActionChatJoinedByLink#f89cf5e8 inviter_id:int = MessageAction from Telegram
 type TLMessageActionChatJoinedByLink struct {
-	InviterId int // inviter_id:int
+	InviterID int // inviter_id:int
 }
 
 func (o *TLMessageActionChatJoinedByLink) IsTLMessageAction() {}
@@ -15573,11 +15573,11 @@ func (o *TLMessageActionChatJoinedByLink) Cmd() uint32 {
 }
 
 func (o *TLMessageActionChatJoinedByLink) ReadBareFrom(r *tl.Reader) {
-	o.InviterId = r.ReadInt()
+	o.InviterID = r.ReadInt()
 }
 
 func (o *TLMessageActionChatJoinedByLink) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.InviterId)
+	w.WriteInt(o.InviterID)
 }
 
 func (o *TLMessageActionChatJoinedByLink) String() string {
@@ -15609,7 +15609,7 @@ func (o *TLMessageActionChannelCreate) String() string {
 
 // TLMessageActionChatMigrateTo represents ctor messageActionChatMigrateTo#51bdb021 channel_id:int = MessageAction from Telegram
 type TLMessageActionChatMigrateTo struct {
-	ChannelId int // channel_id:int
+	ChannelID int // channel_id:int
 }
 
 func (o *TLMessageActionChatMigrateTo) IsTLMessageAction() {}
@@ -15619,11 +15619,11 @@ func (o *TLMessageActionChatMigrateTo) Cmd() uint32 {
 }
 
 func (o *TLMessageActionChatMigrateTo) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
 }
 
 func (o *TLMessageActionChatMigrateTo) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
+	w.WriteInt(o.ChannelID)
 }
 
 func (o *TLMessageActionChatMigrateTo) String() string {
@@ -15633,7 +15633,7 @@ func (o *TLMessageActionChatMigrateTo) String() string {
 // TLMessageActionChannelMigrateFrom represents ctor messageActionChannelMigrateFrom#b055eaee title:string chat_id:int = MessageAction from Telegram
 type TLMessageActionChannelMigrateFrom struct {
 	Title  string // title:string
-	ChatId int    // chat_id:int
+	ChatID int    // chat_id:int
 }
 
 func (o *TLMessageActionChannelMigrateFrom) IsTLMessageAction() {}
@@ -15644,12 +15644,12 @@ func (o *TLMessageActionChannelMigrateFrom) Cmd() uint32 {
 
 func (o *TLMessageActionChannelMigrateFrom) ReadBareFrom(r *tl.Reader) {
 	o.Title = r.ReadString()
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 }
 
 func (o *TLMessageActionChannelMigrateFrom) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Title)
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 }
 
 func (o *TLMessageActionChannelMigrateFrom) String() string {
@@ -15698,7 +15698,7 @@ func (o *TLMessageActionHistoryClear) String() string {
 
 // TLMessageActionGameScore represents ctor messageActionGameScore#92a72876 game_id:long score:int = MessageAction from Telegram
 type TLMessageActionGameScore struct {
-	GameId uint64 // game_id:long
+	GameID uint64 // game_id:long
 	Score  int    // score:int
 }
 
@@ -15709,12 +15709,12 @@ func (o *TLMessageActionGameScore) Cmd() uint32 {
 }
 
 func (o *TLMessageActionGameScore) ReadBareFrom(r *tl.Reader) {
-	o.GameId = r.ReadUint64()
+	o.GameID = r.ReadUint64()
 	o.Score = r.ReadInt()
 }
 
 func (o *TLMessageActionGameScore) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.GameId)
+	w.WriteUint64(o.GameID)
 	w.WriteInt(o.Score)
 }
 
@@ -15729,7 +15729,7 @@ type TLMessageActionPaymentSentMe struct {
 	TotalAmount      uint64                  // total_amount:long
 	Payload          []byte                  // payload:bytes
 	Info             *TLPaymentRequestedInfo // flags.0?info:PaymentRequestedInfo
-	ShippingOptionId string                  // flags.1?shipping_option_id:string
+	ShippingOptionID string                  // flags.1?shipping_option_id:string
 	Charge           *TLPaymentCharge        // charge:PaymentCharge
 }
 
@@ -15749,7 +15749,7 @@ func (o *TLMessageActionPaymentSentMe) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Info = new(TLPaymentRequestedInfo)
 	o.Info.ReadBareFrom(r)
-	o.ShippingOptionId = r.ReadString()
+	o.ShippingOptionID = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagPaymentCharge {
 		r.Fail(errors.New("expected: paymentCharge"))
 	}
@@ -15764,7 +15764,7 @@ func (o *TLMessageActionPaymentSentMe) WriteBareTo(w *tl.Writer) {
 	w.WriteBlob(o.Payload)
 	w.WriteCmd(TagPaymentRequestedInfo)
 	o.Info.WriteBareTo(w)
-	w.WriteString(o.ShippingOptionId)
+	w.WriteString(o.ShippingOptionID)
 	w.WriteCmd(TagPaymentCharge)
 	o.Charge.WriteBareTo(w)
 }
@@ -15802,7 +15802,7 @@ func (o *TLMessageActionPaymentSent) String() string {
 // TLMessageActionPhoneCall represents ctor messageActionPhoneCall#80e11a7f flags:# call_id:long flags.0?reason:PhoneCallDiscardReason flags.1?duration:int = MessageAction from Telegram
 type TLMessageActionPhoneCall struct {
 	Flags    uint                         // flags:#
-	CallId   uint64                       // call_id:long
+	CallID   uint64                       // call_id:long
 	Reason   TLPhoneCallDiscardReasonType // flags.0?reason:PhoneCallDiscardReason
 	Duration int                          // flags.1?duration:int
 }
@@ -15815,14 +15815,14 @@ func (o *TLMessageActionPhoneCall) Cmd() uint32 {
 
 func (o *TLMessageActionPhoneCall) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.CallId = r.ReadUint64()
+	o.CallID = r.ReadUint64()
 	o.Reason = Schema.ReadLimitedBoxedObjectFrom(r, TagPhoneCallDiscardReasonMissed, TagPhoneCallDiscardReasonDisconnect, TagPhoneCallDiscardReasonHangup, TagPhoneCallDiscardReasonBusy).(TLPhoneCallDiscardReasonType)
 	o.Duration = r.ReadInt()
 }
 
 func (o *TLMessageActionPhoneCall) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.CallId)
+	w.WriteUint64(o.CallID)
 	w.WriteCmd(o.Reason.Cmd())
 	o.Reason.WriteBareTo(w)
 	w.WriteInt(o.Duration)
@@ -15909,7 +15909,7 @@ func (o *TLDraftMessageEmpty) String() string {
 type TLDraftMessage struct {
 	Flags        uint                  // flags:#
 	NoWebpage    bool                  // flags.1?no_webpage:true
-	ReplyToMsgId int                   // flags.0?reply_to_msg_id:int
+	ReplyToMsgID int                   // flags.0?reply_to_msg_id:int
 	Message      string                // message:string
 	Entities     []TLMessageEntityType // flags.3?entities:Vector<MessageEntity>
 	Date         int                   // date:int
@@ -15924,7 +15924,7 @@ func (o *TLDraftMessage) Cmd() uint32 {
 func (o *TLDraftMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.NoWebpage = true
-	o.ReplyToMsgId = r.ReadInt()
+	o.ReplyToMsgID = r.ReadInt()
 	o.Message = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -15938,7 +15938,7 @@ func (o *TLDraftMessage) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLDraftMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.ReplyToMsgId)
+	w.WriteInt(o.ReplyToMsgID)
 	w.WriteString(o.Message)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Entities))
@@ -15955,7 +15955,7 @@ func (o *TLDraftMessage) String() string {
 
 // TLPhotoEmpty represents ctor photoEmpty#2331b22d id:long = Photo from Telegram
 type TLPhotoEmpty struct {
-	Id uint64 // id:long
+	ID uint64 // id:long
 }
 
 func (o *TLPhotoEmpty) IsTLPhoto() {}
@@ -15965,11 +15965,11 @@ func (o *TLPhotoEmpty) Cmd() uint32 {
 }
 
 func (o *TLPhotoEmpty) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 }
 
 func (o *TLPhotoEmpty) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 }
 
 func (o *TLPhotoEmpty) String() string {
@@ -15980,7 +15980,7 @@ func (o *TLPhotoEmpty) String() string {
 type TLPhoto struct {
 	Flags       uint              // flags:#
 	HasStickers bool              // flags.0?has_stickers:true
-	Id          uint64            // id:long
+	ID          uint64            // id:long
 	AccessHash  uint64            // access_hash:long
 	Date        int               // date:int
 	Sizes       []TLPhotoSizeType // sizes:Vector<PhotoSize>
@@ -15995,7 +15995,7 @@ func (o *TLPhoto) Cmd() uint32 {
 func (o *TLPhoto) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.HasStickers = true
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Date = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagVector {
@@ -16009,7 +16009,7 @@ func (o *TLPhoto) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPhoto) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Date)
 	w.WriteCmd(TagVector)
@@ -16483,7 +16483,7 @@ func (o *TLPeerNotifyEventsAll) String() string {
 
 // TLWallPaper represents ctor wallPaper#ccb03657 id:int title:string sizes:Vector<PhotoSize> color:int = WallPaper from Telegram
 type TLWallPaper struct {
-	Id    int               // id:int
+	ID    int               // id:int
 	Title string            // title:string
 	Sizes []TLPhotoSizeType // sizes:Vector<PhotoSize>
 	Color int               // color:int
@@ -16496,7 +16496,7 @@ func (o *TLWallPaper) Cmd() uint32 {
 }
 
 func (o *TLWallPaper) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Title = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -16509,7 +16509,7 @@ func (o *TLWallPaper) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLWallPaper) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteString(o.Title)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Sizes))
@@ -16526,7 +16526,7 @@ func (o *TLWallPaper) String() string {
 
 // TLWallPaperSolid represents ctor wallPaperSolid#63117f24 id:int title:string bg_color:int color:int = WallPaper from Telegram
 type TLWallPaperSolid struct {
-	Id      int    // id:int
+	ID      int    // id:int
 	Title   string // title:string
 	BgColor int    // bg_color:int
 	Color   int    // color:int
@@ -16539,14 +16539,14 @@ func (o *TLWallPaperSolid) Cmd() uint32 {
 }
 
 func (o *TLWallPaperSolid) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Title = r.ReadString()
 	o.BgColor = r.ReadInt()
 	o.Color = r.ReadInt()
 }
 
 func (o *TLWallPaperSolid) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteString(o.Title)
 	w.WriteInt(o.BgColor)
 	w.WriteInt(o.Color)
@@ -17607,8 +17607,8 @@ func (o *TLUpdateNewMessage) String() string {
 
 // TLUpdateMessageID represents ctor updateMessageID#4e90bfd6 id:int random_id:long = Update from Telegram
 type TLUpdateMessageID struct {
-	Id       int    // id:int
-	RandomId uint64 // random_id:long
+	ID       int    // id:int
+	RandomID uint64 // random_id:long
 }
 
 func (o *TLUpdateMessageID) IsTLUpdate() {}
@@ -17618,13 +17618,13 @@ func (o *TLUpdateMessageID) Cmd() uint32 {
 }
 
 func (o *TLUpdateMessageID) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
-	o.RandomId = r.ReadUint64()
+	o.ID = r.ReadInt()
+	o.RandomID = r.ReadUint64()
 }
 
 func (o *TLUpdateMessageID) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
-	w.WriteUint64(o.RandomId)
+	w.WriteInt(o.ID)
+	w.WriteUint64(o.RandomID)
 }
 
 func (o *TLUpdateMessageID) String() string {
@@ -17672,7 +17672,7 @@ func (o *TLUpdateDeleteMessages) String() string {
 
 // TLUpdateUserTyping represents ctor updateUserTyping#5c486927 user_id:int action:SendMessageAction = Update from Telegram
 type TLUpdateUserTyping struct {
-	UserId int                     // user_id:int
+	UserID int                     // user_id:int
 	Action TLSendMessageActionType // action:SendMessageAction
 }
 
@@ -17683,12 +17683,12 @@ func (o *TLUpdateUserTyping) Cmd() uint32 {
 }
 
 func (o *TLUpdateUserTyping) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Action = Schema.ReadLimitedBoxedObjectFrom(r, TagSendMessageTypingAction, TagSendMessageCancelAction, TagSendMessageRecordVideoAction, TagSendMessageUploadVideoAction, TagSendMessageRecordAudioAction, TagSendMessageUploadAudioAction, TagSendMessageUploadPhotoAction, TagSendMessageUploadDocumentAction, TagSendMessageGeoLocationAction, TagSendMessageChooseContactAction, TagSendMessageGamePlayAction).(TLSendMessageActionType)
 }
 
 func (o *TLUpdateUserTyping) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteCmd(o.Action.Cmd())
 	o.Action.WriteBareTo(w)
 }
@@ -17699,8 +17699,8 @@ func (o *TLUpdateUserTyping) String() string {
 
 // TLUpdateChatUserTyping represents ctor updateChatUserTyping#9a65ea1f chat_id:int user_id:int action:SendMessageAction = Update from Telegram
 type TLUpdateChatUserTyping struct {
-	ChatId int                     // chat_id:int
-	UserId int                     // user_id:int
+	ChatID int                     // chat_id:int
+	UserID int                     // user_id:int
 	Action TLSendMessageActionType // action:SendMessageAction
 }
 
@@ -17711,14 +17711,14 @@ func (o *TLUpdateChatUserTyping) Cmd() uint32 {
 }
 
 func (o *TLUpdateChatUserTyping) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
-	o.UserId = r.ReadInt()
+	o.ChatID = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Action = Schema.ReadLimitedBoxedObjectFrom(r, TagSendMessageTypingAction, TagSendMessageCancelAction, TagSendMessageRecordVideoAction, TagSendMessageUploadVideoAction, TagSendMessageRecordAudioAction, TagSendMessageUploadAudioAction, TagSendMessageUploadPhotoAction, TagSendMessageUploadDocumentAction, TagSendMessageGeoLocationAction, TagSendMessageChooseContactAction, TagSendMessageGamePlayAction).(TLSendMessageActionType)
 }
 
 func (o *TLUpdateChatUserTyping) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.ChatID)
+	w.WriteInt(o.UserID)
 	w.WriteCmd(o.Action.Cmd())
 	o.Action.WriteBareTo(w)
 }
@@ -17753,7 +17753,7 @@ func (o *TLUpdateChatParticipants) String() string {
 
 // TLUpdateUserStatus represents ctor updateUserStatus#1bfbd823 user_id:int status:UserStatus = Update from Telegram
 type TLUpdateUserStatus struct {
-	UserId int              // user_id:int
+	UserID int              // user_id:int
 	Status TLUserStatusType // status:UserStatus
 }
 
@@ -17764,12 +17764,12 @@ func (o *TLUpdateUserStatus) Cmd() uint32 {
 }
 
 func (o *TLUpdateUserStatus) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Status = Schema.ReadLimitedBoxedObjectFrom(r, TagUserStatusEmpty, TagUserStatusOnline, TagUserStatusOffline, TagUserStatusRecently, TagUserStatusLastWeek, TagUserStatusLastMonth).(TLUserStatusType)
 }
 
 func (o *TLUpdateUserStatus) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteCmd(o.Status.Cmd())
 	o.Status.WriteBareTo(w)
 }
@@ -17780,7 +17780,7 @@ func (o *TLUpdateUserStatus) String() string {
 
 // TLUpdateUserName represents ctor updateUserName#a7332b73 user_id:int first_name:string last_name:string username:string = Update from Telegram
 type TLUpdateUserName struct {
-	UserId    int    // user_id:int
+	UserID    int    // user_id:int
 	FirstName string // first_name:string
 	LastName  string // last_name:string
 	Username  string // username:string
@@ -17793,14 +17793,14 @@ func (o *TLUpdateUserName) Cmd() uint32 {
 }
 
 func (o *TLUpdateUserName) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.FirstName = r.ReadString()
 	o.LastName = r.ReadString()
 	o.Username = r.ReadString()
 }
 
 func (o *TLUpdateUserName) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteString(o.FirstName)
 	w.WriteString(o.LastName)
 	w.WriteString(o.Username)
@@ -17812,7 +17812,7 @@ func (o *TLUpdateUserName) String() string {
 
 // TLUpdateUserPhoto represents ctor updateUserPhoto#95313b0c user_id:int date:int photo:UserProfilePhoto previous:Bool = Update from Telegram
 type TLUpdateUserPhoto struct {
-	UserId   int                    // user_id:int
+	UserID   int                    // user_id:int
 	Date     int                    // date:int
 	Photo    TLUserProfilePhotoType // photo:UserProfilePhoto
 	Previous bool                   // previous:Bool
@@ -17825,7 +17825,7 @@ func (o *TLUpdateUserPhoto) Cmd() uint32 {
 }
 
 func (o *TLUpdateUserPhoto) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Date = r.ReadInt()
 	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagUserProfilePhotoEmpty, TagUserProfilePhoto).(TLUserProfilePhotoType)
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
@@ -17833,7 +17833,7 @@ func (o *TLUpdateUserPhoto) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUpdateUserPhoto) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteInt(o.Date)
 	w.WriteCmd(o.Photo.Cmd())
 	o.Photo.WriteBareTo(w)
@@ -17850,7 +17850,7 @@ func (o *TLUpdateUserPhoto) String() string {
 
 // TLUpdateContactRegistered represents ctor updateContactRegistered#2575bbb9 user_id:int date:int = Update from Telegram
 type TLUpdateContactRegistered struct {
-	UserId int // user_id:int
+	UserID int // user_id:int
 	Date   int // date:int
 }
 
@@ -17861,12 +17861,12 @@ func (o *TLUpdateContactRegistered) Cmd() uint32 {
 }
 
 func (o *TLUpdateContactRegistered) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLUpdateContactRegistered) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteInt(o.Date)
 }
 
@@ -17876,7 +17876,7 @@ func (o *TLUpdateContactRegistered) String() string {
 
 // TLUpdateContactLink represents ctor updateContactLink#9d2e67c5 user_id:int my_link:ContactLink foreign_link:ContactLink = Update from Telegram
 type TLUpdateContactLink struct {
-	UserId      int               // user_id:int
+	UserID      int               // user_id:int
 	MyLink      TLContactLinkType // my_link:ContactLink
 	ForeignLink TLContactLinkType // foreign_link:ContactLink
 }
@@ -17888,13 +17888,13 @@ func (o *TLUpdateContactLink) Cmd() uint32 {
 }
 
 func (o *TLUpdateContactLink) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.MyLink = Schema.ReadLimitedBoxedObjectFrom(r, TagContactLinkUnknown, TagContactLinkNone, TagContactLinkHasPhone, TagContactLinkContact).(TLContactLinkType)
 	o.ForeignLink = Schema.ReadLimitedBoxedObjectFrom(r, TagContactLinkUnknown, TagContactLinkNone, TagContactLinkHasPhone, TagContactLinkContact).(TLContactLinkType)
 }
 
 func (o *TLUpdateContactLink) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteCmd(o.MyLink.Cmd())
 	o.MyLink.WriteBareTo(w)
 	w.WriteCmd(o.ForeignLink.Cmd())
@@ -17934,7 +17934,7 @@ func (o *TLUpdateNewEncryptedMessage) String() string {
 
 // TLUpdateEncryptedChatTyping represents ctor updateEncryptedChatTyping#1710f156 chat_id:int = Update from Telegram
 type TLUpdateEncryptedChatTyping struct {
-	ChatId int // chat_id:int
+	ChatID int // chat_id:int
 }
 
 func (o *TLUpdateEncryptedChatTyping) IsTLUpdate() {}
@@ -17944,11 +17944,11 @@ func (o *TLUpdateEncryptedChatTyping) Cmd() uint32 {
 }
 
 func (o *TLUpdateEncryptedChatTyping) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 }
 
 func (o *TLUpdateEncryptedChatTyping) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 }
 
 func (o *TLUpdateEncryptedChatTyping) String() string {
@@ -17984,7 +17984,7 @@ func (o *TLUpdateEncryption) String() string {
 
 // TLUpdateEncryptedMessagesRead represents ctor updateEncryptedMessagesRead#38fe25b7 chat_id:int max_date:int date:int = Update from Telegram
 type TLUpdateEncryptedMessagesRead struct {
-	ChatId  int // chat_id:int
+	ChatID  int // chat_id:int
 	MaxDate int // max_date:int
 	Date    int // date:int
 }
@@ -17996,13 +17996,13 @@ func (o *TLUpdateEncryptedMessagesRead) Cmd() uint32 {
 }
 
 func (o *TLUpdateEncryptedMessagesRead) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 	o.MaxDate = r.ReadInt()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLUpdateEncryptedMessagesRead) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 	w.WriteInt(o.MaxDate)
 	w.WriteInt(o.Date)
 }
@@ -18013,9 +18013,9 @@ func (o *TLUpdateEncryptedMessagesRead) String() string {
 
 // TLUpdateChatParticipantAdd represents ctor updateChatParticipantAdd#ea4b0e5c chat_id:int user_id:int inviter_id:int date:int version:int = Update from Telegram
 type TLUpdateChatParticipantAdd struct {
-	ChatId    int // chat_id:int
-	UserId    int // user_id:int
-	InviterId int // inviter_id:int
+	ChatID    int // chat_id:int
+	UserID    int // user_id:int
+	InviterID int // inviter_id:int
 	Date      int // date:int
 	Version   int // version:int
 }
@@ -18027,17 +18027,17 @@ func (o *TLUpdateChatParticipantAdd) Cmd() uint32 {
 }
 
 func (o *TLUpdateChatParticipantAdd) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
-	o.UserId = r.ReadInt()
-	o.InviterId = r.ReadInt()
+	o.ChatID = r.ReadInt()
+	o.UserID = r.ReadInt()
+	o.InviterID = r.ReadInt()
 	o.Date = r.ReadInt()
 	o.Version = r.ReadInt()
 }
 
 func (o *TLUpdateChatParticipantAdd) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
-	w.WriteInt(o.UserId)
-	w.WriteInt(o.InviterId)
+	w.WriteInt(o.ChatID)
+	w.WriteInt(o.UserID)
+	w.WriteInt(o.InviterID)
 	w.WriteInt(o.Date)
 	w.WriteInt(o.Version)
 }
@@ -18048,8 +18048,8 @@ func (o *TLUpdateChatParticipantAdd) String() string {
 
 // TLUpdateChatParticipantDelete represents ctor updateChatParticipantDelete#6e5f8c22 chat_id:int user_id:int version:int = Update from Telegram
 type TLUpdateChatParticipantDelete struct {
-	ChatId  int // chat_id:int
-	UserId  int // user_id:int
+	ChatID  int // chat_id:int
+	UserID  int // user_id:int
 	Version int // version:int
 }
 
@@ -18060,14 +18060,14 @@ func (o *TLUpdateChatParticipantDelete) Cmd() uint32 {
 }
 
 func (o *TLUpdateChatParticipantDelete) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
-	o.UserId = r.ReadInt()
+	o.ChatID = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Version = r.ReadInt()
 }
 
 func (o *TLUpdateChatParticipantDelete) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.ChatID)
+	w.WriteInt(o.UserID)
 	w.WriteInt(o.Version)
 }
 
@@ -18075,47 +18075,47 @@ func (o *TLUpdateChatParticipantDelete) String() string {
 	return tl.Pretty(o)
 }
 
-// TLUpdateDcOptions represents ctor updateDcOptions#8e5e9873 dc_options:Vector<DcOption> = Update from Telegram
-type TLUpdateDcOptions struct {
-	DcOptions []*TLDcOption // dc_options:Vector<DcOption>
+// TLUpdateDCOptions represents ctor updateDcOptions#8e5e9873 dc_options:Vector<DcOption> = Update from Telegram
+type TLUpdateDCOptions struct {
+	DCOptions []*TLDCOption // dc_options:Vector<DcOption>
 }
 
-func (o *TLUpdateDcOptions) IsTLUpdate() {}
+func (o *TLUpdateDCOptions) IsTLUpdate() {}
 
-func (o *TLUpdateDcOptions) Cmd() uint32 {
-	return TagUpdateDcOptions
+func (o *TLUpdateDCOptions) Cmd() uint32 {
+	return TagUpdateDCOptions
 }
 
-func (o *TLUpdateDcOptions) ReadBareFrom(r *tl.Reader) {
+func (o *TLUpdateDCOptions) ReadBareFrom(r *tl.Reader) {
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
-	o.DcOptions = make([]*TLDcOption, r.ReadInt())
-	for i := 0; i < len(o.DcOptions); i++ {
-		if cmd := r.ReadCmd(); cmd != TagDcOption {
+	o.DCOptions = make([]*TLDCOption, r.ReadInt())
+	for i := 0; i < len(o.DCOptions); i++ {
+		if cmd := r.ReadCmd(); cmd != TagDCOption {
 			r.Fail(errors.New("expected: dcOption"))
 		}
-		o.DcOptions[i] = new(TLDcOption)
-		o.DcOptions[i].ReadBareFrom(r)
+		o.DCOptions[i] = new(TLDCOption)
+		o.DCOptions[i].ReadBareFrom(r)
 	}
 }
 
-func (o *TLUpdateDcOptions) WriteBareTo(w *tl.Writer) {
+func (o *TLUpdateDCOptions) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.DcOptions))
-	for i := 0; i < len(o.DcOptions); i++ {
-		w.WriteCmd(TagDcOption)
-		o.DcOptions[i].WriteBareTo(w)
+	w.WriteInt(len(o.DCOptions))
+	for i := 0; i < len(o.DCOptions); i++ {
+		w.WriteCmd(TagDCOption)
+		o.DCOptions[i].WriteBareTo(w)
 	}
 }
 
-func (o *TLUpdateDcOptions) String() string {
+func (o *TLUpdateDCOptions) String() string {
 	return tl.Pretty(o)
 }
 
 // TLUpdateUserBlocked represents ctor updateUserBlocked#80ece81a user_id:int blocked:Bool = Update from Telegram
 type TLUpdateUserBlocked struct {
-	UserId  int  // user_id:int
+	UserID  int  // user_id:int
 	Blocked bool // blocked:Bool
 }
 
@@ -18126,13 +18126,13 @@ func (o *TLUpdateUserBlocked) Cmd() uint32 {
 }
 
 func (o *TLUpdateUserBlocked) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Blocked = (r.ReadCmd() == TagBoolTrue)
 }
 
 func (o *TLUpdateUserBlocked) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	if o.Blocked {
 		w.WriteCmd(TagBoolTrue)
 	} else {
@@ -18264,7 +18264,7 @@ func (o *TLUpdatePrivacy) String() string {
 
 // TLUpdateUserPhone represents ctor updateUserPhone#12b9417b user_id:int phone:string = Update from Telegram
 type TLUpdateUserPhone struct {
-	UserId int    // user_id:int
+	UserID int    // user_id:int
 	Phone  string // phone:string
 }
 
@@ -18275,12 +18275,12 @@ func (o *TLUpdateUserPhone) Cmd() uint32 {
 }
 
 func (o *TLUpdateUserPhone) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Phone = r.ReadString()
 }
 
 func (o *TLUpdateUserPhone) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteString(o.Phone)
 }
 
@@ -18291,7 +18291,7 @@ func (o *TLUpdateUserPhone) String() string {
 // TLUpdateReadHistoryInbox represents ctor updateReadHistoryInbox#9961fd5c peer:Peer max_id:int pts:int pts_count:int = Update from Telegram
 type TLUpdateReadHistoryInbox struct {
 	Peer     TLPeerType // peer:Peer
-	MaxId    int        // max_id:int
+	MaxID    int        // max_id:int
 	Pts      int        // pts:int
 	PtsCount int        // pts_count:int
 }
@@ -18304,7 +18304,7 @@ func (o *TLUpdateReadHistoryInbox) Cmd() uint32 {
 
 func (o *TLUpdateReadHistoryInbox) ReadBareFrom(r *tl.Reader) {
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
-	o.MaxId = r.ReadInt()
+	o.MaxID = r.ReadInt()
 	o.Pts = r.ReadInt()
 	o.PtsCount = r.ReadInt()
 }
@@ -18312,7 +18312,7 @@ func (o *TLUpdateReadHistoryInbox) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateReadHistoryInbox) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.MaxId)
+	w.WriteInt(o.MaxID)
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
 }
@@ -18324,7 +18324,7 @@ func (o *TLUpdateReadHistoryInbox) String() string {
 // TLUpdateReadHistoryOutbox represents ctor updateReadHistoryOutbox#2f2f21bf peer:Peer max_id:int pts:int pts_count:int = Update from Telegram
 type TLUpdateReadHistoryOutbox struct {
 	Peer     TLPeerType // peer:Peer
-	MaxId    int        // max_id:int
+	MaxID    int        // max_id:int
 	Pts      int        // pts:int
 	PtsCount int        // pts_count:int
 }
@@ -18337,7 +18337,7 @@ func (o *TLUpdateReadHistoryOutbox) Cmd() uint32 {
 
 func (o *TLUpdateReadHistoryOutbox) ReadBareFrom(r *tl.Reader) {
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
-	o.MaxId = r.ReadInt()
+	o.MaxID = r.ReadInt()
 	o.Pts = r.ReadInt()
 	o.PtsCount = r.ReadInt()
 }
@@ -18345,7 +18345,7 @@ func (o *TLUpdateReadHistoryOutbox) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdateReadHistoryOutbox) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.MaxId)
+	w.WriteInt(o.MaxID)
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
 }
@@ -18426,7 +18426,7 @@ func (o *TLUpdateReadMessagesContents) String() string {
 // TLUpdateChannelTooLong represents ctor updateChannelTooLong#eb0467fb flags:# channel_id:int flags.0?pts:int = Update from Telegram
 type TLUpdateChannelTooLong struct {
 	Flags     uint // flags:#
-	ChannelId int  // channel_id:int
+	ChannelID int  // channel_id:int
 	Pts       int  // flags.0?pts:int
 }
 
@@ -18438,13 +18438,13 @@ func (o *TLUpdateChannelTooLong) Cmd() uint32 {
 
 func (o *TLUpdateChannelTooLong) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.ChannelId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
 	o.Pts = r.ReadInt()
 }
 
 func (o *TLUpdateChannelTooLong) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.ChannelId)
+	w.WriteInt(o.ChannelID)
 	w.WriteInt(o.Pts)
 }
 
@@ -18454,7 +18454,7 @@ func (o *TLUpdateChannelTooLong) String() string {
 
 // TLUpdateChannel represents ctor updateChannel#b6d45656 channel_id:int = Update from Telegram
 type TLUpdateChannel struct {
-	ChannelId int // channel_id:int
+	ChannelID int // channel_id:int
 }
 
 func (o *TLUpdateChannel) IsTLUpdate() {}
@@ -18464,11 +18464,11 @@ func (o *TLUpdateChannel) Cmd() uint32 {
 }
 
 func (o *TLUpdateChannel) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
 }
 
 func (o *TLUpdateChannel) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
+	w.WriteInt(o.ChannelID)
 }
 
 func (o *TLUpdateChannel) String() string {
@@ -18507,8 +18507,8 @@ func (o *TLUpdateNewChannelMessage) String() string {
 
 // TLUpdateReadChannelInbox represents ctor updateReadChannelInbox#4214f37f channel_id:int max_id:int = Update from Telegram
 type TLUpdateReadChannelInbox struct {
-	ChannelId int // channel_id:int
-	MaxId     int // max_id:int
+	ChannelID int // channel_id:int
+	MaxID     int // max_id:int
 }
 
 func (o *TLUpdateReadChannelInbox) IsTLUpdate() {}
@@ -18518,13 +18518,13 @@ func (o *TLUpdateReadChannelInbox) Cmd() uint32 {
 }
 
 func (o *TLUpdateReadChannelInbox) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
-	o.MaxId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
+	o.MaxID = r.ReadInt()
 }
 
 func (o *TLUpdateReadChannelInbox) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
-	w.WriteInt(o.MaxId)
+	w.WriteInt(o.ChannelID)
+	w.WriteInt(o.MaxID)
 }
 
 func (o *TLUpdateReadChannelInbox) String() string {
@@ -18533,7 +18533,7 @@ func (o *TLUpdateReadChannelInbox) String() string {
 
 // TLUpdateDeleteChannelMessages represents ctor updateDeleteChannelMessages#c37521c9 channel_id:int messages:Vector<int> pts:int pts_count:int = Update from Telegram
 type TLUpdateDeleteChannelMessages struct {
-	ChannelId int   // channel_id:int
+	ChannelID int   // channel_id:int
 	Messages  []int // messages:Vector<int>
 	Pts       int   // pts:int
 	PtsCount  int   // pts_count:int
@@ -18546,7 +18546,7 @@ func (o *TLUpdateDeleteChannelMessages) Cmd() uint32 {
 }
 
 func (o *TLUpdateDeleteChannelMessages) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -18559,7 +18559,7 @@ func (o *TLUpdateDeleteChannelMessages) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUpdateDeleteChannelMessages) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
+	w.WriteInt(o.ChannelID)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Messages))
 	for i := 0; i < len(o.Messages); i++ {
@@ -18575,8 +18575,8 @@ func (o *TLUpdateDeleteChannelMessages) String() string {
 
 // TLUpdateChannelMessageViews represents ctor updateChannelMessageViews#98a12b4b channel_id:int id:int views:int = Update from Telegram
 type TLUpdateChannelMessageViews struct {
-	ChannelId int // channel_id:int
-	Id        int // id:int
+	ChannelID int // channel_id:int
+	ID        int // id:int
 	Views     int // views:int
 }
 
@@ -18587,14 +18587,14 @@ func (o *TLUpdateChannelMessageViews) Cmd() uint32 {
 }
 
 func (o *TLUpdateChannelMessageViews) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
-	o.Id = r.ReadInt()
+	o.ChannelID = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Views = r.ReadInt()
 }
 
 func (o *TLUpdateChannelMessageViews) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ChannelID)
+	w.WriteInt(o.ID)
 	w.WriteInt(o.Views)
 }
 
@@ -18604,7 +18604,7 @@ func (o *TLUpdateChannelMessageViews) String() string {
 
 // TLUpdateChatAdmins represents ctor updateChatAdmins#6e947941 chat_id:int enabled:Bool version:int = Update from Telegram
 type TLUpdateChatAdmins struct {
-	ChatId  int  // chat_id:int
+	ChatID  int  // chat_id:int
 	Enabled bool // enabled:Bool
 	Version int  // version:int
 }
@@ -18616,14 +18616,14 @@ func (o *TLUpdateChatAdmins) Cmd() uint32 {
 }
 
 func (o *TLUpdateChatAdmins) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
+	o.ChatID = r.ReadInt()
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Enabled = (r.ReadCmd() == TagBoolTrue)
 	o.Version = r.ReadInt()
 }
 
 func (o *TLUpdateChatAdmins) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ChatID)
 	if o.Enabled {
 		w.WriteCmd(TagBoolTrue)
 	} else {
@@ -18638,8 +18638,8 @@ func (o *TLUpdateChatAdmins) String() string {
 
 // TLUpdateChatParticipantAdmin represents ctor updateChatParticipantAdmin#b6901959 chat_id:int user_id:int is_admin:Bool version:int = Update from Telegram
 type TLUpdateChatParticipantAdmin struct {
-	ChatId  int  // chat_id:int
-	UserId  int  // user_id:int
+	ChatID  int  // chat_id:int
+	UserID  int  // user_id:int
 	IsAdmin bool // is_admin:Bool
 	Version int  // version:int
 }
@@ -18651,16 +18651,16 @@ func (o *TLUpdateChatParticipantAdmin) Cmd() uint32 {
 }
 
 func (o *TLUpdateChatParticipantAdmin) ReadBareFrom(r *tl.Reader) {
-	o.ChatId = r.ReadInt()
-	o.UserId = r.ReadInt()
+	o.ChatID = r.ReadInt()
+	o.UserID = r.ReadInt()
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.IsAdmin = (r.ReadCmd() == TagBoolTrue)
 	o.Version = r.ReadInt()
 }
 
 func (o *TLUpdateChatParticipantAdmin) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChatId)
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.ChatID)
+	w.WriteInt(o.UserID)
 	if o.IsAdmin {
 		w.WriteCmd(TagBoolTrue)
 	} else {
@@ -18782,8 +18782,8 @@ func (o *TLUpdateSavedGifs) String() string {
 // TLUpdateBotInlineQuery represents ctor updateBotInlineQuery#54826690 flags:# query_id:long user_id:int query:string flags.0?geo:GeoPoint offset:string = Update from Telegram
 type TLUpdateBotInlineQuery struct {
 	Flags   uint           // flags:#
-	QueryId uint64         // query_id:long
-	UserId  int            // user_id:int
+	QueryID uint64         // query_id:long
+	UserID  int            // user_id:int
 	Query   string         // query:string
 	Geo     TLGeoPointType // flags.0?geo:GeoPoint
 	Offset  string         // offset:string
@@ -18797,8 +18797,8 @@ func (o *TLUpdateBotInlineQuery) Cmd() uint32 {
 
 func (o *TLUpdateBotInlineQuery) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.QueryId = r.ReadUint64()
-	o.UserId = r.ReadInt()
+	o.QueryID = r.ReadUint64()
+	o.UserID = r.ReadInt()
 	o.Query = r.ReadString()
 	o.Geo = Schema.ReadLimitedBoxedObjectFrom(r, TagGeoPointEmpty, TagGeoPoint).(TLGeoPointType)
 	o.Offset = r.ReadString()
@@ -18806,8 +18806,8 @@ func (o *TLUpdateBotInlineQuery) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUpdateBotInlineQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.QueryId)
-	w.WriteInt(o.UserId)
+	w.WriteUint64(o.QueryID)
+	w.WriteInt(o.UserID)
 	w.WriteString(o.Query)
 	w.WriteCmd(o.Geo.Cmd())
 	o.Geo.WriteBareTo(w)
@@ -18821,11 +18821,11 @@ func (o *TLUpdateBotInlineQuery) String() string {
 // TLUpdateBotInlineSend represents ctor updateBotInlineSend#0e48f964 flags:# user_id:int query:string flags.0?geo:GeoPoint id:string flags.1?msg_id:InputBotInlineMessageID = Update from Telegram
 type TLUpdateBotInlineSend struct {
 	Flags  uint                       // flags:#
-	UserId int                        // user_id:int
+	UserID int                        // user_id:int
 	Query  string                     // query:string
 	Geo    TLGeoPointType             // flags.0?geo:GeoPoint
-	Id     string                     // id:string
-	MsgId  *TLInputBotInlineMessageID // flags.1?msg_id:InputBotInlineMessageID
+	ID     string                     // id:string
+	MsgID  *TLInputBotInlineMessageID // flags.1?msg_id:InputBotInlineMessageID
 }
 
 func (o *TLUpdateBotInlineSend) IsTLUpdate() {}
@@ -18836,26 +18836,26 @@ func (o *TLUpdateBotInlineSend) Cmd() uint32 {
 
 func (o *TLUpdateBotInlineSend) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Query = r.ReadString()
 	o.Geo = Schema.ReadLimitedBoxedObjectFrom(r, TagGeoPointEmpty, TagGeoPoint).(TLGeoPointType)
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagInputBotInlineMessageID {
 		r.Fail(errors.New("expected: inputBotInlineMessageID"))
 	}
-	o.MsgId = new(TLInputBotInlineMessageID)
-	o.MsgId.ReadBareFrom(r)
+	o.MsgID = new(TLInputBotInlineMessageID)
+	o.MsgID.ReadBareFrom(r)
 }
 
 func (o *TLUpdateBotInlineSend) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteString(o.Query)
 	w.WriteCmd(o.Geo.Cmd())
 	o.Geo.WriteBareTo(w)
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteCmd(TagInputBotInlineMessageID)
-	o.MsgId.WriteBareTo(w)
+	o.MsgID.WriteBareTo(w)
 }
 
 func (o *TLUpdateBotInlineSend) String() string {
@@ -18894,8 +18894,8 @@ func (o *TLUpdateEditChannelMessage) String() string {
 
 // TLUpdateChannelPinnedMessage represents ctor updateChannelPinnedMessage#98592475 channel_id:int id:int = Update from Telegram
 type TLUpdateChannelPinnedMessage struct {
-	ChannelId int // channel_id:int
-	Id        int // id:int
+	ChannelID int // channel_id:int
+	ID        int // id:int
 }
 
 func (o *TLUpdateChannelPinnedMessage) IsTLUpdate() {}
@@ -18905,13 +18905,13 @@ func (o *TLUpdateChannelPinnedMessage) Cmd() uint32 {
 }
 
 func (o *TLUpdateChannelPinnedMessage) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
-	o.Id = r.ReadInt()
+	o.ChannelID = r.ReadInt()
+	o.ID = r.ReadInt()
 }
 
 func (o *TLUpdateChannelPinnedMessage) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ChannelID)
+	w.WriteInt(o.ID)
 }
 
 func (o *TLUpdateChannelPinnedMessage) String() string {
@@ -18921,10 +18921,10 @@ func (o *TLUpdateChannelPinnedMessage) String() string {
 // TLUpdateBotCallbackQuery represents ctor updateBotCallbackQuery#e73547e1 flags:# query_id:long user_id:int peer:Peer msg_id:int chat_instance:long flags.0?data:bytes flags.1?game_short_name:string = Update from Telegram
 type TLUpdateBotCallbackQuery struct {
 	Flags         uint       // flags:#
-	QueryId       uint64     // query_id:long
-	UserId        int        // user_id:int
+	QueryID       uint64     // query_id:long
+	UserID        int        // user_id:int
 	Peer          TLPeerType // peer:Peer
-	MsgId         int        // msg_id:int
+	MsgID         int        // msg_id:int
 	ChatInstance  uint64     // chat_instance:long
 	Data          []byte     // flags.0?data:bytes
 	GameShortName string     // flags.1?game_short_name:string
@@ -18938,10 +18938,10 @@ func (o *TLUpdateBotCallbackQuery) Cmd() uint32 {
 
 func (o *TLUpdateBotCallbackQuery) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.QueryId = r.ReadUint64()
-	o.UserId = r.ReadInt()
+	o.QueryID = r.ReadUint64()
+	o.UserID = r.ReadInt()
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
-	o.MsgId = r.ReadInt()
+	o.MsgID = r.ReadInt()
 	o.ChatInstance = r.ReadUint64()
 	o.Data = r.ReadBlob()
 	o.GameShortName = r.ReadString()
@@ -18949,11 +18949,11 @@ func (o *TLUpdateBotCallbackQuery) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUpdateBotCallbackQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.QueryId)
-	w.WriteInt(o.UserId)
+	w.WriteUint64(o.QueryID)
+	w.WriteInt(o.UserID)
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.MsgId)
+	w.WriteInt(o.MsgID)
 	w.WriteUint64(o.ChatInstance)
 	w.WriteBlob(o.Data)
 	w.WriteString(o.GameShortName)
@@ -18996,9 +18996,9 @@ func (o *TLUpdateEditMessage) String() string {
 // TLUpdateInlineBotCallbackQuery represents ctor updateInlineBotCallbackQuery#f9d27a5a flags:# query_id:long user_id:int msg_id:InputBotInlineMessageID chat_instance:long flags.0?data:bytes flags.1?game_short_name:string = Update from Telegram
 type TLUpdateInlineBotCallbackQuery struct {
 	Flags         uint                       // flags:#
-	QueryId       uint64                     // query_id:long
-	UserId        int                        // user_id:int
-	MsgId         *TLInputBotInlineMessageID // msg_id:InputBotInlineMessageID
+	QueryID       uint64                     // query_id:long
+	UserID        int                        // user_id:int
+	MsgID         *TLInputBotInlineMessageID // msg_id:InputBotInlineMessageID
 	ChatInstance  uint64                     // chat_instance:long
 	Data          []byte                     // flags.0?data:bytes
 	GameShortName string                     // flags.1?game_short_name:string
@@ -19012,13 +19012,13 @@ func (o *TLUpdateInlineBotCallbackQuery) Cmd() uint32 {
 
 func (o *TLUpdateInlineBotCallbackQuery) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.QueryId = r.ReadUint64()
-	o.UserId = r.ReadInt()
+	o.QueryID = r.ReadUint64()
+	o.UserID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagInputBotInlineMessageID {
 		r.Fail(errors.New("expected: inputBotInlineMessageID"))
 	}
-	o.MsgId = new(TLInputBotInlineMessageID)
-	o.MsgId.ReadBareFrom(r)
+	o.MsgID = new(TLInputBotInlineMessageID)
+	o.MsgID.ReadBareFrom(r)
 	o.ChatInstance = r.ReadUint64()
 	o.Data = r.ReadBlob()
 	o.GameShortName = r.ReadString()
@@ -19026,10 +19026,10 @@ func (o *TLUpdateInlineBotCallbackQuery) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUpdateInlineBotCallbackQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.QueryId)
-	w.WriteInt(o.UserId)
+	w.WriteUint64(o.QueryID)
+	w.WriteInt(o.UserID)
 	w.WriteCmd(TagInputBotInlineMessageID)
-	o.MsgId.WriteBareTo(w)
+	o.MsgID.WriteBareTo(w)
 	w.WriteUint64(o.ChatInstance)
 	w.WriteBlob(o.Data)
 	w.WriteString(o.GameShortName)
@@ -19041,8 +19041,8 @@ func (o *TLUpdateInlineBotCallbackQuery) String() string {
 
 // TLUpdateReadChannelOutbox represents ctor updateReadChannelOutbox#25d6c9c7 channel_id:int max_id:int = Update from Telegram
 type TLUpdateReadChannelOutbox struct {
-	ChannelId int // channel_id:int
-	MaxId     int // max_id:int
+	ChannelID int // channel_id:int
+	MaxID     int // max_id:int
 }
 
 func (o *TLUpdateReadChannelOutbox) IsTLUpdate() {}
@@ -19052,13 +19052,13 @@ func (o *TLUpdateReadChannelOutbox) Cmd() uint32 {
 }
 
 func (o *TLUpdateReadChannelOutbox) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
-	o.MaxId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
+	o.MaxID = r.ReadInt()
 }
 
 func (o *TLUpdateReadChannelOutbox) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
-	w.WriteInt(o.MaxId)
+	w.WriteInt(o.ChannelID)
+	w.WriteInt(o.MaxID)
 }
 
 func (o *TLUpdateReadChannelOutbox) String() string {
@@ -19175,7 +19175,7 @@ func (o *TLUpdatePtsChanged) String() string {
 
 // TLUpdateChannelWebPage represents ctor updateChannelWebPage#40771900 channel_id:int webpage:WebPage pts:int pts_count:int = Update from Telegram
 type TLUpdateChannelWebPage struct {
-	ChannelId int           // channel_id:int
+	ChannelID int           // channel_id:int
 	Webpage   TLWebPageType // webpage:WebPage
 	Pts       int           // pts:int
 	PtsCount  int           // pts_count:int
@@ -19188,14 +19188,14 @@ func (o *TLUpdateChannelWebPage) Cmd() uint32 {
 }
 
 func (o *TLUpdateChannelWebPage) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
 	o.Webpage = Schema.ReadLimitedBoxedObjectFrom(r, TagWebPageEmpty, TagWebPagePending, TagWebPage, TagWebPageNotModified).(TLWebPageType)
 	o.Pts = r.ReadInt()
 	o.PtsCount = r.ReadInt()
 }
 
 func (o *TLUpdateChannelWebPage) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
+	w.WriteInt(o.ChannelID)
 	w.WriteCmd(o.Webpage.Cmd())
 	o.Webpage.WriteBareTo(w)
 	w.WriteInt(o.Pts)
@@ -19302,7 +19302,7 @@ func (o *TLUpdateBotWebhookJSON) String() string {
 
 // TLUpdateBotWebhookJSONQuery represents ctor updateBotWebhookJSONQuery#9b9240a6 query_id:long data:DataJSON timeout:int = Update from Telegram
 type TLUpdateBotWebhookJSONQuery struct {
-	QueryId uint64      // query_id:long
+	QueryID uint64      // query_id:long
 	Data    *TLDataJSON // data:DataJSON
 	Timeout int         // timeout:int
 }
@@ -19314,7 +19314,7 @@ func (o *TLUpdateBotWebhookJSONQuery) Cmd() uint32 {
 }
 
 func (o *TLUpdateBotWebhookJSONQuery) ReadBareFrom(r *tl.Reader) {
-	o.QueryId = r.ReadUint64()
+	o.QueryID = r.ReadUint64()
 	if cmd := r.ReadCmd(); cmd != TagDataJSON {
 		r.Fail(errors.New("expected: dataJSON"))
 	}
@@ -19324,7 +19324,7 @@ func (o *TLUpdateBotWebhookJSONQuery) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUpdateBotWebhookJSONQuery) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.QueryId)
+	w.WriteUint64(o.QueryID)
 	w.WriteCmd(TagDataJSON)
 	o.Data.WriteBareTo(w)
 	w.WriteInt(o.Timeout)
@@ -19336,8 +19336,8 @@ func (o *TLUpdateBotWebhookJSONQuery) String() string {
 
 // TLUpdateBotShippingQuery represents ctor updateBotShippingQuery#e0cdc940 query_id:long user_id:int payload:bytes shipping_address:PostAddress = Update from Telegram
 type TLUpdateBotShippingQuery struct {
-	QueryId         uint64         // query_id:long
-	UserId          int            // user_id:int
+	QueryID         uint64         // query_id:long
+	UserID          int            // user_id:int
 	Payload         []byte         // payload:bytes
 	ShippingAddress *TLPostAddress // shipping_address:PostAddress
 }
@@ -19349,8 +19349,8 @@ func (o *TLUpdateBotShippingQuery) Cmd() uint32 {
 }
 
 func (o *TLUpdateBotShippingQuery) ReadBareFrom(r *tl.Reader) {
-	o.QueryId = r.ReadUint64()
-	o.UserId = r.ReadInt()
+	o.QueryID = r.ReadUint64()
+	o.UserID = r.ReadInt()
 	o.Payload = r.ReadBlob()
 	if cmd := r.ReadCmd(); cmd != TagPostAddress {
 		r.Fail(errors.New("expected: postAddress"))
@@ -19360,8 +19360,8 @@ func (o *TLUpdateBotShippingQuery) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLUpdateBotShippingQuery) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.QueryId)
-	w.WriteInt(o.UserId)
+	w.WriteUint64(o.QueryID)
+	w.WriteInt(o.UserID)
 	w.WriteBlob(o.Payload)
 	w.WriteCmd(TagPostAddress)
 	o.ShippingAddress.WriteBareTo(w)
@@ -19374,11 +19374,11 @@ func (o *TLUpdateBotShippingQuery) String() string {
 // TLUpdateBotPrecheckoutQuery represents ctor updateBotPrecheckoutQuery#5d2f3aa9 flags:# query_id:long user_id:int payload:bytes flags.0?info:PaymentRequestedInfo flags.1?shipping_option_id:string currency:string total_amount:long = Update from Telegram
 type TLUpdateBotPrecheckoutQuery struct {
 	Flags            uint                    // flags:#
-	QueryId          uint64                  // query_id:long
-	UserId           int                     // user_id:int
+	QueryID          uint64                  // query_id:long
+	UserID           int                     // user_id:int
 	Payload          []byte                  // payload:bytes
 	Info             *TLPaymentRequestedInfo // flags.0?info:PaymentRequestedInfo
-	ShippingOptionId string                  // flags.1?shipping_option_id:string
+	ShippingOptionID string                  // flags.1?shipping_option_id:string
 	Currency         string                  // currency:string
 	TotalAmount      uint64                  // total_amount:long
 }
@@ -19391,27 +19391,27 @@ func (o *TLUpdateBotPrecheckoutQuery) Cmd() uint32 {
 
 func (o *TLUpdateBotPrecheckoutQuery) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.QueryId = r.ReadUint64()
-	o.UserId = r.ReadInt()
+	o.QueryID = r.ReadUint64()
+	o.UserID = r.ReadInt()
 	o.Payload = r.ReadBlob()
 	if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
 		r.Fail(errors.New("expected: paymentRequestedInfo"))
 	}
 	o.Info = new(TLPaymentRequestedInfo)
 	o.Info.ReadBareFrom(r)
-	o.ShippingOptionId = r.ReadString()
+	o.ShippingOptionID = r.ReadString()
 	o.Currency = r.ReadString()
 	o.TotalAmount = r.ReadUint64()
 }
 
 func (o *TLUpdateBotPrecheckoutQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.QueryId)
-	w.WriteInt(o.UserId)
+	w.WriteUint64(o.QueryID)
+	w.WriteInt(o.UserID)
 	w.WriteBlob(o.Payload)
 	w.WriteCmd(TagPaymentRequestedInfo)
 	o.Info.WriteBareTo(w)
-	w.WriteString(o.ShippingOptionId)
+	w.WriteString(o.ShippingOptionID)
 	w.WriteString(o.Currency)
 	w.WriteUint64(o.TotalAmount)
 }
@@ -19506,7 +19506,7 @@ func (o *TLUpdatesDifference) ReadBareFrom(r *tl.Reader) {
 	}
 	o.OtherUpdates = make([]TLUpdateType, r.ReadInt())
 	for i := 0; i < len(o.OtherUpdates); i++ {
-		o.OtherUpdates[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDcOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
+		o.OtherUpdates[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDCOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
 	}
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -19604,7 +19604,7 @@ func (o *TLUpdatesDifferenceSlice) ReadBareFrom(r *tl.Reader) {
 	}
 	o.OtherUpdates = make([]TLUpdateType, r.ReadInt())
 	for i := 0; i < len(o.OtherUpdates); i++ {
-		o.OtherUpdates[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDcOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
+		o.OtherUpdates[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDCOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
 	}
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -19716,15 +19716,15 @@ type TLUpdateShortMessage struct {
 	Mentioned    bool                  // flags.4?mentioned:true
 	MediaUnread  bool                  // flags.5?media_unread:true
 	Silent       bool                  // flags.13?silent:true
-	Id           int                   // id:int
-	UserId       int                   // user_id:int
+	ID           int                   // id:int
+	UserID       int                   // user_id:int
 	Message      string                // message:string
 	Pts          int                   // pts:int
 	PtsCount     int                   // pts_count:int
 	Date         int                   // date:int
 	FwdFrom      *TLMessageFwdHeader   // flags.2?fwd_from:MessageFwdHeader
-	ViaBotId     int                   // flags.11?via_bot_id:int
-	ReplyToMsgId int                   // flags.3?reply_to_msg_id:int
+	ViaBotID     int                   // flags.11?via_bot_id:int
+	ReplyToMsgID int                   // flags.3?reply_to_msg_id:int
 	Entities     []TLMessageEntityType // flags.7?entities:Vector<MessageEntity>
 }
 
@@ -19740,8 +19740,8 @@ func (o *TLUpdateShortMessage) ReadBareFrom(r *tl.Reader) {
 	o.Mentioned = true
 	o.MediaUnread = true
 	o.Silent = true
-	o.Id = r.ReadInt()
-	o.UserId = r.ReadInt()
+	o.ID = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Message = r.ReadString()
 	o.Pts = r.ReadInt()
 	o.PtsCount = r.ReadInt()
@@ -19751,8 +19751,8 @@ func (o *TLUpdateShortMessage) ReadBareFrom(r *tl.Reader) {
 	}
 	o.FwdFrom = new(TLMessageFwdHeader)
 	o.FwdFrom.ReadBareFrom(r)
-	o.ViaBotId = r.ReadInt()
-	o.ReplyToMsgId = r.ReadInt()
+	o.ViaBotID = r.ReadInt()
+	o.ReplyToMsgID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -19764,16 +19764,16 @@ func (o *TLUpdateShortMessage) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUpdateShortMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.ID)
+	w.WriteInt(o.UserID)
 	w.WriteString(o.Message)
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
 	w.WriteInt(o.Date)
 	w.WriteCmd(TagMessageFwdHeader)
 	o.FwdFrom.WriteBareTo(w)
-	w.WriteInt(o.ViaBotId)
-	w.WriteInt(o.ReplyToMsgId)
+	w.WriteInt(o.ViaBotID)
+	w.WriteInt(o.ReplyToMsgID)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Entities))
 	for i := 0; i < len(o.Entities); i++ {
@@ -19793,16 +19793,16 @@ type TLUpdateShortChatMessage struct {
 	Mentioned    bool                  // flags.4?mentioned:true
 	MediaUnread  bool                  // flags.5?media_unread:true
 	Silent       bool                  // flags.13?silent:true
-	Id           int                   // id:int
-	FromId       int                   // from_id:int
-	ChatId       int                   // chat_id:int
+	ID           int                   // id:int
+	FromID       int                   // from_id:int
+	ChatID       int                   // chat_id:int
 	Message      string                // message:string
 	Pts          int                   // pts:int
 	PtsCount     int                   // pts_count:int
 	Date         int                   // date:int
 	FwdFrom      *TLMessageFwdHeader   // flags.2?fwd_from:MessageFwdHeader
-	ViaBotId     int                   // flags.11?via_bot_id:int
-	ReplyToMsgId int                   // flags.3?reply_to_msg_id:int
+	ViaBotID     int                   // flags.11?via_bot_id:int
+	ReplyToMsgID int                   // flags.3?reply_to_msg_id:int
 	Entities     []TLMessageEntityType // flags.7?entities:Vector<MessageEntity>
 }
 
@@ -19818,9 +19818,9 @@ func (o *TLUpdateShortChatMessage) ReadBareFrom(r *tl.Reader) {
 	o.Mentioned = true
 	o.MediaUnread = true
 	o.Silent = true
-	o.Id = r.ReadInt()
-	o.FromId = r.ReadInt()
-	o.ChatId = r.ReadInt()
+	o.ID = r.ReadInt()
+	o.FromID = r.ReadInt()
+	o.ChatID = r.ReadInt()
 	o.Message = r.ReadString()
 	o.Pts = r.ReadInt()
 	o.PtsCount = r.ReadInt()
@@ -19830,8 +19830,8 @@ func (o *TLUpdateShortChatMessage) ReadBareFrom(r *tl.Reader) {
 	}
 	o.FwdFrom = new(TLMessageFwdHeader)
 	o.FwdFrom.ReadBareFrom(r)
-	o.ViaBotId = r.ReadInt()
-	o.ReplyToMsgId = r.ReadInt()
+	o.ViaBotID = r.ReadInt()
+	o.ReplyToMsgID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -19843,17 +19843,17 @@ func (o *TLUpdateShortChatMessage) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUpdateShortChatMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
-	w.WriteInt(o.FromId)
-	w.WriteInt(o.ChatId)
+	w.WriteInt(o.ID)
+	w.WriteInt(o.FromID)
+	w.WriteInt(o.ChatID)
 	w.WriteString(o.Message)
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
 	w.WriteInt(o.Date)
 	w.WriteCmd(TagMessageFwdHeader)
 	o.FwdFrom.WriteBareTo(w)
-	w.WriteInt(o.ViaBotId)
-	w.WriteInt(o.ReplyToMsgId)
+	w.WriteInt(o.ViaBotID)
+	w.WriteInt(o.ReplyToMsgID)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Entities))
 	for i := 0; i < len(o.Entities); i++ {
@@ -19879,7 +19879,7 @@ func (o *TLUpdateShort) Cmd() uint32 {
 }
 
 func (o *TLUpdateShort) ReadBareFrom(r *tl.Reader) {
-	o.Update = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDcOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
+	o.Update = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDCOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
 	o.Date = r.ReadInt()
 }
 
@@ -19915,7 +19915,7 @@ func (o *TLUpdatesCombined) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Updates = make([]TLUpdateType, r.ReadInt())
 	for i := 0; i < len(o.Updates); i++ {
-		o.Updates[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDcOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
+		o.Updates[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDCOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
 	}
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -19985,7 +19985,7 @@ func (o *TLUpdates) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Updates = make([]TLUpdateType, r.ReadInt())
 	for i := 0; i < len(o.Updates); i++ {
-		o.Updates[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDcOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
+		o.Updates[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDCOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
 	}
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -20036,7 +20036,7 @@ func (o *TLUpdates) String() string {
 type TLUpdateShortSentMessage struct {
 	Flags    uint                  // flags:#
 	Out      bool                  // flags.1?out:true
-	Id       int                   // id:int
+	ID       int                   // id:int
 	Pts      int                   // pts:int
 	PtsCount int                   // pts_count:int
 	Date     int                   // date:int
@@ -20053,7 +20053,7 @@ func (o *TLUpdateShortSentMessage) Cmd() uint32 {
 func (o *TLUpdateShortSentMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Out = true
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.Pts = r.ReadInt()
 	o.PtsCount = r.ReadInt()
 	o.Date = r.ReadInt()
@@ -20069,7 +20069,7 @@ func (o *TLUpdateShortSentMessage) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUpdateShortSentMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
 	w.WriteInt(o.Date)
@@ -20188,7 +20188,7 @@ func (o *TLPhotosPhotosSlice) String() string {
 
 // TLHelpAppUpdate represents ctor help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate from Telegram
 type TLHelpAppUpdate struct {
-	Id       int    // id:int
+	ID       int    // id:int
 	Critical bool   // critical:Bool
 	Url      string // url:string
 	Text     string // text:string
@@ -20201,7 +20201,7 @@ func (o *TLHelpAppUpdate) Cmd() uint32 {
 }
 
 func (o *TLHelpAppUpdate) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Critical = (r.ReadCmd() == TagBoolTrue)
 	o.Url = r.ReadString()
@@ -20209,7 +20209,7 @@ func (o *TLHelpAppUpdate) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLHelpAppUpdate) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	if o.Critical {
 		w.WriteCmd(TagBoolTrue)
 	} else {
@@ -20245,7 +20245,7 @@ func (o *TLHelpNoAppUpdate) String() string {
 
 // TLEncryptedChatEmpty represents ctor encryptedChatEmpty#ab7ec0a0 id:int = EncryptedChat from Telegram
 type TLEncryptedChatEmpty struct {
-	Id int // id:int
+	ID int // id:int
 }
 
 func (o *TLEncryptedChatEmpty) IsTLEncryptedChat() {}
@@ -20255,11 +20255,11 @@ func (o *TLEncryptedChatEmpty) Cmd() uint32 {
 }
 
 func (o *TLEncryptedChatEmpty) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 }
 
 func (o *TLEncryptedChatEmpty) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 }
 
 func (o *TLEncryptedChatEmpty) String() string {
@@ -20268,11 +20268,11 @@ func (o *TLEncryptedChatEmpty) String() string {
 
 // TLEncryptedChatWaiting represents ctor encryptedChatWaiting#3bf703dc id:int access_hash:long date:int admin_id:int participant_id:int = EncryptedChat from Telegram
 type TLEncryptedChatWaiting struct {
-	Id            int    // id:int
+	ID            int    // id:int
 	AccessHash    uint64 // access_hash:long
 	Date          int    // date:int
-	AdminId       int    // admin_id:int
-	ParticipantId int    // participant_id:int
+	AdminID       int    // admin_id:int
+	ParticipantID int    // participant_id:int
 }
 
 func (o *TLEncryptedChatWaiting) IsTLEncryptedChat() {}
@@ -20282,19 +20282,19 @@ func (o *TLEncryptedChatWaiting) Cmd() uint32 {
 }
 
 func (o *TLEncryptedChatWaiting) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 	o.Date = r.ReadInt()
-	o.AdminId = r.ReadInt()
-	o.ParticipantId = r.ReadInt()
+	o.AdminID = r.ReadInt()
+	o.ParticipantID = r.ReadInt()
 }
 
 func (o *TLEncryptedChatWaiting) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Date)
-	w.WriteInt(o.AdminId)
-	w.WriteInt(o.ParticipantId)
+	w.WriteInt(o.AdminID)
+	w.WriteInt(o.ParticipantID)
 }
 
 func (o *TLEncryptedChatWaiting) String() string {
@@ -20303,11 +20303,11 @@ func (o *TLEncryptedChatWaiting) String() string {
 
 // TLEncryptedChatRequested represents ctor encryptedChatRequested#c878527e id:int access_hash:long date:int admin_id:int participant_id:int g_a:bytes = EncryptedChat from Telegram
 type TLEncryptedChatRequested struct {
-	Id            int    // id:int
+	ID            int    // id:int
 	AccessHash    uint64 // access_hash:long
 	Date          int    // date:int
-	AdminId       int    // admin_id:int
-	ParticipantId int    // participant_id:int
+	AdminID       int    // admin_id:int
+	ParticipantID int    // participant_id:int
 	GA            []byte // g_a:bytes
 }
 
@@ -20318,20 +20318,20 @@ func (o *TLEncryptedChatRequested) Cmd() uint32 {
 }
 
 func (o *TLEncryptedChatRequested) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 	o.Date = r.ReadInt()
-	o.AdminId = r.ReadInt()
-	o.ParticipantId = r.ReadInt()
+	o.AdminID = r.ReadInt()
+	o.ParticipantID = r.ReadInt()
 	o.GA = r.ReadBlob()
 }
 
 func (o *TLEncryptedChatRequested) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Date)
-	w.WriteInt(o.AdminId)
-	w.WriteInt(o.ParticipantId)
+	w.WriteInt(o.AdminID)
+	w.WriteInt(o.ParticipantID)
 	w.WriteBlob(o.GA)
 }
 
@@ -20341,11 +20341,11 @@ func (o *TLEncryptedChatRequested) String() string {
 
 // TLEncryptedChat represents ctor encryptedChat#fa56ce36 id:int access_hash:long date:int admin_id:int participant_id:int g_a_or_b:bytes key_fingerprint:long = EncryptedChat from Telegram
 type TLEncryptedChat struct {
-	Id             int    // id:int
+	ID             int    // id:int
 	AccessHash     uint64 // access_hash:long
 	Date           int    // date:int
-	AdminId        int    // admin_id:int
-	ParticipantId  int    // participant_id:int
+	AdminID        int    // admin_id:int
+	ParticipantID  int    // participant_id:int
 	GAOrB          []byte // g_a_or_b:bytes
 	KeyFingerprint uint64 // key_fingerprint:long
 }
@@ -20357,21 +20357,21 @@ func (o *TLEncryptedChat) Cmd() uint32 {
 }
 
 func (o *TLEncryptedChat) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 	o.Date = r.ReadInt()
-	o.AdminId = r.ReadInt()
-	o.ParticipantId = r.ReadInt()
+	o.AdminID = r.ReadInt()
+	o.ParticipantID = r.ReadInt()
 	o.GAOrB = r.ReadBlob()
 	o.KeyFingerprint = r.ReadUint64()
 }
 
 func (o *TLEncryptedChat) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Date)
-	w.WriteInt(o.AdminId)
-	w.WriteInt(o.ParticipantId)
+	w.WriteInt(o.AdminID)
+	w.WriteInt(o.ParticipantID)
 	w.WriteBlob(o.GAOrB)
 	w.WriteUint64(o.KeyFingerprint)
 }
@@ -20382,7 +20382,7 @@ func (o *TLEncryptedChat) String() string {
 
 // TLEncryptedChatDiscarded represents ctor encryptedChatDiscarded#13d6dd27 id:int = EncryptedChat from Telegram
 type TLEncryptedChatDiscarded struct {
-	Id int // id:int
+	ID int // id:int
 }
 
 func (o *TLEncryptedChatDiscarded) IsTLEncryptedChat() {}
@@ -20392,11 +20392,11 @@ func (o *TLEncryptedChatDiscarded) Cmd() uint32 {
 }
 
 func (o *TLEncryptedChatDiscarded) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadInt()
+	o.ID = r.ReadInt()
 }
 
 func (o *TLEncryptedChatDiscarded) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.Id)
+	w.WriteInt(o.ID)
 }
 
 func (o *TLEncryptedChatDiscarded) String() string {
@@ -20425,10 +20425,10 @@ func (o *TLEncryptedFileEmpty) String() string {
 
 // TLEncryptedFile represents ctor encryptedFile#4a70994c id:long access_hash:long size:int dc_id:int key_fingerprint:int = EncryptedFile from Telegram
 type TLEncryptedFile struct {
-	Id             uint64 // id:long
+	ID             uint64 // id:long
 	AccessHash     uint64 // access_hash:long
 	Size           int    // size:int
-	DcId           int    // dc_id:int
+	DCID           int    // dc_id:int
 	KeyFingerprint int    // key_fingerprint:int
 }
 
@@ -20439,18 +20439,18 @@ func (o *TLEncryptedFile) Cmd() uint32 {
 }
 
 func (o *TLEncryptedFile) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Size = r.ReadInt()
-	o.DcId = r.ReadInt()
+	o.DCID = r.ReadInt()
 	o.KeyFingerprint = r.ReadInt()
 }
 
 func (o *TLEncryptedFile) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Size)
-	w.WriteInt(o.DcId)
+	w.WriteInt(o.DCID)
 	w.WriteInt(o.KeyFingerprint)
 }
 
@@ -20480,7 +20480,7 @@ func (o *TLInputEncryptedFileEmpty) String() string {
 
 // TLInputEncryptedFileUploaded represents ctor inputEncryptedFileUploaded#64bd0306 id:long parts:int md5_checksum:string key_fingerprint:int = InputEncryptedFile from Telegram
 type TLInputEncryptedFileUploaded struct {
-	Id             uint64 // id:long
+	ID             uint64 // id:long
 	Parts          int    // parts:int
 	Md5Checksum    string // md5_checksum:string
 	KeyFingerprint int    // key_fingerprint:int
@@ -20493,14 +20493,14 @@ func (o *TLInputEncryptedFileUploaded) Cmd() uint32 {
 }
 
 func (o *TLInputEncryptedFileUploaded) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.Parts = r.ReadInt()
 	o.Md5Checksum = r.ReadString()
 	o.KeyFingerprint = r.ReadInt()
 }
 
 func (o *TLInputEncryptedFileUploaded) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteInt(o.Parts)
 	w.WriteString(o.Md5Checksum)
 	w.WriteInt(o.KeyFingerprint)
@@ -20512,7 +20512,7 @@ func (o *TLInputEncryptedFileUploaded) String() string {
 
 // TLInputEncryptedFile represents ctor inputEncryptedFile#5a17b5e5 id:long access_hash:long = InputEncryptedFile from Telegram
 type TLInputEncryptedFile struct {
-	Id         uint64 // id:long
+	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 }
 
@@ -20523,12 +20523,12 @@ func (o *TLInputEncryptedFile) Cmd() uint32 {
 }
 
 func (o *TLInputEncryptedFile) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputEncryptedFile) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -20538,7 +20538,7 @@ func (o *TLInputEncryptedFile) String() string {
 
 // TLInputEncryptedFileBigUploaded represents ctor inputEncryptedFileBigUploaded#2dc173c8 id:long parts:int key_fingerprint:int = InputEncryptedFile from Telegram
 type TLInputEncryptedFileBigUploaded struct {
-	Id             uint64 // id:long
+	ID             uint64 // id:long
 	Parts          int    // parts:int
 	KeyFingerprint int    // key_fingerprint:int
 }
@@ -20550,13 +20550,13 @@ func (o *TLInputEncryptedFileBigUploaded) Cmd() uint32 {
 }
 
 func (o *TLInputEncryptedFileBigUploaded) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.Parts = r.ReadInt()
 	o.KeyFingerprint = r.ReadInt()
 }
 
 func (o *TLInputEncryptedFileBigUploaded) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteInt(o.Parts)
 	w.WriteInt(o.KeyFingerprint)
 }
@@ -20567,8 +20567,8 @@ func (o *TLInputEncryptedFileBigUploaded) String() string {
 
 // TLEncryptedMessage represents ctor encryptedMessage#ed18c118 random_id:long chat_id:int date:int bytes:bytes file:EncryptedFile = EncryptedMessage from Telegram
 type TLEncryptedMessage struct {
-	RandomId uint64              // random_id:long
-	ChatId   int                 // chat_id:int
+	RandomID uint64              // random_id:long
+	ChatID   int                 // chat_id:int
 	Date     int                 // date:int
 	Bytes    []byte              // bytes:bytes
 	File     TLEncryptedFileType // file:EncryptedFile
@@ -20581,16 +20581,16 @@ func (o *TLEncryptedMessage) Cmd() uint32 {
 }
 
 func (o *TLEncryptedMessage) ReadBareFrom(r *tl.Reader) {
-	o.RandomId = r.ReadUint64()
-	o.ChatId = r.ReadInt()
+	o.RandomID = r.ReadUint64()
+	o.ChatID = r.ReadInt()
 	o.Date = r.ReadInt()
 	o.Bytes = r.ReadBlob()
 	o.File = Schema.ReadLimitedBoxedObjectFrom(r, TagEncryptedFileEmpty, TagEncryptedFile).(TLEncryptedFileType)
 }
 
 func (o *TLEncryptedMessage) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.RandomId)
-	w.WriteInt(o.ChatId)
+	w.WriteUint64(o.RandomID)
+	w.WriteInt(o.ChatID)
 	w.WriteInt(o.Date)
 	w.WriteBlob(o.Bytes)
 	w.WriteCmd(o.File.Cmd())
@@ -20603,8 +20603,8 @@ func (o *TLEncryptedMessage) String() string {
 
 // TLEncryptedMessageService represents ctor encryptedMessageService#23734b06 random_id:long chat_id:int date:int bytes:bytes = EncryptedMessage from Telegram
 type TLEncryptedMessageService struct {
-	RandomId uint64 // random_id:long
-	ChatId   int    // chat_id:int
+	RandomID uint64 // random_id:long
+	ChatID   int    // chat_id:int
 	Date     int    // date:int
 	Bytes    []byte // bytes:bytes
 }
@@ -20616,15 +20616,15 @@ func (o *TLEncryptedMessageService) Cmd() uint32 {
 }
 
 func (o *TLEncryptedMessageService) ReadBareFrom(r *tl.Reader) {
-	o.RandomId = r.ReadUint64()
-	o.ChatId = r.ReadInt()
+	o.RandomID = r.ReadUint64()
+	o.ChatID = r.ReadInt()
 	o.Date = r.ReadInt()
 	o.Bytes = r.ReadBlob()
 }
 
 func (o *TLEncryptedMessageService) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.RandomId)
-	w.WriteInt(o.ChatId)
+	w.WriteUint64(o.RandomID)
+	w.WriteInt(o.ChatID)
 	w.WriteInt(o.Date)
 	w.WriteBlob(o.Bytes)
 }
@@ -20760,7 +20760,7 @@ func (o *TLInputDocumentEmpty) String() string {
 
 // TLInputDocument represents ctor inputDocument#18798952 id:long access_hash:long = InputDocument from Telegram
 type TLInputDocument struct {
-	Id         uint64 // id:long
+	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 }
 
@@ -20771,12 +20771,12 @@ func (o *TLInputDocument) Cmd() uint32 {
 }
 
 func (o *TLInputDocument) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputDocument) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -20786,7 +20786,7 @@ func (o *TLInputDocument) String() string {
 
 // TLDocumentEmpty represents ctor documentEmpty#36f8c871 id:long = Document from Telegram
 type TLDocumentEmpty struct {
-	Id uint64 // id:long
+	ID uint64 // id:long
 }
 
 func (o *TLDocumentEmpty) IsTLDocument() {}
@@ -20796,11 +20796,11 @@ func (o *TLDocumentEmpty) Cmd() uint32 {
 }
 
 func (o *TLDocumentEmpty) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 }
 
 func (o *TLDocumentEmpty) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 }
 
 func (o *TLDocumentEmpty) String() string {
@@ -20809,13 +20809,13 @@ func (o *TLDocumentEmpty) String() string {
 
 // TLDocument represents ctor document#87232bc7 id:long access_hash:long date:int mime_type:string size:int thumb:PhotoSize dc_id:int version:int attributes:Vector<DocumentAttribute> = Document from Telegram
 type TLDocument struct {
-	Id         uint64                    // id:long
+	ID         uint64                    // id:long
 	AccessHash uint64                    // access_hash:long
 	Date       int                       // date:int
 	MimeType   string                    // mime_type:string
 	Size       int                       // size:int
 	Thumb      TLPhotoSizeType           // thumb:PhotoSize
-	DcId       int                       // dc_id:int
+	DCID       int                       // dc_id:int
 	Version    int                       // version:int
 	Attributes []TLDocumentAttributeType // attributes:Vector<DocumentAttribute>
 }
@@ -20827,13 +20827,13 @@ func (o *TLDocument) Cmd() uint32 {
 }
 
 func (o *TLDocument) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Date = r.ReadInt()
 	o.MimeType = r.ReadString()
 	o.Size = r.ReadInt()
 	o.Thumb = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoSizeEmpty, TagPhotoSize, TagPhotoCachedSize).(TLPhotoSizeType)
-	o.DcId = r.ReadInt()
+	o.DCID = r.ReadInt()
 	o.Version = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -20845,14 +20845,14 @@ func (o *TLDocument) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLDocument) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Date)
 	w.WriteString(o.MimeType)
 	w.WriteInt(o.Size)
 	w.WriteCmd(o.Thumb.Cmd())
 	o.Thumb.WriteBareTo(w)
-	w.WriteInt(o.DcId)
+	w.WriteInt(o.DCID)
 	w.WriteInt(o.Version)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Attributes))
@@ -21911,7 +21911,7 @@ func (o *TLMessagesAllStickers) String() string {
 
 // TLWebPageEmpty represents ctor webPageEmpty#eb1477e8 id:long = WebPage from Telegram
 type TLWebPageEmpty struct {
-	Id uint64 // id:long
+	ID uint64 // id:long
 }
 
 func (o *TLWebPageEmpty) IsTLWebPage() {}
@@ -21921,11 +21921,11 @@ func (o *TLWebPageEmpty) Cmd() uint32 {
 }
 
 func (o *TLWebPageEmpty) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 }
 
 func (o *TLWebPageEmpty) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 }
 
 func (o *TLWebPageEmpty) String() string {
@@ -21934,7 +21934,7 @@ func (o *TLWebPageEmpty) String() string {
 
 // TLWebPagePending represents ctor webPagePending#c586da1c id:long date:int = WebPage from Telegram
 type TLWebPagePending struct {
-	Id   uint64 // id:long
+	ID   uint64 // id:long
 	Date int    // date:int
 }
 
@@ -21945,12 +21945,12 @@ func (o *TLWebPagePending) Cmd() uint32 {
 }
 
 func (o *TLWebPagePending) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLWebPagePending) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteInt(o.Date)
 }
 
@@ -21961,7 +21961,7 @@ func (o *TLWebPagePending) String() string {
 // TLWebPage represents ctor webPage#5f07b4bc flags:# id:long url:string display_url:string hash:int flags.0?type:string flags.1?site_name:string flags.2?title:string flags.3?description:string flags.4?photo:Photo flags.5?embed_url:string flags.5?embed_type:string flags.6?embed_width:int flags.6?embed_height:int flags.7?duration:int flags.8?author:string flags.9?document:Document flags.10?cached_page:Page = WebPage from Telegram
 type TLWebPage struct {
 	Flags       uint           // flags:#
-	Id          uint64         // id:long
+	ID          uint64         // id:long
 	Url         string         // url:string
 	DisplayUrl  string         // display_url:string
 	Hash        int            // hash:int
@@ -21988,7 +21988,7 @@ func (o *TLWebPage) Cmd() uint32 {
 
 func (o *TLWebPage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.Url = r.ReadString()
 	o.DisplayUrl = r.ReadString()
 	o.Hash = r.ReadInt()
@@ -22009,7 +22009,7 @@ func (o *TLWebPage) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLWebPage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteString(o.Url)
 	w.WriteString(o.DisplayUrl)
 	w.WriteInt(o.Hash)
@@ -22265,7 +22265,7 @@ func (o *TLInputStickerSetEmpty) String() string {
 
 // TLInputStickerSetID represents ctor inputStickerSetID#9de7a269 id:long access_hash:long = InputStickerSet from Telegram
 type TLInputStickerSetID struct {
-	Id         uint64 // id:long
+	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 }
 
@@ -22276,12 +22276,12 @@ func (o *TLInputStickerSetID) Cmd() uint32 {
 }
 
 func (o *TLInputStickerSetID) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputStickerSetID) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -22943,7 +22943,7 @@ func (o *TLMessageEntityTextUrl) String() string {
 type TLMessageEntityMentionName struct {
 	Offset int // offset:int
 	Length int // length:int
-	UserId int // user_id:int
+	UserID int // user_id:int
 }
 
 func (o *TLMessageEntityMentionName) IsTLMessageEntity() {}
@@ -22955,13 +22955,13 @@ func (o *TLMessageEntityMentionName) Cmd() uint32 {
 func (o *TLMessageEntityMentionName) ReadBareFrom(r *tl.Reader) {
 	o.Offset = r.ReadInt()
 	o.Length = r.ReadInt()
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 }
 
 func (o *TLMessageEntityMentionName) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Length)
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 }
 
 func (o *TLMessageEntityMentionName) String() string {
@@ -22972,7 +22972,7 @@ func (o *TLMessageEntityMentionName) String() string {
 type TLInputMessageEntityMentionName struct {
 	Offset int             // offset:int
 	Length int             // length:int
-	UserId TLInputUserType // user_id:InputUser
+	UserID TLInputUserType // user_id:InputUser
 }
 
 func (o *TLInputMessageEntityMentionName) IsTLMessageEntity() {}
@@ -22984,14 +22984,14 @@ func (o *TLInputMessageEntityMentionName) Cmd() uint32 {
 func (o *TLInputMessageEntityMentionName) ReadBareFrom(r *tl.Reader) {
 	o.Offset = r.ReadInt()
 	o.Length = r.ReadInt()
-	o.UserId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 }
 
 func (o *TLInputMessageEntityMentionName) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Length)
-	w.WriteCmd(o.UserId.Cmd())
-	o.UserId.WriteBareTo(w)
+	w.WriteCmd(o.UserID.Cmd())
+	o.UserID.WriteBareTo(w)
 }
 
 func (o *TLInputMessageEntityMentionName) String() string {
@@ -23020,7 +23020,7 @@ func (o *TLInputChannelEmpty) String() string {
 
 // TLInputChannel represents ctor inputChannel#afeb712e channel_id:int access_hash:long = InputChannel from Telegram
 type TLInputChannel struct {
-	ChannelId  int    // channel_id:int
+	ChannelID  int    // channel_id:int
 	AccessHash uint64 // access_hash:long
 }
 
@@ -23031,12 +23031,12 @@ func (o *TLInputChannel) Cmd() uint32 {
 }
 
 func (o *TLInputChannel) ReadBareFrom(r *tl.Reader) {
-	o.ChannelId = r.ReadInt()
+	o.ChannelID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputChannel) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.ChannelId)
+	w.WriteInt(o.ChannelID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -23082,8 +23082,8 @@ type TLUpdatesChannelDifferenceTooLong struct {
 	Pts             int             // pts:int
 	Timeout         int             // flags.1?timeout:int
 	TopMessage      int             // top_message:int
-	ReadInboxMaxId  int             // read_inbox_max_id:int
-	ReadOutboxMaxId int             // read_outbox_max_id:int
+	ReadInboxMaxID  int             // read_inbox_max_id:int
+	ReadOutboxMaxID int             // read_outbox_max_id:int
 	UnreadCount     int             // unread_count:int
 	Messages        []TLMessageType // messages:Vector<Message>
 	Chats           []TLChatType    // chats:Vector<Chat>
@@ -23102,8 +23102,8 @@ func (o *TLUpdatesChannelDifferenceTooLong) ReadBareFrom(r *tl.Reader) {
 	o.Pts = r.ReadInt()
 	o.Timeout = r.ReadInt()
 	o.TopMessage = r.ReadInt()
-	o.ReadInboxMaxId = r.ReadInt()
-	o.ReadOutboxMaxId = r.ReadInt()
+	o.ReadInboxMaxID = r.ReadInt()
+	o.ReadOutboxMaxID = r.ReadInt()
 	o.UnreadCount = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -23133,8 +23133,8 @@ func (o *TLUpdatesChannelDifferenceTooLong) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.Timeout)
 	w.WriteInt(o.TopMessage)
-	w.WriteInt(o.ReadInboxMaxId)
-	w.WriteInt(o.ReadOutboxMaxId)
+	w.WriteInt(o.ReadInboxMaxID)
+	w.WriteInt(o.ReadOutboxMaxID)
 	w.WriteInt(o.UnreadCount)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Messages))
@@ -23195,7 +23195,7 @@ func (o *TLUpdatesChannelDifference) ReadBareFrom(r *tl.Reader) {
 	}
 	o.OtherUpdates = make([]TLUpdateType, r.ReadInt())
 	for i := 0; i < len(o.OtherUpdates); i++ {
-		o.OtherUpdates[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDcOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
+		o.OtherUpdates[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUpdateNewMessage, TagUpdateMessageID, TagUpdateDeleteMessages, TagUpdateUserTyping, TagUpdateChatUserTyping, TagUpdateChatParticipants, TagUpdateUserStatus, TagUpdateUserName, TagUpdateUserPhoto, TagUpdateContactRegistered, TagUpdateContactLink, TagUpdateNewEncryptedMessage, TagUpdateEncryptedChatTyping, TagUpdateEncryption, TagUpdateEncryptedMessagesRead, TagUpdateChatParticipantAdd, TagUpdateChatParticipantDelete, TagUpdateDCOptions, TagUpdateUserBlocked, TagUpdateNotifySettings, TagUpdateServiceNotification, TagUpdatePrivacy, TagUpdateUserPhone, TagUpdateReadHistoryInbox, TagUpdateReadHistoryOutbox, TagUpdateWebPage, TagUpdateReadMessagesContents, TagUpdateChannelTooLong, TagUpdateChannel, TagUpdateNewChannelMessage, TagUpdateReadChannelInbox, TagUpdateDeleteChannelMessages, TagUpdateChannelMessageViews, TagUpdateChatAdmins, TagUpdateChatParticipantAdmin, TagUpdateNewStickerSet, TagUpdateStickerSetsOrder, TagUpdateStickerSets, TagUpdateSavedGifs, TagUpdateBotInlineQuery, TagUpdateBotInlineSend, TagUpdateEditChannelMessage, TagUpdateChannelPinnedMessage, TagUpdateBotCallbackQuery, TagUpdateEditMessage, TagUpdateInlineBotCallbackQuery, TagUpdateReadChannelOutbox, TagUpdateDraftMessage, TagUpdateReadFeaturedStickers, TagUpdateRecentStickers, TagUpdateConfig, TagUpdatePtsChanged, TagUpdateChannelWebPage, TagUpdateDialogPinned, TagUpdatePinnedDialogs, TagUpdateBotWebhookJSON, TagUpdateBotWebhookJSONQuery, TagUpdateBotShippingQuery, TagUpdateBotPrecheckoutQuery, TagUpdatePhoneCall).(TLUpdateType)
 	}
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -23312,7 +23312,7 @@ func (o *TLChannelMessagesFilter) String() string {
 
 // TLChannelParticipant represents ctor channelParticipant#15ebac1d user_id:int date:int = ChannelParticipant from Telegram
 type TLChannelParticipant struct {
-	UserId int // user_id:int
+	UserID int // user_id:int
 	Date   int // date:int
 }
 
@@ -23323,12 +23323,12 @@ func (o *TLChannelParticipant) Cmd() uint32 {
 }
 
 func (o *TLChannelParticipant) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLChannelParticipant) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteInt(o.Date)
 }
 
@@ -23338,8 +23338,8 @@ func (o *TLChannelParticipant) String() string {
 
 // TLChannelParticipantSelf represents ctor channelParticipantSelf#a3289a6d user_id:int inviter_id:int date:int = ChannelParticipant from Telegram
 type TLChannelParticipantSelf struct {
-	UserId    int // user_id:int
-	InviterId int // inviter_id:int
+	UserID    int // user_id:int
+	InviterID int // inviter_id:int
 	Date      int // date:int
 }
 
@@ -23350,14 +23350,14 @@ func (o *TLChannelParticipantSelf) Cmd() uint32 {
 }
 
 func (o *TLChannelParticipantSelf) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
-	o.InviterId = r.ReadInt()
+	o.UserID = r.ReadInt()
+	o.InviterID = r.ReadInt()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLChannelParticipantSelf) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
-	w.WriteInt(o.InviterId)
+	w.WriteInt(o.UserID)
+	w.WriteInt(o.InviterID)
 	w.WriteInt(o.Date)
 }
 
@@ -23367,8 +23367,8 @@ func (o *TLChannelParticipantSelf) String() string {
 
 // TLChannelParticipantModerator represents ctor channelParticipantModerator#91057fef user_id:int inviter_id:int date:int = ChannelParticipant from Telegram
 type TLChannelParticipantModerator struct {
-	UserId    int // user_id:int
-	InviterId int // inviter_id:int
+	UserID    int // user_id:int
+	InviterID int // inviter_id:int
 	Date      int // date:int
 }
 
@@ -23379,14 +23379,14 @@ func (o *TLChannelParticipantModerator) Cmd() uint32 {
 }
 
 func (o *TLChannelParticipantModerator) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
-	o.InviterId = r.ReadInt()
+	o.UserID = r.ReadInt()
+	o.InviterID = r.ReadInt()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLChannelParticipantModerator) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
-	w.WriteInt(o.InviterId)
+	w.WriteInt(o.UserID)
+	w.WriteInt(o.InviterID)
 	w.WriteInt(o.Date)
 }
 
@@ -23396,8 +23396,8 @@ func (o *TLChannelParticipantModerator) String() string {
 
 // TLChannelParticipantEditor represents ctor channelParticipantEditor#98192d61 user_id:int inviter_id:int date:int = ChannelParticipant from Telegram
 type TLChannelParticipantEditor struct {
-	UserId    int // user_id:int
-	InviterId int // inviter_id:int
+	UserID    int // user_id:int
+	InviterID int // inviter_id:int
 	Date      int // date:int
 }
 
@@ -23408,14 +23408,14 @@ func (o *TLChannelParticipantEditor) Cmd() uint32 {
 }
 
 func (o *TLChannelParticipantEditor) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
-	o.InviterId = r.ReadInt()
+	o.UserID = r.ReadInt()
+	o.InviterID = r.ReadInt()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLChannelParticipantEditor) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
-	w.WriteInt(o.InviterId)
+	w.WriteInt(o.UserID)
+	w.WriteInt(o.InviterID)
 	w.WriteInt(o.Date)
 }
 
@@ -23425,7 +23425,7 @@ func (o *TLChannelParticipantEditor) String() string {
 
 // TLChannelParticipantKicked represents ctor channelParticipantKicked#8cc5e69a user_id:int kicked_by:int date:int = ChannelParticipant from Telegram
 type TLChannelParticipantKicked struct {
-	UserId   int // user_id:int
+	UserID   int // user_id:int
 	KickedBy int // kicked_by:int
 	Date     int // date:int
 }
@@ -23437,13 +23437,13 @@ func (o *TLChannelParticipantKicked) Cmd() uint32 {
 }
 
 func (o *TLChannelParticipantKicked) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 	o.KickedBy = r.ReadInt()
 	o.Date = r.ReadInt()
 }
 
 func (o *TLChannelParticipantKicked) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 	w.WriteInt(o.KickedBy)
 	w.WriteInt(o.Date)
 }
@@ -23454,7 +23454,7 @@ func (o *TLChannelParticipantKicked) String() string {
 
 // TLChannelParticipantCreator represents ctor channelParticipantCreator#e3e2e1f9 user_id:int = ChannelParticipant from Telegram
 type TLChannelParticipantCreator struct {
-	UserId int // user_id:int
+	UserID int // user_id:int
 }
 
 func (o *TLChannelParticipantCreator) IsTLChannelParticipant() {}
@@ -23464,11 +23464,11 @@ func (o *TLChannelParticipantCreator) Cmd() uint32 {
 }
 
 func (o *TLChannelParticipantCreator) ReadBareFrom(r *tl.Reader) {
-	o.UserId = r.ReadInt()
+	o.UserID = r.ReadInt()
 }
 
 func (o *TLChannelParticipantCreator) WriteBareTo(w *tl.Writer) {
-	w.WriteInt(o.UserId)
+	w.WriteInt(o.UserID)
 }
 
 func (o *TLChannelParticipantCreator) String() string {
@@ -23855,7 +23855,7 @@ type TLInputBotInlineMessageMediaVenue struct {
 	Title       string              // title:string
 	Address     string              // address:string
 	Provider    string              // provider:string
-	VenueId     string              // venue_id:string
+	VenueID     string              // venue_id:string
 	ReplyMarkup TLReplyMarkupType   // flags.2?reply_markup:ReplyMarkup
 }
 
@@ -23871,7 +23871,7 @@ func (o *TLInputBotInlineMessageMediaVenue) ReadBareFrom(r *tl.Reader) {
 	o.Title = r.ReadString()
 	o.Address = r.ReadString()
 	o.Provider = r.ReadString()
-	o.VenueId = r.ReadString()
+	o.VenueID = r.ReadString()
 	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 }
 
@@ -23882,7 +23882,7 @@ func (o *TLInputBotInlineMessageMediaVenue) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Title)
 	w.WriteString(o.Address)
 	w.WriteString(o.Provider)
-	w.WriteString(o.VenueId)
+	w.WriteString(o.VenueID)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
 }
@@ -23957,7 +23957,7 @@ func (o *TLInputBotInlineMessageGame) String() string {
 // TLInputBotInlineResult represents ctor inputBotInlineResult#2cbbe15a flags:# id:string type:string flags.1?title:string flags.2?description:string flags.3?url:string flags.4?thumb_url:string flags.5?content_url:string flags.5?content_type:string flags.6?w:int flags.6?h:int flags.7?duration:int send_message:InputBotInlineMessage = InputBotInlineResult from Telegram
 type TLInputBotInlineResult struct {
 	Flags       uint                        // flags:#
-	Id          string                      // id:string
+	ID          string                      // id:string
 	Type        string                      // type:string
 	Title       string                      // flags.1?title:string
 	Description string                      // flags.2?description:string
@@ -23979,7 +23979,7 @@ func (o *TLInputBotInlineResult) Cmd() uint32 {
 
 func (o *TLInputBotInlineResult) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	o.Type = r.ReadString()
 	o.Title = r.ReadString()
 	o.Description = r.ReadString()
@@ -23995,7 +23995,7 @@ func (o *TLInputBotInlineResult) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLInputBotInlineResult) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteString(o.Type)
 	w.WriteString(o.Title)
 	w.WriteString(o.Description)
@@ -24016,7 +24016,7 @@ func (o *TLInputBotInlineResult) String() string {
 
 // TLInputBotInlineResultPhoto represents ctor inputBotInlineResultPhoto#a8d864a7 id:string type:string photo:InputPhoto send_message:InputBotInlineMessage = InputBotInlineResult from Telegram
 type TLInputBotInlineResultPhoto struct {
-	Id          string                      // id:string
+	ID          string                      // id:string
 	Type        string                      // type:string
 	Photo       TLInputPhotoType            // photo:InputPhoto
 	SendMessage TLInputBotInlineMessageType // send_message:InputBotInlineMessage
@@ -24029,14 +24029,14 @@ func (o *TLInputBotInlineResultPhoto) Cmd() uint32 {
 }
 
 func (o *TLInputBotInlineResultPhoto) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	o.Type = r.ReadString()
 	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
 	o.SendMessage = Schema.ReadLimitedBoxedObjectFrom(r, TagInputBotInlineMessageMediaAuto, TagInputBotInlineMessageText, TagInputBotInlineMessageMediaGeo, TagInputBotInlineMessageMediaVenue, TagInputBotInlineMessageMediaContact, TagInputBotInlineMessageGame).(TLInputBotInlineMessageType)
 }
 
 func (o *TLInputBotInlineResultPhoto) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteString(o.Type)
 	w.WriteCmd(o.Photo.Cmd())
 	o.Photo.WriteBareTo(w)
@@ -24051,7 +24051,7 @@ func (o *TLInputBotInlineResultPhoto) String() string {
 // TLInputBotInlineResultDocument represents ctor inputBotInlineResultDocument#fff8fdc4 flags:# id:string type:string flags.1?title:string flags.2?description:string document:InputDocument send_message:InputBotInlineMessage = InputBotInlineResult from Telegram
 type TLInputBotInlineResultDocument struct {
 	Flags       uint                        // flags:#
-	Id          string                      // id:string
+	ID          string                      // id:string
 	Type        string                      // type:string
 	Title       string                      // flags.1?title:string
 	Description string                      // flags.2?description:string
@@ -24067,7 +24067,7 @@ func (o *TLInputBotInlineResultDocument) Cmd() uint32 {
 
 func (o *TLInputBotInlineResultDocument) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	o.Type = r.ReadString()
 	o.Title = r.ReadString()
 	o.Description = r.ReadString()
@@ -24077,7 +24077,7 @@ func (o *TLInputBotInlineResultDocument) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLInputBotInlineResultDocument) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteString(o.Type)
 	w.WriteString(o.Title)
 	w.WriteString(o.Description)
@@ -24093,7 +24093,7 @@ func (o *TLInputBotInlineResultDocument) String() string {
 
 // TLInputBotInlineResultGame represents ctor inputBotInlineResultGame#4fa417f2 id:string short_name:string send_message:InputBotInlineMessage = InputBotInlineResult from Telegram
 type TLInputBotInlineResultGame struct {
-	Id          string                      // id:string
+	ID          string                      // id:string
 	ShortName   string                      // short_name:string
 	SendMessage TLInputBotInlineMessageType // send_message:InputBotInlineMessage
 }
@@ -24105,13 +24105,13 @@ func (o *TLInputBotInlineResultGame) Cmd() uint32 {
 }
 
 func (o *TLInputBotInlineResultGame) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	o.ShortName = r.ReadString()
 	o.SendMessage = Schema.ReadLimitedBoxedObjectFrom(r, TagInputBotInlineMessageMediaAuto, TagInputBotInlineMessageText, TagInputBotInlineMessageMediaGeo, TagInputBotInlineMessageMediaVenue, TagInputBotInlineMessageMediaContact, TagInputBotInlineMessageGame).(TLInputBotInlineMessageType)
 }
 
 func (o *TLInputBotInlineResultGame) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteString(o.ShortName)
 	w.WriteCmd(o.SendMessage.Cmd())
 	o.SendMessage.WriteBareTo(w)
@@ -24235,7 +24235,7 @@ type TLBotInlineMessageMediaVenue struct {
 	Title       string            // title:string
 	Address     string            // address:string
 	Provider    string            // provider:string
-	VenueId     string            // venue_id:string
+	VenueID     string            // venue_id:string
 	ReplyMarkup TLReplyMarkupType // flags.2?reply_markup:ReplyMarkup
 }
 
@@ -24251,7 +24251,7 @@ func (o *TLBotInlineMessageMediaVenue) ReadBareFrom(r *tl.Reader) {
 	o.Title = r.ReadString()
 	o.Address = r.ReadString()
 	o.Provider = r.ReadString()
-	o.VenueId = r.ReadString()
+	o.VenueID = r.ReadString()
 	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 }
 
@@ -24262,7 +24262,7 @@ func (o *TLBotInlineMessageMediaVenue) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Title)
 	w.WriteString(o.Address)
 	w.WriteString(o.Provider)
-	w.WriteString(o.VenueId)
+	w.WriteString(o.VenueID)
 	w.WriteCmd(o.ReplyMarkup.Cmd())
 	o.ReplyMarkup.WriteBareTo(w)
 }
@@ -24310,7 +24310,7 @@ func (o *TLBotInlineMessageMediaContact) String() string {
 // TLBotInlineResult represents ctor botInlineResult#9bebaeb9 flags:# id:string type:string flags.1?title:string flags.2?description:string flags.3?url:string flags.4?thumb_url:string flags.5?content_url:string flags.5?content_type:string flags.6?w:int flags.6?h:int flags.7?duration:int send_message:BotInlineMessage = BotInlineResult from Telegram
 type TLBotInlineResult struct {
 	Flags       uint                   // flags:#
-	Id          string                 // id:string
+	ID          string                 // id:string
 	Type        string                 // type:string
 	Title       string                 // flags.1?title:string
 	Description string                 // flags.2?description:string
@@ -24332,7 +24332,7 @@ func (o *TLBotInlineResult) Cmd() uint32 {
 
 func (o *TLBotInlineResult) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	o.Type = r.ReadString()
 	o.Title = r.ReadString()
 	o.Description = r.ReadString()
@@ -24348,7 +24348,7 @@ func (o *TLBotInlineResult) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLBotInlineResult) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteString(o.Type)
 	w.WriteString(o.Title)
 	w.WriteString(o.Description)
@@ -24370,7 +24370,7 @@ func (o *TLBotInlineResult) String() string {
 // TLBotInlineMediaResult represents ctor botInlineMediaResult#17db940b flags:# id:string type:string flags.0?photo:Photo flags.1?document:Document flags.2?title:string flags.3?description:string send_message:BotInlineMessage = BotInlineResult from Telegram
 type TLBotInlineMediaResult struct {
 	Flags       uint                   // flags:#
-	Id          string                 // id:string
+	ID          string                 // id:string
 	Type        string                 // type:string
 	Photo       TLPhotoType            // flags.0?photo:Photo
 	Document    TLDocumentType         // flags.1?document:Document
@@ -24387,7 +24387,7 @@ func (o *TLBotInlineMediaResult) Cmd() uint32 {
 
 func (o *TLBotInlineMediaResult) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	o.Type = r.ReadString()
 	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
 	o.Document = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentEmpty, TagDocument).(TLDocumentType)
@@ -24398,7 +24398,7 @@ func (o *TLBotInlineMediaResult) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLBotInlineMediaResult) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteString(o.Type)
 	w.WriteCmd(o.Photo.Cmd())
 	o.Photo.WriteBareTo(w)
@@ -24857,7 +24857,7 @@ func (o *TLStickerSetMultiCovered) String() string {
 
 // TLInputStickeredMediaPhoto represents ctor inputStickeredMediaPhoto#4a992157 id:InputPhoto = InputStickeredMedia from Telegram
 type TLInputStickeredMediaPhoto struct {
-	Id TLInputPhotoType // id:InputPhoto
+	ID TLInputPhotoType // id:InputPhoto
 }
 
 func (o *TLInputStickeredMediaPhoto) IsTLInputStickeredMedia() {}
@@ -24867,12 +24867,12 @@ func (o *TLInputStickeredMediaPhoto) Cmd() uint32 {
 }
 
 func (o *TLInputStickeredMediaPhoto) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPhotoEmpty, TagInputPhoto).(TLInputPhotoType)
 }
 
 func (o *TLInputStickeredMediaPhoto) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 }
 
 func (o *TLInputStickeredMediaPhoto) String() string {
@@ -24881,7 +24881,7 @@ func (o *TLInputStickeredMediaPhoto) String() string {
 
 // TLInputStickeredMediaDocument represents ctor inputStickeredMediaDocument#0438865b id:InputDocument = InputStickeredMedia from Telegram
 type TLInputStickeredMediaDocument struct {
-	Id TLInputDocumentType // id:InputDocument
+	ID TLInputDocumentType // id:InputDocument
 }
 
 func (o *TLInputStickeredMediaDocument) IsTLInputStickeredMedia() {}
@@ -24891,12 +24891,12 @@ func (o *TLInputStickeredMediaDocument) Cmd() uint32 {
 }
 
 func (o *TLInputStickeredMediaDocument) ReadBareFrom(r *tl.Reader) {
-	o.Id = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
+	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
 }
 
 func (o *TLInputStickeredMediaDocument) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.Id.Cmd())
-	o.Id.WriteBareTo(w)
+	w.WriteCmd(o.ID.Cmd())
+	o.ID.WriteBareTo(w)
 }
 
 func (o *TLInputStickeredMediaDocument) String() string {
@@ -24905,7 +24905,7 @@ func (o *TLInputStickeredMediaDocument) String() string {
 
 // TLInputGameID represents ctor inputGameID#032c3e77 id:long access_hash:long = InputGame from Telegram
 type TLInputGameID struct {
-	Id         uint64 // id:long
+	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 }
 
@@ -24916,12 +24916,12 @@ func (o *TLInputGameID) Cmd() uint32 {
 }
 
 func (o *TLInputGameID) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputGameID) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -24931,7 +24931,7 @@ func (o *TLInputGameID) String() string {
 
 // TLInputGameShortName represents ctor inputGameShortName#c331e80a bot_id:InputUser short_name:string = InputGame from Telegram
 type TLInputGameShortName struct {
-	BotId     TLInputUserType // bot_id:InputUser
+	BotID     TLInputUserType // bot_id:InputUser
 	ShortName string          // short_name:string
 }
 
@@ -24942,13 +24942,13 @@ func (o *TLInputGameShortName) Cmd() uint32 {
 }
 
 func (o *TLInputGameShortName) ReadBareFrom(r *tl.Reader) {
-	o.BotId = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
+	o.BotID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	o.ShortName = r.ReadString()
 }
 
 func (o *TLInputGameShortName) WriteBareTo(w *tl.Writer) {
-	w.WriteCmd(o.BotId.Cmd())
-	o.BotId.WriteBareTo(w)
+	w.WriteCmd(o.BotID.Cmd())
+	o.BotID.WriteBareTo(w)
 	w.WriteString(o.ShortName)
 }
 
@@ -25123,7 +25123,7 @@ func (o *TLTextFixed) String() string {
 type TLTextUrl struct {
 	Text      TLRichTextType // text:RichText
 	Url       string         // url:string
-	WebpageId uint64         // webpage_id:long
+	WebpageID uint64         // webpage_id:long
 }
 
 func (o *TLTextUrl) IsTLRichText() {}
@@ -25135,14 +25135,14 @@ func (o *TLTextUrl) Cmd() uint32 {
 func (o *TLTextUrl) ReadBareFrom(r *tl.Reader) {
 	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
 	o.Url = r.ReadString()
-	o.WebpageId = r.ReadUint64()
+	o.WebpageID = r.ReadUint64()
 }
 
 func (o *TLTextUrl) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Text.Cmd())
 	o.Text.WriteBareTo(w)
 	w.WriteString(o.Url)
-	w.WriteUint64(o.WebpageId)
+	w.WriteUint64(o.WebpageID)
 }
 
 func (o *TLTextUrl) String() string {
@@ -25571,7 +25571,7 @@ func (o *TLPageBlockPullquote) String() string {
 
 // TLPageBlockPhoto represents ctor pageBlockPhoto#e9c69982 photo_id:long caption:RichText = PageBlock from Telegram
 type TLPageBlockPhoto struct {
-	PhotoId uint64         // photo_id:long
+	PhotoID uint64         // photo_id:long
 	Caption TLRichTextType // caption:RichText
 }
 
@@ -25582,12 +25582,12 @@ func (o *TLPageBlockPhoto) Cmd() uint32 {
 }
 
 func (o *TLPageBlockPhoto) ReadBareFrom(r *tl.Reader) {
-	o.PhotoId = r.ReadUint64()
+	o.PhotoID = r.ReadUint64()
 	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockPhoto) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.PhotoId)
+	w.WriteUint64(o.PhotoID)
 	w.WriteCmd(o.Caption.Cmd())
 	o.Caption.WriteBareTo(w)
 }
@@ -25601,7 +25601,7 @@ type TLPageBlockVideo struct {
 	Flags    uint           // flags:#
 	Autoplay bool           // flags.0?autoplay:true
 	Loop     bool           // flags.1?loop:true
-	VideoId  uint64         // video_id:long
+	VideoID  uint64         // video_id:long
 	Caption  TLRichTextType // caption:RichText
 }
 
@@ -25615,13 +25615,13 @@ func (o *TLPageBlockVideo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Autoplay = true
 	o.Loop = true
-	o.VideoId = r.ReadUint64()
+	o.VideoID = r.ReadUint64()
 	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockVideo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.VideoId)
+	w.WriteUint64(o.VideoID)
 	w.WriteCmd(o.Caption.Cmd())
 	o.Caption.WriteBareTo(w)
 }
@@ -25661,7 +25661,7 @@ type TLPageBlockEmbed struct {
 	AllowScrolling bool           // flags.3?allow_scrolling:true
 	Url            string         // flags.1?url:string
 	Html           string         // flags.2?html:string
-	PosterPhotoId  uint64         // flags.4?poster_photo_id:long
+	PosterPhotoID  uint64         // flags.4?poster_photo_id:long
 	W              int            // w:int
 	H              int            // h:int
 	Caption        TLRichTextType // caption:RichText
@@ -25679,7 +25679,7 @@ func (o *TLPageBlockEmbed) ReadBareFrom(r *tl.Reader) {
 	o.AllowScrolling = true
 	o.Url = r.ReadString()
 	o.Html = r.ReadString()
-	o.PosterPhotoId = r.ReadUint64()
+	o.PosterPhotoID = r.ReadUint64()
 	o.W = r.ReadInt()
 	o.H = r.ReadInt()
 	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
@@ -25689,7 +25689,7 @@ func (o *TLPageBlockEmbed) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.Url)
 	w.WriteString(o.Html)
-	w.WriteUint64(o.PosterPhotoId)
+	w.WriteUint64(o.PosterPhotoID)
 	w.WriteInt(o.W)
 	w.WriteInt(o.H)
 	w.WriteCmd(o.Caption.Cmd())
@@ -25703,8 +25703,8 @@ func (o *TLPageBlockEmbed) String() string {
 // TLPageBlockEmbedPost represents ctor pageBlockEmbedPost#292c7be9 url:string webpage_id:long author_photo_id:long author:string date:int blocks:Vector<PageBlock> caption:RichText = PageBlock from Telegram
 type TLPageBlockEmbedPost struct {
 	Url           string            // url:string
-	WebpageId     uint64            // webpage_id:long
-	AuthorPhotoId uint64            // author_photo_id:long
+	WebpageID     uint64            // webpage_id:long
+	AuthorPhotoID uint64            // author_photo_id:long
 	Author        string            // author:string
 	Date          int               // date:int
 	Blocks        []TLPageBlockType // blocks:Vector<PageBlock>
@@ -25719,8 +25719,8 @@ func (o *TLPageBlockEmbedPost) Cmd() uint32 {
 
 func (o *TLPageBlockEmbedPost) ReadBareFrom(r *tl.Reader) {
 	o.Url = r.ReadString()
-	o.WebpageId = r.ReadUint64()
-	o.AuthorPhotoId = r.ReadUint64()
+	o.WebpageID = r.ReadUint64()
+	o.AuthorPhotoID = r.ReadUint64()
 	o.Author = r.ReadString()
 	o.Date = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagVector {
@@ -25735,8 +25735,8 @@ func (o *TLPageBlockEmbedPost) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPageBlockEmbedPost) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Url)
-	w.WriteUint64(o.WebpageId)
-	w.WriteUint64(o.AuthorPhotoId)
+	w.WriteUint64(o.WebpageID)
+	w.WriteUint64(o.AuthorPhotoID)
 	w.WriteString(o.Author)
 	w.WriteInt(o.Date)
 	w.WriteCmd(TagVector)
@@ -26082,7 +26082,7 @@ func (o *TLPaymentsPaymentVerficationNeeded) String() string {
 
 // TLInputPaymentCredentialsSaved represents ctor inputPaymentCredentialsSaved#c10eb2cf id:string tmp_password:bytes = InputPaymentCredentials from Telegram
 type TLInputPaymentCredentialsSaved struct {
-	Id          string // id:string
+	ID          string // id:string
 	TmpPassword []byte // tmp_password:bytes
 }
 
@@ -26093,12 +26093,12 @@ func (o *TLInputPaymentCredentialsSaved) Cmd() uint32 {
 }
 
 func (o *TLInputPaymentCredentialsSaved) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadString()
+	o.ID = r.ReadString()
 	o.TmpPassword = r.ReadBlob()
 }
 
 func (o *TLInputPaymentCredentialsSaved) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Id)
+	w.WriteString(o.ID)
 	w.WriteBlob(o.TmpPassword)
 }
 
@@ -26141,7 +26141,7 @@ func (o *TLInputPaymentCredentials) String() string {
 
 // TLPhoneCallEmpty represents ctor phoneCallEmpty#5366c915 id:long = PhoneCall from Telegram
 type TLPhoneCallEmpty struct {
-	Id uint64 // id:long
+	ID uint64 // id:long
 }
 
 func (o *TLPhoneCallEmpty) IsTLPhoneCall() {}
@@ -26151,11 +26151,11 @@ func (o *TLPhoneCallEmpty) Cmd() uint32 {
 }
 
 func (o *TLPhoneCallEmpty) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 }
 
 func (o *TLPhoneCallEmpty) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 }
 
 func (o *TLPhoneCallEmpty) String() string {
@@ -26165,11 +26165,11 @@ func (o *TLPhoneCallEmpty) String() string {
 // TLPhoneCallWaiting represents ctor phoneCallWaiting#1b8f4ad1 flags:# id:long access_hash:long date:int admin_id:int participant_id:int protocol:PhoneCallProtocol flags.0?receive_date:int = PhoneCall from Telegram
 type TLPhoneCallWaiting struct {
 	Flags         uint                 // flags:#
-	Id            uint64               // id:long
+	ID            uint64               // id:long
 	AccessHash    uint64               // access_hash:long
 	Date          int                  // date:int
-	AdminId       int                  // admin_id:int
-	ParticipantId int                  // participant_id:int
+	AdminID       int                  // admin_id:int
+	ParticipantID int                  // participant_id:int
 	Protocol      *TLPhoneCallProtocol // protocol:PhoneCallProtocol
 	ReceiveDate   int                  // flags.0?receive_date:int
 }
@@ -26182,11 +26182,11 @@ func (o *TLPhoneCallWaiting) Cmd() uint32 {
 
 func (o *TLPhoneCallWaiting) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Date = r.ReadInt()
-	o.AdminId = r.ReadInt()
-	o.ParticipantId = r.ReadInt()
+	o.AdminID = r.ReadInt()
+	o.ParticipantID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagPhoneCallProtocol {
 		r.Fail(errors.New("expected: phoneCallProtocol"))
 	}
@@ -26197,11 +26197,11 @@ func (o *TLPhoneCallWaiting) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPhoneCallWaiting) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Date)
-	w.WriteInt(o.AdminId)
-	w.WriteInt(o.ParticipantId)
+	w.WriteInt(o.AdminID)
+	w.WriteInt(o.ParticipantID)
 	w.WriteCmd(TagPhoneCallProtocol)
 	o.Protocol.WriteBareTo(w)
 	w.WriteInt(o.ReceiveDate)
@@ -26213,11 +26213,11 @@ func (o *TLPhoneCallWaiting) String() string {
 
 // TLPhoneCallRequested represents ctor phoneCallRequested#83761ce4 id:long access_hash:long date:int admin_id:int participant_id:int g_a_hash:bytes protocol:PhoneCallProtocol = PhoneCall from Telegram
 type TLPhoneCallRequested struct {
-	Id            uint64               // id:long
+	ID            uint64               // id:long
 	AccessHash    uint64               // access_hash:long
 	Date          int                  // date:int
-	AdminId       int                  // admin_id:int
-	ParticipantId int                  // participant_id:int
+	AdminID       int                  // admin_id:int
+	ParticipantID int                  // participant_id:int
 	GAHash        []byte               // g_a_hash:bytes
 	Protocol      *TLPhoneCallProtocol // protocol:PhoneCallProtocol
 }
@@ -26229,11 +26229,11 @@ func (o *TLPhoneCallRequested) Cmd() uint32 {
 }
 
 func (o *TLPhoneCallRequested) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Date = r.ReadInt()
-	o.AdminId = r.ReadInt()
-	o.ParticipantId = r.ReadInt()
+	o.AdminID = r.ReadInt()
+	o.ParticipantID = r.ReadInt()
 	o.GAHash = r.ReadBlob()
 	if cmd := r.ReadCmd(); cmd != TagPhoneCallProtocol {
 		r.Fail(errors.New("expected: phoneCallProtocol"))
@@ -26243,11 +26243,11 @@ func (o *TLPhoneCallRequested) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPhoneCallRequested) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Date)
-	w.WriteInt(o.AdminId)
-	w.WriteInt(o.ParticipantId)
+	w.WriteInt(o.AdminID)
+	w.WriteInt(o.ParticipantID)
 	w.WriteBlob(o.GAHash)
 	w.WriteCmd(TagPhoneCallProtocol)
 	o.Protocol.WriteBareTo(w)
@@ -26259,11 +26259,11 @@ func (o *TLPhoneCallRequested) String() string {
 
 // TLPhoneCallAccepted represents ctor phoneCallAccepted#6d003d3f id:long access_hash:long date:int admin_id:int participant_id:int g_b:bytes protocol:PhoneCallProtocol = PhoneCall from Telegram
 type TLPhoneCallAccepted struct {
-	Id            uint64               // id:long
+	ID            uint64               // id:long
 	AccessHash    uint64               // access_hash:long
 	Date          int                  // date:int
-	AdminId       int                  // admin_id:int
-	ParticipantId int                  // participant_id:int
+	AdminID       int                  // admin_id:int
+	ParticipantID int                  // participant_id:int
 	GB            []byte               // g_b:bytes
 	Protocol      *TLPhoneCallProtocol // protocol:PhoneCallProtocol
 }
@@ -26275,11 +26275,11 @@ func (o *TLPhoneCallAccepted) Cmd() uint32 {
 }
 
 func (o *TLPhoneCallAccepted) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Date = r.ReadInt()
-	o.AdminId = r.ReadInt()
-	o.ParticipantId = r.ReadInt()
+	o.AdminID = r.ReadInt()
+	o.ParticipantID = r.ReadInt()
 	o.GB = r.ReadBlob()
 	if cmd := r.ReadCmd(); cmd != TagPhoneCallProtocol {
 		r.Fail(errors.New("expected: phoneCallProtocol"))
@@ -26289,11 +26289,11 @@ func (o *TLPhoneCallAccepted) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPhoneCallAccepted) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Date)
-	w.WriteInt(o.AdminId)
-	w.WriteInt(o.ParticipantId)
+	w.WriteInt(o.AdminID)
+	w.WriteInt(o.ParticipantID)
 	w.WriteBlob(o.GB)
 	w.WriteCmd(TagPhoneCallProtocol)
 	o.Protocol.WriteBareTo(w)
@@ -26305,11 +26305,11 @@ func (o *TLPhoneCallAccepted) String() string {
 
 // TLPhoneCall represents ctor phoneCall#ffe6ab67 id:long access_hash:long date:int admin_id:int participant_id:int g_a_or_b:bytes key_fingerprint:long protocol:PhoneCallProtocol connection:PhoneConnection alternative_connections:Vector<PhoneConnection> start_date:int = PhoneCall from Telegram
 type TLPhoneCall struct {
-	Id                     uint64               // id:long
+	ID                     uint64               // id:long
 	AccessHash             uint64               // access_hash:long
 	Date                   int                  // date:int
-	AdminId                int                  // admin_id:int
-	ParticipantId          int                  // participant_id:int
+	AdminID                int                  // admin_id:int
+	ParticipantID          int                  // participant_id:int
 	GAOrB                  []byte               // g_a_or_b:bytes
 	KeyFingerprint         uint64               // key_fingerprint:long
 	Protocol               *TLPhoneCallProtocol // protocol:PhoneCallProtocol
@@ -26325,11 +26325,11 @@ func (o *TLPhoneCall) Cmd() uint32 {
 }
 
 func (o *TLPhoneCall) ReadBareFrom(r *tl.Reader) {
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Date = r.ReadInt()
-	o.AdminId = r.ReadInt()
-	o.ParticipantId = r.ReadInt()
+	o.AdminID = r.ReadInt()
+	o.ParticipantID = r.ReadInt()
 	o.GAOrB = r.ReadBlob()
 	o.KeyFingerprint = r.ReadUint64()
 	if cmd := r.ReadCmd(); cmd != TagPhoneCallProtocol {
@@ -26357,11 +26357,11 @@ func (o *TLPhoneCall) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLPhoneCall) WriteBareTo(w *tl.Writer) {
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Date)
-	w.WriteInt(o.AdminId)
-	w.WriteInt(o.ParticipantId)
+	w.WriteInt(o.AdminID)
+	w.WriteInt(o.ParticipantID)
 	w.WriteBlob(o.GAOrB)
 	w.WriteUint64(o.KeyFingerprint)
 	w.WriteCmd(TagPhoneCallProtocol)
@@ -26386,7 +26386,7 @@ type TLPhoneCallDiscarded struct {
 	Flags      uint                         // flags:#
 	NeedRating bool                         // flags.2?need_rating:true
 	NeedDebug  bool                         // flags.3?need_debug:true
-	Id         uint64                       // id:long
+	ID         uint64                       // id:long
 	Reason     TLPhoneCallDiscardReasonType // flags.0?reason:PhoneCallDiscardReason
 	Duration   int                          // flags.1?duration:int
 }
@@ -26401,14 +26401,14 @@ func (o *TLPhoneCallDiscarded) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.NeedRating = true
 	o.NeedDebug = true
-	o.Id = r.ReadUint64()
+	o.ID = r.ReadUint64()
 	o.Reason = Schema.ReadLimitedBoxedObjectFrom(r, TagPhoneCallDiscardReasonMissed, TagPhoneCallDiscardReasonDisconnect, TagPhoneCallDiscardReasonHangup, TagPhoneCallDiscardReasonBusy).(TLPhoneCallDiscardReasonType)
 	o.Duration = r.ReadInt()
 }
 
 func (o *TLPhoneCallDiscarded) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteUint64(o.Id)
+	w.WriteUint64(o.ID)
 	w.WriteCmd(o.Reason.Cmd())
 	o.Reason.WriteBareTo(w)
 	w.WriteInt(o.Duration)
@@ -26429,10 +26429,10 @@ var Schema = &tl.Schema{
 			return new(TLServerDHInnerData)
 		case TagClientDHInnerData:
 			return new(TLClientDHInnerData)
-		case TagRpcResult:
-			return new(TLRpcResult)
-		case TagRpcError:
-			return new(TLRpcError)
+		case TagRPCResult:
+			return new(TLRPCResult)
+		case TagRPCError:
+			return new(TLRPCError)
 		case TagFutureSalt:
 			return new(TLFutureSalt)
 		case TagFutureSalts:
@@ -26503,12 +26503,12 @@ var Schema = &tl.Schema{
 			return new(TLPhotosPhoto)
 		case TagUploadFile:
 			return new(TLUploadFile)
-		case TagDcOption:
-			return new(TLDcOption)
+		case TagDCOption:
+			return new(TLDCOption)
 		case TagConfig:
 			return new(TLConfig)
-		case TagNearestDc:
-			return new(TLNearestDc)
+		case TagNearestDC:
+			return new(TLNearestDC)
 		case TagHelpInviteText:
 			return new(TLHelpInviteText)
 		case TagInputEncryptedChat:
@@ -26639,8 +26639,8 @@ var Schema = &tl.Schema{
 			return new(TLReqDHParams)
 		case TagSetClientDHParams:
 			return new(TLSetClientDHParams)
-		case TagRpcDropAnswer:
-			return new(TLRpcDropAnswer)
+		case TagRPCDropAnswer:
+			return new(TLRPCDropAnswer)
 		case TagGetFutureSalts:
 			return new(TLGetFutureSalts)
 		case TagPing:
@@ -26975,8 +26975,8 @@ var Schema = &tl.Schema{
 			return new(TLUploadGetWebFile)
 		case TagHelpGetConfig:
 			return new(TLHelpGetConfig)
-		case TagHelpGetNearestDc:
-			return new(TLHelpGetNearestDc)
+		case TagHelpGetNearestDC:
+			return new(TLHelpGetNearestDC)
 		case TagHelpGetAppUpdate:
 			return new(TLHelpGetAppUpdate)
 		case TagHelpSaveAppLog:
@@ -27087,12 +27087,12 @@ var Schema = &tl.Schema{
 			return new(TLDHGenRetry)
 		case TagDHGenFail:
 			return new(TLDHGenFail)
-		case TagRpcAnswerUnknown:
-			return new(TLRpcAnswerUnknown)
-		case TagRpcAnswerDroppedRunning:
-			return new(TLRpcAnswerDroppedRunning)
-		case TagRpcAnswerDropped:
-			return new(TLRpcAnswerDropped)
+		case TagRPCAnswerUnknown:
+			return new(TLRPCAnswerUnknown)
+		case TagRPCAnswerDroppedRunning:
+			return new(TLRPCAnswerDroppedRunning)
+		case TagRPCAnswerDropped:
+			return new(TLRPCAnswerDropped)
 		case TagDestroySessionOK:
 			return new(TLDestroySessionOK)
 		case TagDestroySessionNone:
@@ -27463,8 +27463,8 @@ var Schema = &tl.Schema{
 			return new(TLUpdateChatParticipantAdd)
 		case TagUpdateChatParticipantDelete:
 			return new(TLUpdateChatParticipantDelete)
-		case TagUpdateDcOptions:
-			return new(TLUpdateDcOptions)
+		case TagUpdateDCOptions:
+			return new(TLUpdateDCOptions)
 		case TagUpdateUserBlocked:
 			return new(TLUpdateUserBlocked)
 		case TagUpdateNotifySettings:
