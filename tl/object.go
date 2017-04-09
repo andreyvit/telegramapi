@@ -2,6 +2,7 @@ package tl
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/kr/pretty"
 )
@@ -79,11 +80,35 @@ func (schema *Schema) ReadLimitedBoxedObjectFrom(r *Reader, cmds ...uint32) Obje
 	}
 }
 
+func (schema *Schema) DescribeCmd(cmd uint32) string {
+	if cmd == 0 {
+		return "none"
+	}
+	o := schema.Factory(cmd)
+	if o == nil {
+		return fmt.Sprintf("#%08x", cmd)
+	} else {
+		return Name(o)
+	}
+}
+
+func (schema *Schema) DescribeCmdOfPayload(raw []byte) string {
+	return schema.DescribeCmd(CmdOfPayload(raw))
+}
+
 func Bytes(o Object) []byte {
 	var w Writer
 	w.WriteCmd(o.Cmd())
 	o.WriteBareTo(&w)
 	return w.Bytes()
+}
+
+func Name(o Object) string {
+	typ := reflect.TypeOf(o)
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+	}
+	return typ.Name()
 }
 
 func Pretty(o Object) string {

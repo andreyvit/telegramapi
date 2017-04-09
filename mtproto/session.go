@@ -7,11 +7,15 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/andreyvit/telegramapi/tl/knownschemas"
 	"io"
 	"log"
 
 	"github.com/andreyvit/telegramapi/tl"
 )
+
+//go:generate go install ../tl/cmd/tlc
+//go:generate tlc -o generated.go mtproto telegram
 
 type Transport interface {
 	Send(data []byte) error
@@ -190,9 +194,9 @@ func (sess *Session) sendInternal(o tl.Object) {
 	}
 
 	if sess.options.Verbose >= 2 {
-		log.Printf("mtproto.Session sending %s (%v bytes, %v): %v", DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type, hex.EncodeToString(msg.Payload))
+		log.Printf("mtproto.Session sending %s (%v bytes, %v): %v", o, len(msg.Payload), msg.Type, hex.EncodeToString(msg.Payload))
 	} else if sess.options.Verbose >= 1 {
-		log.Printf("mtproto.Session sending %s (%v bytes, %v)", DescribeCmdOfPayload(msg.Payload), msg.Type, len(msg.Payload))
+		log.Printf("mtproto.Session sending %s (%v bytes, %v)", tl.Name(o), len(msg.Payload), msg.Type)
 	}
 
 	err = sess.transport.Send(raw)
@@ -223,17 +227,17 @@ func (sess *Session) doHandle(raw []byte) error {
 	o, err := Schema.ReadBoxedObject(msg.Payload)
 	if err != nil {
 		if sess.options.Verbose >= 2 {
-			log.Printf("mtproto.Session received %s (%v bytes, %v): %v", DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type, hex.EncodeToString(msg.Payload))
+			log.Printf("mtproto.Session received %s (%v bytes, %v): %v", Schema.DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type, hex.EncodeToString(msg.Payload))
 		} else if sess.options.Verbose >= 1 {
-			log.Printf("mtproto.Session received %s (%v bytes, %v)", DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type)
+			log.Printf("mtproto.Session received %s (%v bytes, %v)", Schema.DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type)
 		}
 		return err
 	}
 
 	if sess.options.Verbose >= 2 {
-		log.Printf("mtproto.Session received %v", o)
+		log.Printf("mtproto.Session received %v (%v bytes, %v)", o, len(msg.Payload), msg.Type)
 	} else if sess.options.Verbose >= 1 {
-		log.Printf("mtproto.Session received %s (%v bytes, %v)", DescribeCmdOfPayload(msg.Payload), len(msg.Payload), msg.Type)
+		log.Printf("mtproto.Session received %s (%v bytes, %v)", tl.Name(o), len(msg.Payload), msg.Type)
 	}
 
 	sess.invokeHandlersInternal(o)
@@ -273,7 +277,7 @@ func (sess *Session) invokeHandlersInternalReturnCmds(o tl.Object) ([]tl.Object,
 
 func (sess *Session) broadcastInternal(cmd uint32) {
 	if sess.options.Verbose >= 1 {
-		log.Printf("mtproto.Session broadcasting %s", CmdName(cmd))
+		log.Printf("mtproto.Session broadcasting %08x", cmd)
 	}
 	for _, h := range sess.handlers {
 		msgs, err := h(cmd, nil)
@@ -318,7 +322,7 @@ func (sess *Session) handleKeyEx(cmd uint32, o tl.Object) ([]tl.Object, error) {
 func (sess *Session) handleConfig(cmd uint32, o tl.Object) ([]tl.Object, error) {
 	if cmd == PseudoIDHandshakeDone {
 		msg := &TLInvokeWithLayer{
-			Layer: apiLayer,
+			Layer: knownschemas.TelegramLayer,
 			Query: &TLInitConnection{
 				ApiId:         88766,
 				DeviceModel:   "Mac",
@@ -362,9 +366,4 @@ func (sess *Session) Close() {
 
 func (sess *Session) Wait() {
 	// TODO
-}
-
-func init() {
-	RegisterCmd(PseudoIDKeyExStart, "KeyExStart", "")
-	RegisterCmd(PseudoIDHandshakeDone, "HandshakeDone", "")
 }
