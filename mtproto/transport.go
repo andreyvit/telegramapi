@@ -143,6 +143,9 @@ func (tr *TCPTransport) Recv() ([]byte, int, error) {
 	if err != nil {
 		return nil, 0, err
 	}
+	if raw == nil {
+		return nil, 0, io.EOF
+	}
 
 	if len(raw) == 4 {
 		errcode := int(int32(tl.NewReader(raw).Cmd()))

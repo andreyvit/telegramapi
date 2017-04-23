@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -52,47 +53,68 @@ func main() {
 		os.Exit(64) // EX_USAGE
 	}
 
-	conn, err := telegramapi.Connect(options)
-	if err != nil {
-		log.Printf("** ERROR connecting: %v", err)
-		os.Exit(1)
+	tool := &Tool{
+		stateFile: "tg-state.bin",
 	}
-	defer conn.Close()
-	log.Printf("✓ Connected")
 
-	go run(conn)
+	state := new(telegramapi.State)
+	stateBytes, err := ioutil.ReadFile(tool.stateFile)
+	if err == nil {
+		err = state.ReadBytes(stateBytes)
+		if err != nil {
+			log.Printf("** ERROR: reading state from %v: %v", tool.stateFile, err)
+			os.Exit(1)
+		}
+	}
 
-	err = doit(conn)
+	tool.tg = telegramapi.New(options, state, tool)
+
+	err = tool.tg.Run()
 	if err != nil {
-		log.Printf("** ERROR: process: %v", err)
+		log.Printf("** ERROR: session: %v", err)
+		os.Exit(1)
 	}
 
 	log.Printf("✓ DONE")
 }
 
-func run(tg *telegramapi.Conn) {
-	tg.Run()
-	err := tg.Err()
+type Tool struct {
+	tg *telegramapi.Conn
+
+	stateFile string
+}
+
+func (tool *Tool) HandleConnectionReady() {
+	go tool.runProcessingNoErr()
+}
+func (tool *Tool) HandleStateChanged(newState telegramapi.State) {
+	bytes := newState.Bytes()
+	err := ioutil.WriteFile(tool.stateFile, bytes, 0777)
 	if err != nil {
-		log.Printf("** ERROR: session: %v", err)
-		os.Exit(1)
+		log.Printf("** ERROR: saving state to %v: %v", tool.stateFile, err)
 	}
 }
 
-func doit(tg *telegramapi.Conn) error {
-	tg.Session.WaitReady()
+func (tool *Tool) runProcessingNoErr() {
+	err := tool.runProcessing()
+	if err != nil {
+		log.Printf("** ERROR: processing: %v", err)
+	}
+	tool.tg.Shutdown()
+}
 
-	r, err := tg.Session.Send(&mtproto.TLHelpGetNearestDC{})
+func (tool *Tool) runProcessing() error {
+	r, err := tool.tg.Send(&mtproto.TLHelpGetConfig{})
 	if err != nil {
 		return err
 	}
 
-	r, err = tg.Session.Send(&mtproto.TLAuthSendCode{
+	r, err = tool.tg.Send(&mtproto.TLAuthSendCode{
 		Flags:         1,
 		PhoneNumber:   "79061932959",
 		CurrentNumber: true,
-		APIID:         tg.APIID,
-		APIHash:       tg.APIHash,
+		APIID:         tool.tg.APIID,
+		APIHash:       tool.tg.APIHash,
 	})
 	if err != nil {
 		return err

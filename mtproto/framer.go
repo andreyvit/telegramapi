@@ -11,6 +11,10 @@ import (
 
 var ErrUnknownKeyID = errors.New("unknown auth key ID")
 
+type FramerState struct {
+	SeqNo uint32
+}
+
 type Framer struct {
 	MsgIDOverride uint64
 	RandomReader  io.Reader
@@ -18,7 +22,15 @@ type Framer struct {
 	gen  MsgIDGen
 	auth *AuthResult
 
-	seqNo uint32
+	FramerState
+}
+
+func (fr *Framer) State() (*AuthResult, FramerState) {
+	return fr.auth, fr.FramerState
+}
+
+func (fr *Framer) Restore(state FramerState) {
+	fr.FramerState = state
 }
 
 func (fr *Framer) SetAuth(auth *AuthResult) {
@@ -50,10 +62,10 @@ func (fr *Framer) Format(msg Msg) ([]byte, uint64, error) {
 	} else {
 		var seqNo uint32
 		if msg.Type == ContentMsg {
-			seqNo = fr.seqNo + 1
-			fr.seqNo += 2
+			seqNo = fr.SeqNo + 1
+			fr.SeqNo += 2
 		} else {
-			seqNo = fr.seqNo
+			seqNo = fr.SeqNo
 		}
 
 		w.Write(fr.auth.ServerSalt[:])

@@ -1,10 +1,12 @@
 package telegramapi
 
 import (
-	"crypto/rsa"
-	"errors"
+	"log"
+
+	"github.com/kr/pretty"
 
 	"github.com/andreyvit/telegramapi/mtproto"
+	"github.com/andreyvit/telegramapi/tl"
 )
 
 type Options struct {
@@ -19,53 +21,91 @@ type Options struct {
 type Conn struct {
 	Options
 
-	pubKey *rsa.PublicKey
+	delegate      Delegate
+	delegateQueue chan func()
 
-	Session *mtproto.Session
+	state *State
+
+	session *mtproto.Session
 }
 
-// const msgUseLayer18 uint32 = 0x1c900537
-// const msgUseLayer2 uint32 = 0x289dd1f6
-// const helpGetConfig = 0xc4f9186b
+type Delegate interface {
+	HandleConnectionReady()
+	HandleStateChanged(newState State)
+}
 
-func Connect(options Options) (*Conn, error) {
+func New(options Options, state *State, delegate Delegate) *Conn {
 	if options.Endpoint == "" {
-		return nil, errors.New("configuration error: missing endpoint")
+		panic("configuration error: missing endpoint")
 	}
 	if options.PublicKey == "" {
-		return nil, errors.New("configuration error: missing public key")
+		panic("configuration error: missing public key")
 	}
-	pubKey, err := mtproto.ParsePublicKey(options.PublicKey)
-	if err != nil {
-		return nil, err
-	}
-
-	tr, err := mtproto.DialTCP(options.Endpoint, mtproto.TCPTransportOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	session := mtproto.NewSession(tr, mtproto.SessionOptions{
-		PubKey:  pubKey,
-		Verbose: options.Verbose,
-	})
 
 	return &Conn{
-		Options: options,
-		pubKey:  pubKey,
+		Options:  options,
+		delegate: delegate,
+		state:    state,
+		session:  nil,
 
-		Session: session,
-	}, nil
+		delegateQueue: make(chan func(), 1),
+	}
 }
 
-func (c *Conn) Close() {
-	c.Session.Close()
+func (c *Conn) Send(o tl.Object) (tl.Object, error) {
+	return c.session.Send(o)
 }
 
-func (c *Conn) Run() {
-	c.Session.Run()
+func (c *Conn) Shutdown() {
+	c.session.Shutdown()
 }
 
-func (c *Conn) Err() error {
-	return c.Session.Err()
+func (c *Conn) dispatchDelegateCalls() {
+	for f := range c.delegateQueue {
+		f()
+	}
+}
+
+func (c *Conn) waitForReadiness() {
+	c.session.WaitReady()
+
+	// TODO: locking
+	auth, fs := c.session.AuthState()
+	c.state.Auth = *auth
+	c.state.FramerState = fs
+	newState := *c.state
+
+	c.delegateQueue <- func() {
+		c.delegate.HandleStateChanged(newState)
+		c.delegate.HandleConnectionReady()
+	}
+}
+
+func (c *Conn) Run() error {
+	log.Printf("Running with state: %v", pretty.Sprint(c.state))
+
+	pubKey, err := mtproto.ParsePublicKey(c.PublicKey)
+	if err != nil {
+		return err
+	}
+
+	tr, err := mtproto.DialTCP(c.Endpoint, mtproto.TCPTransportOptions{})
+	if err != nil {
+		return err
+	}
+
+	c.session = mtproto.NewSession(tr, mtproto.SessionOptions{
+		PubKey:  pubKey,
+		Verbose: c.Verbose,
+	})
+
+	if c.state.Auth.KeyID != 0 {
+		c.session.RestoreAuthState(&c.state.Auth, c.state.FramerState)
+	}
+
+	go c.dispatchDelegateCalls()
+	go c.waitForReadiness()
+
+	c.session.Run()
+	return c.session.Err()
 }

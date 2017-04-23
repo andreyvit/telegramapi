@@ -58,11 +58,6 @@ type Session struct {
 	err error
 }
 
-const (
-	PseudoIDInvalidCommand uint32 = iota
-	PseudoIDKeyExStart
-)
-
 type outgoingMsg struct {
 	Obj   tl.Object
 	Reply chan<- reply
@@ -148,7 +143,9 @@ func (sess *Session) Run() {
 		log.Printf("mtproto.Session running...")
 	}
 
-	sess.eventc <- PseudoIDKeyExStart
+	if !sess.connKeyExDone {
+		sess.startKeyEx()
+	}
 
 loop:
 	for sess.err == nil {
@@ -225,7 +222,7 @@ func (sess *Session) failInternal(err error) {
 		if sess.options.Verbose >= 1 {
 			log.Printf("mtproto.Session failed: %v", err)
 		}
-		panic("failed")
+		// panic("failed")
 	}
 }
 
@@ -250,6 +247,12 @@ func (sess *Session) sendInternal(o tl.Object, replyc chan<- reply) {
 	}
 
 	msg := MsgFromObj(o)
+
+	// if sess.options.Verbose >= 2 {
+	// 	log.Printf("mtproto.Session sending %s (%v bytes, %v)", o, len(msg.Payload), msg.Type)
+	// } else if sess.options.Verbose >= 1 {
+	// 	log.Printf("mtproto.Session sending %s (%v bytes, %v)", tl.Name(o), len(msg.Payload), msg.Type)
+	// }
 
 	raw, msgID, err := sess.framer.Format(msg)
 	if err != nil {
@@ -373,14 +376,23 @@ func (sess *Session) broadcastInternal(cmd uint32) {
 	}
 	for _, h := range sess.handlers {
 		msgs, err := h(cmd, nil)
-		if err != nil && err != ErrCmdNotHandled {
-			sess.failInternal(err)
-			return
-		}
-		for _, msg := range msgs {
-			sess.sendInternal(msg, nil)
-		}
+		sess.processResult(msgs, err)
 	}
+}
+
+func (sess *Session) processResult(msgs []tl.Object, err error) {
+	if err != nil && err != ErrCmdNotHandled {
+		sess.failInternal(err)
+		return
+	}
+	for _, msg := range msgs {
+		sess.sendInternal(msg, nil)
+	}
+}
+
+func (sess *Session) startKeyEx() {
+	omsg := sess.keyex.Start()
+	sess.processResult([]tl.Object{omsg}, nil)
 }
 
 func (sess *Session) handleKeyEx(cmd uint32, o tl.Object) ([]tl.Object, error) {
@@ -388,10 +400,7 @@ func (sess *Session) handleKeyEx(cmd uint32, o tl.Object) ([]tl.Object, error) {
 		return nil, ErrCmdNotHandled
 	}
 
-	if cmd == PseudoIDKeyExStart {
-		omsg := sess.keyex.Start()
-		return []tl.Object{omsg}, nil
-	} else if o != nil {
+	if o != nil {
 		omsg, err := sess.keyex.Handle(o)
 		if err != nil {
 			return nil, err
@@ -403,7 +412,7 @@ func (sess *Session) handleKeyEx(cmd uint32, o tl.Object) ([]tl.Object, error) {
 			if err != nil {
 				return nil, err
 			}
-			sess.ApplyAuth(auth)
+			sess.applyAuth(auth)
 			return []tl.Object{}, nil
 		}
 	} else {
@@ -444,7 +453,16 @@ func (sess *Session) handleRPCResult(cmd uint32, o tl.Object) ([]tl.Object, erro
 	}
 }
 
-func (sess *Session) ApplyAuth(auth *AuthResult) {
+func (sess *Session) AuthState() (*AuthResult, FramerState) {
+	return sess.framer.State()
+}
+
+func (sess *Session) RestoreAuthState(auth *AuthResult, fs FramerState) {
+	sess.framer.Restore(fs)
+	sess.applyAuth(auth)
+}
+
+func (sess *Session) applyAuth(auth *AuthResult) {
 	var zero [8]byte
 	if bytes.Equal(zero[:], auth.SessionID[:]) {
 		_, err := io.ReadFull(rand.Reader, auth.SessionID[:])
@@ -463,7 +481,7 @@ func (sess *Session) ApplyAuth(auth *AuthResult) {
 	sess.stateCond.Broadcast()
 }
 
-func (sess *Session) Close() {
+func (sess *Session) Shutdown() {
 	sess.transport.Close()
 }
 
