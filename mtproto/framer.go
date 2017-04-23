@@ -26,6 +26,7 @@ type Framer struct {
 }
 
 func (fr *Framer) State() (*AuthResult, FramerState) {
+	log.Printf("Framer.State: %#v", fr.FramerState)
 	return fr.auth, fr.FramerState
 }
 

@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/andreyvit/telegramapi/binints"
 	"github.com/andreyvit/telegramapi/tl/knownschemas"
 	"io"
 	"log"
@@ -35,6 +36,10 @@ type Handler func(cmd uint32, o tl.Object) ([]tl.Object, error)
 
 var ErrCmdNotHandled = errors.New("not handled")
 
+var ErrReconnectRequired = errors.New("reconnect required")
+
+var ErrInvalidMsg = errors.New("invalid message")
+
 type Session struct {
 	options   SessionOptions
 	transport Transport
@@ -54,6 +59,8 @@ type Session struct {
 	stateMut  sync.Mutex
 	stateCond *sync.Cond
 	isReady   bool
+
+	onstatechanged func()
 
 	err error
 }
@@ -93,6 +100,12 @@ func NewSession(transport Transport, options SessionOptions) *Session {
 	s.AddHandler(s.handleKeyEx)
 	s.AddHandler(s.handleRPCResult)
 	return s
+}
+
+func (sess *Session) OnStateChanged(f func()) {
+	sess.stateMut.Lock()
+	defer sess.stateMut.Unlock()
+	sess.onstatechanged = f
 }
 
 func (sess *Session) AddHandler(handler func(cmd uint32, o tl.Object) ([]tl.Object, error)) {
@@ -254,7 +267,9 @@ func (sess *Session) sendInternal(o tl.Object, replyc chan<- reply) {
 	// 	log.Printf("mtproto.Session sending %s (%v bytes, %v)", tl.Name(o), len(msg.Payload), msg.Type)
 	// }
 
+	sess.stateMut.Lock()
 	raw, msgID, err := sess.framer.Format(msg)
+	sess.stateMut.Unlock()
 	if err != nil {
 		sess.failInternal(err)
 		return
@@ -305,7 +320,9 @@ func (sess *Session) handle(msg []byte) {
 }
 
 func (sess *Session) doHandle(raw []byte) error {
+	sess.stateMut.Lock()
 	msg, err := sess.framer.Parse(raw)
+	sess.stateMut.Unlock()
 	if err != nil {
 		if sess.options.Verbose >= 2 {
 			log.Printf("mtproto.Session failed to parse incoming data (%v bytes): %v - error: %v", len(raw), hex.EncodeToString(raw), err)
@@ -448,17 +465,34 @@ func (sess *Session) handleRPCResult(cmd uint32, o tl.Object) ([]tl.Object, erro
 			log.Printf("TODO: ack'ed %08x", msgID)
 		}
 		return nil, nil
+	case *TLBadServerSalt:
+		sess.stateMut.Lock()
+		auth, _ := sess.framer.State()
+		sess.stateMut.Unlock()
+		binints.EncodeUint64LE(o.NewServerSalt, auth.ServerSalt[:])
+		sess.applyAuth(auth)
+		return nil, ErrReconnectRequired
+	case *TLBadMsgNotification:
+		log.Printf("WARNING: bad msg %08x: err code %d, seq no %d", o.BadMsgID, o.ErrorCode, o.BadMsgSeqno)
+		sess.finishPendingRPC(o.BadMsgID, nil, ErrInvalidMsg)
+		return nil, nil
 	default:
 		return nil, ErrCmdNotHandled
 	}
 }
 
 func (sess *Session) AuthState() (*AuthResult, FramerState) {
+	sess.stateMut.Lock()
+	defer sess.stateMut.Unlock()
+
 	return sess.framer.State()
 }
 
 func (sess *Session) RestoreAuthState(auth *AuthResult, fs FramerState) {
+	sess.stateMut.Lock()
 	sess.framer.Restore(fs)
+	sess.stateMut.Unlock()
+
 	sess.applyAuth(auth)
 }
 
@@ -471,14 +505,19 @@ func (sess *Session) applyAuth(auth *AuthResult) {
 		}
 	}
 
-	sess.framer.SetAuth(auth)
-
 	sess.stateMut.Lock()
-	defer sess.stateMut.Unlock()
+
+	sess.framer.SetAuth(auth)
 
 	sess.connKeyExDone = true
 	sess.isReady = true
 	sess.stateCond.Broadcast()
+	f := sess.onstatechanged
+	sess.stateMut.Unlock()
+
+	if f != nil {
+		f()
+	}
 }
 
 func (sess *Session) Shutdown() {

@@ -2,6 +2,8 @@ package telegramapi
 
 import (
 	"errors"
+	"fmt"
+
 	"github.com/andreyvit/telegramapi/mtproto"
 	"github.com/andreyvit/telegramapi/tl"
 )
@@ -19,9 +21,9 @@ func readAuth(o *mtproto.AuthResult, fs *mtproto.FramerState, r *tl.Reader, ver 
 		r.ReadFull(o.ServerSalt[:])
 		r.ReadFull(o.SessionID[:])
 		o.TimeOffset = r.ReadInt()
-
-		fs.SeqNo = r.ReadUint32()
 	}
+
+	fs.SeqNo = r.ReadUint32()
 }
 
 func writeAuth(o *mtproto.AuthResult, fs *mtproto.FramerState, w *tl.Writer) {
@@ -31,14 +33,18 @@ func writeAuth(o *mtproto.AuthResult, fs *mtproto.FramerState, w *tl.Writer) {
 		w.Write(o.ServerSalt[:])
 		w.Write(o.SessionID[:])
 		w.WriteInt(o.TimeOffset)
-
-		w.WriteUint32(fs.SeqNo)
 	}
+
+	w.WriteUint32(fs.SeqNo)
 }
 
 type Addr struct {
 	IP   string
 	Port int
+}
+
+func (o *Addr) Endpoint() string {
+	return fmt.Sprintf("%s:%d", o.IP, o.Port)
 }
 
 func (o *Addr) Read(r *tl.Reader, ver int) {
@@ -73,6 +79,21 @@ type State struct {
 
 	Auth        mtproto.AuthResult
 	FramerState mtproto.FramerState
+}
+
+func (o *State) findPreferredDC() *DC {
+	id := o.PreferredDC
+	if id == 0 {
+		return nil
+	}
+
+	for _, dc := range o.KnownDCs {
+		if dc.ID == id {
+			return dc
+		}
+	}
+
+	return nil
 }
 
 func (o *State) Read(r *tl.Reader) {
