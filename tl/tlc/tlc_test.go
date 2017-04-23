@@ -342,6 +342,79 @@ func TestMultiCtorType(t *testing.T) {
 	}
 }
 
+func TestConditionalFlagField(t *testing.T) {
+	sch := tlschema.MustParse(`
+        dcOption#5d8c6cc flags:# ipv6:flags.0?true media_only:flags.1?true tcpo_only:flags.2?true id:int ip_address:string port:int = DcOption;
+    `)
+	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
+	expected := `
+        type TLDCOption struct {
+            Flags     uint
+            ID        int
+            IPAddress string
+            Port      int
+        }
+
+        func (o *TLDCOption) Cmd() uint32 {
+            return TagDCOption
+        }
+
+        func (o *TLDCOption) ReadBareFrom(r *tl.Reader) {
+            o.Flags = uint(r.ReadUint32())
+            o.ID = r.ReadInt()
+            o.IPAddress = r.ReadString()
+            o.Port = r.ReadInt()
+        }
+
+        func (o *TLDCOption) WriteBareTo(w *tl.Writer) {
+            w.WriteUint32(uint32(o.Flags))
+            w.WriteInt(o.ID)
+            w.WriteString(o.IPAddress)
+            w.WriteInt(o.Port)
+        }
+
+        func (o *TLDCOption) IPv6() bool {
+            return (o.Flags & (1 << 0)) != 0
+        }
+
+        func (o *TLDCOption) SetIPv6(v bool) {
+            if v {
+                o.Flags |= (1 << 0)
+            } else {
+                o.Flags &= ^(1 << 0)
+            }
+        }
+
+        func (o *TLDCOption) MediaOnly() bool {
+            return (o.Flags & (1 << 1)) != 0
+        }
+
+        func (o *TLDCOption) SetMediaOnly(v bool) {
+            if v {
+                o.Flags |= (1 << 1)
+            } else {
+                o.Flags &= ^(1 << 1)
+            }
+        }
+
+        func (o *TLDCOption) TCPoOnly() bool {
+            return (o.Flags & (1 << 2)) != 0
+        }
+
+        func (o *TLDCOption) SetTCPoOnly(v bool) {
+            if v {
+                o.Flags |= (1 << 2)
+            } else {
+                o.Flags &= ^(1 << 2)
+            }
+        }
+    `
+	a, e := diff.TrimLinesInString(code), diff.TrimLinesInString(expected)
+	if a != e {
+		t.Errorf("Code not as expected:\n%v\n\nActual:\n%s", diff.LineDiff(e, a), code)
+	}
+}
+
 func TestMTProto(t *testing.T) {
 	sch := tlschema.MustParse(knownschemas.MTProtoSchema)
 	GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})

@@ -3,6 +3,7 @@ package tlc
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/andreyvit/telegramapi/tl/tlschema"
 )
 
@@ -769,8 +770,16 @@ type StructRepr struct {
 
 	GoMarkerFuncName string
 
-	ArgReprs []ArgRepr
+	ArgReprs []*ArgRepr
 }
+
+type ArgCondType int
+
+const (
+	NoCond ArgCondType = iota
+	PureFlag
+	FieldWithFlag
+)
 
 type ArgRepr struct {
 	Arg        tlschema.Arg
@@ -778,20 +787,61 @@ type ArgRepr struct {
 	GoName     string
 	TypeRepr   Repr
 	TLTypeName string
+
+	CondType ArgCondType
+	CondArg  *ArgRepr
+	CondBit  int
+
+	CondGetterGoName string
+	CondSetterGoName string
+}
+
+func (ar *ArgRepr) IsCond() bool {
+	return ar.CondType != NoCond
+}
+
+func (ar *ArgRepr) HasField() bool {
+	return ar.CondType != PureFlag
 }
 
 func (r *StructRepr) Specialize(typ tlschema.TypeExpr) Repr {
 	return specializeBare(r, r.Ctor, typ)
 }
 
+func (r *StructRepr) findArg(tlName string) *ArgRepr {
+	for _, ar := range r.ArgReprs {
+		if ar.TLName == tlName {
+			return ar
+		}
+	}
+	return nil
+}
+
 func (r *StructRepr) Resolve(resolver Resolver) error {
 	for _, arg := range r.Ctor.Args {
-		ar := ArgRepr{
+		ar := &ArgRepr{
 			Arg:        arg,
 			TLName:     arg.Name,
 			GoName:     tlschema.ToGoName(arg.Name),
 			TypeRepr:   resolver.ResolveTypeExpr(arg.Type, r.TLName+":"+arg.Name),
 			TLTypeName: arg.Type.String(),
+		}
+		if arg.CondArgName != "" {
+			ca := r.findArg(arg.CondArgName)
+			if ca == nil {
+				return fmt.Errorf("Cannot find argument specified as conditional: %q", arg.CondArgName)
+			}
+			ar.CondArg = ca
+			if _, ok := ar.TypeRepr.(*TrueRepr); ok {
+				ar.CondType = PureFlag
+				ar.CondGetterGoName = ar.GoName
+				ar.CondSetterGoName = "Set" + ar.GoName
+			} else {
+				ar.CondType = FieldWithFlag
+				ar.CondGetterGoName = "Has" + ar.GoName
+				ar.CondSetterGoName = "SetHas" + ar.GoName
+			}
+			ar.CondBit = arg.CondBit
 		}
 		r.ArgReprs = append(r.ArgReprs, ar)
 	}
@@ -848,6 +898,9 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 	buf.WriteString(" struct {\n")
 
 	for _, ar := range r.ArgReprs {
+		if !ar.HasField() {
+			continue
+		}
 		buf.WriteString("\t")
 		buf.WriteString(ar.GoName)
 		buf.WriteString(" ")
@@ -884,7 +937,18 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 	buf.WriteString(r.GoName)
 	buf.WriteString(") ReadBareFrom(r *tl.Reader) {\n")
 	for _, ar := range r.ArgReprs {
-		ar.TypeRepr.AppendReadStmt(buf, "\t", "o."+ar.GoName)
+		if ar.TLTypeName == "true" {
+			continue
+		}
+		subindent := "\t"
+		if ar.IsCond() {
+			buf.WriteString(fmt.Sprintf("\tif (o.%s&(1<<%d)) != 0 {\n", ar.CondArg.GoName, ar.Arg.CondBit))
+			subindent = "\t\t"
+		}
+		ar.TypeRepr.AppendReadStmt(buf, subindent, "o."+ar.GoName)
+		if ar.IsCond() {
+			buf.WriteString("\t}\n")
+		}
 	}
 	buf.WriteString("}\n")
 
@@ -893,9 +957,32 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 	buf.WriteString(r.GoName)
 	buf.WriteString(") WriteBareTo(w *tl.Writer) {\n")
 	for _, ar := range r.ArgReprs {
-		ar.TypeRepr.AppendWriteStmt(buf, "\t", "o."+ar.GoName)
+		if ar.TLTypeName == "true" {
+			continue
+		}
+		subindent := "\t"
+		if ar.IsCond() {
+			buf.WriteString(fmt.Sprintf("\tif (o.%s&(1<<%d)) != 0 {\n", ar.CondArg.GoName, ar.Arg.CondBit))
+			subindent = "\t\t"
+		}
+		ar.TypeRepr.AppendWriteStmt(buf, subindent, "o."+ar.GoName)
+		if ar.IsCond() {
+			buf.WriteString("\t}\n")
+		}
 	}
 	buf.WriteString("}\n")
+
+	for _, ar := range r.ArgReprs {
+		if !ar.IsCond() {
+			continue
+		}
+		buf.WriteString("\n")
+		buf.WriteString(fmt.Sprintf("func (o *%s) %s() bool {\n", r.GoName, ar.CondGetterGoName))
+		buf.WriteString(fmt.Sprintf("return (o.%s & (1<<%d)) != 0\n}\n", ar.CondArg.GoName, ar.CondBit))
+		buf.WriteString("\n")
+		buf.WriteString(fmt.Sprintf("func (o *%s) %s(v bool) {\n", r.GoName, ar.CondSetterGoName))
+		buf.WriteString(fmt.Sprintf("if v { o.%s |= (1<<%d) } else { o.%s &= ^(1<<%d) }\n}\n", ar.CondArg.GoName, ar.CondBit, ar.CondArg.GoName, ar.CondBit))
+	}
 
 	if !options.SkipUtil {
 		buf.WriteString("\n")
