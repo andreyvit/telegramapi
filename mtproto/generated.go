@@ -219,7 +219,7 @@ const (
 	TagInputMessagesFilterPhotoVideo                 = 0x56e9f0e4
 	TagInputMessagesFilterPhotoVideoDocuments        = 0xd95e73bb
 	TagInputMessagesFilterDocument                   = 0x9eddf188
-	TagInputMessagesFilterUrl                        = 0x7ef0dd87
+	TagInputMessagesFilterURL                        = 0x7ef0dd87
 	TagInputMessagesFilterGif                        = 0xffc86587
 	TagInputMessagesFilterVoice                      = 0x50f5c392
 	TagInputMessagesFilterMusic                      = 0x3751b49e
@@ -408,7 +408,7 @@ const (
 	TagBotCommand                                    = 0xc27ac8c7
 	TagBotInfo                                       = 0x98e81d3a
 	TagKeyboardButton                                = 0xa2fa4880
-	TagKeyboardButtonUrl                             = 0x258aff05
+	TagKeyboardButtonURL                             = 0x258aff05
 	TagKeyboardButtonCallback                        = 0x683a5e46
 	TagKeyboardButtonRequestPhone                    = 0xb16a6c29
 	TagKeyboardButtonRequestGeoLocation              = 0xfc796b3f
@@ -424,13 +424,13 @@ const (
 	TagMessageEntityMention                          = 0xfa04579d
 	TagMessageEntityHashtag                          = 0x6f635b0d
 	TagMessageEntityBotCommand                       = 0x6cef8ac7
-	TagMessageEntityUrl                              = 0x6ed02538
+	TagMessageEntityURL                              = 0x6ed02538
 	TagMessageEntityEmail                            = 0x64e475c2
 	TagMessageEntityBold                             = 0xbd610bc9
 	TagMessageEntityItalic                           = 0x826f8b60
 	TagMessageEntityCode                             = 0x28a20571
 	TagMessageEntityPre                              = 0x73924be0
-	TagMessageEntityTextUrl                          = 0x76a6d327
+	TagMessageEntityTextURL                          = 0x76a6d327
 	TagMessageEntityMentionName                      = 0x352dca58
 	TagInputMessageEntityMentionName                 = 0x208e68c9
 	TagInputChannelEmpty                             = 0xee8c1e86
@@ -530,7 +530,7 @@ const (
 	TagTextUnderline                                 = 0xc12622c4
 	TagTextStrike                                    = 0x9bf8bb95
 	TagTextFixed                                     = 0x6c3f19b9
-	TagTextUrl                                       = 0x3c2884c1
+	TagTextURL                                       = 0x3c2884c1
 	TagTextEmail                                     = 0xde5a0dd6
 	TagTextConcat                                    = 0x7e6260d7
 	TagPageBlockUnsupported                          = 0x13567e8a
@@ -1034,7 +1034,7 @@ var combOrigins = map[uint32]SchemaOrigin{
 	TagInputMessagesFilterPhotoVideo:          SchemaOriginTelegram,
 	TagInputMessagesFilterPhotoVideoDocuments: SchemaOriginTelegram,
 	TagInputMessagesFilterDocument:            SchemaOriginTelegram,
-	TagInputMessagesFilterUrl:                 SchemaOriginTelegram,
+	TagInputMessagesFilterURL:                 SchemaOriginTelegram,
 	TagInputMessagesFilterGif:                 SchemaOriginTelegram,
 	TagInputMessagesFilterVoice:               SchemaOriginTelegram,
 	TagInputMessagesFilterMusic:               SchemaOriginTelegram,
@@ -1223,7 +1223,7 @@ var combOrigins = map[uint32]SchemaOrigin{
 	TagBotCommand:                             SchemaOriginTelegram,
 	TagBotInfo:                                SchemaOriginTelegram,
 	TagKeyboardButton:                         SchemaOriginTelegram,
-	TagKeyboardButtonUrl:                      SchemaOriginTelegram,
+	TagKeyboardButtonURL:                      SchemaOriginTelegram,
 	TagKeyboardButtonCallback:                 SchemaOriginTelegram,
 	TagKeyboardButtonRequestPhone:             SchemaOriginTelegram,
 	TagKeyboardButtonRequestGeoLocation:       SchemaOriginTelegram,
@@ -1239,13 +1239,13 @@ var combOrigins = map[uint32]SchemaOrigin{
 	TagMessageEntityMention:                   SchemaOriginTelegram,
 	TagMessageEntityHashtag:                   SchemaOriginTelegram,
 	TagMessageEntityBotCommand:                SchemaOriginTelegram,
-	TagMessageEntityUrl:                       SchemaOriginTelegram,
+	TagMessageEntityURL:                       SchemaOriginTelegram,
 	TagMessageEntityEmail:                     SchemaOriginTelegram,
 	TagMessageEntityBold:                      SchemaOriginTelegram,
 	TagMessageEntityItalic:                    SchemaOriginTelegram,
 	TagMessageEntityCode:                      SchemaOriginTelegram,
 	TagMessageEntityPre:                       SchemaOriginTelegram,
-	TagMessageEntityTextUrl:                   SchemaOriginTelegram,
+	TagMessageEntityTextURL:                   SchemaOriginTelegram,
 	TagMessageEntityMentionName:               SchemaOriginTelegram,
 	TagInputMessageEntityMentionName:          SchemaOriginTelegram,
 	TagInputChannelEmpty:                      SchemaOriginTelegram,
@@ -1345,7 +1345,7 @@ var combOrigins = map[uint32]SchemaOrigin{
 	TagTextUnderline:                    SchemaOriginTelegram,
 	TagTextStrike:                       SchemaOriginTelegram,
 	TagTextFixed:                        SchemaOriginTelegram,
-	TagTextUrl:                          SchemaOriginTelegram,
+	TagTextURL:                          SchemaOriginTelegram,
 	TagTextEmail:                        SchemaOriginTelegram,
 	TagTextConcat:                       SchemaOriginTelegram,
 	TagPageBlockUnsupported:             SchemaOriginTelegram,
@@ -2552,7 +2552,7 @@ func (o *TLDialog) SetPinned(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -2564,7 +2564,7 @@ func (o *TLDialog) SetHasPts(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -2576,7 +2576,7 @@ func (o *TLDialog) SetHasDraft(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -2681,7 +2681,7 @@ func (o *TLAuthSentCode) SetPhoneRegistered(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -2693,7 +2693,7 @@ func (o *TLAuthSentCode) SetHasNextType(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -2705,7 +2705,7 @@ func (o *TLAuthSentCode) SetHasTimeout(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -2749,7 +2749,7 @@ func (o *TLAuthAuthorization) SetHasTmpSessions(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -2828,7 +2828,7 @@ func (o *TLInputPeerNotifySettings) SetShowPreviews(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -2840,7 +2840,7 @@ func (o *TLInputPeerNotifySettings) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -2889,7 +2889,7 @@ func (o *TLPeerSettings) SetReportSpam(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -2984,7 +2984,7 @@ func (o *TLUserFull) SetBlocked(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -2996,7 +2996,7 @@ func (o *TLUserFull) SetPhoneCallsAvailable(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -3008,7 +3008,7 @@ func (o *TLUserFull) SetPhoneCallsPrivate(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -3020,7 +3020,7 @@ func (o *TLUserFull) SetHasAbout(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -3032,7 +3032,7 @@ func (o *TLUserFull) SetHasProfilePhoto(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -3044,7 +3044,7 @@ func (o *TLUserFull) SetHasBotInfo(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -3535,7 +3535,7 @@ func (o *TLDCOption) SetIPv6(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -3547,7 +3547,7 @@ func (o *TLDCOption) SetMediaOnly(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -3559,7 +3559,7 @@ func (o *TLDCOption) SetTCPoOnly(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -3597,7 +3597,7 @@ type TLConfig struct {
 	CallRingTimeoutMs     int                  // call_ring_timeout_ms:int
 	CallConnectTimeoutMs  int                  // call_connect_timeout_ms:int
 	CallPacketTimeoutMs   int                  // call_packet_timeout_ms:int
-	MeUrlPrefix           string               // me_url_prefix:string
+	MeURLPrefix           string               // me_url_prefix:string
 	DisabledFeatures      []*TLDisabledFeature // disabled_features:Vector<DisabledFeature>
 }
 
@@ -3647,7 +3647,7 @@ func (o *TLConfig) ReadBareFrom(r *tl.Reader) {
 	o.CallRingTimeoutMs = r.ReadInt()
 	o.CallConnectTimeoutMs = r.ReadInt()
 	o.CallPacketTimeoutMs = r.ReadInt()
-	o.MeUrlPrefix = r.ReadString()
+	o.MeURLPrefix = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -3701,7 +3701,7 @@ func (o *TLConfig) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.CallRingTimeoutMs)
 	w.WriteInt(o.CallConnectTimeoutMs)
 	w.WriteInt(o.CallPacketTimeoutMs)
-	w.WriteString(o.MeUrlPrefix)
+	w.WriteString(o.MeURLPrefix)
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.DisabledFeatures))
 	for i := 0; i < len(o.DisabledFeatures); i++ {
@@ -3718,7 +3718,7 @@ func (o *TLConfig) SetPhonecallsEnabled(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -3730,7 +3730,7 @@ func (o *TLConfig) SetHasTmpSessions(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -4379,7 +4379,7 @@ func (o *TLAccountPasswordInputSettings) SetHasNewSalt(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -4391,7 +4391,7 @@ func (o *TLAccountPasswordInputSettings) SetHasNewPasswordHash(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -4403,7 +4403,7 @@ func (o *TLAccountPasswordInputSettings) SetHasHint(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -4415,7 +4415,7 @@ func (o *TLAccountPasswordInputSettings) SetHasEmail(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -4535,7 +4535,7 @@ func (o *TLStickerSet) SetInstalled(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -4547,7 +4547,7 @@ func (o *TLStickerSet) SetArchived(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -4559,7 +4559,7 @@ func (o *TLStickerSet) SetOfficial(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -4571,7 +4571,7 @@ func (o *TLStickerSet) SetMasks(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -4726,7 +4726,7 @@ func (o *TLKeyboardButtonRow) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Buttons = make([]TLKeyboardButtonType, r.ReadInt())
 	for i := 0; i < len(o.Buttons); i++ {
-		o.Buttons[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagKeyboardButton, TagKeyboardButtonUrl, TagKeyboardButtonCallback, TagKeyboardButtonRequestPhone, TagKeyboardButtonRequestGeoLocation, TagKeyboardButtonSwitchInline, TagKeyboardButtonGame, TagKeyboardButtonBuy).(TLKeyboardButtonType)
+		o.Buttons[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagKeyboardButton, TagKeyboardButtonURL, TagKeyboardButtonCallback, TagKeyboardButtonRequestPhone, TagKeyboardButtonRequestGeoLocation, TagKeyboardButtonSwitchInline, TagKeyboardButtonGame, TagKeyboardButtonBuy).(TLKeyboardButtonType)
 	}
 }
 
@@ -5134,7 +5134,7 @@ func (o *TLMessagesBotResults) SetGallery(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -5146,7 +5146,7 @@ func (o *TLMessagesBotResults) SetHasNextOffset(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -5158,7 +5158,7 @@ func (o *TLMessagesBotResults) SetHasSwitchPm(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -5236,7 +5236,7 @@ func (o *TLMessageFwdHeader) SetHasFromID(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -5248,7 +5248,7 @@ func (o *TLMessageFwdHeader) SetHasChannelID(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -5260,7 +5260,7 @@ func (o *TLMessageFwdHeader) SetHasChannelPost(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -5288,7 +5288,7 @@ type TLAuthSentCodeTypeType interface {
 type TLMessagesBotCallbackAnswer struct {
 	Flags     uint   // flags:#
 	Message   string // flags.0?message:string
-	Url       string // flags.2?url:string
+	URL       string // flags.2?url:string
 	CacheTime int    // cache_time:int
 }
 
@@ -5302,7 +5302,7 @@ func (o *TLMessagesBotCallbackAnswer) ReadBareFrom(r *tl.Reader) {
 		o.Message = r.ReadString()
 	}
 	if (o.Flags & (1 << 2)) != 0 {
-		o.Url = r.ReadString()
+		o.URL = r.ReadString()
 	}
 	o.CacheTime = r.ReadInt()
 }
@@ -5313,7 +5313,7 @@ func (o *TLMessagesBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
 		w.WriteString(o.Message)
 	}
 	if (o.Flags & (1 << 2)) != 0 {
-		w.WriteString(o.Url)
+		w.WriteString(o.URL)
 	}
 	w.WriteInt(o.CacheTime)
 }
@@ -5326,19 +5326,19 @@ func (o *TLMessagesBotCallbackAnswer) SetAlert(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
-func (o *TLMessagesBotCallbackAnswer) HasUrl() bool {
+func (o *TLMessagesBotCallbackAnswer) HasURL() bool {
 	return (o.Flags & (1 << 3)) != 0
 }
 
-func (o *TLMessagesBotCallbackAnswer) SetHasUrl(v bool) {
+func (o *TLMessagesBotCallbackAnswer) SetHasURL(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -5350,19 +5350,19 @@ func (o *TLMessagesBotCallbackAnswer) SetHasMessage(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
-func (o *TLMessagesBotCallbackAnswer) HasUrl() bool {
+func (o *TLMessagesBotCallbackAnswer) HasURLField() bool {
 	return (o.Flags & (1 << 2)) != 0
 }
 
-func (o *TLMessagesBotCallbackAnswer) SetHasUrl(v bool) {
+func (o *TLMessagesBotCallbackAnswer) SetHasURLField(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -5395,7 +5395,7 @@ func (o *TLMessagesMessageEditData) SetCaption(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -5789,7 +5789,7 @@ func (o *TLGame) SetHasDocument(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -6005,7 +6005,7 @@ func (o *TLInvoice) SetTest(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -6017,7 +6017,7 @@ func (o *TLInvoice) SetNameRequested(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -6029,7 +6029,7 @@ func (o *TLInvoice) SetPhoneRequested(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -6041,7 +6041,7 @@ func (o *TLInvoice) SetEmailRequested(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -6053,7 +6053,7 @@ func (o *TLInvoice) SetShippingAddressRequested(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -6065,7 +6065,7 @@ func (o *TLInvoice) SetFlexible(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -6191,7 +6191,7 @@ func (o *TLPaymentRequestedInfo) SetHasName(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -6203,7 +6203,7 @@ func (o *TLPaymentRequestedInfo) SetHasPhone(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -6215,7 +6215,7 @@ func (o *TLPaymentRequestedInfo) SetHasEmail(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -6227,7 +6227,7 @@ func (o *TLPaymentRequestedInfo) SetHasShippingAddress(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -6261,7 +6261,7 @@ func (o *TLPaymentSavedCredentialsCard) String() string {
 
 // TLWebDocument represents ctor webDocument#c61acbd8 url:string access_hash:long size:int mime_type:string attributes:Vector<DocumentAttribute> dc_id:int = WebDocument from Telegram
 type TLWebDocument struct {
-	Url        string                    // url:string
+	URL        string                    // url:string
 	AccessHash uint64                    // access_hash:long
 	Size       int                       // size:int
 	MimeType   string                    // mime_type:string
@@ -6274,7 +6274,7 @@ func (o *TLWebDocument) Cmd() uint32 {
 }
 
 func (o *TLWebDocument) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	o.AccessHash = r.ReadUint64()
 	o.Size = r.ReadInt()
 	o.MimeType = r.ReadString()
@@ -6289,7 +6289,7 @@ func (o *TLWebDocument) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLWebDocument) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteUint64(o.AccessHash)
 	w.WriteInt(o.Size)
 	w.WriteString(o.MimeType)
@@ -6308,7 +6308,7 @@ func (o *TLWebDocument) String() string {
 
 // TLInputWebDocument represents ctor inputWebDocument#9bed434d url:string size:int mime_type:string attributes:Vector<DocumentAttribute> = InputWebDocument from Telegram
 type TLInputWebDocument struct {
-	Url        string                    // url:string
+	URL        string                    // url:string
 	Size       int                       // size:int
 	MimeType   string                    // mime_type:string
 	Attributes []TLDocumentAttributeType // attributes:Vector<DocumentAttribute>
@@ -6319,7 +6319,7 @@ func (o *TLInputWebDocument) Cmd() uint32 {
 }
 
 func (o *TLInputWebDocument) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	o.Size = r.ReadInt()
 	o.MimeType = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagVector {
@@ -6332,7 +6332,7 @@ func (o *TLInputWebDocument) ReadBareFrom(r *tl.Reader) {
 }
 
 func (o *TLInputWebDocument) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteInt(o.Size)
 	w.WriteString(o.MimeType)
 	w.WriteCmd(TagVector)
@@ -6349,7 +6349,7 @@ func (o *TLInputWebDocument) String() string {
 
 // TLInputWebFileLocation represents ctor inputWebFileLocation#c239d686 url:string access_hash:long = InputWebFileLocation from Telegram
 type TLInputWebFileLocation struct {
-	Url        string // url:string
+	URL        string // url:string
 	AccessHash uint64 // access_hash:long
 }
 
@@ -6358,12 +6358,12 @@ func (o *TLInputWebFileLocation) Cmd() uint32 {
 }
 
 func (o *TLInputWebFileLocation) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	o.AccessHash = r.ReadUint64()
 }
 
 func (o *TLInputWebFileLocation) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteUint64(o.AccessHash)
 }
 
@@ -6411,7 +6411,7 @@ type TLPaymentsPaymentForm struct {
 	BotID            int                            // bot_id:int
 	Invoice          *TLInvoice                     // invoice:Invoice
 	ProviderID       int                            // provider_id:int
-	Url              string                         // url:string
+	URL              string                         // url:string
 	NativeProvider   string                         // flags.4?native_provider:string
 	NativeParams     *TLDataJSON                    // flags.4?native_params:DataJSON
 	SavedInfo        *TLPaymentRequestedInfo        // flags.0?saved_info:PaymentRequestedInfo
@@ -6432,7 +6432,7 @@ func (o *TLPaymentsPaymentForm) ReadBareFrom(r *tl.Reader) {
 	o.Invoice = new(TLInvoice)
 	o.Invoice.ReadBareFrom(r)
 	o.ProviderID = r.ReadInt()
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	if (o.Flags & (1 << 4)) != 0 {
 		o.NativeProvider = r.ReadString()
 	}
@@ -6472,7 +6472,7 @@ func (o *TLPaymentsPaymentForm) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagInvoice)
 	o.Invoice.WriteBareTo(w)
 	w.WriteInt(o.ProviderID)
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	if (o.Flags & (1 << 4)) != 0 {
 		w.WriteString(o.NativeProvider)
 	}
@@ -6504,7 +6504,7 @@ func (o *TLPaymentsPaymentForm) SetCanSaveCredentials(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -6516,7 +6516,7 @@ func (o *TLPaymentsPaymentForm) SetPasswordMissing(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -6528,7 +6528,7 @@ func (o *TLPaymentsPaymentForm) SetHasNativeProvider(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -6540,7 +6540,7 @@ func (o *TLPaymentsPaymentForm) SetHasNativeParams(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -6552,7 +6552,7 @@ func (o *TLPaymentsPaymentForm) SetHasSavedInfo(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -6564,7 +6564,7 @@ func (o *TLPaymentsPaymentForm) SetHasSavedCredentials(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -6626,7 +6626,7 @@ func (o *TLPaymentsValidatedRequestedInfo) SetHasID(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -6638,7 +6638,7 @@ func (o *TLPaymentsValidatedRequestedInfo) SetHasShippingOptions(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -6743,7 +6743,7 @@ func (o *TLPaymentsPaymentReceipt) SetHasInfo(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -6755,7 +6755,7 @@ func (o *TLPaymentsPaymentReceipt) SetHasShipping(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -6800,7 +6800,7 @@ func (o *TLPaymentsSavedInfo) SetHasSavedCredentials(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -6812,7 +6812,7 @@ func (o *TLPaymentsSavedInfo) SetHasSavedInfo(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -6990,7 +6990,7 @@ func (o *TLPhoneCallProtocol) SetUdpP2p(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -7002,7 +7002,7 @@ func (o *TLPhoneCallProtocol) SetUdpReflector(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -7476,7 +7476,7 @@ func (o *TLAuthSendCode) SetAllowFlashcall(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -7488,7 +7488,7 @@ func (o *TLAuthSendCode) SetHasCurrentNumber(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -8034,7 +8034,7 @@ func (o *TLAccountUpdateProfile) SetHasFirstName(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -8046,7 +8046,7 @@ func (o *TLAccountUpdateProfile) SetHasLastName(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -8058,7 +8058,7 @@ func (o *TLAccountUpdateProfile) SetHasAbout(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -8341,7 +8341,7 @@ func (o *TLAccountSendChangePhoneCode) SetAllowFlashcall(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -8353,7 +8353,7 @@ func (o *TLAccountSendChangePhoneCode) SetHasCurrentNumber(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -8556,7 +8556,7 @@ func (o *TLAccountSendConfirmPhoneCode) SetAllowFlashcall(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -8568,7 +8568,7 @@ func (o *TLAccountSendConfirmPhoneCode) SetHasCurrentNumber(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -9011,7 +9011,7 @@ func (o *TLContactsGetTopPeers) SetCorrespondents(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -9023,7 +9023,7 @@ func (o *TLContactsGetTopPeers) SetBotsPm(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -9035,7 +9035,7 @@ func (o *TLContactsGetTopPeers) SetBotsInline(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -9047,7 +9047,7 @@ func (o *TLContactsGetTopPeers) SetGroups(v bool) {
 	if v {
 		o.Flags |= (1 << 10)
 	} else {
-		o.Flags &= ^(1 << 10)
+		o.Flags &= ^uint(1 << 10)
 	}
 }
 
@@ -9059,7 +9059,7 @@ func (o *TLContactsGetTopPeers) SetChannels(v bool) {
 	if v {
 		o.Flags |= (1 << 15)
 	} else {
-		o.Flags &= ^(1 << 15)
+		o.Flags &= ^uint(1 << 15)
 	}
 }
 
@@ -9162,7 +9162,7 @@ func (o *TLMessagesGetDialogs) SetExcludePinned(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -9231,7 +9231,7 @@ func (o *TLMessagesSearch) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 	o.Q = r.ReadString()
-	o.Filter = Schema.ReadLimitedBoxedObjectFrom(r, TagInputMessagesFilterEmpty, TagInputMessagesFilterPhotos, TagInputMessagesFilterVideo, TagInputMessagesFilterPhotoVideo, TagInputMessagesFilterPhotoVideoDocuments, TagInputMessagesFilterDocument, TagInputMessagesFilterUrl, TagInputMessagesFilterGif, TagInputMessagesFilterVoice, TagInputMessagesFilterMusic, TagInputMessagesFilterChatPhotos, TagInputMessagesFilterPhoneCalls).(TLMessagesFilterType)
+	o.Filter = Schema.ReadLimitedBoxedObjectFrom(r, TagInputMessagesFilterEmpty, TagInputMessagesFilterPhotos, TagInputMessagesFilterVideo, TagInputMessagesFilterPhotoVideo, TagInputMessagesFilterPhotoVideoDocuments, TagInputMessagesFilterDocument, TagInputMessagesFilterURL, TagInputMessagesFilterGif, TagInputMessagesFilterVoice, TagInputMessagesFilterMusic, TagInputMessagesFilterChatPhotos, TagInputMessagesFilterPhoneCalls).(TLMessagesFilterType)
 	o.MinDate = r.ReadInt()
 	o.MaxDate = r.ReadInt()
 	o.Offset = r.ReadInt()
@@ -9314,7 +9314,7 @@ func (o *TLMessagesDeleteHistory) SetJustClear(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -9360,7 +9360,7 @@ func (o *TLMessagesDeleteMessages) SetRevoke(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -9447,7 +9447,7 @@ func (o *TLMessagesSendMessage) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 }
@@ -9483,7 +9483,7 @@ func (o *TLMessagesSendMessage) SetNoWebpage(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -9495,7 +9495,7 @@ func (o *TLMessagesSendMessage) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -9507,7 +9507,7 @@ func (o *TLMessagesSendMessage) SetBackground(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -9519,7 +9519,7 @@ func (o *TLMessagesSendMessage) SetClearDraft(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -9531,7 +9531,7 @@ func (o *TLMessagesSendMessage) SetHasReplyToMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -9543,7 +9543,7 @@ func (o *TLMessagesSendMessage) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -9555,7 +9555,7 @@ func (o *TLMessagesSendMessage) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -9614,7 +9614,7 @@ func (o *TLMessagesSendMedia) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -9626,7 +9626,7 @@ func (o *TLMessagesSendMedia) SetBackground(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -9638,7 +9638,7 @@ func (o *TLMessagesSendMedia) SetClearDraft(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -9650,7 +9650,7 @@ func (o *TLMessagesSendMedia) SetHasReplyToMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -9662,7 +9662,7 @@ func (o *TLMessagesSendMedia) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -9729,7 +9729,7 @@ func (o *TLMessagesForwardMessages) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -9741,7 +9741,7 @@ func (o *TLMessagesForwardMessages) SetBackground(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -9753,7 +9753,7 @@ func (o *TLMessagesForwardMessages) SetWithMyScore(v bool) {
 	if v {
 		o.Flags |= (1 << 8)
 	} else {
-		o.Flags &= ^(1 << 8)
+		o.Flags &= ^uint(1 << 8)
 	}
 }
 
@@ -10799,7 +10799,7 @@ func (o *TLMessagesReorderStickerSets) SetMasks(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -10956,7 +10956,7 @@ func (o *TLMessagesGetInlineBotResults) SetHasGeoPoint(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -11028,7 +11028,7 @@ func (o *TLMessagesSetInlineBotResults) SetGallery(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -11040,7 +11040,7 @@ func (o *TLMessagesSetInlineBotResults) SetPrivate(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -11052,7 +11052,7 @@ func (o *TLMessagesSetInlineBotResults) SetHasNextOffset(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -11064,7 +11064,7 @@ func (o *TLMessagesSetInlineBotResults) SetHasSwitchPm(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -11117,7 +11117,7 @@ func (o *TLMessagesSendInlineBotResult) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -11129,7 +11129,7 @@ func (o *TLMessagesSendInlineBotResult) SetBackground(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -11141,7 +11141,7 @@ func (o *TLMessagesSendInlineBotResult) SetClearDraft(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -11153,7 +11153,7 @@ func (o *TLMessagesSendInlineBotResult) SetHasReplyToMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -11216,7 +11216,7 @@ func (o *TLMessagesEditMessage) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 }
@@ -11251,7 +11251,7 @@ func (o *TLMessagesEditMessage) SetNoWebpage(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -11263,7 +11263,7 @@ func (o *TLMessagesEditMessage) SetHasMessage(v bool) {
 	if v {
 		o.Flags |= (1 << 11)
 	} else {
-		o.Flags &= ^(1 << 11)
+		o.Flags &= ^uint(1 << 11)
 	}
 }
 
@@ -11275,7 +11275,7 @@ func (o *TLMessagesEditMessage) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -11287,7 +11287,7 @@ func (o *TLMessagesEditMessage) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -11327,7 +11327,7 @@ func (o *TLMessagesEditInlineBotMessage) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 }
@@ -11361,7 +11361,7 @@ func (o *TLMessagesEditInlineBotMessage) SetNoWebpage(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -11373,7 +11373,7 @@ func (o *TLMessagesEditInlineBotMessage) SetHasMessage(v bool) {
 	if v {
 		o.Flags |= (1 << 11)
 	} else {
-		o.Flags &= ^(1 << 11)
+		o.Flags &= ^uint(1 << 11)
 	}
 }
 
@@ -11385,7 +11385,7 @@ func (o *TLMessagesEditInlineBotMessage) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -11397,7 +11397,7 @@ func (o *TLMessagesEditInlineBotMessage) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -11444,7 +11444,7 @@ func (o *TLMessagesGetBotCallbackAnswer) SetGame(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -11456,7 +11456,7 @@ func (o *TLMessagesGetBotCallbackAnswer) SetHasData(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -11469,7 +11469,7 @@ type TLMessagesSetBotCallbackAnswer struct {
 	Flags     uint   // flags:#
 	QueryID   uint64 // query_id:long
 	Message   string // flags.0?message:string
-	Url       string // flags.2?url:string
+	URL       string // flags.2?url:string
 	CacheTime int    // cache_time:int
 }
 
@@ -11484,7 +11484,7 @@ func (o *TLMessagesSetBotCallbackAnswer) ReadBareFrom(r *tl.Reader) {
 		o.Message = r.ReadString()
 	}
 	if (o.Flags & (1 << 2)) != 0 {
-		o.Url = r.ReadString()
+		o.URL = r.ReadString()
 	}
 	o.CacheTime = r.ReadInt()
 }
@@ -11496,7 +11496,7 @@ func (o *TLMessagesSetBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
 		w.WriteString(o.Message)
 	}
 	if (o.Flags & (1 << 2)) != 0 {
-		w.WriteString(o.Url)
+		w.WriteString(o.URL)
 	}
 	w.WriteInt(o.CacheTime)
 }
@@ -11509,7 +11509,7 @@ func (o *TLMessagesSetBotCallbackAnswer) SetAlert(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -11521,19 +11521,19 @@ func (o *TLMessagesSetBotCallbackAnswer) SetHasMessage(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
-func (o *TLMessagesSetBotCallbackAnswer) HasUrl() bool {
+func (o *TLMessagesSetBotCallbackAnswer) HasURL() bool {
 	return (o.Flags & (1 << 2)) != 0
 }
 
-func (o *TLMessagesSetBotCallbackAnswer) SetHasUrl(v bool) {
+func (o *TLMessagesSetBotCallbackAnswer) SetHasURL(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -11599,7 +11599,7 @@ func (o *TLMessagesSaveDraft) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 }
@@ -11630,7 +11630,7 @@ func (o *TLMessagesSaveDraft) SetNoWebpage(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -11642,7 +11642,7 @@ func (o *TLMessagesSaveDraft) SetHasReplyToMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -11654,7 +11654,7 @@ func (o *TLMessagesSaveDraft) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -11760,7 +11760,7 @@ func (o *TLMessagesGetRecentStickers) SetAttached(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -11805,7 +11805,7 @@ func (o *TLMessagesSaveRecentSticker) SetAttached(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -11838,7 +11838,7 @@ func (o *TLMessagesClearRecentStickers) SetAttached(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -11877,7 +11877,7 @@ func (o *TLMessagesGetArchivedStickers) SetMasks(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -11967,7 +11967,7 @@ func (o *TLMessagesSetGameScore) SetEditMessage(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -11979,7 +11979,7 @@ func (o *TLMessagesSetGameScore) SetForce(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -12027,7 +12027,7 @@ func (o *TLMessagesSetInlineGameScore) SetEditMessage(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -12039,7 +12039,7 @@ func (o *TLMessagesSetInlineGameScore) SetForce(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -12167,7 +12167,7 @@ func (o *TLMessagesGetAllChats) String() string {
 
 // TLMessagesGetWebPage represents func messages.getWebPage#32ca8f91 url:string hash:int = WebPage from Telegram
 type TLMessagesGetWebPage struct {
-	Url  string // url:string
+	URL  string // url:string
 	Hash int    // hash:int
 }
 
@@ -12176,12 +12176,12 @@ func (o *TLMessagesGetWebPage) Cmd() uint32 {
 }
 
 func (o *TLMessagesGetWebPage) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	o.Hash = r.ReadInt()
 }
 
 func (o *TLMessagesGetWebPage) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteInt(o.Hash)
 }
 
@@ -12218,7 +12218,7 @@ func (o *TLMessagesToggleDialogPin) SetPinned(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -12265,7 +12265,7 @@ func (o *TLMessagesReorderPinnedDialogs) SetForce(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -12348,7 +12348,7 @@ func (o *TLMessagesSetBotShippingResults) SetHasError(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -12360,7 +12360,7 @@ func (o *TLMessagesSetBotShippingResults) SetHasShippingOptions(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -12403,7 +12403,7 @@ func (o *TLMessagesSetBotPrecheckoutResults) SetSuccess(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -12415,7 +12415,7 @@ func (o *TLMessagesSetBotPrecheckoutResults) SetHasError(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -12482,7 +12482,7 @@ func (o *TLUpdatesGetDifference) SetHasPtsTotalLimit(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -12529,7 +12529,7 @@ func (o *TLUpdatesGetChannelDifference) SetForce(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -13253,7 +13253,7 @@ func (o *TLChannelsCreateChannel) SetBroadcast(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -13265,7 +13265,7 @@ func (o *TLChannelsCreateChannel) SetMegagroup(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -13704,7 +13704,7 @@ func (o *TLChannelsUpdatePinnedMessage) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -13866,7 +13866,7 @@ func (o *TLPaymentsValidateRequestedInfo) SetSave(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -13920,7 +13920,7 @@ func (o *TLPaymentsSendPaymentForm) SetHasRequestedInfoID(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -13932,7 +13932,7 @@ func (o *TLPaymentsSendPaymentForm) SetHasShippingOptionID(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -13983,7 +13983,7 @@ func (o *TLPaymentsClearSavedInfo) SetCredentials(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -13995,7 +13995,7 @@ func (o *TLPaymentsClearSavedInfo) SetInfo(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -14603,7 +14603,7 @@ func (o *TLMessage) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 	if (o.Flags & (1 << 10)) != 0 {
@@ -14666,7 +14666,7 @@ func (o *TLMessage) SetOut(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -14678,7 +14678,7 @@ func (o *TLMessage) SetMentioned(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -14690,7 +14690,7 @@ func (o *TLMessage) SetMediaUnread(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -14702,7 +14702,7 @@ func (o *TLMessage) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 13)
 	} else {
-		o.Flags &= ^(1 << 13)
+		o.Flags &= ^uint(1 << 13)
 	}
 }
 
@@ -14714,7 +14714,7 @@ func (o *TLMessage) SetPost(v bool) {
 	if v {
 		o.Flags |= (1 << 14)
 	} else {
-		o.Flags &= ^(1 << 14)
+		o.Flags &= ^uint(1 << 14)
 	}
 }
 
@@ -14726,7 +14726,7 @@ func (o *TLMessage) SetHasFromID(v bool) {
 	if v {
 		o.Flags |= (1 << 8)
 	} else {
-		o.Flags &= ^(1 << 8)
+		o.Flags &= ^uint(1 << 8)
 	}
 }
 
@@ -14738,7 +14738,7 @@ func (o *TLMessage) SetHasFwdFrom(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -14750,7 +14750,7 @@ func (o *TLMessage) SetHasViaBotID(v bool) {
 	if v {
 		o.Flags |= (1 << 11)
 	} else {
-		o.Flags &= ^(1 << 11)
+		o.Flags &= ^uint(1 << 11)
 	}
 }
 
@@ -14762,7 +14762,7 @@ func (o *TLMessage) SetHasReplyToMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -14774,7 +14774,7 @@ func (o *TLMessage) SetHasMedia(v bool) {
 	if v {
 		o.Flags |= (1 << 9)
 	} else {
-		o.Flags &= ^(1 << 9)
+		o.Flags &= ^uint(1 << 9)
 	}
 }
 
@@ -14786,7 +14786,7 @@ func (o *TLMessage) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -14798,7 +14798,7 @@ func (o *TLMessage) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -14810,7 +14810,7 @@ func (o *TLMessage) SetHasViews(v bool) {
 	if v {
 		o.Flags |= (1 << 10)
 	} else {
-		o.Flags &= ^(1 << 10)
+		o.Flags &= ^uint(1 << 10)
 	}
 }
 
@@ -14822,7 +14822,7 @@ func (o *TLMessage) SetHasEditDate(v bool) {
 	if v {
 		o.Flags |= (1 << 15)
 	} else {
-		o.Flags &= ^(1 << 15)
+		o.Flags &= ^uint(1 << 15)
 	}
 }
 
@@ -14885,7 +14885,7 @@ func (o *TLMessageService) SetOut(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -14897,7 +14897,7 @@ func (o *TLMessageService) SetMentioned(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -14909,7 +14909,7 @@ func (o *TLMessageService) SetMediaUnread(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -14921,7 +14921,7 @@ func (o *TLMessageService) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 13)
 	} else {
-		o.Flags &= ^(1 << 13)
+		o.Flags &= ^uint(1 << 13)
 	}
 }
 
@@ -14933,7 +14933,7 @@ func (o *TLMessageService) SetPost(v bool) {
 	if v {
 		o.Flags |= (1 << 14)
 	} else {
-		o.Flags &= ^(1 << 14)
+		o.Flags &= ^uint(1 << 14)
 	}
 }
 
@@ -14945,7 +14945,7 @@ func (o *TLMessageService) SetHasFromID(v bool) {
 	if v {
 		o.Flags |= (1 << 8)
 	} else {
-		o.Flags &= ^(1 << 8)
+		o.Flags &= ^uint(1 << 8)
 	}
 }
 
@@ -14957,7 +14957,7 @@ func (o *TLMessageService) SetHasReplyToMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -15401,7 +15401,7 @@ func (o *TLInputMediaUploadedPhoto) SetHasStickers(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -15558,7 +15558,7 @@ func (o *TLInputMediaUploadedDocument) SetHasStickers(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -15639,7 +15639,7 @@ func (o *TLInputMediaUploadedThumbDocument) SetHasStickers(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -15712,7 +15712,7 @@ func (o *TLInputMediaVenue) String() string {
 
 // TLInputMediaGifExternal represents ctor inputMediaGifExternal#4843b0fd url:string q:string = InputMedia from Telegram
 type TLInputMediaGifExternal struct {
-	Url string // url:string
+	URL string // url:string
 	Q   string // q:string
 }
 
@@ -15723,12 +15723,12 @@ func (o *TLInputMediaGifExternal) Cmd() uint32 {
 }
 
 func (o *TLInputMediaGifExternal) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	o.Q = r.ReadString()
 }
 
 func (o *TLInputMediaGifExternal) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteString(o.Q)
 }
 
@@ -15738,7 +15738,7 @@ func (o *TLInputMediaGifExternal) String() string {
 
 // TLInputMediaPhotoExternal represents ctor inputMediaPhotoExternal#b55f4f18 url:string caption:string = InputMedia from Telegram
 type TLInputMediaPhotoExternal struct {
-	Url     string // url:string
+	URL     string // url:string
 	Caption string // caption:string
 }
 
@@ -15749,12 +15749,12 @@ func (o *TLInputMediaPhotoExternal) Cmd() uint32 {
 }
 
 func (o *TLInputMediaPhotoExternal) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	o.Caption = r.ReadString()
 }
 
 func (o *TLInputMediaPhotoExternal) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteString(o.Caption)
 }
 
@@ -15764,7 +15764,7 @@ func (o *TLInputMediaPhotoExternal) String() string {
 
 // TLInputMediaDocumentExternal represents ctor inputMediaDocumentExternal#e5e9607c url:string caption:string = InputMedia from Telegram
 type TLInputMediaDocumentExternal struct {
-	Url     string // url:string
+	URL     string // url:string
 	Caption string // caption:string
 }
 
@@ -15775,12 +15775,12 @@ func (o *TLInputMediaDocumentExternal) Cmd() uint32 {
 }
 
 func (o *TLInputMediaDocumentExternal) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	o.Caption = r.ReadString()
 }
 
 func (o *TLInputMediaDocumentExternal) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteString(o.Caption)
 }
 
@@ -15874,7 +15874,7 @@ func (o *TLInputMediaInvoice) SetHasPhoto(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -16581,7 +16581,7 @@ func (o *TLUser) SetSelf(v bool) {
 	if v {
 		o.Flags |= (1 << 10)
 	} else {
-		o.Flags &= ^(1 << 10)
+		o.Flags &= ^uint(1 << 10)
 	}
 }
 
@@ -16593,7 +16593,7 @@ func (o *TLUser) SetContact(v bool) {
 	if v {
 		o.Flags |= (1 << 11)
 	} else {
-		o.Flags &= ^(1 << 11)
+		o.Flags &= ^uint(1 << 11)
 	}
 }
 
@@ -16605,7 +16605,7 @@ func (o *TLUser) SetMutualContact(v bool) {
 	if v {
 		o.Flags |= (1 << 12)
 	} else {
-		o.Flags &= ^(1 << 12)
+		o.Flags &= ^uint(1 << 12)
 	}
 }
 
@@ -16617,7 +16617,7 @@ func (o *TLUser) SetDeleted(v bool) {
 	if v {
 		o.Flags |= (1 << 13)
 	} else {
-		o.Flags &= ^(1 << 13)
+		o.Flags &= ^uint(1 << 13)
 	}
 }
 
@@ -16629,7 +16629,7 @@ func (o *TLUser) SetBot(v bool) {
 	if v {
 		o.Flags |= (1 << 14)
 	} else {
-		o.Flags &= ^(1 << 14)
+		o.Flags &= ^uint(1 << 14)
 	}
 }
 
@@ -16641,7 +16641,7 @@ func (o *TLUser) SetBotChatHistory(v bool) {
 	if v {
 		o.Flags |= (1 << 15)
 	} else {
-		o.Flags &= ^(1 << 15)
+		o.Flags &= ^uint(1 << 15)
 	}
 }
 
@@ -16653,7 +16653,7 @@ func (o *TLUser) SetBotNochats(v bool) {
 	if v {
 		o.Flags |= (1 << 16)
 	} else {
-		o.Flags &= ^(1 << 16)
+		o.Flags &= ^uint(1 << 16)
 	}
 }
 
@@ -16665,7 +16665,7 @@ func (o *TLUser) SetVerified(v bool) {
 	if v {
 		o.Flags |= (1 << 17)
 	} else {
-		o.Flags &= ^(1 << 17)
+		o.Flags &= ^uint(1 << 17)
 	}
 }
 
@@ -16677,7 +16677,7 @@ func (o *TLUser) SetRestricted(v bool) {
 	if v {
 		o.Flags |= (1 << 18)
 	} else {
-		o.Flags &= ^(1 << 18)
+		o.Flags &= ^uint(1 << 18)
 	}
 }
 
@@ -16689,7 +16689,7 @@ func (o *TLUser) SetMin(v bool) {
 	if v {
 		o.Flags |= (1 << 20)
 	} else {
-		o.Flags &= ^(1 << 20)
+		o.Flags &= ^uint(1 << 20)
 	}
 }
 
@@ -16701,7 +16701,7 @@ func (o *TLUser) SetBotInlineGeo(v bool) {
 	if v {
 		o.Flags |= (1 << 21)
 	} else {
-		o.Flags &= ^(1 << 21)
+		o.Flags &= ^uint(1 << 21)
 	}
 }
 
@@ -16713,7 +16713,7 @@ func (o *TLUser) SetHasAccessHash(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -16725,7 +16725,7 @@ func (o *TLUser) SetHasFirstName(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -16737,7 +16737,7 @@ func (o *TLUser) SetHasLastName(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -16749,7 +16749,7 @@ func (o *TLUser) SetHasUsername(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -16761,7 +16761,7 @@ func (o *TLUser) SetHasPhone(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -16773,7 +16773,7 @@ func (o *TLUser) SetHasPhoto(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -16785,7 +16785,7 @@ func (o *TLUser) SetHasStatus(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -16797,7 +16797,7 @@ func (o *TLUser) SetHasBotInfoVersion(v bool) {
 	if v {
 		o.Flags |= (1 << 14)
 	} else {
-		o.Flags &= ^(1 << 14)
+		o.Flags &= ^uint(1 << 14)
 	}
 }
 
@@ -16809,7 +16809,7 @@ func (o *TLUser) SetHasRestrictionReason(v bool) {
 	if v {
 		o.Flags |= (1 << 18)
 	} else {
-		o.Flags &= ^(1 << 18)
+		o.Flags &= ^uint(1 << 18)
 	}
 }
 
@@ -16821,7 +16821,7 @@ func (o *TLUser) SetHasBotInlinePlaceholder(v bool) {
 	if v {
 		o.Flags |= (1 << 19)
 	} else {
-		o.Flags &= ^(1 << 19)
+		o.Flags &= ^uint(1 << 19)
 	}
 }
 
@@ -17083,7 +17083,7 @@ func (o *TLChat) SetCreator(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -17095,7 +17095,7 @@ func (o *TLChat) SetKicked(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -17107,7 +17107,7 @@ func (o *TLChat) SetLeft(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -17119,7 +17119,7 @@ func (o *TLChat) SetAdminsEnabled(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -17131,7 +17131,7 @@ func (o *TLChat) SetAdmin(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -17143,7 +17143,7 @@ func (o *TLChat) SetDeactivated(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -17155,7 +17155,7 @@ func (o *TLChat) SetHasMigratedTo(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -17253,7 +17253,7 @@ func (o *TLChannel) SetCreator(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -17265,7 +17265,7 @@ func (o *TLChannel) SetKicked(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -17277,7 +17277,7 @@ func (o *TLChannel) SetLeft(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -17289,7 +17289,7 @@ func (o *TLChannel) SetEditor(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -17301,7 +17301,7 @@ func (o *TLChannel) SetModerator(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -17313,7 +17313,7 @@ func (o *TLChannel) SetBroadcast(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -17325,7 +17325,7 @@ func (o *TLChannel) SetVerified(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -17337,7 +17337,7 @@ func (o *TLChannel) SetMegagroup(v bool) {
 	if v {
 		o.Flags |= (1 << 8)
 	} else {
-		o.Flags &= ^(1 << 8)
+		o.Flags &= ^uint(1 << 8)
 	}
 }
 
@@ -17349,7 +17349,7 @@ func (o *TLChannel) SetRestricted(v bool) {
 	if v {
 		o.Flags |= (1 << 9)
 	} else {
-		o.Flags &= ^(1 << 9)
+		o.Flags &= ^uint(1 << 9)
 	}
 }
 
@@ -17361,7 +17361,7 @@ func (o *TLChannel) SetDemocracy(v bool) {
 	if v {
 		o.Flags |= (1 << 10)
 	} else {
-		o.Flags &= ^(1 << 10)
+		o.Flags &= ^uint(1 << 10)
 	}
 }
 
@@ -17373,7 +17373,7 @@ func (o *TLChannel) SetSignatures(v bool) {
 	if v {
 		o.Flags |= (1 << 11)
 	} else {
-		o.Flags &= ^(1 << 11)
+		o.Flags &= ^uint(1 << 11)
 	}
 }
 
@@ -17385,7 +17385,7 @@ func (o *TLChannel) SetMin(v bool) {
 	if v {
 		o.Flags |= (1 << 12)
 	} else {
-		o.Flags &= ^(1 << 12)
+		o.Flags &= ^uint(1 << 12)
 	}
 }
 
@@ -17397,7 +17397,7 @@ func (o *TLChannel) SetHasAccessHash(v bool) {
 	if v {
 		o.Flags |= (1 << 13)
 	} else {
-		o.Flags &= ^(1 << 13)
+		o.Flags &= ^uint(1 << 13)
 	}
 }
 
@@ -17409,7 +17409,7 @@ func (o *TLChannel) SetHasUsername(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -17421,7 +17421,7 @@ func (o *TLChannel) SetHasRestrictionReason(v bool) {
 	if v {
 		o.Flags |= (1 << 9)
 	} else {
-		o.Flags &= ^(1 << 9)
+		o.Flags &= ^uint(1 << 9)
 	}
 }
 
@@ -17465,7 +17465,7 @@ func (o *TLChannelForbidden) SetBroadcast(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -17477,7 +17477,7 @@ func (o *TLChannelForbidden) SetMegagroup(v bool) {
 	if v {
 		o.Flags |= (1 << 8)
 	} else {
-		o.Flags &= ^(1 << 8)
+		o.Flags &= ^uint(1 << 8)
 	}
 }
 
@@ -17656,7 +17656,7 @@ func (o *TLChannelFull) SetCanViewParticipants(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -17668,7 +17668,7 @@ func (o *TLChannelFull) SetCanSetUsername(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -17680,7 +17680,7 @@ func (o *TLChannelFull) SetHasParticipantsCount(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -17692,7 +17692,7 @@ func (o *TLChannelFull) SetHasAdminsCount(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -17704,7 +17704,7 @@ func (o *TLChannelFull) SetHasKickedCount(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -17716,7 +17716,7 @@ func (o *TLChannelFull) SetHasMigratedFromChatID(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -17728,7 +17728,7 @@ func (o *TLChannelFull) SetHasMigratedFromMaxID(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -17740,7 +17740,7 @@ func (o *TLChannelFull) SetHasPinnedMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -17867,7 +17867,7 @@ func (o *TLChatParticipantsForbidden) SetHasSelfParticipant(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -18262,7 +18262,7 @@ func (o *TLMessageMediaInvoice) SetShippingAddressRequested(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -18274,7 +18274,7 @@ func (o *TLMessageMediaInvoice) SetTest(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -18286,7 +18286,7 @@ func (o *TLMessageMediaInvoice) SetHasPhoto(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -18298,7 +18298,7 @@ func (o *TLMessageMediaInvoice) SetHasReceiptMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -18709,7 +18709,7 @@ func (o *TLMessageActionPaymentSentMe) SetHasInfo(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -18721,7 +18721,7 @@ func (o *TLMessageActionPaymentSentMe) SetHasShippingOptionID(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -18800,7 +18800,7 @@ func (o *TLMessageActionPhoneCall) SetHasReason(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -18812,7 +18812,7 @@ func (o *TLMessageActionPhoneCall) SetHasDuration(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -18873,7 +18873,7 @@ func (o *TLPeerNotifySettings) SetShowPreviews(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -18885,7 +18885,7 @@ func (o *TLPeerNotifySettings) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -18940,7 +18940,7 @@ func (o *TLDraftMessage) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 	o.Date = r.ReadInt()
@@ -18971,7 +18971,7 @@ func (o *TLDraftMessage) SetNoWebpage(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -18983,7 +18983,7 @@ func (o *TLDraftMessage) SetHasReplyToMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -18995,7 +18995,7 @@ func (o *TLDraftMessage) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -19076,7 +19076,7 @@ func (o *TLPhoto) SetHasStickers(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -20510,23 +20510,23 @@ func (o *TLInputMessagesFilterDocument) String() string {
 	return tl.Pretty(o)
 }
 
-// TLInputMessagesFilterUrl represents ctor inputMessagesFilterUrl#7ef0dd87 = MessagesFilter from Telegram
-type TLInputMessagesFilterUrl struct {
+// TLInputMessagesFilterURL represents ctor inputMessagesFilterUrl#7ef0dd87 = MessagesFilter from Telegram
+type TLInputMessagesFilterURL struct {
 }
 
-func (o *TLInputMessagesFilterUrl) IsTLMessagesFilter() {}
+func (o *TLInputMessagesFilterURL) IsTLMessagesFilter() {}
 
-func (o *TLInputMessagesFilterUrl) Cmd() uint32 {
-	return TagInputMessagesFilterUrl
+func (o *TLInputMessagesFilterURL) Cmd() uint32 {
+	return TagInputMessagesFilterURL
 }
 
-func (o *TLInputMessagesFilterUrl) ReadBareFrom(r *tl.Reader) {
+func (o *TLInputMessagesFilterURL) ReadBareFrom(r *tl.Reader) {
 }
 
-func (o *TLInputMessagesFilterUrl) WriteBareTo(w *tl.Writer) {
+func (o *TLInputMessagesFilterURL) WriteBareTo(w *tl.Writer) {
 }
 
-func (o *TLInputMessagesFilterUrl) String() string {
+func (o *TLInputMessagesFilterURL) String() string {
 	return tl.Pretty(o)
 }
 
@@ -20637,7 +20637,7 @@ func (o *TLInputMessagesFilterPhoneCalls) SetMissed(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -21271,7 +21271,7 @@ func (o *TLUpdateServiceNotification) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Entities = make([]TLMessageEntityType, r.ReadInt())
 	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 	}
 }
 
@@ -21300,7 +21300,7 @@ func (o *TLUpdateServiceNotification) SetPopup(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -21312,7 +21312,7 @@ func (o *TLUpdateServiceNotification) SetHasInboxDate(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -21556,7 +21556,7 @@ func (o *TLUpdateChannelTooLong) SetHasPts(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -21853,7 +21853,7 @@ func (o *TLUpdateStickerSetsOrder) SetMasks(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -21948,7 +21948,7 @@ func (o *TLUpdateBotInlineQuery) SetHasGeo(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -22012,7 +22012,7 @@ func (o *TLUpdateBotInlineSend) SetHasGeo(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -22024,7 +22024,7 @@ func (o *TLUpdateBotInlineSend) SetHasMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -22145,7 +22145,7 @@ func (o *TLUpdateBotCallbackQuery) SetHasData(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -22157,7 +22157,7 @@ func (o *TLUpdateBotCallbackQuery) SetHasGameShortName(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -22253,7 +22253,7 @@ func (o *TLUpdateInlineBotCallbackQuery) SetHasData(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -22265,7 +22265,7 @@ func (o *TLUpdateInlineBotCallbackQuery) SetHasGameShortName(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -22471,7 +22471,7 @@ func (o *TLUpdateDialogPinned) SetPinned(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -22524,7 +22524,7 @@ func (o *TLUpdatePinnedDialogs) SetHasOrder(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -22692,7 +22692,7 @@ func (o *TLUpdateBotPrecheckoutQuery) SetHasInfo(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -22704,7 +22704,7 @@ func (o *TLUpdateBotPrecheckoutQuery) SetHasShippingOptionID(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -23049,7 +23049,7 @@ func (o *TLUpdateShortMessage) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 }
@@ -23090,7 +23090,7 @@ func (o *TLUpdateShortMessage) SetOut(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -23102,7 +23102,7 @@ func (o *TLUpdateShortMessage) SetMentioned(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -23114,7 +23114,7 @@ func (o *TLUpdateShortMessage) SetMediaUnread(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -23126,7 +23126,7 @@ func (o *TLUpdateShortMessage) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 13)
 	} else {
-		o.Flags &= ^(1 << 13)
+		o.Flags &= ^uint(1 << 13)
 	}
 }
 
@@ -23138,7 +23138,7 @@ func (o *TLUpdateShortMessage) SetHasFwdFrom(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -23150,7 +23150,7 @@ func (o *TLUpdateShortMessage) SetHasViaBotID(v bool) {
 	if v {
 		o.Flags |= (1 << 11)
 	} else {
-		o.Flags &= ^(1 << 11)
+		o.Flags &= ^uint(1 << 11)
 	}
 }
 
@@ -23162,7 +23162,7 @@ func (o *TLUpdateShortMessage) SetHasReplyToMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -23174,7 +23174,7 @@ func (o *TLUpdateShortMessage) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -23232,7 +23232,7 @@ func (o *TLUpdateShortChatMessage) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 }
@@ -23274,7 +23274,7 @@ func (o *TLUpdateShortChatMessage) SetOut(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -23286,7 +23286,7 @@ func (o *TLUpdateShortChatMessage) SetMentioned(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -23298,7 +23298,7 @@ func (o *TLUpdateShortChatMessage) SetMediaUnread(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -23310,7 +23310,7 @@ func (o *TLUpdateShortChatMessage) SetSilent(v bool) {
 	if v {
 		o.Flags |= (1 << 13)
 	} else {
-		o.Flags &= ^(1 << 13)
+		o.Flags &= ^uint(1 << 13)
 	}
 }
 
@@ -23322,7 +23322,7 @@ func (o *TLUpdateShortChatMessage) SetHasFwdFrom(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -23334,7 +23334,7 @@ func (o *TLUpdateShortChatMessage) SetHasViaBotID(v bool) {
 	if v {
 		o.Flags |= (1 << 11)
 	} else {
-		o.Flags &= ^(1 << 11)
+		o.Flags &= ^uint(1 << 11)
 	}
 }
 
@@ -23346,7 +23346,7 @@ func (o *TLUpdateShortChatMessage) SetHasReplyToMsgID(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -23358,7 +23358,7 @@ func (o *TLUpdateShortChatMessage) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -23564,7 +23564,7 @@ func (o *TLUpdateShortSentMessage) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 }
@@ -23597,7 +23597,7 @@ func (o *TLUpdateShortSentMessage) SetOut(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -23609,7 +23609,7 @@ func (o *TLUpdateShortSentMessage) SetHasMedia(v bool) {
 	if v {
 		o.Flags |= (1 << 9)
 	} else {
-		o.Flags &= ^(1 << 9)
+		o.Flags &= ^uint(1 << 9)
 	}
 }
 
@@ -23621,7 +23621,7 @@ func (o *TLUpdateShortSentMessage) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -23732,7 +23732,7 @@ func (o *TLPhotosPhotosSlice) String() string {
 type TLHelpAppUpdate struct {
 	ID       int    // id:int
 	Critical bool   // critical:Bool
-	Url      string // url:string
+	URL      string // url:string
 	Text     string // text:string
 }
 
@@ -23746,7 +23746,7 @@ func (o *TLHelpAppUpdate) ReadBareFrom(r *tl.Reader) {
 	o.ID = r.ReadInt()
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Critical = (r.ReadCmd() == TagBoolTrue)
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	o.Text = r.ReadString()
 }
 
@@ -23757,7 +23757,7 @@ func (o *TLHelpAppUpdate) WriteBareTo(w *tl.Writer) {
 	} else {
 		w.WriteCmd(TagBoolFalse)
 	}
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteString(o.Text)
 }
 
@@ -25230,7 +25230,7 @@ func (o *TLDocumentAttributeSticker) SetMask(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -25242,7 +25242,7 @@ func (o *TLDocumentAttributeSticker) SetHasMaskCoords(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -25330,7 +25330,7 @@ func (o *TLDocumentAttributeAudio) SetVoice(v bool) {
 	if v {
 		o.Flags |= (1 << 10)
 	} else {
-		o.Flags &= ^(1 << 10)
+		o.Flags &= ^uint(1 << 10)
 	}
 }
 
@@ -25342,7 +25342,7 @@ func (o *TLDocumentAttributeAudio) SetHasTitle(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -25354,7 +25354,7 @@ func (o *TLDocumentAttributeAudio) SetHasPerformer(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -25366,7 +25366,7 @@ func (o *TLDocumentAttributeAudio) SetHasWaveform(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -25588,15 +25588,15 @@ func (o *TLWebPagePending) String() string {
 type TLWebPage struct {
 	Flags       uint           // flags:#
 	ID          uint64         // id:long
-	Url         string         // url:string
-	DisplayUrl  string         // display_url:string
+	URL         string         // url:string
+	DisplayURL  string         // display_url:string
 	Hash        int            // hash:int
 	Type        string         // flags.0?type:string
 	SiteName    string         // flags.1?site_name:string
 	Title       string         // flags.2?title:string
 	Description string         // flags.3?description:string
 	Photo       TLPhotoType    // flags.4?photo:Photo
-	EmbedUrl    string         // flags.5?embed_url:string
+	EmbedURL    string         // flags.5?embed_url:string
 	EmbedType   string         // flags.5?embed_type:string
 	EmbedWidth  int            // flags.6?embed_width:int
 	EmbedHeight int            // flags.6?embed_height:int
@@ -25615,8 +25615,8 @@ func (o *TLWebPage) Cmd() uint32 {
 func (o *TLWebPage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.ID = r.ReadUint64()
-	o.Url = r.ReadString()
-	o.DisplayUrl = r.ReadString()
+	o.URL = r.ReadString()
+	o.DisplayURL = r.ReadString()
 	o.Hash = r.ReadInt()
 	if (o.Flags & (1 << 0)) != 0 {
 		o.Type = r.ReadString()
@@ -25634,7 +25634,7 @@ func (o *TLWebPage) ReadBareFrom(r *tl.Reader) {
 		o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
 	}
 	if (o.Flags & (1 << 5)) != 0 {
-		o.EmbedUrl = r.ReadString()
+		o.EmbedURL = r.ReadString()
 	}
 	if (o.Flags & (1 << 5)) != 0 {
 		o.EmbedType = r.ReadString()
@@ -25662,8 +25662,8 @@ func (o *TLWebPage) ReadBareFrom(r *tl.Reader) {
 func (o *TLWebPage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteUint64(o.ID)
-	w.WriteString(o.Url)
-	w.WriteString(o.DisplayUrl)
+	w.WriteString(o.URL)
+	w.WriteString(o.DisplayURL)
 	w.WriteInt(o.Hash)
 	if (o.Flags & (1 << 0)) != 0 {
 		w.WriteString(o.Type)
@@ -25682,7 +25682,7 @@ func (o *TLWebPage) WriteBareTo(w *tl.Writer) {
 		o.Photo.WriteBareTo(w)
 	}
 	if (o.Flags & (1 << 5)) != 0 {
-		w.WriteString(o.EmbedUrl)
+		w.WriteString(o.EmbedURL)
 	}
 	if (o.Flags & (1 << 5)) != 0 {
 		w.WriteString(o.EmbedType)
@@ -25717,7 +25717,7 @@ func (o *TLWebPage) SetHasType(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -25729,7 +25729,7 @@ func (o *TLWebPage) SetHasSiteName(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -25741,7 +25741,7 @@ func (o *TLWebPage) SetHasTitle(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -25753,7 +25753,7 @@ func (o *TLWebPage) SetHasDescription(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -25765,19 +25765,19 @@ func (o *TLWebPage) SetHasPhoto(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
-func (o *TLWebPage) HasEmbedUrl() bool {
+func (o *TLWebPage) HasEmbedURL() bool {
 	return (o.Flags & (1 << 5)) != 0
 }
 
-func (o *TLWebPage) SetHasEmbedUrl(v bool) {
+func (o *TLWebPage) SetHasEmbedURL(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -25789,7 +25789,7 @@ func (o *TLWebPage) SetHasEmbedType(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -25801,7 +25801,7 @@ func (o *TLWebPage) SetHasEmbedWidth(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -25813,7 +25813,7 @@ func (o *TLWebPage) SetHasEmbedHeight(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -25825,7 +25825,7 @@ func (o *TLWebPage) SetHasDuration(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -25837,7 +25837,7 @@ func (o *TLWebPage) SetHasAuthor(v bool) {
 	if v {
 		o.Flags |= (1 << 8)
 	} else {
-		o.Flags &= ^(1 << 8)
+		o.Flags &= ^uint(1 << 8)
 	}
 }
 
@@ -25849,7 +25849,7 @@ func (o *TLWebPage) SetHasDocument(v bool) {
 	if v {
 		o.Flags |= (1 << 9)
 	} else {
-		o.Flags &= ^(1 << 9)
+		o.Flags &= ^uint(1 << 9)
 	}
 }
 
@@ -25861,7 +25861,7 @@ func (o *TLWebPage) SetHasCachedPage(v bool) {
 	if v {
 		o.Flags |= (1 << 10)
 	} else {
-		o.Flags &= ^(1 << 10)
+		o.Flags &= ^uint(1 << 10)
 	}
 }
 
@@ -26077,7 +26077,7 @@ func (o *TLChatInvite) SetChannel(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -26089,7 +26089,7 @@ func (o *TLChatInvite) SetBroadcast(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -26101,7 +26101,7 @@ func (o *TLChatInvite) SetPublic(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -26113,7 +26113,7 @@ func (o *TLChatInvite) SetMegagroup(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -26125,7 +26125,7 @@ func (o *TLChatInvite) SetHasParticipants(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -26225,29 +26225,29 @@ func (o *TLKeyboardButton) String() string {
 	return tl.Pretty(o)
 }
 
-// TLKeyboardButtonUrl represents ctor keyboardButtonUrl#258aff05 text:string url:string = KeyboardButton from Telegram
-type TLKeyboardButtonUrl struct {
+// TLKeyboardButtonURL represents ctor keyboardButtonUrl#258aff05 text:string url:string = KeyboardButton from Telegram
+type TLKeyboardButtonURL struct {
 	Text string // text:string
-	Url  string // url:string
+	URL  string // url:string
 }
 
-func (o *TLKeyboardButtonUrl) IsTLKeyboardButton() {}
+func (o *TLKeyboardButtonURL) IsTLKeyboardButton() {}
 
-func (o *TLKeyboardButtonUrl) Cmd() uint32 {
-	return TagKeyboardButtonUrl
+func (o *TLKeyboardButtonURL) Cmd() uint32 {
+	return TagKeyboardButtonURL
 }
 
-func (o *TLKeyboardButtonUrl) ReadBareFrom(r *tl.Reader) {
+func (o *TLKeyboardButtonURL) ReadBareFrom(r *tl.Reader) {
 	o.Text = r.ReadString()
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 }
 
-func (o *TLKeyboardButtonUrl) WriteBareTo(w *tl.Writer) {
+func (o *TLKeyboardButtonURL) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Text)
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 }
 
-func (o *TLKeyboardButtonUrl) String() string {
+func (o *TLKeyboardButtonURL) String() string {
 	return tl.Pretty(o)
 }
 
@@ -26356,7 +26356,7 @@ func (o *TLKeyboardButtonSwitchInline) SetSamePeer(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -26437,7 +26437,7 @@ func (o *TLReplyKeyboardHide) SetSelective(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -26472,7 +26472,7 @@ func (o *TLReplyKeyboardForceReply) SetSingleUse(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -26484,7 +26484,7 @@ func (o *TLReplyKeyboardForceReply) SetSelective(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -26537,7 +26537,7 @@ func (o *TLReplyKeyboardMarkup) SetResize(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -26549,7 +26549,7 @@ func (o *TLReplyKeyboardMarkup) SetSingleUse(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -26561,7 +26561,7 @@ func (o *TLReplyKeyboardMarkup) SetSelective(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -26711,29 +26711,29 @@ func (o *TLMessageEntityBotCommand) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityUrl represents ctor messageEntityUrl#6ed02538 offset:int length:int = MessageEntity from Telegram
-type TLMessageEntityUrl struct {
+// TLMessageEntityURL represents ctor messageEntityUrl#6ed02538 offset:int length:int = MessageEntity from Telegram
+type TLMessageEntityURL struct {
 	Offset int // offset:int
 	Length int // length:int
 }
 
-func (o *TLMessageEntityUrl) IsTLMessageEntity() {}
+func (o *TLMessageEntityURL) IsTLMessageEntity() {}
 
-func (o *TLMessageEntityUrl) Cmd() uint32 {
-	return TagMessageEntityUrl
+func (o *TLMessageEntityURL) Cmd() uint32 {
+	return TagMessageEntityURL
 }
 
-func (o *TLMessageEntityUrl) ReadBareFrom(r *tl.Reader) {
+func (o *TLMessageEntityURL) ReadBareFrom(r *tl.Reader) {
 	o.Offset = r.ReadInt()
 	o.Length = r.ReadInt()
 }
 
-func (o *TLMessageEntityUrl) WriteBareTo(w *tl.Writer) {
+func (o *TLMessageEntityURL) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Length)
 }
 
-func (o *TLMessageEntityUrl) String() string {
+func (o *TLMessageEntityURL) String() string {
 	return tl.Pretty(o)
 }
 
@@ -26870,32 +26870,32 @@ func (o *TLMessageEntityPre) String() string {
 	return tl.Pretty(o)
 }
 
-// TLMessageEntityTextUrl represents ctor messageEntityTextUrl#76a6d327 offset:int length:int url:string = MessageEntity from Telegram
-type TLMessageEntityTextUrl struct {
+// TLMessageEntityTextURL represents ctor messageEntityTextUrl#76a6d327 offset:int length:int url:string = MessageEntity from Telegram
+type TLMessageEntityTextURL struct {
 	Offset int    // offset:int
 	Length int    // length:int
-	Url    string // url:string
+	URL    string // url:string
 }
 
-func (o *TLMessageEntityTextUrl) IsTLMessageEntity() {}
+func (o *TLMessageEntityTextURL) IsTLMessageEntity() {}
 
-func (o *TLMessageEntityTextUrl) Cmd() uint32 {
-	return TagMessageEntityTextUrl
+func (o *TLMessageEntityTextURL) Cmd() uint32 {
+	return TagMessageEntityTextURL
 }
 
-func (o *TLMessageEntityTextUrl) ReadBareFrom(r *tl.Reader) {
+func (o *TLMessageEntityTextURL) ReadBareFrom(r *tl.Reader) {
 	o.Offset = r.ReadInt()
 	o.Length = r.ReadInt()
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 }
 
-func (o *TLMessageEntityTextUrl) WriteBareTo(w *tl.Writer) {
+func (o *TLMessageEntityTextURL) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Length)
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 }
 
-func (o *TLMessageEntityTextUrl) String() string {
+func (o *TLMessageEntityTextURL) String() string {
 	return tl.Pretty(o)
 }
 
@@ -27041,7 +27041,7 @@ func (o *TLUpdatesChannelDifferenceEmpty) SetFinal(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -27053,7 +27053,7 @@ func (o *TLUpdatesChannelDifferenceEmpty) SetHasTimeout(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -27152,7 +27152,7 @@ func (o *TLUpdatesChannelDifferenceTooLong) SetFinal(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -27164,7 +27164,7 @@ func (o *TLUpdatesChannelDifferenceTooLong) SetHasTimeout(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -27265,7 +27265,7 @@ func (o *TLUpdatesChannelDifference) SetFinal(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -27277,7 +27277,7 @@ func (o *TLUpdatesChannelDifference) SetHasTimeout(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -27350,7 +27350,7 @@ func (o *TLChannelMessagesFilter) SetExcludeNewMessages(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -27665,9 +27665,9 @@ func (o *TLChannelRoleEditor) String() string {
 
 // TLFoundGif represents ctor foundGif#162ecc1f url:string thumb_url:string content_url:string content_type:string w:int h:int = FoundGif from Telegram
 type TLFoundGif struct {
-	Url         string // url:string
-	ThumbUrl    string // thumb_url:string
-	ContentUrl  string // content_url:string
+	URL         string // url:string
+	ThumbURL    string // thumb_url:string
+	ContentURL  string // content_url:string
 	ContentType string // content_type:string
 	W           int    // w:int
 	H           int    // h:int
@@ -27680,18 +27680,18 @@ func (o *TLFoundGif) Cmd() uint32 {
 }
 
 func (o *TLFoundGif) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
-	o.ThumbUrl = r.ReadString()
-	o.ContentUrl = r.ReadString()
+	o.URL = r.ReadString()
+	o.ThumbURL = r.ReadString()
+	o.ContentURL = r.ReadString()
 	o.ContentType = r.ReadString()
 	o.W = r.ReadInt()
 	o.H = r.ReadInt()
 }
 
 func (o *TLFoundGif) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
-	w.WriteString(o.ThumbUrl)
-	w.WriteString(o.ContentUrl)
+	w.WriteString(o.URL)
+	w.WriteString(o.ThumbURL)
+	w.WriteString(o.ContentURL)
 	w.WriteString(o.ContentType)
 	w.WriteInt(o.W)
 	w.WriteInt(o.H)
@@ -27703,7 +27703,7 @@ func (o *TLFoundGif) String() string {
 
 // TLFoundGifCached represents ctor foundGifCached#9c750409 url:string photo:Photo document:Document = FoundGif from Telegram
 type TLFoundGifCached struct {
-	Url      string         // url:string
+	URL      string         // url:string
 	Photo    TLPhotoType    // photo:Photo
 	Document TLDocumentType // document:Document
 }
@@ -27715,13 +27715,13 @@ func (o *TLFoundGifCached) Cmd() uint32 {
 }
 
 func (o *TLFoundGifCached) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
 	o.Document = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentEmpty, TagDocument).(TLDocumentType)
 }
 
 func (o *TLFoundGifCached) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteCmd(o.Photo.Cmd())
 	o.Photo.WriteBareTo(w)
 	w.WriteCmd(o.Document.Cmd())
@@ -27827,7 +27827,7 @@ func (o *TLInputBotInlineMessageMediaAuto) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -27858,7 +27858,7 @@ func (o *TLInputBotInlineMessageText) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 	if (o.Flags & (1 << 2)) != 0 {
@@ -27891,7 +27891,7 @@ func (o *TLInputBotInlineMessageText) SetNoWebpage(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -27903,7 +27903,7 @@ func (o *TLInputBotInlineMessageText) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -27915,7 +27915,7 @@ func (o *TLInputBotInlineMessageText) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -27962,7 +27962,7 @@ func (o *TLInputBotInlineMessageMediaGeo) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -28021,7 +28021,7 @@ func (o *TLInputBotInlineMessageMediaVenue) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -28073,7 +28073,7 @@ func (o *TLInputBotInlineMessageMediaContact) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -28116,7 +28116,7 @@ func (o *TLInputBotInlineMessageGame) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -28131,9 +28131,9 @@ type TLInputBotInlineResult struct {
 	Type        string                      // type:string
 	Title       string                      // flags.1?title:string
 	Description string                      // flags.2?description:string
-	Url         string                      // flags.3?url:string
-	ThumbUrl    string                      // flags.4?thumb_url:string
-	ContentUrl  string                      // flags.5?content_url:string
+	URL         string                      // flags.3?url:string
+	ThumbURL    string                      // flags.4?thumb_url:string
+	ContentURL  string                      // flags.5?content_url:string
 	ContentType string                      // flags.5?content_type:string
 	W           int                         // flags.6?w:int
 	H           int                         // flags.6?h:int
@@ -28158,13 +28158,13 @@ func (o *TLInputBotInlineResult) ReadBareFrom(r *tl.Reader) {
 		o.Description = r.ReadString()
 	}
 	if (o.Flags & (1 << 3)) != 0 {
-		o.Url = r.ReadString()
+		o.URL = r.ReadString()
 	}
 	if (o.Flags & (1 << 4)) != 0 {
-		o.ThumbUrl = r.ReadString()
+		o.ThumbURL = r.ReadString()
 	}
 	if (o.Flags & (1 << 5)) != 0 {
-		o.ContentUrl = r.ReadString()
+		o.ContentURL = r.ReadString()
 	}
 	if (o.Flags & (1 << 5)) != 0 {
 		o.ContentType = r.ReadString()
@@ -28192,13 +28192,13 @@ func (o *TLInputBotInlineResult) WriteBareTo(w *tl.Writer) {
 		w.WriteString(o.Description)
 	}
 	if (o.Flags & (1 << 3)) != 0 {
-		w.WriteString(o.Url)
+		w.WriteString(o.URL)
 	}
 	if (o.Flags & (1 << 4)) != 0 {
-		w.WriteString(o.ThumbUrl)
+		w.WriteString(o.ThumbURL)
 	}
 	if (o.Flags & (1 << 5)) != 0 {
-		w.WriteString(o.ContentUrl)
+		w.WriteString(o.ContentURL)
 	}
 	if (o.Flags & (1 << 5)) != 0 {
 		w.WriteString(o.ContentType)
@@ -28224,7 +28224,7 @@ func (o *TLInputBotInlineResult) SetHasTitle(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -28236,43 +28236,43 @@ func (o *TLInputBotInlineResult) SetHasDescription(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
-func (o *TLInputBotInlineResult) HasUrl() bool {
+func (o *TLInputBotInlineResult) HasURL() bool {
 	return (o.Flags & (1 << 3)) != 0
 }
 
-func (o *TLInputBotInlineResult) SetHasUrl(v bool) {
+func (o *TLInputBotInlineResult) SetHasURL(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
-func (o *TLInputBotInlineResult) HasThumbUrl() bool {
+func (o *TLInputBotInlineResult) HasThumbURL() bool {
 	return (o.Flags & (1 << 4)) != 0
 }
 
-func (o *TLInputBotInlineResult) SetHasThumbUrl(v bool) {
+func (o *TLInputBotInlineResult) SetHasThumbURL(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
-func (o *TLInputBotInlineResult) HasContentUrl() bool {
+func (o *TLInputBotInlineResult) HasContentURL() bool {
 	return (o.Flags & (1 << 5)) != 0
 }
 
-func (o *TLInputBotInlineResult) SetHasContentUrl(v bool) {
+func (o *TLInputBotInlineResult) SetHasContentURL(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -28284,7 +28284,7 @@ func (o *TLInputBotInlineResult) SetHasContentType(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -28296,7 +28296,7 @@ func (o *TLInputBotInlineResult) SetHasW(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -28308,7 +28308,7 @@ func (o *TLInputBotInlineResult) SetHasH(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -28320,7 +28320,7 @@ func (o *TLInputBotInlineResult) SetHasDuration(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -28417,7 +28417,7 @@ func (o *TLInputBotInlineResultDocument) SetHasTitle(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -28429,7 +28429,7 @@ func (o *TLInputBotInlineResultDocument) SetHasDescription(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -28505,7 +28505,7 @@ func (o *TLBotInlineMessageMediaAuto) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -28536,7 +28536,7 @@ func (o *TLBotInlineMessageText) ReadBareFrom(r *tl.Reader) {
 		}
 		o.Entities = make([]TLMessageEntityType, r.ReadInt())
 		for i := 0; i < len(o.Entities); i++ {
-			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityURL, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextURL, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
 		}
 	}
 	if (o.Flags & (1 << 2)) != 0 {
@@ -28569,7 +28569,7 @@ func (o *TLBotInlineMessageText) SetNoWebpage(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -28581,7 +28581,7 @@ func (o *TLBotInlineMessageText) SetHasEntities(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -28593,7 +28593,7 @@ func (o *TLBotInlineMessageText) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -28640,7 +28640,7 @@ func (o *TLBotInlineMessageMediaGeo) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -28699,7 +28699,7 @@ func (o *TLBotInlineMessageMediaVenue) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -28751,7 +28751,7 @@ func (o *TLBotInlineMessageMediaContact) SetHasReplyMarkup(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -28766,9 +28766,9 @@ type TLBotInlineResult struct {
 	Type        string                 // type:string
 	Title       string                 // flags.1?title:string
 	Description string                 // flags.2?description:string
-	Url         string                 // flags.3?url:string
-	ThumbUrl    string                 // flags.4?thumb_url:string
-	ContentUrl  string                 // flags.5?content_url:string
+	URL         string                 // flags.3?url:string
+	ThumbURL    string                 // flags.4?thumb_url:string
+	ContentURL  string                 // flags.5?content_url:string
 	ContentType string                 // flags.5?content_type:string
 	W           int                    // flags.6?w:int
 	H           int                    // flags.6?h:int
@@ -28793,13 +28793,13 @@ func (o *TLBotInlineResult) ReadBareFrom(r *tl.Reader) {
 		o.Description = r.ReadString()
 	}
 	if (o.Flags & (1 << 3)) != 0 {
-		o.Url = r.ReadString()
+		o.URL = r.ReadString()
 	}
 	if (o.Flags & (1 << 4)) != 0 {
-		o.ThumbUrl = r.ReadString()
+		o.ThumbURL = r.ReadString()
 	}
 	if (o.Flags & (1 << 5)) != 0 {
-		o.ContentUrl = r.ReadString()
+		o.ContentURL = r.ReadString()
 	}
 	if (o.Flags & (1 << 5)) != 0 {
 		o.ContentType = r.ReadString()
@@ -28827,13 +28827,13 @@ func (o *TLBotInlineResult) WriteBareTo(w *tl.Writer) {
 		w.WriteString(o.Description)
 	}
 	if (o.Flags & (1 << 3)) != 0 {
-		w.WriteString(o.Url)
+		w.WriteString(o.URL)
 	}
 	if (o.Flags & (1 << 4)) != 0 {
-		w.WriteString(o.ThumbUrl)
+		w.WriteString(o.ThumbURL)
 	}
 	if (o.Flags & (1 << 5)) != 0 {
-		w.WriteString(o.ContentUrl)
+		w.WriteString(o.ContentURL)
 	}
 	if (o.Flags & (1 << 5)) != 0 {
 		w.WriteString(o.ContentType)
@@ -28859,7 +28859,7 @@ func (o *TLBotInlineResult) SetHasTitle(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -28871,43 +28871,43 @@ func (o *TLBotInlineResult) SetHasDescription(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
-func (o *TLBotInlineResult) HasUrl() bool {
+func (o *TLBotInlineResult) HasURL() bool {
 	return (o.Flags & (1 << 3)) != 0
 }
 
-func (o *TLBotInlineResult) SetHasUrl(v bool) {
+func (o *TLBotInlineResult) SetHasURL(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
-func (o *TLBotInlineResult) HasThumbUrl() bool {
+func (o *TLBotInlineResult) HasThumbURL() bool {
 	return (o.Flags & (1 << 4)) != 0
 }
 
-func (o *TLBotInlineResult) SetHasThumbUrl(v bool) {
+func (o *TLBotInlineResult) SetHasThumbURL(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
-func (o *TLBotInlineResult) HasContentUrl() bool {
+func (o *TLBotInlineResult) HasContentURL() bool {
 	return (o.Flags & (1 << 5)) != 0
 }
 
-func (o *TLBotInlineResult) SetHasContentUrl(v bool) {
+func (o *TLBotInlineResult) SetHasContentURL(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -28919,7 +28919,7 @@ func (o *TLBotInlineResult) SetHasContentType(v bool) {
 	if v {
 		o.Flags |= (1 << 5)
 	} else {
-		o.Flags &= ^(1 << 5)
+		o.Flags &= ^uint(1 << 5)
 	}
 }
 
@@ -28931,7 +28931,7 @@ func (o *TLBotInlineResult) SetHasW(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -28943,7 +28943,7 @@ func (o *TLBotInlineResult) SetHasH(v bool) {
 	if v {
 		o.Flags |= (1 << 6)
 	} else {
-		o.Flags &= ^(1 << 6)
+		o.Flags &= ^uint(1 << 6)
 	}
 }
 
@@ -28955,7 +28955,7 @@ func (o *TLBotInlineResult) SetHasDuration(v bool) {
 	if v {
 		o.Flags |= (1 << 7)
 	} else {
-		o.Flags &= ^(1 << 7)
+		o.Flags &= ^uint(1 << 7)
 	}
 }
 
@@ -29030,7 +29030,7 @@ func (o *TLBotInlineMediaResult) SetHasPhoto(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -29042,7 +29042,7 @@ func (o *TLBotInlineMediaResult) SetHasDocument(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -29054,7 +29054,7 @@ func (o *TLBotInlineMediaResult) SetHasTitle(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -29066,7 +29066,7 @@ func (o *TLBotInlineMediaResult) SetHasDescription(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -29671,7 +29671,7 @@ func (o *TLTextBold) Cmd() uint32 {
 }
 
 func (o *TLTextBold) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLTextBold) WriteBareTo(w *tl.Writer) {
@@ -29695,7 +29695,7 @@ func (o *TLTextItalic) Cmd() uint32 {
 }
 
 func (o *TLTextItalic) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLTextItalic) WriteBareTo(w *tl.Writer) {
@@ -29719,7 +29719,7 @@ func (o *TLTextUnderline) Cmd() uint32 {
 }
 
 func (o *TLTextUnderline) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLTextUnderline) WriteBareTo(w *tl.Writer) {
@@ -29743,7 +29743,7 @@ func (o *TLTextStrike) Cmd() uint32 {
 }
 
 func (o *TLTextStrike) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLTextStrike) WriteBareTo(w *tl.Writer) {
@@ -29767,7 +29767,7 @@ func (o *TLTextFixed) Cmd() uint32 {
 }
 
 func (o *TLTextFixed) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLTextFixed) WriteBareTo(w *tl.Writer) {
@@ -29779,33 +29779,33 @@ func (o *TLTextFixed) String() string {
 	return tl.Pretty(o)
 }
 
-// TLTextUrl represents ctor textUrl#3c2884c1 text:RichText url:string webpage_id:long = RichText from Telegram
-type TLTextUrl struct {
+// TLTextURL represents ctor textUrl#3c2884c1 text:RichText url:string webpage_id:long = RichText from Telegram
+type TLTextURL struct {
 	Text      TLRichTextType // text:RichText
-	Url       string         // url:string
+	URL       string         // url:string
 	WebpageID uint64         // webpage_id:long
 }
 
-func (o *TLTextUrl) IsTLRichText() {}
+func (o *TLTextURL) IsTLRichText() {}
 
-func (o *TLTextUrl) Cmd() uint32 {
-	return TagTextUrl
+func (o *TLTextURL) Cmd() uint32 {
+	return TagTextURL
 }
 
-func (o *TLTextUrl) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
-	o.Url = r.ReadString()
+func (o *TLTextURL) ReadBareFrom(r *tl.Reader) {
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.URL = r.ReadString()
 	o.WebpageID = r.ReadUint64()
 }
 
-func (o *TLTextUrl) WriteBareTo(w *tl.Writer) {
+func (o *TLTextURL) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Text.Cmd())
 	o.Text.WriteBareTo(w)
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteUint64(o.WebpageID)
 }
 
-func (o *TLTextUrl) String() string {
+func (o *TLTextURL) String() string {
 	return tl.Pretty(o)
 }
 
@@ -29822,7 +29822,7 @@ func (o *TLTextEmail) Cmd() uint32 {
 }
 
 func (o *TLTextEmail) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 	o.Email = r.ReadString()
 }
 
@@ -29853,7 +29853,7 @@ func (o *TLTextConcat) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Texts = make([]TLRichTextType, r.ReadInt())
 	for i := 0; i < len(o.Texts); i++ {
-		o.Texts[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+		o.Texts[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 	}
 }
 
@@ -29902,7 +29902,7 @@ func (o *TLPageBlockTitle) Cmd() uint32 {
 }
 
 func (o *TLPageBlockTitle) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockTitle) WriteBareTo(w *tl.Writer) {
@@ -29926,7 +29926,7 @@ func (o *TLPageBlockSubtitle) Cmd() uint32 {
 }
 
 func (o *TLPageBlockSubtitle) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockSubtitle) WriteBareTo(w *tl.Writer) {
@@ -29951,7 +29951,7 @@ func (o *TLPageBlockAuthorDate) Cmd() uint32 {
 }
 
 func (o *TLPageBlockAuthorDate) ReadBareFrom(r *tl.Reader) {
-	o.Author = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Author = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 	o.PublishedDate = r.ReadInt()
 }
 
@@ -29977,7 +29977,7 @@ func (o *TLPageBlockHeader) Cmd() uint32 {
 }
 
 func (o *TLPageBlockHeader) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockHeader) WriteBareTo(w *tl.Writer) {
@@ -30001,7 +30001,7 @@ func (o *TLPageBlockSubheader) Cmd() uint32 {
 }
 
 func (o *TLPageBlockSubheader) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockSubheader) WriteBareTo(w *tl.Writer) {
@@ -30025,7 +30025,7 @@ func (o *TLPageBlockParagraph) Cmd() uint32 {
 }
 
 func (o *TLPageBlockParagraph) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockParagraph) WriteBareTo(w *tl.Writer) {
@@ -30050,7 +30050,7 @@ func (o *TLPageBlockPreformatted) Cmd() uint32 {
 }
 
 func (o *TLPageBlockPreformatted) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 	o.Language = r.ReadString()
 }
 
@@ -30076,7 +30076,7 @@ func (o *TLPageBlockFooter) Cmd() uint32 {
 }
 
 func (o *TLPageBlockFooter) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockFooter) WriteBareTo(w *tl.Writer) {
@@ -30151,7 +30151,7 @@ func (o *TLPageBlockList) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Items = make([]TLRichTextType, r.ReadInt())
 	for i := 0; i < len(o.Items); i++ {
-		o.Items[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+		o.Items[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 	}
 }
 
@@ -30186,8 +30186,8 @@ func (o *TLPageBlockBlockquote) Cmd() uint32 {
 }
 
 func (o *TLPageBlockBlockquote) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
-	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockBlockquote) WriteBareTo(w *tl.Writer) {
@@ -30214,8 +30214,8 @@ func (o *TLPageBlockPullquote) Cmd() uint32 {
 }
 
 func (o *TLPageBlockPullquote) ReadBareFrom(r *tl.Reader) {
-	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
-	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Text = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockPullquote) WriteBareTo(w *tl.Writer) {
@@ -30243,7 +30243,7 @@ func (o *TLPageBlockPhoto) Cmd() uint32 {
 
 func (o *TLPageBlockPhoto) ReadBareFrom(r *tl.Reader) {
 	o.PhotoID = r.ReadUint64()
-	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockPhoto) WriteBareTo(w *tl.Writer) {
@@ -30272,7 +30272,7 @@ func (o *TLPageBlockVideo) Cmd() uint32 {
 func (o *TLPageBlockVideo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.VideoID = r.ReadUint64()
-	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockVideo) WriteBareTo(w *tl.Writer) {
@@ -30290,7 +30290,7 @@ func (o *TLPageBlockVideo) SetAutoplay(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -30302,7 +30302,7 @@ func (o *TLPageBlockVideo) SetLoop(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -30337,7 +30337,7 @@ func (o *TLPageBlockCover) String() string {
 // TLPageBlockEmbed represents ctor pageBlockEmbed#cde200d1 flags:# flags.0?full_width:true flags.3?allow_scrolling:true flags.1?url:string flags.2?html:string flags.4?poster_photo_id:long w:int h:int caption:RichText = PageBlock from Telegram
 type TLPageBlockEmbed struct {
 	Flags         uint           // flags:#
-	Url           string         // flags.1?url:string
+	URL           string         // flags.1?url:string
 	Html          string         // flags.2?html:string
 	PosterPhotoID uint64         // flags.4?poster_photo_id:long
 	W             int            // w:int
@@ -30354,7 +30354,7 @@ func (o *TLPageBlockEmbed) Cmd() uint32 {
 func (o *TLPageBlockEmbed) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	if (o.Flags & (1 << 1)) != 0 {
-		o.Url = r.ReadString()
+		o.URL = r.ReadString()
 	}
 	if (o.Flags & (1 << 2)) != 0 {
 		o.Html = r.ReadString()
@@ -30364,13 +30364,13 @@ func (o *TLPageBlockEmbed) ReadBareFrom(r *tl.Reader) {
 	}
 	o.W = r.ReadInt()
 	o.H = r.ReadInt()
-	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockEmbed) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	if (o.Flags & (1 << 1)) != 0 {
-		w.WriteString(o.Url)
+		w.WriteString(o.URL)
 	}
 	if (o.Flags & (1 << 2)) != 0 {
 		w.WriteString(o.Html)
@@ -30392,7 +30392,7 @@ func (o *TLPageBlockEmbed) SetFullWidth(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -30404,19 +30404,19 @@ func (o *TLPageBlockEmbed) SetAllowScrolling(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
-func (o *TLPageBlockEmbed) HasUrl() bool {
+func (o *TLPageBlockEmbed) HasURL() bool {
 	return (o.Flags & (1 << 1)) != 0
 }
 
-func (o *TLPageBlockEmbed) SetHasUrl(v bool) {
+func (o *TLPageBlockEmbed) SetHasURL(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -30428,7 +30428,7 @@ func (o *TLPageBlockEmbed) SetHasHtml(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -30440,7 +30440,7 @@ func (o *TLPageBlockEmbed) SetHasPosterPhotoID(v bool) {
 	if v {
 		o.Flags |= (1 << 4)
 	} else {
-		o.Flags &= ^(1 << 4)
+		o.Flags &= ^uint(1 << 4)
 	}
 }
 
@@ -30450,7 +30450,7 @@ func (o *TLPageBlockEmbed) String() string {
 
 // TLPageBlockEmbedPost represents ctor pageBlockEmbedPost#292c7be9 url:string webpage_id:long author_photo_id:long author:string date:int blocks:Vector<PageBlock> caption:RichText = PageBlock from Telegram
 type TLPageBlockEmbedPost struct {
-	Url           string            // url:string
+	URL           string            // url:string
 	WebpageID     uint64            // webpage_id:long
 	AuthorPhotoID uint64            // author_photo_id:long
 	Author        string            // author:string
@@ -30466,7 +30466,7 @@ func (o *TLPageBlockEmbedPost) Cmd() uint32 {
 }
 
 func (o *TLPageBlockEmbedPost) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 	o.WebpageID = r.ReadUint64()
 	o.AuthorPhotoID = r.ReadUint64()
 	o.Author = r.ReadString()
@@ -30478,11 +30478,11 @@ func (o *TLPageBlockEmbedPost) ReadBareFrom(r *tl.Reader) {
 	for i := 0; i < len(o.Blocks); i++ {
 		o.Blocks[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagPageBlockUnsupported, TagPageBlockTitle, TagPageBlockSubtitle, TagPageBlockAuthorDate, TagPageBlockHeader, TagPageBlockSubheader, TagPageBlockParagraph, TagPageBlockPreformatted, TagPageBlockFooter, TagPageBlockDivider, TagPageBlockAnchor, TagPageBlockList, TagPageBlockBlockquote, TagPageBlockPullquote, TagPageBlockPhoto, TagPageBlockVideo, TagPageBlockCover, TagPageBlockEmbed, TagPageBlockEmbedPost, TagPageBlockCollage, TagPageBlockSlideshow).(TLPageBlockType)
 	}
-	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockEmbedPost) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 	w.WriteUint64(o.WebpageID)
 	w.WriteUint64(o.AuthorPhotoID)
 	w.WriteString(o.Author)
@@ -30521,7 +30521,7 @@ func (o *TLPageBlockCollage) ReadBareFrom(r *tl.Reader) {
 	for i := 0; i < len(o.Items); i++ {
 		o.Items[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagPageBlockUnsupported, TagPageBlockTitle, TagPageBlockSubtitle, TagPageBlockAuthorDate, TagPageBlockHeader, TagPageBlockSubheader, TagPageBlockParagraph, TagPageBlockPreformatted, TagPageBlockFooter, TagPageBlockDivider, TagPageBlockAnchor, TagPageBlockList, TagPageBlockBlockquote, TagPageBlockPullquote, TagPageBlockPhoto, TagPageBlockVideo, TagPageBlockCover, TagPageBlockEmbed, TagPageBlockEmbedPost, TagPageBlockCollage, TagPageBlockSlideshow).(TLPageBlockType)
 	}
-	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockCollage) WriteBareTo(w *tl.Writer) {
@@ -30559,7 +30559,7 @@ func (o *TLPageBlockSlideshow) ReadBareFrom(r *tl.Reader) {
 	for i := 0; i < len(o.Items); i++ {
 		o.Items[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagPageBlockUnsupported, TagPageBlockTitle, TagPageBlockSubtitle, TagPageBlockAuthorDate, TagPageBlockHeader, TagPageBlockSubheader, TagPageBlockParagraph, TagPageBlockPreformatted, TagPageBlockFooter, TagPageBlockDivider, TagPageBlockAnchor, TagPageBlockList, TagPageBlockBlockquote, TagPageBlockPullquote, TagPageBlockPhoto, TagPageBlockVideo, TagPageBlockCover, TagPageBlockEmbed, TagPageBlockEmbedPost, TagPageBlockCollage, TagPageBlockSlideshow).(TLPageBlockType)
 	}
-	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
+	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextURL, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
 
 func (o *TLPageBlockSlideshow) WriteBareTo(w *tl.Writer) {
@@ -30807,7 +30807,7 @@ func (o *TLPaymentsPaymentResult) String() string {
 
 // TLPaymentsPaymentVerficationNeeded represents ctor payments.paymentVerficationNeeded#6b56b921 url:string = payments.PaymentResult from Telegram
 type TLPaymentsPaymentVerficationNeeded struct {
-	Url string // url:string
+	URL string // url:string
 }
 
 func (o *TLPaymentsPaymentVerficationNeeded) IsTLPaymentsPaymentResult() {}
@@ -30817,11 +30817,11 @@ func (o *TLPaymentsPaymentVerficationNeeded) Cmd() uint32 {
 }
 
 func (o *TLPaymentsPaymentVerficationNeeded) ReadBareFrom(r *tl.Reader) {
-	o.Url = r.ReadString()
+	o.URL = r.ReadString()
 }
 
 func (o *TLPaymentsPaymentVerficationNeeded) WriteBareTo(w *tl.Writer) {
-	w.WriteString(o.Url)
+	w.WriteString(o.URL)
 }
 
 func (o *TLPaymentsPaymentVerficationNeeded) String() string {
@@ -30889,7 +30889,7 @@ func (o *TLInputPaymentCredentials) SetSave(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -30977,7 +30977,7 @@ func (o *TLPhoneCallWaiting) SetHasReceiveDate(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -31200,7 +31200,7 @@ func (o *TLPhoneCallDiscarded) SetNeedRating(v bool) {
 	if v {
 		o.Flags |= (1 << 2)
 	} else {
-		o.Flags &= ^(1 << 2)
+		o.Flags &= ^uint(1 << 2)
 	}
 }
 
@@ -31212,7 +31212,7 @@ func (o *TLPhoneCallDiscarded) SetNeedDebug(v bool) {
 	if v {
 		o.Flags |= (1 << 3)
 	} else {
-		o.Flags &= ^(1 << 3)
+		o.Flags &= ^uint(1 << 3)
 	}
 }
 
@@ -31224,7 +31224,7 @@ func (o *TLPhoneCallDiscarded) SetHasReason(v bool) {
 	if v {
 		o.Flags |= (1 << 0)
 	} else {
-		o.Flags &= ^(1 << 0)
+		o.Flags &= ^uint(1 << 0)
 	}
 }
 
@@ -31236,7 +31236,7 @@ func (o *TLPhoneCallDiscarded) SetHasDuration(v bool) {
 	if v {
 		o.Flags |= (1 << 1)
 	} else {
-		o.Flags &= ^(1 << 1)
+		o.Flags &= ^uint(1 << 1)
 	}
 }
 
@@ -32243,8 +32243,8 @@ var Schema = &tl.Schema{
 			return new(TLInputMessagesFilterPhotoVideoDocuments)
 		case TagInputMessagesFilterDocument:
 			return new(TLInputMessagesFilterDocument)
-		case TagInputMessagesFilterUrl:
-			return new(TLInputMessagesFilterUrl)
+		case TagInputMessagesFilterURL:
+			return new(TLInputMessagesFilterURL)
 		case TagInputMessagesFilterGif:
 			return new(TLInputMessagesFilterGif)
 		case TagInputMessagesFilterVoice:
@@ -32563,8 +32563,8 @@ var Schema = &tl.Schema{
 			return new(TLInputStickerSetShortName)
 		case TagKeyboardButton:
 			return new(TLKeyboardButton)
-		case TagKeyboardButtonUrl:
-			return new(TLKeyboardButtonUrl)
+		case TagKeyboardButtonURL:
+			return new(TLKeyboardButtonURL)
 		case TagKeyboardButtonCallback:
 			return new(TLKeyboardButtonCallback)
 		case TagKeyboardButtonRequestPhone:
@@ -32593,8 +32593,8 @@ var Schema = &tl.Schema{
 			return new(TLMessageEntityHashtag)
 		case TagMessageEntityBotCommand:
 			return new(TLMessageEntityBotCommand)
-		case TagMessageEntityUrl:
-			return new(TLMessageEntityUrl)
+		case TagMessageEntityURL:
+			return new(TLMessageEntityURL)
 		case TagMessageEntityEmail:
 			return new(TLMessageEntityEmail)
 		case TagMessageEntityBold:
@@ -32605,8 +32605,8 @@ var Schema = &tl.Schema{
 			return new(TLMessageEntityCode)
 		case TagMessageEntityPre:
 			return new(TLMessageEntityPre)
-		case TagMessageEntityTextUrl:
-			return new(TLMessageEntityTextUrl)
+		case TagMessageEntityTextURL:
+			return new(TLMessageEntityTextURL)
 		case TagMessageEntityMentionName:
 			return new(TLMessageEntityMentionName)
 		case TagInputMessageEntityMentionName:
@@ -32745,8 +32745,8 @@ var Schema = &tl.Schema{
 			return new(TLTextStrike)
 		case TagTextFixed:
 			return new(TLTextFixed)
-		case TagTextUrl:
-			return new(TLTextUrl)
+		case TagTextURL:
+			return new(TLTextURL)
 		case TagTextEmail:
 			return new(TLTextEmail)
 		case TagTextConcat:
