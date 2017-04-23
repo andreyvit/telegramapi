@@ -22,6 +22,7 @@ func TestToGoName(t *testing.T) {
 		{"api_id", "APIID"},
 		{"msg_id", "MsgID"},
 		{"msg_ids", "MsgIDs"},
+		{"ipv6", "IPv6"},
 	}
 
 	for _, tt := range tests {
