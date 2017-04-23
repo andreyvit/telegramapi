@@ -4,9 +4,11 @@ import (
 	"github.com/andreyvit/telegramapi/mtproto"
 )
 
-func processDCs(config *mtproto.TLConfig) []*DC {
-	var dcs []*DC
-	found := make(map[int]bool)
+func updateDCs(dcs map[int]*DCState, config *mtproto.TLConfig) {
+	oldIDs := make(map[int]bool)
+	for id, _ := range dcs {
+		oldIDs[id] = true
+	}
 
 	for _, opt := range config.DCOptions {
 		if opt.IPv6() {
@@ -15,19 +17,22 @@ func processDCs(config *mtproto.TLConfig) []*DC {
 		if opt.MediaOnly() {
 			continue
 		}
-		if found[opt.ID] {
-			continue
+
+		dc := dcs[opt.ID]
+		if dc == nil {
+			dc = &DCState{ID: opt.ID}
+			dcs[dc.ID] = dc
 		}
 
-		found[opt.ID] = true
-		dcs = append(dcs, &DC{
-			ID: opt.ID,
-			PrimaryAddr: Addr{
-				IP:   opt.IPAddress,
-				Port: opt.Port,
-			},
-		})
+		dc.PrimaryAddr = Addr{
+			IP:   opt.IPAddress,
+			Port: opt.Port,
+		}
+
+		delete(oldIDs, dc.ID)
 	}
 
-	return dcs
+	for id, _ := range oldIDs {
+		delete(dcs, id)
+	}
 }

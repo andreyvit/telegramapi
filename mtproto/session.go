@@ -60,6 +60,8 @@ type Session struct {
 	stateCond *sync.Cond
 	isReady   bool
 
+	dc int
+
 	onstatechanged func()
 
 	err error
@@ -106,6 +108,22 @@ func (sess *Session) OnStateChanged(f func()) {
 	sess.stateMut.Lock()
 	defer sess.stateMut.Unlock()
 	sess.onstatechanged = f
+}
+
+func (sess *Session) DC() int {
+	sess.stateMut.Lock()
+	defer sess.stateMut.Unlock()
+
+	return sess.dc
+}
+func (sess *Session) SetDC(dc int) {
+	sess.stateMut.Lock()
+	defer sess.stateMut.Unlock()
+
+	if sess.dc != 0 && sess.dc != dc {
+		panic("cannot change session DC once it has been set")
+	}
+	sess.dc = dc
 }
 
 func (sess *Session) AddHandler(handler func(cmd uint32, o tl.Object) ([]tl.Object, error)) {

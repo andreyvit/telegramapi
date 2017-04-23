@@ -57,37 +57,46 @@ func (o *Addr) Write(w *tl.Writer) {
 	w.WriteInt(o.Port)
 }
 
-type DC struct {
+type DCState struct {
 	ID int
 
 	PrimaryAddr Addr
-}
-
-func (o *DC) Read(r *tl.Reader, ver int) {
-	o.ID = r.ReadInt()
-	o.PrimaryAddr.Read(r, 1)
-}
-
-func (o *DC) Write(w *tl.Writer) {
-	w.WriteInt(o.ID)
-	o.PrimaryAddr.Write(w)
-}
-
-type State struct {
-	PreferredDC int
-	KnownDCs    []*DC
 
 	Auth        mtproto.AuthResult
 	FramerState mtproto.FramerState
 }
 
-func (o *State) findPreferredDC() *DC {
+func (o *DCState) Read(r *tl.Reader, ver int) {
+	o.ID = r.ReadInt()
+	o.PrimaryAddr.Read(r, 1)
+	readAuth(&o.Auth, &o.FramerState, r, 1)
+}
+
+func (o *DCState) Write(w *tl.Writer) {
+	w.WriteInt(o.ID)
+	o.PrimaryAddr.Write(w)
+	writeAuth(&o.Auth, &o.FramerState, w)
+}
+
+type State struct {
+	PreferredDC int
+
+	DCs map[int]*DCState
+}
+
+func (o *State) initialize() {
+	if o.DCs == nil {
+		o.DCs = make(map[int]*DCState)
+	}
+}
+
+func (o *State) findPreferredDC() *DCState {
 	id := o.PreferredDC
 	if id == 0 {
 		return nil
 	}
 
-	for _, dc := range o.KnownDCs {
+	for _, dc := range o.DCs {
 		if dc.ID == id {
 			return dc
 		}
@@ -101,27 +110,26 @@ func (o *State) Read(r *tl.Reader) {
 	if ver < 1 || ver > 1 {
 		r.Fail(errors.New("Unsupported version"))
 	}
+
 	o.PreferredDC = r.ReadInt()
 
-	o.KnownDCs = make([]*DC, r.ReadInt())
-	for i := range o.KnownDCs {
-		o.KnownDCs[i] = new(DC)
-		o.KnownDCs[i].Read(r, 1)
+	o.DCs = make(map[int]*DCState)
+	n := r.ReadInt()
+	for i := 0; i < n; i++ {
+		dc := new(DCState)
+		dc.Read(r, 1)
+		o.DCs[dc.ID] = dc
 	}
-
-	readAuth(&o.Auth, &o.FramerState, r, 1)
 }
 
 func (o *State) Write(w *tl.Writer) {
 	w.WriteInt(1)
 	w.WriteInt(o.PreferredDC)
 
-	w.WriteInt(len(o.KnownDCs))
-	for i := range o.KnownDCs {
-		o.KnownDCs[i].Write(w)
+	w.WriteInt(len(o.DCs))
+	for _, dc := range o.DCs {
+		dc.Write(w)
 	}
-
-	writeAuth(&o.Auth, &o.FramerState, w)
 }
 
 func (o *State) ReadBytes(data []byte) error {

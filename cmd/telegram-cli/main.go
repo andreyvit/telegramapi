@@ -11,11 +11,6 @@ import (
 	"github.com/andreyvit/telegramapi/mtproto"
 )
 
-const testEndpoint = "149.154.167.40:443"
-
-// const productionEndpoint = "149.154.167.50:443"
-const productionEndpoint = "149.154.175.100:443"
-
 const publicKey = `
 -----BEGIN RSA PUBLIC KEY-----
 MIIBCgKCAQEAwVACPi9w23mF3tBkdZz+zwrzKOaaQdr01vAbU4E1pvkfj4sqDsm6
@@ -31,9 +26,14 @@ func main() {
 	var err error
 
 	options := telegramapi.Options{
-		Endpoint:  productionEndpoint,
+		SeedAddr:  telegramapi.Addr{"149.154.175.100", 443},
 		PublicKey: publicKey,
 		Verbose:   2,
+	}
+
+	isTest := false
+	if isTest {
+		options.SeedAddr = telegramapi.Addr{"149.154.167.40", 443}
 	}
 
 	apiID := os.Getenv("TG_APP_ID")
@@ -98,9 +98,10 @@ func (tool *Tool) HandleStateChanged(newState telegramapi.State) {
 func (tool *Tool) runProcessingNoErr() {
 	err := tool.runProcessing()
 	if err != nil {
-		log.Printf("** ERROR: processing: %v", err)
+		tool.tg.Fail(err)
+	} else {
+		tool.tg.Shutdown()
 	}
-	tool.tg.Shutdown()
 }
 
 func (tool *Tool) runProcessing() error {
@@ -119,8 +120,12 @@ func (tool *Tool) runProcessing() error {
 	if err != nil {
 		return err
 	}
-
-	log.Printf("Got auth.sendCode response: %v", r)
+	switch r := r.(type) {
+	case *mtproto.TLAuthSentCode:
+		log.Printf("Got auth.sendCode response: %v", r)
+	default:
+		return tool.tg.HandleUnknownReply(r)
+	}
 
 	// for {
 	// 	msg, err := conn.ReadMessage(2 * time.Second)

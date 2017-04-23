@@ -3,6 +3,7 @@ package telegramapi
 import (
 	"errors"
 	"log"
+	"strconv"
 	"sync"
 
 	"github.com/kr/pretty"
@@ -12,7 +13,7 @@ import (
 )
 
 type Options struct {
-	Endpoint  string
+	SeedAddr  Addr
 	PublicKey string
 	Verbose   int
 
@@ -38,8 +39,8 @@ type Delegate interface {
 }
 
 func New(options Options, state *State, delegate Delegate) *Conn {
-	if options.Endpoint == "" {
-		panic("configuration error: missing endpoint")
+	if options.SeedAddr.IP == "" {
+		panic("configuration error: missing SeedAddr")
 	}
 	if options.PublicKey == "" {
 		panic("configuration error: missing public key")
@@ -90,14 +91,19 @@ func (c *Conn) runProcessingErr() error {
 
 	switch r := r.(type) {
 	case *mtproto.TLConfig:
+		c.session.SetDC(r.ThisDC)
 		c.updateState(func(state *State) {
-			state.KnownDCs = processDCs(r)
+			updateDCs(state.DCs, r)
 		})
 	default:
 		return c.HandleUnknownReply(r)
 	}
 
 	return nil
+}
+
+func (c *Conn) Fail(err error) {
+	c.session.Fail(err)
 }
 
 func (c *Conn) updateState(f func(state *State)) {
@@ -118,15 +124,33 @@ func (c *Conn) SwitchToDC(dc int) {
 }
 
 func (c *Conn) HandleUnknownReply(r tl.Object) error {
-	log.Printf("Unknown reploy: %v", r)
+	switch r := r.(type) {
+	case *mtproto.TLRPCError:
+		if r.ErrorCode == 303 {
+			if nstr := stripPrefix(r.ErrorMessage, "PHONE_MIGRATE_"); nstr != "" {
+				n, err := strconv.Atoi(nstr)
+				if err != nil {
+					return errors.New("X not numeric in PHONE_MIGRATE_X")
+				}
+				c.SwitchToDC(n)
+				return mtproto.ErrReconnectRequired
+			}
+		}
+		log.Printf("RPC error: %v", r)
+	default:
+		log.Printf("Unknown reply: %v", r)
+	}
 	return errors.New("unknown reply")
 }
 
 func (c *Conn) saveSessionState() {
 	auth, fs := c.session.AuthState()
 	c.updateState(func(state *State) {
-		state.Auth = *auth
-		state.FramerState = fs
+		dc := state.DCs[c.session.DC()]
+		if dc != nil {
+			dc.Auth = *auth
+			dc.FramerState = fs
+		}
 		log.Printf("saveSessionState: %v", pretty.Sprint(c.state))
 	})
 }
@@ -141,18 +165,23 @@ func (c *Conn) Run() error {
 }
 
 func (c *Conn) runInternal() error {
+	c.state.initialize()
 	log.Printf("Running with state: %v", pretty.Sprint(c.state))
 
 	dc := c.state.findPreferredDC()
 
-	endpoint := c.Endpoint
 	if dc != nil {
-		endpoint = dc.PrimaryAddr.Endpoint()
-		log.Printf("Will connect to DC %v at %v", dc.ID, endpoint)
-	} else if c.state.PreferredDC != 0 {
-		log.Printf("** WARNING: preferred DC %v not found, will connect to default DC at %v", c.state.PreferredDC, endpoint)
+		log.Printf("Will connect to DC %v at %v", dc.ID, dc.PrimaryAddr.Endpoint())
 	} else {
-		log.Printf("Will connect to default DC at %v", endpoint)
+		dc = &DCState{
+			ID:          0,
+			PrimaryAddr: c.SeedAddr,
+		}
+		if c.state.PreferredDC != 0 {
+			log.Printf("** WARNING: preferred DC %v not found, will connect to default DC at %v", c.state.PreferredDC, dc.PrimaryAddr.Endpoint())
+		} else {
+			log.Printf("Will connect to default DC at %v", dc.PrimaryAddr.Endpoint())
+		}
 	}
 
 	pubKey, err := mtproto.ParsePublicKey(c.PublicKey)
@@ -160,7 +189,7 @@ func (c *Conn) runInternal() error {
 		return err
 	}
 
-	tr, err := mtproto.DialTCP(endpoint, mtproto.TCPTransportOptions{})
+	tr, err := mtproto.DialTCP(dc.PrimaryAddr.Endpoint(), mtproto.TCPTransportOptions{})
 	if err != nil {
 		return err
 	}
@@ -172,8 +201,8 @@ func (c *Conn) runInternal() error {
 
 	c.session.OnStateChanged(c.saveSessionState)
 
-	if c.state.Auth.KeyID != 0 {
-		c.session.RestoreAuthState(&c.state.Auth, c.state.FramerState)
+	if dc.Auth.KeyID != 0 {
+		c.session.RestoreAuthState(&dc.Auth, dc.FramerState)
 	}
 
 	go c.dispatchDelegateCalls()
