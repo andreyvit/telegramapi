@@ -2495,7 +2495,6 @@ type TLMessageActionType interface {
 // TLDialog represents ctor dialog#66ffba14 flags:# flags.2?pinned:true peer:Peer top_message:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int notify_settings:PeerNotifySettings flags.0?pts:int flags.1?draft:DraftMessage = Dialog from Telegram
 type TLDialog struct {
 	Flags           uint                     // flags:#
-	Pinned          bool                     // flags.2?pinned:true
 	Peer            TLPeerType               // peer:Peer
 	TopMessage      int                      // top_message:int
 	ReadInboxMaxID  int                      // read_inbox_max_id:int
@@ -2512,15 +2511,18 @@ func (o *TLDialog) Cmd() uint32 {
 
 func (o *TLDialog) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Pinned = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
 	o.TopMessage = r.ReadInt()
 	o.ReadInboxMaxID = r.ReadInt()
 	o.ReadOutboxMaxID = r.ReadInt()
 	o.UnreadCount = r.ReadInt()
 	o.NotifySettings = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerNotifySettingsEmpty, TagPeerNotifySettings).(TLPeerNotifySettingsType)
-	o.Pts = r.ReadInt()
-	o.Draft = Schema.ReadLimitedBoxedObjectFrom(r, TagDraftMessageEmpty, TagDraftMessage).(TLDraftMessageType)
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Pts = r.ReadInt()
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Draft = Schema.ReadLimitedBoxedObjectFrom(r, TagDraftMessageEmpty, TagDraftMessage).(TLDraftMessageType)
+	}
 }
 
 func (o *TLDialog) WriteBareTo(w *tl.Writer) {
@@ -2533,9 +2535,49 @@ func (o *TLDialog) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.UnreadCount)
 	w.WriteCmd(o.NotifySettings.Cmd())
 	o.NotifySettings.WriteBareTo(w)
-	w.WriteInt(o.Pts)
-	w.WriteCmd(o.Draft.Cmd())
-	o.Draft.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.Pts)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteCmd(o.Draft.Cmd())
+		o.Draft.WriteBareTo(w)
+	}
+}
+
+func (o *TLDialog) Pinned() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLDialog) SetPinned(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLDialog) HasPts() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLDialog) SetHasPts(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLDialog) HasDraft() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLDialog) SetHasDraft(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLDialog) String() string {
@@ -2594,12 +2636,11 @@ func (o *TLAuthCheckedPhone) String() string {
 
 // TLAuthSentCode represents ctor auth.sentCode#5e002502 flags:# flags.0?phone_registered:true type:auth.SentCodeType phone_code_hash:string flags.1?next_type:auth.CodeType flags.2?timeout:int = auth.SentCode from Telegram
 type TLAuthSentCode struct {
-	Flags           uint                   // flags:#
-	PhoneRegistered bool                   // flags.0?phone_registered:true
-	Type            TLAuthSentCodeTypeType // type:auth.SentCodeType
-	PhoneCodeHash   string                 // phone_code_hash:string
-	NextType        TLAuthCodeTypeType     // flags.1?next_type:auth.CodeType
-	Timeout         int                    // flags.2?timeout:int
+	Flags         uint                   // flags:#
+	Type          TLAuthSentCodeTypeType // type:auth.SentCodeType
+	PhoneCodeHash string                 // phone_code_hash:string
+	NextType      TLAuthCodeTypeType     // flags.1?next_type:auth.CodeType
+	Timeout       int                    // flags.2?timeout:int
 }
 
 func (o *TLAuthSentCode) Cmd() uint32 {
@@ -2608,11 +2649,14 @@ func (o *TLAuthSentCode) Cmd() uint32 {
 
 func (o *TLAuthSentCode) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.PhoneRegistered = true
 	o.Type = Schema.ReadLimitedBoxedObjectFrom(r, TagAuthSentCodeTypeApp, TagAuthSentCodeTypeSms, TagAuthSentCodeTypeCall, TagAuthSentCodeTypeFlashCall).(TLAuthSentCodeTypeType)
 	o.PhoneCodeHash = r.ReadString()
-	o.NextType = Schema.ReadLimitedBoxedObjectFrom(r, TagAuthCodeTypeSms, TagAuthCodeTypeCall, TagAuthCodeTypeFlashCall).(TLAuthCodeTypeType)
-	o.Timeout = r.ReadInt()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.NextType = Schema.ReadLimitedBoxedObjectFrom(r, TagAuthCodeTypeSms, TagAuthCodeTypeCall, TagAuthCodeTypeFlashCall).(TLAuthCodeTypeType)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Timeout = r.ReadInt()
+	}
 }
 
 func (o *TLAuthSentCode) WriteBareTo(w *tl.Writer) {
@@ -2620,9 +2664,49 @@ func (o *TLAuthSentCode) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Type.Cmd())
 	o.Type.WriteBareTo(w)
 	w.WriteString(o.PhoneCodeHash)
-	w.WriteCmd(o.NextType.Cmd())
-	o.NextType.WriteBareTo(w)
-	w.WriteInt(o.Timeout)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteCmd(o.NextType.Cmd())
+		o.NextType.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteInt(o.Timeout)
+	}
+}
+
+func (o *TLAuthSentCode) PhoneRegistered() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAuthSentCode) SetPhoneRegistered(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLAuthSentCode) HasNextType() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLAuthSentCode) SetHasNextType(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLAuthSentCode) HasTimeout() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLAuthSentCode) SetHasTimeout(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLAuthSentCode) String() string {
@@ -2642,15 +2726,31 @@ func (o *TLAuthAuthorization) Cmd() uint32 {
 
 func (o *TLAuthAuthorization) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.TmpSessions = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.TmpSessions = r.ReadInt()
+	}
 	o.User = Schema.ReadLimitedBoxedObjectFrom(r, TagUserEmpty, TagUser).(TLUserType)
 }
 
 func (o *TLAuthAuthorization) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.TmpSessions)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.TmpSessions)
+	}
 	w.WriteCmd(o.User.Cmd())
 	o.User.WriteBareTo(w)
+}
+
+func (o *TLAuthAuthorization) HasTmpSessions() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAuthAuthorization) SetHasTmpSessions(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLAuthAuthorization) String() string {
@@ -2699,11 +2799,9 @@ type TLInputPeerNotifyEventsType interface {
 
 // TLInputPeerNotifySettings represents ctor inputPeerNotifySettings#38935eb2 flags:# flags.0?show_previews:true flags.1?silent:true mute_until:int sound:string = InputPeerNotifySettings from Telegram
 type TLInputPeerNotifySettings struct {
-	Flags        uint   // flags:#
-	ShowPreviews bool   // flags.0?show_previews:true
-	Silent       bool   // flags.1?silent:true
-	MuteUntil    int    // mute_until:int
-	Sound        string // sound:string
+	Flags     uint   // flags:#
+	MuteUntil int    // mute_until:int
+	Sound     string // sound:string
 }
 
 func (o *TLInputPeerNotifySettings) Cmd() uint32 {
@@ -2712,8 +2810,6 @@ func (o *TLInputPeerNotifySettings) Cmd() uint32 {
 
 func (o *TLInputPeerNotifySettings) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.ShowPreviews = true
-	o.Silent = true
 	o.MuteUntil = r.ReadInt()
 	o.Sound = r.ReadString()
 }
@@ -2722,6 +2818,30 @@ func (o *TLInputPeerNotifySettings) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.MuteUntil)
 	w.WriteString(o.Sound)
+}
+
+func (o *TLInputPeerNotifySettings) ShowPreviews() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLInputPeerNotifySettings) SetShowPreviews(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLInputPeerNotifySettings) Silent() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLInputPeerNotifySettings) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLInputPeerNotifySettings) String() string {
@@ -2746,8 +2866,7 @@ type TLPeerNotifySettingsType interface {
 
 // TLPeerSettings represents ctor peerSettings#818426cd flags:# flags.0?report_spam:true = PeerSettings from Telegram
 type TLPeerSettings struct {
-	Flags      uint // flags:#
-	ReportSpam bool // flags.0?report_spam:true
+	Flags uint // flags:#
 }
 
 func (o *TLPeerSettings) Cmd() uint32 {
@@ -2756,11 +2875,22 @@ func (o *TLPeerSettings) Cmd() uint32 {
 
 func (o *TLPeerSettings) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.ReportSpam = true
 }
 
 func (o *TLPeerSettings) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLPeerSettings) ReportSpam() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPeerSettings) SetReportSpam(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLPeerSettings) String() string {
@@ -2785,17 +2915,14 @@ type TLReportReasonType interface {
 
 // TLUserFull represents ctor userFull#0f220f3f flags:# flags.0?blocked:true flags.4?phone_calls_available:true flags.5?phone_calls_private:true user:User flags.1?about:string link:contacts.Link flags.2?profile_photo:Photo notify_settings:PeerNotifySettings flags.3?bot_info:BotInfo common_chats_count:int = UserFull from Telegram
 type TLUserFull struct {
-	Flags               uint                     // flags:#
-	Blocked             bool                     // flags.0?blocked:true
-	PhoneCallsAvailable bool                     // flags.4?phone_calls_available:true
-	PhoneCallsPrivate   bool                     // flags.5?phone_calls_private:true
-	User                TLUserType               // user:User
-	About               string                   // flags.1?about:string
-	Link                *TLContactsLink          // link:contacts.Link
-	ProfilePhoto        TLPhotoType              // flags.2?profile_photo:Photo
-	NotifySettings      TLPeerNotifySettingsType // notify_settings:PeerNotifySettings
-	BotInfo             *TLBotInfo               // flags.3?bot_info:BotInfo
-	CommonChatsCount    int                      // common_chats_count:int
+	Flags            uint                     // flags:#
+	User             TLUserType               // user:User
+	About            string                   // flags.1?about:string
+	Link             *TLContactsLink          // link:contacts.Link
+	ProfilePhoto     TLPhotoType              // flags.2?profile_photo:Photo
+	NotifySettings   TLPeerNotifySettingsType // notify_settings:PeerNotifySettings
+	BotInfo          *TLBotInfo               // flags.3?bot_info:BotInfo
+	CommonChatsCount int                      // common_chats_count:int
 }
 
 func (o *TLUserFull) Cmd() uint32 {
@@ -2804,23 +2931,26 @@ func (o *TLUserFull) Cmd() uint32 {
 
 func (o *TLUserFull) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Blocked = true
-	o.PhoneCallsAvailable = true
-	o.PhoneCallsPrivate = true
 	o.User = Schema.ReadLimitedBoxedObjectFrom(r, TagUserEmpty, TagUser).(TLUserType)
-	o.About = r.ReadString()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.About = r.ReadString()
+	}
 	if cmd := r.ReadCmd(); cmd != TagContactsLink {
 		r.Fail(errors.New("expected: contacts.link"))
 	}
 	o.Link = new(TLContactsLink)
 	o.Link.ReadBareFrom(r)
-	o.ProfilePhoto = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
-	o.NotifySettings = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerNotifySettingsEmpty, TagPeerNotifySettings).(TLPeerNotifySettingsType)
-	if cmd := r.ReadCmd(); cmd != TagBotInfo {
-		r.Fail(errors.New("expected: botInfo"))
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ProfilePhoto = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
 	}
-	o.BotInfo = new(TLBotInfo)
-	o.BotInfo.ReadBareFrom(r)
+	o.NotifySettings = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerNotifySettingsEmpty, TagPeerNotifySettings).(TLPeerNotifySettingsType)
+	if (o.Flags & (1 << 3)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagBotInfo {
+			r.Fail(errors.New("expected: botInfo"))
+		}
+		o.BotInfo = new(TLBotInfo)
+		o.BotInfo.ReadBareFrom(r)
+	}
 	o.CommonChatsCount = r.ReadInt()
 }
 
@@ -2828,16 +2958,94 @@ func (o *TLUserFull) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.User.Cmd())
 	o.User.WriteBareTo(w)
-	w.WriteString(o.About)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.About)
+	}
 	w.WriteCmd(TagContactsLink)
 	o.Link.WriteBareTo(w)
-	w.WriteCmd(o.ProfilePhoto.Cmd())
-	o.ProfilePhoto.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ProfilePhoto.Cmd())
+		o.ProfilePhoto.WriteBareTo(w)
+	}
 	w.WriteCmd(o.NotifySettings.Cmd())
 	o.NotifySettings.WriteBareTo(w)
-	w.WriteCmd(TagBotInfo)
-	o.BotInfo.WriteBareTo(w)
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteCmd(TagBotInfo)
+		o.BotInfo.WriteBareTo(w)
+	}
 	w.WriteInt(o.CommonChatsCount)
+}
+
+func (o *TLUserFull) Blocked() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUserFull) SetBlocked(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLUserFull) PhoneCallsAvailable() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLUserFull) SetPhoneCallsAvailable(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLUserFull) PhoneCallsPrivate() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLUserFull) SetPhoneCallsPrivate(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLUserFull) HasAbout() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUserFull) SetHasAbout(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLUserFull) HasProfilePhoto() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLUserFull) SetHasProfilePhoto(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLUserFull) HasBotInfo() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLUserFull) SetHasBotInfo(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
 }
 
 func (o *TLUserFull) String() string {
@@ -3296,9 +3504,6 @@ func (o *TLUploadFile) String() string {
 // TLDCOption represents ctor dcOption#05d8c6cc flags:# flags.0?ipv6:true flags.1?media_only:true flags.2?tcpo_only:true id:int ip_address:string port:int = DcOption from Telegram
 type TLDCOption struct {
 	Flags     uint   // flags:#
-	Ipv6      bool   // flags.0?ipv6:true
-	MediaOnly bool   // flags.1?media_only:true
-	TcpoOnly  bool   // flags.2?tcpo_only:true
 	ID        int    // id:int
 	IPAddress string // ip_address:string
 	Port      int    // port:int
@@ -3310,9 +3515,6 @@ func (o *TLDCOption) Cmd() uint32 {
 
 func (o *TLDCOption) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Ipv6 = true
-	o.MediaOnly = true
-	o.TcpoOnly = true
 	o.ID = r.ReadInt()
 	o.IPAddress = r.ReadString()
 	o.Port = r.ReadInt()
@@ -3325,6 +3527,42 @@ func (o *TLDCOption) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Port)
 }
 
+func (o *TLDCOption) IPv6() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLDCOption) SetIPv6(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLDCOption) MediaOnly() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLDCOption) SetMediaOnly(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLDCOption) TCPoOnly() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLDCOption) SetTCPoOnly(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
 func (o *TLDCOption) String() string {
 	return tl.Pretty(o)
 }
@@ -3332,7 +3570,6 @@ func (o *TLDCOption) String() string {
 // TLConfig represents ctor config#cb601684 flags:# flags.1?phonecalls_enabled:true date:int expires:int test_mode:Bool this_dc:int dc_options:Vector<DcOption> chat_size_max:int megagroup_size_max:int forwarded_count_max:int online_update_period_ms:int offline_blur_timeout_ms:int offline_idle_timeout_ms:int online_cloud_timeout_ms:int notify_cloud_delay_ms:int notify_default_delay_ms:int chat_big_size:int push_chat_period_ms:int push_chat_limit:int saved_gifs_limit:int edit_time_limit:int rating_e_decay:int stickers_recent_limit:int flags.0?tmp_sessions:int pinned_dialogs_count_max:int call_receive_timeout_ms:int call_ring_timeout_ms:int call_connect_timeout_ms:int call_packet_timeout_ms:int me_url_prefix:string disabled_features:Vector<DisabledFeature> = Config from Telegram
 type TLConfig struct {
 	Flags                 uint                 // flags:#
-	PhonecallsEnabled     bool                 // flags.1?phonecalls_enabled:true
 	Date                  int                  // date:int
 	Expires               int                  // expires:int
 	TestMode              bool                 // test_mode:Bool
@@ -3370,7 +3607,6 @@ func (o *TLConfig) Cmd() uint32 {
 
 func (o *TLConfig) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.PhonecallsEnabled = true
 	o.Date = r.ReadInt()
 	o.Expires = r.ReadInt()
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
@@ -3403,7 +3639,9 @@ func (o *TLConfig) ReadBareFrom(r *tl.Reader) {
 	o.EditTimeLimit = r.ReadInt()
 	o.RatingEDecay = r.ReadInt()
 	o.StickersRecentLimit = r.ReadInt()
-	o.TmpSessions = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.TmpSessions = r.ReadInt()
+	}
 	o.PinnedDialogsCountMax = r.ReadInt()
 	o.CallReceiveTimeoutMs = r.ReadInt()
 	o.CallRingTimeoutMs = r.ReadInt()
@@ -3455,7 +3693,9 @@ func (o *TLConfig) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.EditTimeLimit)
 	w.WriteInt(o.RatingEDecay)
 	w.WriteInt(o.StickersRecentLimit)
-	w.WriteInt(o.TmpSessions)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.TmpSessions)
+	}
 	w.WriteInt(o.PinnedDialogsCountMax)
 	w.WriteInt(o.CallReceiveTimeoutMs)
 	w.WriteInt(o.CallRingTimeoutMs)
@@ -3467,6 +3707,30 @@ func (o *TLConfig) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.DisabledFeatures); i++ {
 		w.WriteCmd(TagDisabledFeature)
 		o.DisabledFeatures[i].WriteBareTo(w)
+	}
+}
+
+func (o *TLConfig) PhonecallsEnabled() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLConfig) SetPhonecallsEnabled(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLConfig) HasTmpSessions() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLConfig) SetHasTmpSessions(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -4077,18 +4341,82 @@ func (o *TLAccountPasswordInputSettings) Cmd() uint32 {
 
 func (o *TLAccountPasswordInputSettings) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.NewSalt = r.ReadBlob()
-	o.NewPasswordHash = r.ReadBlob()
-	o.Hint = r.ReadString()
-	o.Email = r.ReadString()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.NewSalt = r.ReadBlob()
+	}
+	if (o.Flags & (1 << 0)) != 0 {
+		o.NewPasswordHash = r.ReadBlob()
+	}
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Hint = r.ReadString()
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Email = r.ReadString()
+	}
 }
 
 func (o *TLAccountPasswordInputSettings) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteBlob(o.NewSalt)
-	w.WriteBlob(o.NewPasswordHash)
-	w.WriteString(o.Hint)
-	w.WriteString(o.Email)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteBlob(o.NewSalt)
+	}
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteBlob(o.NewPasswordHash)
+	}
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.Hint)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.Email)
+	}
+}
+
+func (o *TLAccountPasswordInputSettings) HasNewSalt() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAccountPasswordInputSettings) SetHasNewSalt(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLAccountPasswordInputSettings) HasNewPasswordHash() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAccountPasswordInputSettings) SetHasNewPasswordHash(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLAccountPasswordInputSettings) HasHint() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAccountPasswordInputSettings) SetHasHint(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLAccountPasswordInputSettings) HasEmail() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLAccountPasswordInputSettings) SetHasEmail(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLAccountPasswordInputSettings) String() string {
@@ -4167,10 +4495,6 @@ type TLInputStickerSetType interface {
 // TLStickerSet represents ctor stickerSet#cd303b41 flags:# flags.0?installed:true flags.1?archived:true flags.2?official:true flags.3?masks:true id:long access_hash:long title:string short_name:string count:int hash:int = StickerSet from Telegram
 type TLStickerSet struct {
 	Flags      uint   // flags:#
-	Installed  bool   // flags.0?installed:true
-	Archived   bool   // flags.1?archived:true
-	Official   bool   // flags.2?official:true
-	Masks      bool   // flags.3?masks:true
 	ID         uint64 // id:long
 	AccessHash uint64 // access_hash:long
 	Title      string // title:string
@@ -4185,10 +4509,6 @@ func (o *TLStickerSet) Cmd() uint32 {
 
 func (o *TLStickerSet) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Installed = true
-	o.Archived = true
-	o.Official = true
-	o.Masks = true
 	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Title = r.ReadString()
@@ -4205,6 +4525,54 @@ func (o *TLStickerSet) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.ShortName)
 	w.WriteInt(o.Count)
 	w.WriteInt(o.Hash)
+}
+
+func (o *TLStickerSet) Installed() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLStickerSet) SetInstalled(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLStickerSet) Archived() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLStickerSet) SetArchived(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLStickerSet) Official() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLStickerSet) SetOfficial(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLStickerSet) Masks() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLStickerSet) SetMasks(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
 }
 
 func (o *TLStickerSet) String() string {
@@ -4705,7 +5073,6 @@ type TLBotInlineResultType interface {
 // TLMessagesBotResults represents ctor messages.botResults#ccd3563d flags:# flags.0?gallery:true query_id:long flags.1?next_offset:string flags.2?switch_pm:InlineBotSwitchPM results:Vector<BotInlineResult> cache_time:int = messages.BotResults from Telegram
 type TLMessagesBotResults struct {
 	Flags      uint                    // flags:#
-	Gallery    bool                    // flags.0?gallery:true
 	QueryID    uint64                  // query_id:long
 	NextOffset string                  // flags.1?next_offset:string
 	SwitchPm   *TLInlineBotSwitchPM    // flags.2?switch_pm:InlineBotSwitchPM
@@ -4719,14 +5086,17 @@ func (o *TLMessagesBotResults) Cmd() uint32 {
 
 func (o *TLMessagesBotResults) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Gallery = true
 	o.QueryID = r.ReadUint64()
-	o.NextOffset = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagInlineBotSwitchPM {
-		r.Fail(errors.New("expected: inlineBotSwitchPM"))
+	if (o.Flags & (1 << 1)) != 0 {
+		o.NextOffset = r.ReadString()
 	}
-	o.SwitchPm = new(TLInlineBotSwitchPM)
-	o.SwitchPm.ReadBareFrom(r)
+	if (o.Flags & (1 << 2)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagInlineBotSwitchPM {
+			r.Fail(errors.New("expected: inlineBotSwitchPM"))
+		}
+		o.SwitchPm = new(TLInlineBotSwitchPM)
+		o.SwitchPm.ReadBareFrom(r)
+	}
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -4740,9 +5110,13 @@ func (o *TLMessagesBotResults) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessagesBotResults) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteUint64(o.QueryID)
-	w.WriteString(o.NextOffset)
-	w.WriteCmd(TagInlineBotSwitchPM)
-	o.SwitchPm.WriteBareTo(w)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.NextOffset)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(TagInlineBotSwitchPM)
+		o.SwitchPm.WriteBareTo(w)
+	}
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Results))
 	for i := 0; i < len(o.Results); i++ {
@@ -4750,6 +5124,42 @@ func (o *TLMessagesBotResults) WriteBareTo(w *tl.Writer) {
 		o.Results[i].WriteBareTo(w)
 	}
 	w.WriteInt(o.CacheTime)
+}
+
+func (o *TLMessagesBotResults) Gallery() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesBotResults) SetGallery(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessagesBotResults) HasNextOffset() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesBotResults) SetHasNextOffset(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessagesBotResults) HasSwitchPm() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessagesBotResults) SetHasSwitchPm(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLMessagesBotResults) String() string {
@@ -4792,18 +5202,66 @@ func (o *TLMessageFwdHeader) Cmd() uint32 {
 
 func (o *TLMessageFwdHeader) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.FromID = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.FromID = r.ReadInt()
+	}
 	o.Date = r.ReadInt()
-	o.ChannelID = r.ReadInt()
-	o.ChannelPost = r.ReadInt()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.ChannelID = r.ReadInt()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ChannelPost = r.ReadInt()
+	}
 }
 
 func (o *TLMessageFwdHeader) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.FromID)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.FromID)
+	}
 	w.WriteInt(o.Date)
-	w.WriteInt(o.ChannelID)
-	w.WriteInt(o.ChannelPost)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteInt(o.ChannelID)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteInt(o.ChannelPost)
+	}
+}
+
+func (o *TLMessageFwdHeader) HasFromID() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessageFwdHeader) SetHasFromID(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessageFwdHeader) HasChannelID() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessageFwdHeader) SetHasChannelID(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessageFwdHeader) HasChannelPost() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessageFwdHeader) SetHasChannelPost(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLMessageFwdHeader) String() string {
@@ -4829,8 +5287,6 @@ type TLAuthSentCodeTypeType interface {
 // TLMessagesBotCallbackAnswer represents ctor messages.botCallbackAnswer#36585ea4 flags:# flags.1?alert:true flags.3?has_url:true flags.0?message:string flags.2?url:string cache_time:int = messages.BotCallbackAnswer from Telegram
 type TLMessagesBotCallbackAnswer struct {
 	Flags     uint   // flags:#
-	Alert     bool   // flags.1?alert:true
-	HasUrl    bool   // flags.3?has_url:true
 	Message   string // flags.0?message:string
 	Url       string // flags.2?url:string
 	CacheTime int    // cache_time:int
@@ -4842,18 +5298,72 @@ func (o *TLMessagesBotCallbackAnswer) Cmd() uint32 {
 
 func (o *TLMessagesBotCallbackAnswer) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Alert = true
-	o.HasUrl = true
-	o.Message = r.ReadString()
-	o.Url = r.ReadString()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Message = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Url = r.ReadString()
+	}
 	o.CacheTime = r.ReadInt()
 }
 
 func (o *TLMessagesBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteString(o.Message)
-	w.WriteString(o.Url)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.Message)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.Url)
+	}
 	w.WriteInt(o.CacheTime)
+}
+
+func (o *TLMessagesBotCallbackAnswer) Alert() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesBotCallbackAnswer) SetAlert(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessagesBotCallbackAnswer) HasUrl() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLMessagesBotCallbackAnswer) SetHasUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLMessagesBotCallbackAnswer) HasMessage() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesBotCallbackAnswer) SetHasMessage(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessagesBotCallbackAnswer) HasUrl() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessagesBotCallbackAnswer) SetHasUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLMessagesBotCallbackAnswer) String() string {
@@ -4862,8 +5372,7 @@ func (o *TLMessagesBotCallbackAnswer) String() string {
 
 // TLMessagesMessageEditData represents ctor messages.messageEditData#26b5dde6 flags:# flags.0?caption:true = messages.MessageEditData from Telegram
 type TLMessagesMessageEditData struct {
-	Flags   uint // flags:#
-	Caption bool // flags.0?caption:true
+	Flags uint // flags:#
 }
 
 func (o *TLMessagesMessageEditData) Cmd() uint32 {
@@ -4872,11 +5381,22 @@ func (o *TLMessagesMessageEditData) Cmd() uint32 {
 
 func (o *TLMessagesMessageEditData) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Caption = true
 }
 
 func (o *TLMessagesMessageEditData) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLMessagesMessageEditData) Caption() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesMessageEditData) SetCaption(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLMessagesMessageEditData) String() string {
@@ -5241,7 +5761,9 @@ func (o *TLGame) ReadBareFrom(r *tl.Reader) {
 	o.Title = r.ReadString()
 	o.Description = r.ReadString()
 	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
-	o.Document = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentEmpty, TagDocument).(TLDocumentType)
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Document = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentEmpty, TagDocument).(TLDocumentType)
+	}
 }
 
 func (o *TLGame) WriteBareTo(w *tl.Writer) {
@@ -5253,8 +5775,22 @@ func (o *TLGame) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Description)
 	w.WriteCmd(o.Photo.Cmd())
 	o.Photo.WriteBareTo(w)
-	w.WriteCmd(o.Document.Cmd())
-	o.Document.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(o.Document.Cmd())
+		o.Document.WriteBareTo(w)
+	}
+}
+
+func (o *TLGame) HasDocument() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLGame) SetHasDocument(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLGame) String() string {
@@ -5425,15 +5961,9 @@ func (o *TLLabeledPrice) String() string {
 
 // TLInvoice represents ctor invoice#c30aa358 flags:# flags.0?test:true flags.1?name_requested:true flags.2?phone_requested:true flags.3?email_requested:true flags.4?shipping_address_requested:true flags.5?flexible:true currency:string prices:Vector<LabeledPrice> = Invoice from Telegram
 type TLInvoice struct {
-	Flags                    uint              // flags:#
-	Test                     bool              // flags.0?test:true
-	NameRequested            bool              // flags.1?name_requested:true
-	PhoneRequested           bool              // flags.2?phone_requested:true
-	EmailRequested           bool              // flags.3?email_requested:true
-	ShippingAddressRequested bool              // flags.4?shipping_address_requested:true
-	Flexible                 bool              // flags.5?flexible:true
-	Currency                 string            // currency:string
-	Prices                   []*TLLabeledPrice // prices:Vector<LabeledPrice>
+	Flags    uint              // flags:#
+	Currency string            // currency:string
+	Prices   []*TLLabeledPrice // prices:Vector<LabeledPrice>
 }
 
 func (o *TLInvoice) Cmd() uint32 {
@@ -5442,12 +5972,6 @@ func (o *TLInvoice) Cmd() uint32 {
 
 func (o *TLInvoice) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Test = true
-	o.NameRequested = true
-	o.PhoneRequested = true
-	o.EmailRequested = true
-	o.ShippingAddressRequested = true
-	o.Flexible = true
 	o.Currency = r.ReadString()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -5470,6 +5994,78 @@ func (o *TLInvoice) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.Prices); i++ {
 		w.WriteCmd(TagLabeledPrice)
 		o.Prices[i].WriteBareTo(w)
+	}
+}
+
+func (o *TLInvoice) Test() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLInvoice) SetTest(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLInvoice) NameRequested() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLInvoice) SetNameRequested(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLInvoice) PhoneRequested() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLInvoice) SetPhoneRequested(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLInvoice) EmailRequested() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLInvoice) SetEmailRequested(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLInvoice) ShippingAddressRequested() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLInvoice) SetShippingAddressRequested(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLInvoice) Flexible() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLInvoice) SetFlexible(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
 	}
 }
 
@@ -5552,23 +6148,87 @@ func (o *TLPaymentRequestedInfo) Cmd() uint32 {
 
 func (o *TLPaymentRequestedInfo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Name = r.ReadString()
-	o.Phone = r.ReadString()
-	o.Email = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagPostAddress {
-		r.Fail(errors.New("expected: postAddress"))
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Name = r.ReadString()
 	}
-	o.ShippingAddress = new(TLPostAddress)
-	o.ShippingAddress.ReadBareFrom(r)
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Phone = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Email = r.ReadString()
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagPostAddress {
+			r.Fail(errors.New("expected: postAddress"))
+		}
+		o.ShippingAddress = new(TLPostAddress)
+		o.ShippingAddress.ReadBareFrom(r)
+	}
 }
 
 func (o *TLPaymentRequestedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteString(o.Name)
-	w.WriteString(o.Phone)
-	w.WriteString(o.Email)
-	w.WriteCmd(TagPostAddress)
-	o.ShippingAddress.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.Name)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.Phone)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.Email)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteCmd(TagPostAddress)
+		o.ShippingAddress.WriteBareTo(w)
+	}
+}
+
+func (o *TLPaymentRequestedInfo) HasName() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPaymentRequestedInfo) SetHasName(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPaymentRequestedInfo) HasPhone() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPaymentRequestedInfo) SetHasPhone(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLPaymentRequestedInfo) HasEmail() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLPaymentRequestedInfo) SetHasEmail(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLPaymentRequestedInfo) HasShippingAddress() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLPaymentRequestedInfo) SetHasShippingAddress(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
 }
 
 func (o *TLPaymentRequestedInfo) String() string {
@@ -5747,18 +6407,16 @@ func (o *TLUploadWebFile) String() string {
 
 // TLPaymentsPaymentForm represents ctor payments.paymentForm#3f56aea3 flags:# flags.2?can_save_credentials:true flags.3?password_missing:true bot_id:int invoice:Invoice provider_id:int url:string flags.4?native_provider:string flags.4?native_params:DataJSON flags.0?saved_info:PaymentRequestedInfo flags.1?saved_credentials:PaymentSavedCredentials users:Vector<User> = payments.PaymentForm from Telegram
 type TLPaymentsPaymentForm struct {
-	Flags              uint                           // flags:#
-	CanSaveCredentials bool                           // flags.2?can_save_credentials:true
-	PasswordMissing    bool                           // flags.3?password_missing:true
-	BotID              int                            // bot_id:int
-	Invoice            *TLInvoice                     // invoice:Invoice
-	ProviderID         int                            // provider_id:int
-	Url                string                         // url:string
-	NativeProvider     string                         // flags.4?native_provider:string
-	NativeParams       *TLDataJSON                    // flags.4?native_params:DataJSON
-	SavedInfo          *TLPaymentRequestedInfo        // flags.0?saved_info:PaymentRequestedInfo
-	SavedCredentials   *TLPaymentSavedCredentialsCard // flags.1?saved_credentials:PaymentSavedCredentials
-	Users              []TLUserType                   // users:Vector<User>
+	Flags            uint                           // flags:#
+	BotID            int                            // bot_id:int
+	Invoice          *TLInvoice                     // invoice:Invoice
+	ProviderID       int                            // provider_id:int
+	Url              string                         // url:string
+	NativeProvider   string                         // flags.4?native_provider:string
+	NativeParams     *TLDataJSON                    // flags.4?native_params:DataJSON
+	SavedInfo        *TLPaymentRequestedInfo        // flags.0?saved_info:PaymentRequestedInfo
+	SavedCredentials *TLPaymentSavedCredentialsCard // flags.1?saved_credentials:PaymentSavedCredentials
+	Users            []TLUserType                   // users:Vector<User>
 }
 
 func (o *TLPaymentsPaymentForm) Cmd() uint32 {
@@ -5767,8 +6425,6 @@ func (o *TLPaymentsPaymentForm) Cmd() uint32 {
 
 func (o *TLPaymentsPaymentForm) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.CanSaveCredentials = true
-	o.PasswordMissing = true
 	o.BotID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagInvoice {
 		r.Fail(errors.New("expected: invoice"))
@@ -5777,22 +6433,30 @@ func (o *TLPaymentsPaymentForm) ReadBareFrom(r *tl.Reader) {
 	o.Invoice.ReadBareFrom(r)
 	o.ProviderID = r.ReadInt()
 	o.Url = r.ReadString()
-	o.NativeProvider = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagDataJSON {
-		r.Fail(errors.New("expected: dataJSON"))
+	if (o.Flags & (1 << 4)) != 0 {
+		o.NativeProvider = r.ReadString()
 	}
-	o.NativeParams = new(TLDataJSON)
-	o.NativeParams.ReadBareFrom(r)
-	if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
-		r.Fail(errors.New("expected: paymentRequestedInfo"))
+	if (o.Flags & (1 << 4)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagDataJSON {
+			r.Fail(errors.New("expected: dataJSON"))
+		}
+		o.NativeParams = new(TLDataJSON)
+		o.NativeParams.ReadBareFrom(r)
 	}
-	o.SavedInfo = new(TLPaymentRequestedInfo)
-	o.SavedInfo.ReadBareFrom(r)
-	if cmd := r.ReadCmd(); cmd != TagPaymentSavedCredentialsCard {
-		r.Fail(errors.New("expected: paymentSavedCredentialsCard"))
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
+			r.Fail(errors.New("expected: paymentRequestedInfo"))
+		}
+		o.SavedInfo = new(TLPaymentRequestedInfo)
+		o.SavedInfo.ReadBareFrom(r)
 	}
-	o.SavedCredentials = new(TLPaymentSavedCredentialsCard)
-	o.SavedCredentials.ReadBareFrom(r)
+	if (o.Flags & (1 << 1)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagPaymentSavedCredentialsCard {
+			r.Fail(errors.New("expected: paymentSavedCredentialsCard"))
+		}
+		o.SavedCredentials = new(TLPaymentSavedCredentialsCard)
+		o.SavedCredentials.ReadBareFrom(r)
+	}
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -5809,18 +6473,98 @@ func (o *TLPaymentsPaymentForm) WriteBareTo(w *tl.Writer) {
 	o.Invoice.WriteBareTo(w)
 	w.WriteInt(o.ProviderID)
 	w.WriteString(o.Url)
-	w.WriteString(o.NativeProvider)
-	w.WriteCmd(TagDataJSON)
-	o.NativeParams.WriteBareTo(w)
-	w.WriteCmd(TagPaymentRequestedInfo)
-	o.SavedInfo.WriteBareTo(w)
-	w.WriteCmd(TagPaymentSavedCredentialsCard)
-	o.SavedCredentials.WriteBareTo(w)
+	if (o.Flags & (1 << 4)) != 0 {
+		w.WriteString(o.NativeProvider)
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		w.WriteCmd(TagDataJSON)
+		o.NativeParams.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagPaymentRequestedInfo)
+		o.SavedInfo.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteCmd(TagPaymentSavedCredentialsCard)
+		o.SavedCredentials.WriteBareTo(w)
+	}
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.Users))
 	for i := 0; i < len(o.Users); i++ {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
+	}
+}
+
+func (o *TLPaymentsPaymentForm) CanSaveCredentials() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLPaymentsPaymentForm) SetCanSaveCredentials(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLPaymentsPaymentForm) PasswordMissing() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLPaymentsPaymentForm) SetPasswordMissing(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLPaymentsPaymentForm) HasNativeProvider() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLPaymentsPaymentForm) SetHasNativeProvider(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLPaymentsPaymentForm) HasNativeParams() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLPaymentsPaymentForm) SetHasNativeParams(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLPaymentsPaymentForm) HasSavedInfo() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPaymentsPaymentForm) SetHasSavedInfo(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPaymentsPaymentForm) HasSavedCredentials() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPaymentsPaymentForm) SetHasSavedCredentials(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
 	}
 }
 
@@ -5841,28 +6585,60 @@ func (o *TLPaymentsValidatedRequestedInfo) Cmd() uint32 {
 
 func (o *TLPaymentsValidatedRequestedInfo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.ID = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 0)) != 0 {
+		o.ID = r.ReadString()
 	}
-	o.ShippingOptions = make([]*TLShippingOption, r.ReadInt())
-	for i := 0; i < len(o.ShippingOptions); i++ {
-		if cmd := r.ReadCmd(); cmd != TagShippingOption {
-			r.Fail(errors.New("expected: shippingOption"))
+	if (o.Flags & (1 << 1)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
 		}
-		o.ShippingOptions[i] = new(TLShippingOption)
-		o.ShippingOptions[i].ReadBareFrom(r)
+		o.ShippingOptions = make([]*TLShippingOption, r.ReadInt())
+		for i := 0; i < len(o.ShippingOptions); i++ {
+			if cmd := r.ReadCmd(); cmd != TagShippingOption {
+				r.Fail(errors.New("expected: shippingOption"))
+			}
+			o.ShippingOptions[i] = new(TLShippingOption)
+			o.ShippingOptions[i].ReadBareFrom(r)
+		}
 	}
 }
 
 func (o *TLPaymentsValidatedRequestedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteString(o.ID)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.ShippingOptions))
-	for i := 0; i < len(o.ShippingOptions); i++ {
-		w.WriteCmd(TagShippingOption)
-		o.ShippingOptions[i].WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.ID)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.ShippingOptions))
+		for i := 0; i < len(o.ShippingOptions); i++ {
+			w.WriteCmd(TagShippingOption)
+			o.ShippingOptions[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLPaymentsValidatedRequestedInfo) HasID() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPaymentsValidatedRequestedInfo) SetHasID(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPaymentsValidatedRequestedInfo) HasShippingOptions() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPaymentsValidatedRequestedInfo) SetHasShippingOptions(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
 	}
 }
 
@@ -5907,16 +6683,20 @@ func (o *TLPaymentsPaymentReceipt) ReadBareFrom(r *tl.Reader) {
 	o.Invoice = new(TLInvoice)
 	o.Invoice.ReadBareFrom(r)
 	o.ProviderID = r.ReadInt()
-	if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
-		r.Fail(errors.New("expected: paymentRequestedInfo"))
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
+			r.Fail(errors.New("expected: paymentRequestedInfo"))
+		}
+		o.Info = new(TLPaymentRequestedInfo)
+		o.Info.ReadBareFrom(r)
 	}
-	o.Info = new(TLPaymentRequestedInfo)
-	o.Info.ReadBareFrom(r)
-	if cmd := r.ReadCmd(); cmd != TagShippingOption {
-		r.Fail(errors.New("expected: shippingOption"))
+	if (o.Flags & (1 << 1)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagShippingOption {
+			r.Fail(errors.New("expected: shippingOption"))
+		}
+		o.Shipping = new(TLShippingOption)
+		o.Shipping.ReadBareFrom(r)
 	}
-	o.Shipping = new(TLShippingOption)
-	o.Shipping.ReadBareFrom(r)
 	o.Currency = r.ReadString()
 	o.TotalAmount = r.ReadUint64()
 	o.CredentialsTitle = r.ReadString()
@@ -5936,10 +6716,14 @@ func (o *TLPaymentsPaymentReceipt) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagInvoice)
 	o.Invoice.WriteBareTo(w)
 	w.WriteInt(o.ProviderID)
-	w.WriteCmd(TagPaymentRequestedInfo)
-	o.Info.WriteBareTo(w)
-	w.WriteCmd(TagShippingOption)
-	o.Shipping.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagPaymentRequestedInfo)
+		o.Info.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteCmd(TagShippingOption)
+		o.Shipping.WriteBareTo(w)
+	}
 	w.WriteString(o.Currency)
 	w.WriteUint64(o.TotalAmount)
 	w.WriteString(o.CredentialsTitle)
@@ -5951,15 +6735,38 @@ func (o *TLPaymentsPaymentReceipt) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLPaymentsPaymentReceipt) HasInfo() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPaymentsPaymentReceipt) SetHasInfo(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPaymentsPaymentReceipt) HasShipping() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPaymentsPaymentReceipt) SetHasShipping(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
 func (o *TLPaymentsPaymentReceipt) String() string {
 	return tl.Pretty(o)
 }
 
 // TLPaymentsSavedInfo represents ctor payments.savedInfo#fb8fe43c flags:# flags.1?has_saved_credentials:true flags.0?saved_info:PaymentRequestedInfo = payments.SavedInfo from Telegram
 type TLPaymentsSavedInfo struct {
-	Flags               uint                    // flags:#
-	HasSavedCredentials bool                    // flags.1?has_saved_credentials:true
-	SavedInfo           *TLPaymentRequestedInfo // flags.0?saved_info:PaymentRequestedInfo
+	Flags     uint                    // flags:#
+	SavedInfo *TLPaymentRequestedInfo // flags.0?saved_info:PaymentRequestedInfo
 }
 
 func (o *TLPaymentsSavedInfo) Cmd() uint32 {
@@ -5968,18 +6775,45 @@ func (o *TLPaymentsSavedInfo) Cmd() uint32 {
 
 func (o *TLPaymentsSavedInfo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.HasSavedCredentials = true
-	if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
-		r.Fail(errors.New("expected: paymentRequestedInfo"))
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
+			r.Fail(errors.New("expected: paymentRequestedInfo"))
+		}
+		o.SavedInfo = new(TLPaymentRequestedInfo)
+		o.SavedInfo.ReadBareFrom(r)
 	}
-	o.SavedInfo = new(TLPaymentRequestedInfo)
-	o.SavedInfo.ReadBareFrom(r)
 }
 
 func (o *TLPaymentsSavedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteCmd(TagPaymentRequestedInfo)
-	o.SavedInfo.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagPaymentRequestedInfo)
+		o.SavedInfo.WriteBareTo(w)
+	}
+}
+
+func (o *TLPaymentsSavedInfo) HasSavedCredentials() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPaymentsSavedInfo) SetHasSavedCredentials(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLPaymentsSavedInfo) HasSavedInfo() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPaymentsSavedInfo) SetHasSavedInfo(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLPaymentsSavedInfo) String() string {
@@ -6096,7 +6930,7 @@ type TLPhoneCallType interface {
 type TLPhoneConnection struct {
 	ID      uint64 // id:long
 	IP      string // ip:string
-	Ipv6    string // ipv6:string
+	IPv6    string // ipv6:string
 	Port    int    // port:int
 	PeerTag []byte // peer_tag:bytes
 }
@@ -6108,7 +6942,7 @@ func (o *TLPhoneConnection) Cmd() uint32 {
 func (o *TLPhoneConnection) ReadBareFrom(r *tl.Reader) {
 	o.ID = r.ReadUint64()
 	o.IP = r.ReadString()
-	o.Ipv6 = r.ReadString()
+	o.IPv6 = r.ReadString()
 	o.Port = r.ReadInt()
 	o.PeerTag = r.ReadBlob()
 }
@@ -6116,7 +6950,7 @@ func (o *TLPhoneConnection) ReadBareFrom(r *tl.Reader) {
 func (o *TLPhoneConnection) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.ID)
 	w.WriteString(o.IP)
-	w.WriteString(o.Ipv6)
+	w.WriteString(o.IPv6)
 	w.WriteInt(o.Port)
 	w.WriteBlob(o.PeerTag)
 }
@@ -6127,11 +6961,9 @@ func (o *TLPhoneConnection) String() string {
 
 // TLPhoneCallProtocol represents ctor phoneCallProtocol#a2bb35cb flags:# flags.0?udp_p2p:true flags.1?udp_reflector:true min_layer:int max_layer:int = PhoneCallProtocol from Telegram
 type TLPhoneCallProtocol struct {
-	Flags        uint // flags:#
-	UdpP2p       bool // flags.0?udp_p2p:true
-	UdpReflector bool // flags.1?udp_reflector:true
-	MinLayer     int  // min_layer:int
-	MaxLayer     int  // max_layer:int
+	Flags    uint // flags:#
+	MinLayer int  // min_layer:int
+	MaxLayer int  // max_layer:int
 }
 
 func (o *TLPhoneCallProtocol) Cmd() uint32 {
@@ -6140,8 +6972,6 @@ func (o *TLPhoneCallProtocol) Cmd() uint32 {
 
 func (o *TLPhoneCallProtocol) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.UdpP2p = true
-	o.UdpReflector = true
 	o.MinLayer = r.ReadInt()
 	o.MaxLayer = r.ReadInt()
 }
@@ -6150,6 +6980,30 @@ func (o *TLPhoneCallProtocol) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.MinLayer)
 	w.WriteInt(o.MaxLayer)
+}
+
+func (o *TLPhoneCallProtocol) UdpP2p() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPhoneCallProtocol) SetUdpP2p(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPhoneCallProtocol) UdpReflector() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPhoneCallProtocol) SetUdpReflector(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLPhoneCallProtocol) String() string {
@@ -6578,12 +7432,11 @@ func (o *TLAuthCheckPhone) String() string {
 
 // TLAuthSendCode represents func auth.sendCode#86aef0ec flags:# flags.0?allow_flashcall:true phone_number:string flags.0?current_number:Bool api_id:int api_hash:string = auth.SentCode from Telegram
 type TLAuthSendCode struct {
-	Flags          uint   // flags:#
-	AllowFlashcall bool   // flags.0?allow_flashcall:true
-	PhoneNumber    string // phone_number:string
-	CurrentNumber  bool   // flags.0?current_number:Bool
-	APIID          int    // api_id:int
-	APIHash        string // api_hash:string
+	Flags         uint   // flags:#
+	PhoneNumber   string // phone_number:string
+	CurrentNumber bool   // flags.0?current_number:Bool
+	APIID         int    // api_id:int
+	APIHash       string // api_hash:string
 }
 
 func (o *TLAuthSendCode) Cmd() uint32 {
@@ -6592,10 +7445,11 @@ func (o *TLAuthSendCode) Cmd() uint32 {
 
 func (o *TLAuthSendCode) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.AllowFlashcall = true
 	o.PhoneNumber = r.ReadString()
-	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
-	o.CurrentNumber = (r.ReadCmd() == TagBoolTrue)
+	if (o.Flags & (1 << 0)) != 0 {
+		r.ExpectCmd(TagBoolTrue, TagBoolFalse)
+		o.CurrentNumber = (r.ReadCmd() == TagBoolTrue)
+	}
 	o.APIID = r.ReadInt()
 	o.APIHash = r.ReadString()
 }
@@ -6603,13 +7457,39 @@ func (o *TLAuthSendCode) ReadBareFrom(r *tl.Reader) {
 func (o *TLAuthSendCode) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.PhoneNumber)
-	if o.CurrentNumber {
-		w.WriteCmd(TagBoolTrue)
-	} else {
-		w.WriteCmd(TagBoolFalse)
+	if (o.Flags & (1 << 0)) != 0 {
+		if o.CurrentNumber {
+			w.WriteCmd(TagBoolTrue)
+		} else {
+			w.WriteCmd(TagBoolFalse)
+		}
 	}
 	w.WriteInt(o.APIID)
 	w.WriteString(o.APIHash)
+}
+
+func (o *TLAuthSendCode) AllowFlashcall() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAuthSendCode) SetAllowFlashcall(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLAuthSendCode) HasCurrentNumber() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAuthSendCode) SetHasCurrentNumber(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLAuthSendCode) String() string {
@@ -7122,16 +8002,64 @@ func (o *TLAccountUpdateProfile) Cmd() uint32 {
 
 func (o *TLAccountUpdateProfile) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.FirstName = r.ReadString()
-	o.LastName = r.ReadString()
-	o.About = r.ReadString()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.FirstName = r.ReadString()
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.LastName = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.About = r.ReadString()
+	}
 }
 
 func (o *TLAccountUpdateProfile) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteString(o.FirstName)
-	w.WriteString(o.LastName)
-	w.WriteString(o.About)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.FirstName)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.LastName)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.About)
+	}
+}
+
+func (o *TLAccountUpdateProfile) HasFirstName() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAccountUpdateProfile) SetHasFirstName(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLAccountUpdateProfile) HasLastName() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLAccountUpdateProfile) SetHasLastName(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLAccountUpdateProfile) HasAbout() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLAccountUpdateProfile) SetHasAbout(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLAccountUpdateProfile) String() string {
@@ -7375,10 +8303,9 @@ func (o *TLAccountSetAccountTTL) String() string {
 
 // TLAccountSendChangePhoneCode represents func account.sendChangePhoneCode#08e57deb flags:# flags.0?allow_flashcall:true phone_number:string flags.0?current_number:Bool = auth.SentCode from Telegram
 type TLAccountSendChangePhoneCode struct {
-	Flags          uint   // flags:#
-	AllowFlashcall bool   // flags.0?allow_flashcall:true
-	PhoneNumber    string // phone_number:string
-	CurrentNumber  bool   // flags.0?current_number:Bool
+	Flags         uint   // flags:#
+	PhoneNumber   string // phone_number:string
+	CurrentNumber bool   // flags.0?current_number:Bool
 }
 
 func (o *TLAccountSendChangePhoneCode) Cmd() uint32 {
@@ -7387,19 +8314,46 @@ func (o *TLAccountSendChangePhoneCode) Cmd() uint32 {
 
 func (o *TLAccountSendChangePhoneCode) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.AllowFlashcall = true
 	o.PhoneNumber = r.ReadString()
-	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
-	o.CurrentNumber = (r.ReadCmd() == TagBoolTrue)
+	if (o.Flags & (1 << 0)) != 0 {
+		r.ExpectCmd(TagBoolTrue, TagBoolFalse)
+		o.CurrentNumber = (r.ReadCmd() == TagBoolTrue)
+	}
 }
 
 func (o *TLAccountSendChangePhoneCode) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.PhoneNumber)
-	if o.CurrentNumber {
-		w.WriteCmd(TagBoolTrue)
+	if (o.Flags & (1 << 0)) != 0 {
+		if o.CurrentNumber {
+			w.WriteCmd(TagBoolTrue)
+		} else {
+			w.WriteCmd(TagBoolFalse)
+		}
+	}
+}
+
+func (o *TLAccountSendChangePhoneCode) AllowFlashcall() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAccountSendChangePhoneCode) SetAllowFlashcall(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
 	} else {
-		w.WriteCmd(TagBoolFalse)
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLAccountSendChangePhoneCode) HasCurrentNumber() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAccountSendChangePhoneCode) SetHasCurrentNumber(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -7564,10 +8518,9 @@ func (o *TLAccountUpdatePasswordSettings) String() string {
 
 // TLAccountSendConfirmPhoneCode represents func account.sendConfirmPhoneCode#1516d7bd flags:# flags.0?allow_flashcall:true hash:string flags.0?current_number:Bool = auth.SentCode from Telegram
 type TLAccountSendConfirmPhoneCode struct {
-	Flags          uint   // flags:#
-	AllowFlashcall bool   // flags.0?allow_flashcall:true
-	Hash           string // hash:string
-	CurrentNumber  bool   // flags.0?current_number:Bool
+	Flags         uint   // flags:#
+	Hash          string // hash:string
+	CurrentNumber bool   // flags.0?current_number:Bool
 }
 
 func (o *TLAccountSendConfirmPhoneCode) Cmd() uint32 {
@@ -7576,19 +8529,46 @@ func (o *TLAccountSendConfirmPhoneCode) Cmd() uint32 {
 
 func (o *TLAccountSendConfirmPhoneCode) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.AllowFlashcall = true
 	o.Hash = r.ReadString()
-	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
-	o.CurrentNumber = (r.ReadCmd() == TagBoolTrue)
+	if (o.Flags & (1 << 0)) != 0 {
+		r.ExpectCmd(TagBoolTrue, TagBoolFalse)
+		o.CurrentNumber = (r.ReadCmd() == TagBoolTrue)
+	}
 }
 
 func (o *TLAccountSendConfirmPhoneCode) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.Hash)
-	if o.CurrentNumber {
-		w.WriteCmd(TagBoolTrue)
+	if (o.Flags & (1 << 0)) != 0 {
+		if o.CurrentNumber {
+			w.WriteCmd(TagBoolTrue)
+		} else {
+			w.WriteCmd(TagBoolFalse)
+		}
+	}
+}
+
+func (o *TLAccountSendConfirmPhoneCode) AllowFlashcall() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAccountSendConfirmPhoneCode) SetAllowFlashcall(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
 	} else {
-		w.WriteCmd(TagBoolFalse)
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLAccountSendConfirmPhoneCode) HasCurrentNumber() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLAccountSendConfirmPhoneCode) SetHasCurrentNumber(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -7999,15 +8979,10 @@ func (o *TLContactsResolveUsername) String() string {
 
 // TLContactsGetTopPeers represents func contacts.getTopPeers#d4982db5 flags:# flags.0?correspondents:true flags.1?bots_pm:true flags.2?bots_inline:true flags.10?groups:true flags.15?channels:true offset:int limit:int hash:int = contacts.TopPeers from Telegram
 type TLContactsGetTopPeers struct {
-	Flags          uint // flags:#
-	Correspondents bool // flags.0?correspondents:true
-	BotsPm         bool // flags.1?bots_pm:true
-	BotsInline     bool // flags.2?bots_inline:true
-	Groups         bool // flags.10?groups:true
-	Channels       bool // flags.15?channels:true
-	Offset         int  // offset:int
-	Limit          int  // limit:int
-	Hash           int  // hash:int
+	Flags  uint // flags:#
+	Offset int  // offset:int
+	Limit  int  // limit:int
+	Hash   int  // hash:int
 }
 
 func (o *TLContactsGetTopPeers) Cmd() uint32 {
@@ -8016,11 +8991,6 @@ func (o *TLContactsGetTopPeers) Cmd() uint32 {
 
 func (o *TLContactsGetTopPeers) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Correspondents = true
-	o.BotsPm = true
-	o.BotsInline = true
-	o.Groups = true
-	o.Channels = true
 	o.Offset = r.ReadInt()
 	o.Limit = r.ReadInt()
 	o.Hash = r.ReadInt()
@@ -8031,6 +9001,66 @@ func (o *TLContactsGetTopPeers) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Offset)
 	w.WriteInt(o.Limit)
 	w.WriteInt(o.Hash)
+}
+
+func (o *TLContactsGetTopPeers) Correspondents() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLContactsGetTopPeers) SetCorrespondents(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLContactsGetTopPeers) BotsPm() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLContactsGetTopPeers) SetBotsPm(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLContactsGetTopPeers) BotsInline() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLContactsGetTopPeers) SetBotsInline(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLContactsGetTopPeers) Groups() bool {
+	return (o.Flags & (1 << 10)) != 0
+}
+
+func (o *TLContactsGetTopPeers) SetGroups(v bool) {
+	if v {
+		o.Flags |= (1 << 10)
+	} else {
+		o.Flags &= ^(1 << 10)
+	}
+}
+
+func (o *TLContactsGetTopPeers) Channels() bool {
+	return (o.Flags & (1 << 15)) != 0
+}
+
+func (o *TLContactsGetTopPeers) SetChannels(v bool) {
+	if v {
+		o.Flags |= (1 << 15)
+	} else {
+		o.Flags &= ^(1 << 15)
+	}
 }
 
 func (o *TLContactsGetTopPeers) String() string {
@@ -8096,12 +9126,11 @@ func (o *TLMessagesGetMessages) String() string {
 
 // TLMessagesGetDialogs represents func messages.getDialogs#191ba9c5 flags:# flags.0?exclude_pinned:true offset_date:int offset_id:int offset_peer:InputPeer limit:int = messages.Dialogs from Telegram
 type TLMessagesGetDialogs struct {
-	Flags         uint            // flags:#
-	ExcludePinned bool            // flags.0?exclude_pinned:true
-	OffsetDate    int             // offset_date:int
-	OffsetID      int             // offset_id:int
-	OffsetPeer    TLInputPeerType // offset_peer:InputPeer
-	Limit         int             // limit:int
+	Flags      uint            // flags:#
+	OffsetDate int             // offset_date:int
+	OffsetID   int             // offset_id:int
+	OffsetPeer TLInputPeerType // offset_peer:InputPeer
+	Limit      int             // limit:int
 }
 
 func (o *TLMessagesGetDialogs) Cmd() uint32 {
@@ -8110,7 +9139,6 @@ func (o *TLMessagesGetDialogs) Cmd() uint32 {
 
 func (o *TLMessagesGetDialogs) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.ExcludePinned = true
 	o.OffsetDate = r.ReadInt()
 	o.OffsetID = r.ReadInt()
 	o.OffsetPeer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
@@ -8124,6 +9152,18 @@ func (o *TLMessagesGetDialogs) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.OffsetPeer.Cmd())
 	o.OffsetPeer.WriteBareTo(w)
 	w.WriteInt(o.Limit)
+}
+
+func (o *TLMessagesGetDialogs) ExcludePinned() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesGetDialogs) SetExcludePinned(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLMessagesGetDialogs) String() string {
@@ -8244,10 +9284,9 @@ func (o *TLMessagesReadHistory) String() string {
 
 // TLMessagesDeleteHistory represents func messages.deleteHistory#1c015b09 flags:# flags.0?just_clear:true peer:InputPeer max_id:int = messages.AffectedHistory from Telegram
 type TLMessagesDeleteHistory struct {
-	Flags     uint            // flags:#
-	JustClear bool            // flags.0?just_clear:true
-	Peer      TLInputPeerType // peer:InputPeer
-	MaxID     int             // max_id:int
+	Flags uint            // flags:#
+	Peer  TLInputPeerType // peer:InputPeer
+	MaxID int             // max_id:int
 }
 
 func (o *TLMessagesDeleteHistory) Cmd() uint32 {
@@ -8256,7 +9295,6 @@ func (o *TLMessagesDeleteHistory) Cmd() uint32 {
 
 func (o *TLMessagesDeleteHistory) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.JustClear = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 	o.MaxID = r.ReadInt()
 }
@@ -8268,15 +9306,26 @@ func (o *TLMessagesDeleteHistory) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.MaxID)
 }
 
+func (o *TLMessagesDeleteHistory) JustClear() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesDeleteHistory) SetJustClear(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
 func (o *TLMessagesDeleteHistory) String() string {
 	return tl.Pretty(o)
 }
 
 // TLMessagesDeleteMessages represents func messages.deleteMessages#e58e95d2 flags:# flags.0?revoke:true id:Vector<int> = messages.AffectedMessages from Telegram
 type TLMessagesDeleteMessages struct {
-	Flags  uint  // flags:#
-	Revoke bool  // flags.0?revoke:true
-	ID     []int // id:Vector<int>
+	Flags uint  // flags:#
+	ID    []int // id:Vector<int>
 }
 
 func (o *TLMessagesDeleteMessages) Cmd() uint32 {
@@ -8285,7 +9334,6 @@ func (o *TLMessagesDeleteMessages) Cmd() uint32 {
 
 func (o *TLMessagesDeleteMessages) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Revoke = true
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -8301,6 +9349,18 @@ func (o *TLMessagesDeleteMessages) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(len(o.ID))
 	for i := 0; i < len(o.ID); i++ {
 		w.WriteInt(o.ID[i])
+	}
+}
+
+func (o *TLMessagesDeleteMessages) Revoke() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesDeleteMessages) SetRevoke(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -8358,10 +9418,6 @@ func (o *TLMessagesSetTyping) String() string {
 // TLMessagesSendMessage represents func messages.sendMessage#fa88427a flags:# flags.1?no_webpage:true flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int message:string random_id:long flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Updates from Telegram
 type TLMessagesSendMessage struct {
 	Flags        uint                  // flags:#
-	NoWebpage    bool                  // flags.1?no_webpage:true
-	Silent       bool                  // flags.5?silent:true
-	Background   bool                  // flags.6?background:true
-	ClearDraft   bool                  // flags.7?clear_draft:true
 	Peer         TLInputPeerType       // peer:InputPeer
 	ReplyToMsgID int                   // flags.0?reply_to_msg_id:int
 	Message      string                // message:string
@@ -8376,21 +9432,23 @@ func (o *TLMessagesSendMessage) Cmd() uint32 {
 
 func (o *TLMessagesSendMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.NoWebpage = true
-	o.Silent = true
-	o.Background = true
-	o.ClearDraft = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.ReplyToMsgID = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.ReplyToMsgID = r.ReadInt()
+	}
 	o.Message = r.ReadString()
 	o.RandomID = r.ReadUint64()
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	if (o.Flags & (1 << 3)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
 	}
 }
 
@@ -8398,16 +9456,106 @@ func (o *TLMessagesSendMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.ReplyToMsgID)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.ReplyToMsgID)
+	}
 	w.WriteString(o.Message)
 	w.WriteUint64(o.RandomID)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLMessagesSendMessage) NoWebpage() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesSendMessage) SetNoWebpage(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessagesSendMessage) Silent() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLMessagesSendMessage) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLMessagesSendMessage) Background() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLMessagesSendMessage) SetBackground(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLMessagesSendMessage) ClearDraft() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLMessagesSendMessage) SetClearDraft(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
+	}
+}
+
+func (o *TLMessagesSendMessage) HasReplyToMsgID() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSendMessage) SetHasReplyToMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessagesSendMessage) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessagesSendMessage) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLMessagesSendMessage) HasEntities() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLMessagesSendMessage) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
 	}
 }
 
@@ -8418,9 +9566,6 @@ func (o *TLMessagesSendMessage) String() string {
 // TLMessagesSendMedia represents func messages.sendMedia#c8f16791 flags:# flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int media:InputMedia random_id:long flags.2?reply_markup:ReplyMarkup = Updates from Telegram
 type TLMessagesSendMedia struct {
 	Flags        uint              // flags:#
-	Silent       bool              // flags.5?silent:true
-	Background   bool              // flags.6?background:true
-	ClearDraft   bool              // flags.7?clear_draft:true
 	Peer         TLInputPeerType   // peer:InputPeer
 	ReplyToMsgID int               // flags.0?reply_to_msg_id:int
 	Media        TLInputMediaType  // media:InputMedia
@@ -8434,26 +9579,91 @@ func (o *TLMessagesSendMedia) Cmd() uint32 {
 
 func (o *TLMessagesSendMedia) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Silent = true
-	o.Background = true
-	o.ClearDraft = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.ReplyToMsgID = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.ReplyToMsgID = r.ReadInt()
+	}
 	o.Media = Schema.ReadLimitedBoxedObjectFrom(r, TagInputMediaEmpty, TagInputMediaUploadedPhoto, TagInputMediaPhoto, TagInputMediaGeoPoint, TagInputMediaContact, TagInputMediaUploadedDocument, TagInputMediaUploadedThumbDocument, TagInputMediaDocument, TagInputMediaVenue, TagInputMediaGifExternal, TagInputMediaPhotoExternal, TagInputMediaDocumentExternal, TagInputMediaGame, TagInputMediaInvoice).(TLInputMediaType)
 	o.RandomID = r.ReadUint64()
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
 }
 
 func (o *TLMessagesSendMedia) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.ReplyToMsgID)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.ReplyToMsgID)
+	}
 	w.WriteCmd(o.Media.Cmd())
 	o.Media.WriteBareTo(w)
 	w.WriteUint64(o.RandomID)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLMessagesSendMedia) Silent() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLMessagesSendMedia) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLMessagesSendMedia) Background() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLMessagesSendMedia) SetBackground(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLMessagesSendMedia) ClearDraft() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLMessagesSendMedia) SetClearDraft(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
+	}
+}
+
+func (o *TLMessagesSendMedia) HasReplyToMsgID() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSendMedia) SetHasReplyToMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessagesSendMedia) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessagesSendMedia) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLMessagesSendMedia) String() string {
@@ -8462,14 +9672,11 @@ func (o *TLMessagesSendMedia) String() string {
 
 // TLMessagesForwardMessages represents func messages.forwardMessages#708e0195 flags:# flags.5?silent:true flags.6?background:true flags.8?with_my_score:true from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer = Updates from Telegram
 type TLMessagesForwardMessages struct {
-	Flags       uint            // flags:#
-	Silent      bool            // flags.5?silent:true
-	Background  bool            // flags.6?background:true
-	WithMyScore bool            // flags.8?with_my_score:true
-	FromPeer    TLInputPeerType // from_peer:InputPeer
-	ID          []int           // id:Vector<int>
-	RandomID    []uint64        // random_id:Vector<long>
-	ToPeer      TLInputPeerType // to_peer:InputPeer
+	Flags    uint            // flags:#
+	FromPeer TLInputPeerType // from_peer:InputPeer
+	ID       []int           // id:Vector<int>
+	RandomID []uint64        // random_id:Vector<long>
+	ToPeer   TLInputPeerType // to_peer:InputPeer
 }
 
 func (o *TLMessagesForwardMessages) Cmd() uint32 {
@@ -8478,9 +9685,6 @@ func (o *TLMessagesForwardMessages) Cmd() uint32 {
 
 func (o *TLMessagesForwardMessages) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Silent = true
-	o.Background = true
-	o.WithMyScore = true
 	o.FromPeer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -8515,6 +9719,42 @@ func (o *TLMessagesForwardMessages) WriteBareTo(w *tl.Writer) {
 	}
 	w.WriteCmd(o.ToPeer.Cmd())
 	o.ToPeer.WriteBareTo(w)
+}
+
+func (o *TLMessagesForwardMessages) Silent() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLMessagesForwardMessages) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLMessagesForwardMessages) Background() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLMessagesForwardMessages) SetBackground(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLMessagesForwardMessages) WithMyScore() bool {
+	return (o.Flags & (1 << 8)) != 0
+}
+
+func (o *TLMessagesForwardMessages) SetWithMyScore(v bool) {
+	if v {
+		o.Flags |= (1 << 8)
+	} else {
+		o.Flags &= ^(1 << 8)
+	}
 }
 
 func (o *TLMessagesForwardMessages) String() string {
@@ -9524,7 +10764,6 @@ func (o *TLMessagesSearchGlobal) String() string {
 // TLMessagesReorderStickerSets represents func messages.reorderStickerSets#78337739 flags:# flags.0?masks:true order:Vector<long> = Bool from Telegram
 type TLMessagesReorderStickerSets struct {
 	Flags uint     // flags:#
-	Masks bool     // flags.0?masks:true
 	Order []uint64 // order:Vector<long>
 }
 
@@ -9534,7 +10773,6 @@ func (o *TLMessagesReorderStickerSets) Cmd() uint32 {
 
 func (o *TLMessagesReorderStickerSets) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Masks = true
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -9550,6 +10788,18 @@ func (o *TLMessagesReorderStickerSets) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(len(o.Order))
 	for i := 0; i < len(o.Order); i++ {
 		w.WriteUint64(o.Order[i])
+	}
+}
+
+func (o *TLMessagesReorderStickerSets) Masks() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesReorderStickerSets) SetMasks(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -9677,7 +10927,9 @@ func (o *TLMessagesGetInlineBotResults) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Bot = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.GeoPoint = Schema.ReadLimitedBoxedObjectFrom(r, TagInputGeoPointEmpty, TagInputGeoPoint).(TLInputGeoPointType)
+	if (o.Flags & (1 << 0)) != 0 {
+		o.GeoPoint = Schema.ReadLimitedBoxedObjectFrom(r, TagInputGeoPointEmpty, TagInputGeoPoint).(TLInputGeoPointType)
+	}
 	o.Query = r.ReadString()
 	o.Offset = r.ReadString()
 }
@@ -9688,10 +10940,24 @@ func (o *TLMessagesGetInlineBotResults) WriteBareTo(w *tl.Writer) {
 	o.Bot.WriteBareTo(w)
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteCmd(o.GeoPoint.Cmd())
-	o.GeoPoint.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(o.GeoPoint.Cmd())
+		o.GeoPoint.WriteBareTo(w)
+	}
 	w.WriteString(o.Query)
 	w.WriteString(o.Offset)
+}
+
+func (o *TLMessagesGetInlineBotResults) HasGeoPoint() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesGetInlineBotResults) SetHasGeoPoint(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLMessagesGetInlineBotResults) String() string {
@@ -9701,8 +10967,6 @@ func (o *TLMessagesGetInlineBotResults) String() string {
 // TLMessagesSetInlineBotResults represents func messages.setInlineBotResults#eb5ea206 flags:# flags.0?gallery:true flags.1?private:true query_id:long results:Vector<InputBotInlineResult> cache_time:int flags.2?next_offset:string flags.3?switch_pm:InlineBotSwitchPM = Bool from Telegram
 type TLMessagesSetInlineBotResults struct {
 	Flags      uint                         // flags:#
-	Gallery    bool                         // flags.0?gallery:true
-	Private    bool                         // flags.1?private:true
 	QueryID    uint64                       // query_id:long
 	Results    []TLInputBotInlineResultType // results:Vector<InputBotInlineResult>
 	CacheTime  int                          // cache_time:int
@@ -9716,8 +10980,6 @@ func (o *TLMessagesSetInlineBotResults) Cmd() uint32 {
 
 func (o *TLMessagesSetInlineBotResults) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Gallery = true
-	o.Private = true
 	o.QueryID = r.ReadUint64()
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
@@ -9727,12 +10989,16 @@ func (o *TLMessagesSetInlineBotResults) ReadBareFrom(r *tl.Reader) {
 		o.Results[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputBotInlineResult, TagInputBotInlineResultPhoto, TagInputBotInlineResultDocument, TagInputBotInlineResultGame).(TLInputBotInlineResultType)
 	}
 	o.CacheTime = r.ReadInt()
-	o.NextOffset = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagInlineBotSwitchPM {
-		r.Fail(errors.New("expected: inlineBotSwitchPM"))
+	if (o.Flags & (1 << 2)) != 0 {
+		o.NextOffset = r.ReadString()
 	}
-	o.SwitchPm = new(TLInlineBotSwitchPM)
-	o.SwitchPm.ReadBareFrom(r)
+	if (o.Flags & (1 << 3)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagInlineBotSwitchPM {
+			r.Fail(errors.New("expected: inlineBotSwitchPM"))
+		}
+		o.SwitchPm = new(TLInlineBotSwitchPM)
+		o.SwitchPm.ReadBareFrom(r)
+	}
 }
 
 func (o *TLMessagesSetInlineBotResults) WriteBareTo(w *tl.Writer) {
@@ -9745,9 +11011,61 @@ func (o *TLMessagesSetInlineBotResults) WriteBareTo(w *tl.Writer) {
 		o.Results[i].WriteBareTo(w)
 	}
 	w.WriteInt(o.CacheTime)
-	w.WriteString(o.NextOffset)
-	w.WriteCmd(TagInlineBotSwitchPM)
-	o.SwitchPm.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.NextOffset)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteCmd(TagInlineBotSwitchPM)
+		o.SwitchPm.WriteBareTo(w)
+	}
+}
+
+func (o *TLMessagesSetInlineBotResults) Gallery() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSetInlineBotResults) SetGallery(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessagesSetInlineBotResults) Private() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesSetInlineBotResults) SetPrivate(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessagesSetInlineBotResults) HasNextOffset() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessagesSetInlineBotResults) SetHasNextOffset(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLMessagesSetInlineBotResults) HasSwitchPm() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLMessagesSetInlineBotResults) SetHasSwitchPm(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
 }
 
 func (o *TLMessagesSetInlineBotResults) String() string {
@@ -9757,9 +11075,6 @@ func (o *TLMessagesSetInlineBotResults) String() string {
 // TLMessagesSendInlineBotResult represents func messages.sendInlineBotResult#b16e06fe flags:# flags.5?silent:true flags.6?background:true flags.7?clear_draft:true peer:InputPeer flags.0?reply_to_msg_id:int random_id:long query_id:long id:string = Updates from Telegram
 type TLMessagesSendInlineBotResult struct {
 	Flags        uint            // flags:#
-	Silent       bool            // flags.5?silent:true
-	Background   bool            // flags.6?background:true
-	ClearDraft   bool            // flags.7?clear_draft:true
 	Peer         TLInputPeerType // peer:InputPeer
 	ReplyToMsgID int             // flags.0?reply_to_msg_id:int
 	RandomID     uint64          // random_id:long
@@ -9773,11 +11088,10 @@ func (o *TLMessagesSendInlineBotResult) Cmd() uint32 {
 
 func (o *TLMessagesSendInlineBotResult) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Silent = true
-	o.Background = true
-	o.ClearDraft = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
-	o.ReplyToMsgID = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.ReplyToMsgID = r.ReadInt()
+	}
 	o.RandomID = r.ReadUint64()
 	o.QueryID = r.ReadUint64()
 	o.ID = r.ReadString()
@@ -9787,10 +11101,60 @@ func (o *TLMessagesSendInlineBotResult) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
-	w.WriteInt(o.ReplyToMsgID)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.ReplyToMsgID)
+	}
 	w.WriteUint64(o.RandomID)
 	w.WriteUint64(o.QueryID)
 	w.WriteString(o.ID)
+}
+
+func (o *TLMessagesSendInlineBotResult) Silent() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLMessagesSendInlineBotResult) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLMessagesSendInlineBotResult) Background() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLMessagesSendInlineBotResult) SetBackground(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLMessagesSendInlineBotResult) ClearDraft() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLMessagesSendInlineBotResult) SetClearDraft(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
+	}
+}
+
+func (o *TLMessagesSendInlineBotResult) HasReplyToMsgID() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSendInlineBotResult) SetHasReplyToMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLMessagesSendInlineBotResult) String() string {
@@ -9825,7 +11189,6 @@ func (o *TLMessagesGetMessageEditData) String() string {
 // TLMessagesEditMessage represents func messages.editMessage#ce91e4ca flags:# flags.1?no_webpage:true peer:InputPeer id:int flags.11?message:string flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Updates from Telegram
 type TLMessagesEditMessage struct {
 	Flags       uint                  // flags:#
-	NoWebpage   bool                  // flags.1?no_webpage:true
 	Peer        TLInputPeerType       // peer:InputPeer
 	ID          int                   // id:int
 	Message     string                // flags.11?message:string
@@ -9839,17 +11202,22 @@ func (o *TLMessagesEditMessage) Cmd() uint32 {
 
 func (o *TLMessagesEditMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.NoWebpage = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 	o.ID = r.ReadInt()
-	o.Message = r.ReadString()
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 11)) != 0 {
+		o.Message = r.ReadString()
 	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
 	}
 }
 
@@ -9858,14 +11226,68 @@ func (o *TLMessagesEditMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
 	w.WriteInt(o.ID)
-	w.WriteString(o.Message)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 11)) != 0 {
+		w.WriteString(o.Message)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLMessagesEditMessage) NoWebpage() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesEditMessage) SetNoWebpage(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessagesEditMessage) HasMessage() bool {
+	return (o.Flags & (1 << 11)) != 0
+}
+
+func (o *TLMessagesEditMessage) SetHasMessage(v bool) {
+	if v {
+		o.Flags |= (1 << 11)
+	} else {
+		o.Flags &= ^(1 << 11)
+	}
+}
+
+func (o *TLMessagesEditMessage) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessagesEditMessage) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLMessagesEditMessage) HasEntities() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLMessagesEditMessage) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
 	}
 }
 
@@ -9876,7 +11298,6 @@ func (o *TLMessagesEditMessage) String() string {
 // TLMessagesEditInlineBotMessage represents func messages.editInlineBotMessage#130c2c85 flags:# flags.1?no_webpage:true id:InputBotInlineMessageID flags.11?message:string flags.2?reply_markup:ReplyMarkup flags.3?entities:Vector<MessageEntity> = Bool from Telegram
 type TLMessagesEditInlineBotMessage struct {
 	Flags       uint                       // flags:#
-	NoWebpage   bool                       // flags.1?no_webpage:true
 	ID          *TLInputBotInlineMessageID // id:InputBotInlineMessageID
 	Message     string                     // flags.11?message:string
 	ReplyMarkup TLReplyMarkupType          // flags.2?reply_markup:ReplyMarkup
@@ -9889,20 +11310,25 @@ func (o *TLMessagesEditInlineBotMessage) Cmd() uint32 {
 
 func (o *TLMessagesEditInlineBotMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.NoWebpage = true
 	if cmd := r.ReadCmd(); cmd != TagInputBotInlineMessageID {
 		r.Fail(errors.New("expected: inputBotInlineMessageID"))
 	}
 	o.ID = new(TLInputBotInlineMessageID)
 	o.ID.ReadBareFrom(r)
-	o.Message = r.ReadString()
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 11)) != 0 {
+		o.Message = r.ReadString()
 	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
 	}
 }
 
@@ -9910,14 +11336,68 @@ func (o *TLMessagesEditInlineBotMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(TagInputBotInlineMessageID)
 	o.ID.WriteBareTo(w)
-	w.WriteString(o.Message)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 11)) != 0 {
+		w.WriteString(o.Message)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLMessagesEditInlineBotMessage) NoWebpage() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesEditInlineBotMessage) SetNoWebpage(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessagesEditInlineBotMessage) HasMessage() bool {
+	return (o.Flags & (1 << 11)) != 0
+}
+
+func (o *TLMessagesEditInlineBotMessage) SetHasMessage(v bool) {
+	if v {
+		o.Flags |= (1 << 11)
+	} else {
+		o.Flags &= ^(1 << 11)
+	}
+}
+
+func (o *TLMessagesEditInlineBotMessage) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessagesEditInlineBotMessage) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLMessagesEditInlineBotMessage) HasEntities() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLMessagesEditInlineBotMessage) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
 	}
 }
 
@@ -9928,7 +11408,6 @@ func (o *TLMessagesEditInlineBotMessage) String() string {
 // TLMessagesGetBotCallbackAnswer represents func messages.getBotCallbackAnswer#810a9fec flags:# flags.1?game:true peer:InputPeer msg_id:int flags.0?data:bytes = messages.BotCallbackAnswer from Telegram
 type TLMessagesGetBotCallbackAnswer struct {
 	Flags uint            // flags:#
-	Game  bool            // flags.1?game:true
 	Peer  TLInputPeerType // peer:InputPeer
 	MsgID int             // msg_id:int
 	Data  []byte          // flags.0?data:bytes
@@ -9940,10 +11419,11 @@ func (o *TLMessagesGetBotCallbackAnswer) Cmd() uint32 {
 
 func (o *TLMessagesGetBotCallbackAnswer) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Game = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 	o.MsgID = r.ReadInt()
-	o.Data = r.ReadBlob()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Data = r.ReadBlob()
+	}
 }
 
 func (o *TLMessagesGetBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
@@ -9951,7 +11431,33 @@ func (o *TLMessagesGetBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
 	w.WriteInt(o.MsgID)
-	w.WriteBlob(o.Data)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteBlob(o.Data)
+	}
+}
+
+func (o *TLMessagesGetBotCallbackAnswer) Game() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesGetBotCallbackAnswer) SetGame(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessagesGetBotCallbackAnswer) HasData() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesGetBotCallbackAnswer) SetHasData(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLMessagesGetBotCallbackAnswer) String() string {
@@ -9961,7 +11467,6 @@ func (o *TLMessagesGetBotCallbackAnswer) String() string {
 // TLMessagesSetBotCallbackAnswer represents func messages.setBotCallbackAnswer#d58f130a flags:# flags.1?alert:true query_id:long flags.0?message:string flags.2?url:string cache_time:int = Bool from Telegram
 type TLMessagesSetBotCallbackAnswer struct {
 	Flags     uint   // flags:#
-	Alert     bool   // flags.1?alert:true
 	QueryID   uint64 // query_id:long
 	Message   string // flags.0?message:string
 	Url       string // flags.2?url:string
@@ -9974,19 +11479,62 @@ func (o *TLMessagesSetBotCallbackAnswer) Cmd() uint32 {
 
 func (o *TLMessagesSetBotCallbackAnswer) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Alert = true
 	o.QueryID = r.ReadUint64()
-	o.Message = r.ReadString()
-	o.Url = r.ReadString()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Message = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Url = r.ReadString()
+	}
 	o.CacheTime = r.ReadInt()
 }
 
 func (o *TLMessagesSetBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteUint64(o.QueryID)
-	w.WriteString(o.Message)
-	w.WriteString(o.Url)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.Message)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.Url)
+	}
 	w.WriteInt(o.CacheTime)
+}
+
+func (o *TLMessagesSetBotCallbackAnswer) Alert() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesSetBotCallbackAnswer) SetAlert(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessagesSetBotCallbackAnswer) HasMessage() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSetBotCallbackAnswer) SetHasMessage(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessagesSetBotCallbackAnswer) HasUrl() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessagesSetBotCallbackAnswer) SetHasUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLMessagesSetBotCallbackAnswer) String() string {
@@ -10028,7 +11576,6 @@ func (o *TLMessagesGetPeerDialogs) String() string {
 // TLMessagesSaveDraft represents func messages.saveDraft#bc39e14b flags:# flags.1?no_webpage:true flags.0?reply_to_msg_id:int peer:InputPeer message:string flags.3?entities:Vector<MessageEntity> = Bool from Telegram
 type TLMessagesSaveDraft struct {
 	Flags        uint                  // flags:#
-	NoWebpage    bool                  // flags.1?no_webpage:true
 	ReplyToMsgID int                   // flags.0?reply_to_msg_id:int
 	Peer         TLInputPeerType       // peer:InputPeer
 	Message      string                // message:string
@@ -10041,30 +11588,73 @@ func (o *TLMessagesSaveDraft) Cmd() uint32 {
 
 func (o *TLMessagesSaveDraft) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.NoWebpage = true
-	o.ReplyToMsgID = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.ReplyToMsgID = r.ReadInt()
+	}
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 	o.Message = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
-	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	if (o.Flags & (1 << 3)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
 	}
 }
 
 func (o *TLMessagesSaveDraft) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.ReplyToMsgID)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.ReplyToMsgID)
+	}
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
 	w.WriteString(o.Message)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLMessagesSaveDraft) NoWebpage() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesSaveDraft) SetNoWebpage(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessagesSaveDraft) HasReplyToMsgID() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSaveDraft) SetHasReplyToMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessagesSaveDraft) HasEntities() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLMessagesSaveDraft) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
 	}
 }
 
@@ -10144,9 +11734,8 @@ func (o *TLMessagesReadFeaturedStickers) String() string {
 
 // TLMessagesGetRecentStickers represents func messages.getRecentStickers#5ea192c9 flags:# flags.0?attached:true hash:int = messages.RecentStickers from Telegram
 type TLMessagesGetRecentStickers struct {
-	Flags    uint // flags:#
-	Attached bool // flags.0?attached:true
-	Hash     int  // hash:int
+	Flags uint // flags:#
+	Hash  int  // hash:int
 }
 
 func (o *TLMessagesGetRecentStickers) Cmd() uint32 {
@@ -10155,7 +11744,6 @@ func (o *TLMessagesGetRecentStickers) Cmd() uint32 {
 
 func (o *TLMessagesGetRecentStickers) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Attached = true
 	o.Hash = r.ReadInt()
 }
 
@@ -10164,16 +11752,27 @@ func (o *TLMessagesGetRecentStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Hash)
 }
 
+func (o *TLMessagesGetRecentStickers) Attached() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesGetRecentStickers) SetAttached(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
 func (o *TLMessagesGetRecentStickers) String() string {
 	return tl.Pretty(o)
 }
 
 // TLMessagesSaveRecentSticker represents func messages.saveRecentSticker#392718f8 flags:# flags.0?attached:true id:InputDocument unsave:Bool = Bool from Telegram
 type TLMessagesSaveRecentSticker struct {
-	Flags    uint                // flags:#
-	Attached bool                // flags.0?attached:true
-	ID       TLInputDocumentType // id:InputDocument
-	Unsave   bool                // unsave:Bool
+	Flags  uint                // flags:#
+	ID     TLInputDocumentType // id:InputDocument
+	Unsave bool                // unsave:Bool
 }
 
 func (o *TLMessagesSaveRecentSticker) Cmd() uint32 {
@@ -10182,7 +11781,6 @@ func (o *TLMessagesSaveRecentSticker) Cmd() uint32 {
 
 func (o *TLMessagesSaveRecentSticker) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Attached = true
 	o.ID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
 	r.ExpectCmd(TagBoolTrue, TagBoolFalse)
 	o.Unsave = (r.ReadCmd() == TagBoolTrue)
@@ -10199,14 +11797,25 @@ func (o *TLMessagesSaveRecentSticker) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLMessagesSaveRecentSticker) Attached() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSaveRecentSticker) SetAttached(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
 func (o *TLMessagesSaveRecentSticker) String() string {
 	return tl.Pretty(o)
 }
 
 // TLMessagesClearRecentStickers represents func messages.clearRecentStickers#8999602d flags:# flags.0?attached:true = Bool from Telegram
 type TLMessagesClearRecentStickers struct {
-	Flags    uint // flags:#
-	Attached bool // flags.0?attached:true
+	Flags uint // flags:#
 }
 
 func (o *TLMessagesClearRecentStickers) Cmd() uint32 {
@@ -10215,11 +11824,22 @@ func (o *TLMessagesClearRecentStickers) Cmd() uint32 {
 
 func (o *TLMessagesClearRecentStickers) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Attached = true
 }
 
 func (o *TLMessagesClearRecentStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLMessagesClearRecentStickers) Attached() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesClearRecentStickers) SetAttached(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLMessagesClearRecentStickers) String() string {
@@ -10229,7 +11849,6 @@ func (o *TLMessagesClearRecentStickers) String() string {
 // TLMessagesGetArchivedStickers represents func messages.getArchivedStickers#57f17692 flags:# flags.0?masks:true offset_id:long limit:int = messages.ArchivedStickers from Telegram
 type TLMessagesGetArchivedStickers struct {
 	Flags    uint   // flags:#
-	Masks    bool   // flags.0?masks:true
 	OffsetID uint64 // offset_id:long
 	Limit    int    // limit:int
 }
@@ -10240,7 +11859,6 @@ func (o *TLMessagesGetArchivedStickers) Cmd() uint32 {
 
 func (o *TLMessagesGetArchivedStickers) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Masks = true
 	o.OffsetID = r.ReadUint64()
 	o.Limit = r.ReadInt()
 }
@@ -10249,6 +11867,18 @@ func (o *TLMessagesGetArchivedStickers) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteUint64(o.OffsetID)
 	w.WriteInt(o.Limit)
+}
+
+func (o *TLMessagesGetArchivedStickers) Masks() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesGetArchivedStickers) SetMasks(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLMessagesGetArchivedStickers) String() string {
@@ -10300,13 +11930,11 @@ func (o *TLMessagesGetAttachedStickers) String() string {
 
 // TLMessagesSetGameScore represents func messages.setGameScore#8ef8ecc0 flags:# flags.0?edit_message:true flags.1?force:true peer:InputPeer id:int user_id:InputUser score:int = Updates from Telegram
 type TLMessagesSetGameScore struct {
-	Flags       uint            // flags:#
-	EditMessage bool            // flags.0?edit_message:true
-	Force       bool            // flags.1?force:true
-	Peer        TLInputPeerType // peer:InputPeer
-	ID          int             // id:int
-	UserID      TLInputUserType // user_id:InputUser
-	Score       int             // score:int
+	Flags  uint            // flags:#
+	Peer   TLInputPeerType // peer:InputPeer
+	ID     int             // id:int
+	UserID TLInputUserType // user_id:InputUser
+	Score  int             // score:int
 }
 
 func (o *TLMessagesSetGameScore) Cmd() uint32 {
@@ -10315,8 +11943,6 @@ func (o *TLMessagesSetGameScore) Cmd() uint32 {
 
 func (o *TLMessagesSetGameScore) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.EditMessage = true
-	o.Force = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 	o.ID = r.ReadInt()
 	o.UserID = Schema.ReadLimitedBoxedObjectFrom(r, TagInputUserEmpty, TagInputUserSelf, TagInputUser).(TLInputUserType)
@@ -10333,18 +11959,40 @@ func (o *TLMessagesSetGameScore) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Score)
 }
 
+func (o *TLMessagesSetGameScore) EditMessage() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSetGameScore) SetEditMessage(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessagesSetGameScore) Force() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesSetGameScore) SetForce(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
 func (o *TLMessagesSetGameScore) String() string {
 	return tl.Pretty(o)
 }
 
 // TLMessagesSetInlineGameScore represents func messages.setInlineGameScore#15ad9f64 flags:# flags.0?edit_message:true flags.1?force:true id:InputBotInlineMessageID user_id:InputUser score:int = Bool from Telegram
 type TLMessagesSetInlineGameScore struct {
-	Flags       uint                       // flags:#
-	EditMessage bool                       // flags.0?edit_message:true
-	Force       bool                       // flags.1?force:true
-	ID          *TLInputBotInlineMessageID // id:InputBotInlineMessageID
-	UserID      TLInputUserType            // user_id:InputUser
-	Score       int                        // score:int
+	Flags  uint                       // flags:#
+	ID     *TLInputBotInlineMessageID // id:InputBotInlineMessageID
+	UserID TLInputUserType            // user_id:InputUser
+	Score  int                        // score:int
 }
 
 func (o *TLMessagesSetInlineGameScore) Cmd() uint32 {
@@ -10353,8 +12001,6 @@ func (o *TLMessagesSetInlineGameScore) Cmd() uint32 {
 
 func (o *TLMessagesSetInlineGameScore) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.EditMessage = true
-	o.Force = true
 	if cmd := r.ReadCmd(); cmd != TagInputBotInlineMessageID {
 		r.Fail(errors.New("expected: inputBotInlineMessageID"))
 	}
@@ -10371,6 +12017,30 @@ func (o *TLMessagesSetInlineGameScore) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.UserID.Cmd())
 	o.UserID.WriteBareTo(w)
 	w.WriteInt(o.Score)
+}
+
+func (o *TLMessagesSetInlineGameScore) EditMessage() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSetInlineGameScore) SetEditMessage(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessagesSetInlineGameScore) Force() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesSetInlineGameScore) SetForce(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLMessagesSetInlineGameScore) String() string {
@@ -10521,9 +12191,8 @@ func (o *TLMessagesGetWebPage) String() string {
 
 // TLMessagesToggleDialogPin represents func messages.toggleDialogPin#3289be6a flags:# flags.0?pinned:true peer:InputPeer = Bool from Telegram
 type TLMessagesToggleDialogPin struct {
-	Flags  uint            // flags:#
-	Pinned bool            // flags.0?pinned:true
-	Peer   TLInputPeerType // peer:InputPeer
+	Flags uint            // flags:#
+	Peer  TLInputPeerType // peer:InputPeer
 }
 
 func (o *TLMessagesToggleDialogPin) Cmd() uint32 {
@@ -10532,7 +12201,6 @@ func (o *TLMessagesToggleDialogPin) Cmd() uint32 {
 
 func (o *TLMessagesToggleDialogPin) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Pinned = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPeerEmpty, TagInputPeerSelf, TagInputPeerChat, TagInputPeerUser, TagInputPeerChannel).(TLInputPeerType)
 }
 
@@ -10542,6 +12210,18 @@ func (o *TLMessagesToggleDialogPin) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 }
 
+func (o *TLMessagesToggleDialogPin) Pinned() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesToggleDialogPin) SetPinned(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
 func (o *TLMessagesToggleDialogPin) String() string {
 	return tl.Pretty(o)
 }
@@ -10549,7 +12229,6 @@ func (o *TLMessagesToggleDialogPin) String() string {
 // TLMessagesReorderPinnedDialogs represents func messages.reorderPinnedDialogs#959ff644 flags:# flags.0?force:true order:Vector<InputPeer> = Bool from Telegram
 type TLMessagesReorderPinnedDialogs struct {
 	Flags uint              // flags:#
-	Force bool              // flags.0?force:true
 	Order []TLInputPeerType // order:Vector<InputPeer>
 }
 
@@ -10559,7 +12238,6 @@ func (o *TLMessagesReorderPinnedDialogs) Cmd() uint32 {
 
 func (o *TLMessagesReorderPinnedDialogs) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Force = true
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -10576,6 +12254,18 @@ func (o *TLMessagesReorderPinnedDialogs) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.Order); i++ {
 		w.WriteCmd(o.Order[i].Cmd())
 		o.Order[i].WriteBareTo(w)
+	}
+}
+
+func (o *TLMessagesReorderPinnedDialogs) Force() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesReorderPinnedDialogs) SetForce(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -10616,29 +12306,61 @@ func (o *TLMessagesSetBotShippingResults) Cmd() uint32 {
 func (o *TLMessagesSetBotShippingResults) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.QueryID = r.ReadUint64()
-	o.Error = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Error = r.ReadString()
 	}
-	o.ShippingOptions = make([]*TLShippingOption, r.ReadInt())
-	for i := 0; i < len(o.ShippingOptions); i++ {
-		if cmd := r.ReadCmd(); cmd != TagShippingOption {
-			r.Fail(errors.New("expected: shippingOption"))
+	if (o.Flags & (1 << 1)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
 		}
-		o.ShippingOptions[i] = new(TLShippingOption)
-		o.ShippingOptions[i].ReadBareFrom(r)
+		o.ShippingOptions = make([]*TLShippingOption, r.ReadInt())
+		for i := 0; i < len(o.ShippingOptions); i++ {
+			if cmd := r.ReadCmd(); cmd != TagShippingOption {
+				r.Fail(errors.New("expected: shippingOption"))
+			}
+			o.ShippingOptions[i] = new(TLShippingOption)
+			o.ShippingOptions[i].ReadBareFrom(r)
+		}
 	}
 }
 
 func (o *TLMessagesSetBotShippingResults) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteUint64(o.QueryID)
-	w.WriteString(o.Error)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.ShippingOptions))
-	for i := 0; i < len(o.ShippingOptions); i++ {
-		w.WriteCmd(TagShippingOption)
-		o.ShippingOptions[i].WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.Error)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.ShippingOptions))
+		for i := 0; i < len(o.ShippingOptions); i++ {
+			w.WriteCmd(TagShippingOption)
+			o.ShippingOptions[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLMessagesSetBotShippingResults) HasError() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSetBotShippingResults) SetHasError(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessagesSetBotShippingResults) HasShippingOptions() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesSetBotShippingResults) SetHasShippingOptions(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
 	}
 }
 
@@ -10649,7 +12371,6 @@ func (o *TLMessagesSetBotShippingResults) String() string {
 // TLMessagesSetBotPrecheckoutResults represents func messages.setBotPrecheckoutResults#09c2dd95 flags:# flags.1?success:true query_id:long flags.0?error:string = Bool from Telegram
 type TLMessagesSetBotPrecheckoutResults struct {
 	Flags   uint   // flags:#
-	Success bool   // flags.1?success:true
 	QueryID uint64 // query_id:long
 	Error   string // flags.0?error:string
 }
@@ -10660,15 +12381,42 @@ func (o *TLMessagesSetBotPrecheckoutResults) Cmd() uint32 {
 
 func (o *TLMessagesSetBotPrecheckoutResults) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Success = true
 	o.QueryID = r.ReadUint64()
-	o.Error = r.ReadString()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Error = r.ReadString()
+	}
 }
 
 func (o *TLMessagesSetBotPrecheckoutResults) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteUint64(o.QueryID)
-	w.WriteString(o.Error)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.Error)
+	}
+}
+
+func (o *TLMessagesSetBotPrecheckoutResults) Success() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessagesSetBotPrecheckoutResults) SetSuccess(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessagesSetBotPrecheckoutResults) HasError() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessagesSetBotPrecheckoutResults) SetHasError(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLMessagesSetBotPrecheckoutResults) String() string {
@@ -10709,7 +12457,9 @@ func (o *TLUpdatesGetDifference) Cmd() uint32 {
 func (o *TLUpdatesGetDifference) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Pts = r.ReadInt()
-	o.PtsTotalLimit = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.PtsTotalLimit = r.ReadInt()
+	}
 	o.Date = r.ReadInt()
 	o.Qts = r.ReadInt()
 }
@@ -10717,9 +12467,23 @@ func (o *TLUpdatesGetDifference) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdatesGetDifference) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.Pts)
-	w.WriteInt(o.PtsTotalLimit)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.PtsTotalLimit)
+	}
 	w.WriteInt(o.Date)
 	w.WriteInt(o.Qts)
+}
+
+func (o *TLUpdatesGetDifference) HasPtsTotalLimit() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdatesGetDifference) SetHasPtsTotalLimit(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLUpdatesGetDifference) String() string {
@@ -10729,7 +12493,6 @@ func (o *TLUpdatesGetDifference) String() string {
 // TLUpdatesGetChannelDifference represents func updates.getChannelDifference#03173d78 flags:# flags.0?force:true channel:InputChannel filter:ChannelMessagesFilter pts:int limit:int = updates.ChannelDifference from Telegram
 type TLUpdatesGetChannelDifference struct {
 	Flags   uint                        // flags:#
-	Force   bool                        // flags.0?force:true
 	Channel TLInputChannelType          // channel:InputChannel
 	Filter  TLChannelMessagesFilterType // filter:ChannelMessagesFilter
 	Pts     int                         // pts:int
@@ -10742,7 +12505,6 @@ func (o *TLUpdatesGetChannelDifference) Cmd() uint32 {
 
 func (o *TLUpdatesGetChannelDifference) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Force = true
 	o.Channel = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
 	o.Filter = Schema.ReadLimitedBoxedObjectFrom(r, TagChannelMessagesFilterEmpty, TagChannelMessagesFilter).(TLChannelMessagesFilterType)
 	o.Pts = r.ReadInt()
@@ -10757,6 +12519,18 @@ func (o *TLUpdatesGetChannelDifference) WriteBareTo(w *tl.Writer) {
 	o.Filter.WriteBareTo(w)
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.Limit)
+}
+
+func (o *TLUpdatesGetChannelDifference) Force() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdatesGetChannelDifference) SetForce(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLUpdatesGetChannelDifference) String() string {
@@ -11450,11 +13224,9 @@ func (o *TLChannelsGetFullChannel) String() string {
 
 // TLChannelsCreateChannel represents func channels.createChannel#f4893d7f flags:# flags.0?broadcast:true flags.1?megagroup:true title:string about:string = Updates from Telegram
 type TLChannelsCreateChannel struct {
-	Flags     uint   // flags:#
-	Broadcast bool   // flags.0?broadcast:true
-	Megagroup bool   // flags.1?megagroup:true
-	Title     string // title:string
-	About     string // about:string
+	Flags uint   // flags:#
+	Title string // title:string
+	About string // about:string
 }
 
 func (o *TLChannelsCreateChannel) Cmd() uint32 {
@@ -11463,8 +13235,6 @@ func (o *TLChannelsCreateChannel) Cmd() uint32 {
 
 func (o *TLChannelsCreateChannel) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Broadcast = true
-	o.Megagroup = true
 	o.Title = r.ReadString()
 	o.About = r.ReadString()
 }
@@ -11473,6 +13243,30 @@ func (o *TLChannelsCreateChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.Title)
 	w.WriteString(o.About)
+}
+
+func (o *TLChannelsCreateChannel) Broadcast() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLChannelsCreateChannel) SetBroadcast(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLChannelsCreateChannel) Megagroup() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLChannelsCreateChannel) SetMegagroup(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLChannelsCreateChannel) String() string {
@@ -11881,7 +13675,6 @@ func (o *TLChannelsToggleSignatures) String() string {
 // TLChannelsUpdatePinnedMessage represents func channels.updatePinnedMessage#a72ded52 flags:# flags.0?silent:true channel:InputChannel id:int = Updates from Telegram
 type TLChannelsUpdatePinnedMessage struct {
 	Flags   uint               // flags:#
-	Silent  bool               // flags.0?silent:true
 	Channel TLInputChannelType // channel:InputChannel
 	ID      int                // id:int
 }
@@ -11892,7 +13685,6 @@ func (o *TLChannelsUpdatePinnedMessage) Cmd() uint32 {
 
 func (o *TLChannelsUpdatePinnedMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Silent = true
 	o.Channel = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
 	o.ID = r.ReadInt()
 }
@@ -11902,6 +13694,18 @@ func (o *TLChannelsUpdatePinnedMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Channel.Cmd())
 	o.Channel.WriteBareTo(w)
 	w.WriteInt(o.ID)
+}
+
+func (o *TLChannelsUpdatePinnedMessage) Silent() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLChannelsUpdatePinnedMessage) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLChannelsUpdatePinnedMessage) String() string {
@@ -12029,7 +13833,6 @@ func (o *TLPaymentsGetPaymentReceipt) String() string {
 // TLPaymentsValidateRequestedInfo represents func payments.validateRequestedInfo#770a8e74 flags:# flags.0?save:true msg_id:int info:PaymentRequestedInfo = payments.ValidatedRequestedInfo from Telegram
 type TLPaymentsValidateRequestedInfo struct {
 	Flags uint                    // flags:#
-	Save  bool                    // flags.0?save:true
 	MsgID int                     // msg_id:int
 	Info  *TLPaymentRequestedInfo // info:PaymentRequestedInfo
 }
@@ -12040,7 +13843,6 @@ func (o *TLPaymentsValidateRequestedInfo) Cmd() uint32 {
 
 func (o *TLPaymentsValidateRequestedInfo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Save = true
 	o.MsgID = r.ReadInt()
 	if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
 		r.Fail(errors.New("expected: paymentRequestedInfo"))
@@ -12054,6 +13856,18 @@ func (o *TLPaymentsValidateRequestedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.MsgID)
 	w.WriteCmd(TagPaymentRequestedInfo)
 	o.Info.WriteBareTo(w)
+}
+
+func (o *TLPaymentsValidateRequestedInfo) Save() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPaymentsValidateRequestedInfo) SetSave(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLPaymentsValidateRequestedInfo) String() string {
@@ -12076,18 +13890,50 @@ func (o *TLPaymentsSendPaymentForm) Cmd() uint32 {
 func (o *TLPaymentsSendPaymentForm) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.MsgID = r.ReadInt()
-	o.RequestedInfoID = r.ReadString()
-	o.ShippingOptionID = r.ReadString()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.RequestedInfoID = r.ReadString()
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.ShippingOptionID = r.ReadString()
+	}
 	o.Credentials = Schema.ReadLimitedBoxedObjectFrom(r, TagInputPaymentCredentialsSaved, TagInputPaymentCredentials).(TLInputPaymentCredentialsType)
 }
 
 func (o *TLPaymentsSendPaymentForm) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.MsgID)
-	w.WriteString(o.RequestedInfoID)
-	w.WriteString(o.ShippingOptionID)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.RequestedInfoID)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.ShippingOptionID)
+	}
 	w.WriteCmd(o.Credentials.Cmd())
 	o.Credentials.WriteBareTo(w)
+}
+
+func (o *TLPaymentsSendPaymentForm) HasRequestedInfoID() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPaymentsSendPaymentForm) SetHasRequestedInfoID(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPaymentsSendPaymentForm) HasShippingOptionID() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPaymentsSendPaymentForm) SetHasShippingOptionID(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLPaymentsSendPaymentForm) String() string {
@@ -12114,9 +13960,7 @@ func (o *TLPaymentsGetSavedInfo) String() string {
 
 // TLPaymentsClearSavedInfo represents func payments.clearSavedInfo#d83d70c1 flags:# flags.0?credentials:true flags.1?info:true = Bool from Telegram
 type TLPaymentsClearSavedInfo struct {
-	Flags       uint // flags:#
-	Credentials bool // flags.0?credentials:true
-	Info        bool // flags.1?info:true
+	Flags uint // flags:#
 }
 
 func (o *TLPaymentsClearSavedInfo) Cmd() uint32 {
@@ -12125,12 +13969,34 @@ func (o *TLPaymentsClearSavedInfo) Cmd() uint32 {
 
 func (o *TLPaymentsClearSavedInfo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Credentials = true
-	o.Info = true
 }
 
 func (o *TLPaymentsClearSavedInfo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLPaymentsClearSavedInfo) Credentials() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPaymentsClearSavedInfo) SetCredentials(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPaymentsClearSavedInfo) Info() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPaymentsClearSavedInfo) SetInfo(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLPaymentsClearSavedInfo) String() string {
@@ -12682,11 +14548,6 @@ func (o *TLMessageEmpty) String() string {
 // TLMessage represents ctor message#c09be45f flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true flags.14?post:true id:int flags.8?from_id:int to_id:Peer flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int date:int message:string flags.9?media:MessageMedia flags.6?reply_markup:ReplyMarkup flags.7?entities:Vector<MessageEntity> flags.10?views:int flags.15?edit_date:int = Message from Telegram
 type TLMessage struct {
 	Flags        uint                  // flags:#
-	Out          bool                  // flags.1?out:true
-	Mentioned    bool                  // flags.4?mentioned:true
-	MediaUnread  bool                  // flags.5?media_unread:true
-	Silent       bool                  // flags.13?silent:true
-	Post         bool                  // flags.14?post:true
 	ID           int                   // id:int
 	FromID       int                   // flags.8?from_id:int
 	ToID         TLPeerType            // to_id:Peer
@@ -12710,60 +14571,259 @@ func (o *TLMessage) Cmd() uint32 {
 
 func (o *TLMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Out = true
-	o.Mentioned = true
-	o.MediaUnread = true
-	o.Silent = true
-	o.Post = true
 	o.ID = r.ReadInt()
-	o.FromID = r.ReadInt()
-	o.ToID = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
-	if cmd := r.ReadCmd(); cmd != TagMessageFwdHeader {
-		r.Fail(errors.New("expected: messageFwdHeader"))
+	if (o.Flags & (1 << 8)) != 0 {
+		o.FromID = r.ReadInt()
 	}
-	o.FwdFrom = new(TLMessageFwdHeader)
-	o.FwdFrom.ReadBareFrom(r)
-	o.ViaBotID = r.ReadInt()
-	o.ReplyToMsgID = r.ReadInt()
+	o.ToID = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
+	if (o.Flags & (1 << 2)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagMessageFwdHeader {
+			r.Fail(errors.New("expected: messageFwdHeader"))
+		}
+		o.FwdFrom = new(TLMessageFwdHeader)
+		o.FwdFrom.ReadBareFrom(r)
+	}
+	if (o.Flags & (1 << 11)) != 0 {
+		o.ViaBotID = r.ReadInt()
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		o.ReplyToMsgID = r.ReadInt()
+	}
 	o.Date = r.ReadInt()
 	o.Message = r.ReadString()
-	o.Media = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageMediaEmpty, TagMessageMediaPhoto, TagMessageMediaGeo, TagMessageMediaContact, TagMessageMediaUnsupported, TagMessageMediaDocument, TagMessageMediaWebPage, TagMessageMediaVenue, TagMessageMediaGame, TagMessageMediaInvoice).(TLMessageMediaType)
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 9)) != 0 {
+		o.Media = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageMediaEmpty, TagMessageMediaPhoto, TagMessageMediaGeo, TagMessageMediaContact, TagMessageMediaUnsupported, TagMessageMediaDocument, TagMessageMediaWebPage, TagMessageMediaVenue, TagMessageMediaGame, TagMessageMediaInvoice).(TLMessageMediaType)
 	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	if (o.Flags & (1 << 6)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 	}
-	o.Views = r.ReadInt()
-	o.EditDate = r.ReadInt()
+	if (o.Flags & (1 << 7)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
+	}
+	if (o.Flags & (1 << 10)) != 0 {
+		o.Views = r.ReadInt()
+	}
+	if (o.Flags & (1 << 15)) != 0 {
+		o.EditDate = r.ReadInt()
+	}
 }
 
 func (o *TLMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.ID)
-	w.WriteInt(o.FromID)
+	if (o.Flags & (1 << 8)) != 0 {
+		w.WriteInt(o.FromID)
+	}
 	w.WriteCmd(o.ToID.Cmd())
 	o.ToID.WriteBareTo(w)
-	w.WriteCmd(TagMessageFwdHeader)
-	o.FwdFrom.WriteBareTo(w)
-	w.WriteInt(o.ViaBotID)
-	w.WriteInt(o.ReplyToMsgID)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(TagMessageFwdHeader)
+		o.FwdFrom.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 11)) != 0 {
+		w.WriteInt(o.ViaBotID)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteInt(o.ReplyToMsgID)
+	}
 	w.WriteInt(o.Date)
 	w.WriteString(o.Message)
-	w.WriteCmd(o.Media.Cmd())
-	o.Media.WriteBareTo(w)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 9)) != 0 {
+		w.WriteCmd(o.Media.Cmd())
+		o.Media.WriteBareTo(w)
 	}
-	w.WriteInt(o.Views)
-	w.WriteInt(o.EditDate)
+	if (o.Flags & (1 << 6)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
+	}
+	if (o.Flags & (1 << 10)) != 0 {
+		w.WriteInt(o.Views)
+	}
+	if (o.Flags & (1 << 15)) != 0 {
+		w.WriteInt(o.EditDate)
+	}
+}
+
+func (o *TLMessage) Out() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessage) SetOut(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessage) Mentioned() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLMessage) SetMentioned(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLMessage) MediaUnread() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLMessage) SetMediaUnread(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLMessage) Silent() bool {
+	return (o.Flags & (1 << 13)) != 0
+}
+
+func (o *TLMessage) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 13)
+	} else {
+		o.Flags &= ^(1 << 13)
+	}
+}
+
+func (o *TLMessage) Post() bool {
+	return (o.Flags & (1 << 14)) != 0
+}
+
+func (o *TLMessage) SetPost(v bool) {
+	if v {
+		o.Flags |= (1 << 14)
+	} else {
+		o.Flags &= ^(1 << 14)
+	}
+}
+
+func (o *TLMessage) HasFromID() bool {
+	return (o.Flags & (1 << 8)) != 0
+}
+
+func (o *TLMessage) SetHasFromID(v bool) {
+	if v {
+		o.Flags |= (1 << 8)
+	} else {
+		o.Flags &= ^(1 << 8)
+	}
+}
+
+func (o *TLMessage) HasFwdFrom() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessage) SetHasFwdFrom(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLMessage) HasViaBotID() bool {
+	return (o.Flags & (1 << 11)) != 0
+}
+
+func (o *TLMessage) SetHasViaBotID(v bool) {
+	if v {
+		o.Flags |= (1 << 11)
+	} else {
+		o.Flags &= ^(1 << 11)
+	}
+}
+
+func (o *TLMessage) HasReplyToMsgID() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLMessage) SetHasReplyToMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLMessage) HasMedia() bool {
+	return (o.Flags & (1 << 9)) != 0
+}
+
+func (o *TLMessage) SetHasMedia(v bool) {
+	if v {
+		o.Flags |= (1 << 9)
+	} else {
+		o.Flags &= ^(1 << 9)
+	}
+}
+
+func (o *TLMessage) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLMessage) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLMessage) HasEntities() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLMessage) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
+	}
+}
+
+func (o *TLMessage) HasViews() bool {
+	return (o.Flags & (1 << 10)) != 0
+}
+
+func (o *TLMessage) SetHasViews(v bool) {
+	if v {
+		o.Flags |= (1 << 10)
+	} else {
+		o.Flags &= ^(1 << 10)
+	}
+}
+
+func (o *TLMessage) HasEditDate() bool {
+	return (o.Flags & (1 << 15)) != 0
+}
+
+func (o *TLMessage) SetHasEditDate(v bool) {
+	if v {
+		o.Flags |= (1 << 15)
+	} else {
+		o.Flags &= ^(1 << 15)
+	}
 }
 
 func (o *TLMessage) String() string {
@@ -12773,11 +14833,6 @@ func (o *TLMessage) String() string {
 // TLMessageService represents ctor messageService#9e19a1f6 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true flags.14?post:true id:int flags.8?from_id:int to_id:Peer flags.3?reply_to_msg_id:int date:int action:MessageAction = Message from Telegram
 type TLMessageService struct {
 	Flags        uint                // flags:#
-	Out          bool                // flags.1?out:true
-	Mentioned    bool                // flags.4?mentioned:true
-	MediaUnread  bool                // flags.5?media_unread:true
-	Silent       bool                // flags.13?silent:true
-	Post         bool                // flags.14?post:true
 	ID           int                 // id:int
 	FromID       int                 // flags.8?from_id:int
 	ToID         TLPeerType          // to_id:Peer
@@ -12794,15 +14849,14 @@ func (o *TLMessageService) Cmd() uint32 {
 
 func (o *TLMessageService) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Out = true
-	o.Mentioned = true
-	o.MediaUnread = true
-	o.Silent = true
-	o.Post = true
 	o.ID = r.ReadInt()
-	o.FromID = r.ReadInt()
+	if (o.Flags & (1 << 8)) != 0 {
+		o.FromID = r.ReadInt()
+	}
 	o.ToID = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
-	o.ReplyToMsgID = r.ReadInt()
+	if (o.Flags & (1 << 3)) != 0 {
+		o.ReplyToMsgID = r.ReadInt()
+	}
 	o.Date = r.ReadInt()
 	o.Action = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageActionEmpty, TagMessageActionChatCreate, TagMessageActionChatEditTitle, TagMessageActionChatEditPhoto, TagMessageActionChatDeletePhoto, TagMessageActionChatAddUser, TagMessageActionChatDeleteUser, TagMessageActionChatJoinedByLink, TagMessageActionChannelCreate, TagMessageActionChatMigrateTo, TagMessageActionChannelMigrateFrom, TagMessageActionPinMessage, TagMessageActionHistoryClear, TagMessageActionGameScore, TagMessageActionPaymentSentMe, TagMessageActionPaymentSent, TagMessageActionPhoneCall).(TLMessageActionType)
 }
@@ -12810,13 +14864,101 @@ func (o *TLMessageService) ReadBareFrom(r *tl.Reader) {
 func (o *TLMessageService) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.ID)
-	w.WriteInt(o.FromID)
+	if (o.Flags & (1 << 8)) != 0 {
+		w.WriteInt(o.FromID)
+	}
 	w.WriteCmd(o.ToID.Cmd())
 	o.ToID.WriteBareTo(w)
-	w.WriteInt(o.ReplyToMsgID)
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteInt(o.ReplyToMsgID)
+	}
 	w.WriteInt(o.Date)
 	w.WriteCmd(o.Action.Cmd())
 	o.Action.WriteBareTo(w)
+}
+
+func (o *TLMessageService) Out() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessageService) SetOut(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessageService) Mentioned() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLMessageService) SetMentioned(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLMessageService) MediaUnread() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLMessageService) SetMediaUnread(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLMessageService) Silent() bool {
+	return (o.Flags & (1 << 13)) != 0
+}
+
+func (o *TLMessageService) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 13)
+	} else {
+		o.Flags &= ^(1 << 13)
+	}
+}
+
+func (o *TLMessageService) Post() bool {
+	return (o.Flags & (1 << 14)) != 0
+}
+
+func (o *TLMessageService) SetPost(v bool) {
+	if v {
+		o.Flags |= (1 << 14)
+	} else {
+		o.Flags &= ^(1 << 14)
+	}
+}
+
+func (o *TLMessageService) HasFromID() bool {
+	return (o.Flags & (1 << 8)) != 0
+}
+
+func (o *TLMessageService) SetHasFromID(v bool) {
+	if v {
+		o.Flags |= (1 << 8)
+	} else {
+		o.Flags &= ^(1 << 8)
+	}
+}
+
+func (o *TLMessageService) HasReplyToMsgID() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLMessageService) SetHasReplyToMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
 }
 
 func (o *TLMessageService) String() string {
@@ -13225,12 +15367,14 @@ func (o *TLInputMediaUploadedPhoto) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.File = Schema.ReadLimitedBoxedObjectFrom(r, TagInputFile, TagInputFileBig).(TLInputFileType)
 	o.Caption = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
-	}
-	o.Stickers = make([]TLInputDocumentType, r.ReadInt())
-	for i := 0; i < len(o.Stickers); i++ {
-		o.Stickers[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Stickers = make([]TLInputDocumentType, r.ReadInt())
+		for i := 0; i < len(o.Stickers); i++ {
+			o.Stickers[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
+		}
 	}
 }
 
@@ -13239,11 +15383,25 @@ func (o *TLInputMediaUploadedPhoto) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.File.Cmd())
 	o.File.WriteBareTo(w)
 	w.WriteString(o.Caption)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Stickers))
-	for i := 0; i < len(o.Stickers); i++ {
-		w.WriteCmd(o.Stickers[i].Cmd())
-		o.Stickers[i].WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Stickers))
+		for i := 0; i < len(o.Stickers); i++ {
+			w.WriteCmd(o.Stickers[i].Cmd())
+			o.Stickers[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLInputMediaUploadedPhoto) HasStickers() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLInputMediaUploadedPhoto) SetHasStickers(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -13359,12 +15517,14 @@ func (o *TLInputMediaUploadedDocument) ReadBareFrom(r *tl.Reader) {
 		o.Attributes[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentAttributeImageSize, TagDocumentAttributeAnimated, TagDocumentAttributeSticker, TagDocumentAttributeVideo, TagDocumentAttributeAudio, TagDocumentAttributeFilename, TagDocumentAttributeHasStickers).(TLDocumentAttributeType)
 	}
 	o.Caption = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
-	}
-	o.Stickers = make([]TLInputDocumentType, r.ReadInt())
-	for i := 0; i < len(o.Stickers); i++ {
-		o.Stickers[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Stickers = make([]TLInputDocumentType, r.ReadInt())
+		for i := 0; i < len(o.Stickers); i++ {
+			o.Stickers[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
+		}
 	}
 }
 
@@ -13380,11 +15540,25 @@ func (o *TLInputMediaUploadedDocument) WriteBareTo(w *tl.Writer) {
 		o.Attributes[i].WriteBareTo(w)
 	}
 	w.WriteString(o.Caption)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Stickers))
-	for i := 0; i < len(o.Stickers); i++ {
-		w.WriteCmd(o.Stickers[i].Cmd())
-		o.Stickers[i].WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Stickers))
+		for i := 0; i < len(o.Stickers); i++ {
+			w.WriteCmd(o.Stickers[i].Cmd())
+			o.Stickers[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLInputMediaUploadedDocument) HasStickers() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLInputMediaUploadedDocument) SetHasStickers(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -13422,12 +15596,14 @@ func (o *TLInputMediaUploadedThumbDocument) ReadBareFrom(r *tl.Reader) {
 		o.Attributes[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentAttributeImageSize, TagDocumentAttributeAnimated, TagDocumentAttributeSticker, TagDocumentAttributeVideo, TagDocumentAttributeAudio, TagDocumentAttributeFilename, TagDocumentAttributeHasStickers).(TLDocumentAttributeType)
 	}
 	o.Caption = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
-	}
-	o.Stickers = make([]TLInputDocumentType, r.ReadInt())
-	for i := 0; i < len(o.Stickers); i++ {
-		o.Stickers[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Stickers = make([]TLInputDocumentType, r.ReadInt())
+		for i := 0; i < len(o.Stickers); i++ {
+			o.Stickers[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
+		}
 	}
 }
 
@@ -13445,11 +15621,25 @@ func (o *TLInputMediaUploadedThumbDocument) WriteBareTo(w *tl.Writer) {
 		o.Attributes[i].WriteBareTo(w)
 	}
 	w.WriteString(o.Caption)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Stickers))
-	for i := 0; i < len(o.Stickers); i++ {
-		w.WriteCmd(o.Stickers[i].Cmd())
-		o.Stickers[i].WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Stickers))
+		for i := 0; i < len(o.Stickers); i++ {
+			w.WriteCmd(o.Stickers[i].Cmd())
+			o.Stickers[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLInputMediaUploadedThumbDocument) HasStickers() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLInputMediaUploadedThumbDocument) SetHasStickers(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -13644,11 +15834,13 @@ func (o *TLInputMediaInvoice) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Title = r.ReadString()
 	o.Description = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagInputWebDocument {
-		r.Fail(errors.New("expected: inputWebDocument"))
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagInputWebDocument {
+			r.Fail(errors.New("expected: inputWebDocument"))
+		}
+		o.Photo = new(TLInputWebDocument)
+		o.Photo.ReadBareFrom(r)
 	}
-	o.Photo = new(TLInputWebDocument)
-	o.Photo.ReadBareFrom(r)
 	if cmd := r.ReadCmd(); cmd != TagInvoice {
 		r.Fail(errors.New("expected: invoice"))
 	}
@@ -13663,13 +15855,27 @@ func (o *TLInputMediaInvoice) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.Title)
 	w.WriteString(o.Description)
-	w.WriteCmd(TagInputWebDocument)
-	o.Photo.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagInputWebDocument)
+		o.Photo.WriteBareTo(w)
+	}
 	w.WriteCmd(TagInvoice)
 	o.Invoice.WriteBareTo(w)
 	w.WriteBlob(o.Payload)
 	w.WriteString(o.Provider)
 	w.WriteString(o.StartParam)
+}
+
+func (o *TLInputMediaInvoice) HasPhoto() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLInputMediaInvoice) SetHasPhoto(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLInputMediaInvoice) String() string {
@@ -14276,17 +16482,6 @@ func (o *TLUserEmpty) String() string {
 // TLUser represents ctor user#d10d979a flags:# flags.10?self:true flags.11?contact:true flags.12?mutual_contact:true flags.13?deleted:true flags.14?bot:true flags.15?bot_chat_history:true flags.16?bot_nochats:true flags.17?verified:true flags.18?restricted:true flags.20?min:true flags.21?bot_inline_geo:true id:int flags.0?access_hash:long flags.1?first_name:string flags.2?last_name:string flags.3?username:string flags.4?phone:string flags.5?photo:UserProfilePhoto flags.6?status:UserStatus flags.14?bot_info_version:int flags.18?restriction_reason:string flags.19?bot_inline_placeholder:string = User from Telegram
 type TLUser struct {
 	Flags                uint                   // flags:#
-	Self                 bool                   // flags.10?self:true
-	Contact              bool                   // flags.11?contact:true
-	MutualContact        bool                   // flags.12?mutual_contact:true
-	Deleted              bool                   // flags.13?deleted:true
-	Bot                  bool                   // flags.14?bot:true
-	BotChatHistory       bool                   // flags.15?bot_chat_history:true
-	BotNochats           bool                   // flags.16?bot_nochats:true
-	Verified             bool                   // flags.17?verified:true
-	Restricted           bool                   // flags.18?restricted:true
-	Min                  bool                   // flags.20?min:true
-	BotInlineGeo         bool                   // flags.21?bot_inline_geo:true
 	ID                   int                    // id:int
 	AccessHash           uint64                 // flags.0?access_hash:long
 	FirstName            string                 // flags.1?first_name:string
@@ -14308,45 +16503,326 @@ func (o *TLUser) Cmd() uint32 {
 
 func (o *TLUser) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Self = true
-	o.Contact = true
-	o.MutualContact = true
-	o.Deleted = true
-	o.Bot = true
-	o.BotChatHistory = true
-	o.BotNochats = true
-	o.Verified = true
-	o.Restricted = true
-	o.Min = true
-	o.BotInlineGeo = true
 	o.ID = r.ReadInt()
-	o.AccessHash = r.ReadUint64()
-	o.FirstName = r.ReadString()
-	o.LastName = r.ReadString()
-	o.Username = r.ReadString()
-	o.Phone = r.ReadString()
-	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagUserProfilePhotoEmpty, TagUserProfilePhoto).(TLUserProfilePhotoType)
-	o.Status = Schema.ReadLimitedBoxedObjectFrom(r, TagUserStatusEmpty, TagUserStatusOnline, TagUserStatusOffline, TagUserStatusRecently, TagUserStatusLastWeek, TagUserStatusLastMonth).(TLUserStatusType)
-	o.BotInfoVersion = r.ReadInt()
-	o.RestrictionReason = r.ReadString()
-	o.BotInlinePlaceholder = r.ReadString()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.AccessHash = r.ReadUint64()
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.FirstName = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.LastName = r.ReadString()
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		o.Username = r.ReadString()
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		o.Phone = r.ReadString()
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagUserProfilePhotoEmpty, TagUserProfilePhoto).(TLUserProfilePhotoType)
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		o.Status = Schema.ReadLimitedBoxedObjectFrom(r, TagUserStatusEmpty, TagUserStatusOnline, TagUserStatusOffline, TagUserStatusRecently, TagUserStatusLastWeek, TagUserStatusLastMonth).(TLUserStatusType)
+	}
+	if (o.Flags & (1 << 14)) != 0 {
+		o.BotInfoVersion = r.ReadInt()
+	}
+	if (o.Flags & (1 << 18)) != 0 {
+		o.RestrictionReason = r.ReadString()
+	}
+	if (o.Flags & (1 << 19)) != 0 {
+		o.BotInlinePlaceholder = r.ReadString()
+	}
 }
 
 func (o *TLUser) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.ID)
-	w.WriteUint64(o.AccessHash)
-	w.WriteString(o.FirstName)
-	w.WriteString(o.LastName)
-	w.WriteString(o.Username)
-	w.WriteString(o.Phone)
-	w.WriteCmd(o.Photo.Cmd())
-	o.Photo.WriteBareTo(w)
-	w.WriteCmd(o.Status.Cmd())
-	o.Status.WriteBareTo(w)
-	w.WriteInt(o.BotInfoVersion)
-	w.WriteString(o.RestrictionReason)
-	w.WriteString(o.BotInlinePlaceholder)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteUint64(o.AccessHash)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.FirstName)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.LastName)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteString(o.Username)
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		w.WriteString(o.Phone)
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		w.WriteCmd(o.Photo.Cmd())
+		o.Photo.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		w.WriteCmd(o.Status.Cmd())
+		o.Status.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 14)) != 0 {
+		w.WriteInt(o.BotInfoVersion)
+	}
+	if (o.Flags & (1 << 18)) != 0 {
+		w.WriteString(o.RestrictionReason)
+	}
+	if (o.Flags & (1 << 19)) != 0 {
+		w.WriteString(o.BotInlinePlaceholder)
+	}
+}
+
+func (o *TLUser) Self() bool {
+	return (o.Flags & (1 << 10)) != 0
+}
+
+func (o *TLUser) SetSelf(v bool) {
+	if v {
+		o.Flags |= (1 << 10)
+	} else {
+		o.Flags &= ^(1 << 10)
+	}
+}
+
+func (o *TLUser) Contact() bool {
+	return (o.Flags & (1 << 11)) != 0
+}
+
+func (o *TLUser) SetContact(v bool) {
+	if v {
+		o.Flags |= (1 << 11)
+	} else {
+		o.Flags &= ^(1 << 11)
+	}
+}
+
+func (o *TLUser) MutualContact() bool {
+	return (o.Flags & (1 << 12)) != 0
+}
+
+func (o *TLUser) SetMutualContact(v bool) {
+	if v {
+		o.Flags |= (1 << 12)
+	} else {
+		o.Flags &= ^(1 << 12)
+	}
+}
+
+func (o *TLUser) Deleted() bool {
+	return (o.Flags & (1 << 13)) != 0
+}
+
+func (o *TLUser) SetDeleted(v bool) {
+	if v {
+		o.Flags |= (1 << 13)
+	} else {
+		o.Flags &= ^(1 << 13)
+	}
+}
+
+func (o *TLUser) Bot() bool {
+	return (o.Flags & (1 << 14)) != 0
+}
+
+func (o *TLUser) SetBot(v bool) {
+	if v {
+		o.Flags |= (1 << 14)
+	} else {
+		o.Flags &= ^(1 << 14)
+	}
+}
+
+func (o *TLUser) BotChatHistory() bool {
+	return (o.Flags & (1 << 15)) != 0
+}
+
+func (o *TLUser) SetBotChatHistory(v bool) {
+	if v {
+		o.Flags |= (1 << 15)
+	} else {
+		o.Flags &= ^(1 << 15)
+	}
+}
+
+func (o *TLUser) BotNochats() bool {
+	return (o.Flags & (1 << 16)) != 0
+}
+
+func (o *TLUser) SetBotNochats(v bool) {
+	if v {
+		o.Flags |= (1 << 16)
+	} else {
+		o.Flags &= ^(1 << 16)
+	}
+}
+
+func (o *TLUser) Verified() bool {
+	return (o.Flags & (1 << 17)) != 0
+}
+
+func (o *TLUser) SetVerified(v bool) {
+	if v {
+		o.Flags |= (1 << 17)
+	} else {
+		o.Flags &= ^(1 << 17)
+	}
+}
+
+func (o *TLUser) Restricted() bool {
+	return (o.Flags & (1 << 18)) != 0
+}
+
+func (o *TLUser) SetRestricted(v bool) {
+	if v {
+		o.Flags |= (1 << 18)
+	} else {
+		o.Flags &= ^(1 << 18)
+	}
+}
+
+func (o *TLUser) Min() bool {
+	return (o.Flags & (1 << 20)) != 0
+}
+
+func (o *TLUser) SetMin(v bool) {
+	if v {
+		o.Flags |= (1 << 20)
+	} else {
+		o.Flags &= ^(1 << 20)
+	}
+}
+
+func (o *TLUser) BotInlineGeo() bool {
+	return (o.Flags & (1 << 21)) != 0
+}
+
+func (o *TLUser) SetBotInlineGeo(v bool) {
+	if v {
+		o.Flags |= (1 << 21)
+	} else {
+		o.Flags &= ^(1 << 21)
+	}
+}
+
+func (o *TLUser) HasAccessHash() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUser) SetHasAccessHash(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLUser) HasFirstName() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUser) SetHasFirstName(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLUser) HasLastName() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLUser) SetHasLastName(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLUser) HasUsername() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLUser) SetHasUsername(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLUser) HasPhone() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLUser) SetHasPhone(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLUser) HasPhoto() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLUser) SetHasPhoto(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLUser) HasStatus() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLUser) SetHasStatus(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLUser) HasBotInfoVersion() bool {
+	return (o.Flags & (1 << 14)) != 0
+}
+
+func (o *TLUser) SetHasBotInfoVersion(v bool) {
+	if v {
+		o.Flags |= (1 << 14)
+	} else {
+		o.Flags &= ^(1 << 14)
+	}
+}
+
+func (o *TLUser) HasRestrictionReason() bool {
+	return (o.Flags & (1 << 18)) != 0
+}
+
+func (o *TLUser) SetHasRestrictionReason(v bool) {
+	if v {
+		o.Flags |= (1 << 18)
+	} else {
+		o.Flags &= ^(1 << 18)
+	}
+}
+
+func (o *TLUser) HasBotInlinePlaceholder() bool {
+	return (o.Flags & (1 << 19)) != 0
+}
+
+func (o *TLUser) SetHasBotInlinePlaceholder(v bool) {
+	if v {
+		o.Flags |= (1 << 19)
+	} else {
+		o.Flags &= ^(1 << 19)
+	}
 }
 
 func (o *TLUser) String() string {
@@ -14556,12 +17032,6 @@ func (o *TLChatEmpty) String() string {
 // TLChat represents ctor chat#d91cdd54 flags:# flags.0?creator:true flags.1?kicked:true flags.2?left:true flags.3?admins_enabled:true flags.4?admin:true flags.5?deactivated:true id:int title:string photo:ChatPhoto participants_count:int date:int version:int flags.6?migrated_to:InputChannel = Chat from Telegram
 type TLChat struct {
 	Flags             uint               // flags:#
-	Creator           bool               // flags.0?creator:true
-	Kicked            bool               // flags.1?kicked:true
-	Left              bool               // flags.2?left:true
-	AdminsEnabled     bool               // flags.3?admins_enabled:true
-	Admin             bool               // flags.4?admin:true
-	Deactivated       bool               // flags.5?deactivated:true
 	ID                int                // id:int
 	Title             string             // title:string
 	Photo             TLChatPhotoType    // photo:ChatPhoto
@@ -14579,19 +17049,15 @@ func (o *TLChat) Cmd() uint32 {
 
 func (o *TLChat) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Creator = true
-	o.Kicked = true
-	o.Left = true
-	o.AdminsEnabled = true
-	o.Admin = true
-	o.Deactivated = true
 	o.ID = r.ReadInt()
 	o.Title = r.ReadString()
 	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagChatPhotoEmpty, TagChatPhoto).(TLChatPhotoType)
 	o.ParticipantsCount = r.ReadInt()
 	o.Date = r.ReadInt()
 	o.Version = r.ReadInt()
-	o.MigratedTo = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
+	if (o.Flags & (1 << 6)) != 0 {
+		o.MigratedTo = Schema.ReadLimitedBoxedObjectFrom(r, TagInputChannelEmpty, TagInputChannel).(TLInputChannelType)
+	}
 }
 
 func (o *TLChat) WriteBareTo(w *tl.Writer) {
@@ -14603,8 +17069,94 @@ func (o *TLChat) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ParticipantsCount)
 	w.WriteInt(o.Date)
 	w.WriteInt(o.Version)
-	w.WriteCmd(o.MigratedTo.Cmd())
-	o.MigratedTo.WriteBareTo(w)
+	if (o.Flags & (1 << 6)) != 0 {
+		w.WriteCmd(o.MigratedTo.Cmd())
+		o.MigratedTo.WriteBareTo(w)
+	}
+}
+
+func (o *TLChat) Creator() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLChat) SetCreator(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLChat) Kicked() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLChat) SetKicked(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLChat) Left() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLChat) SetLeft(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLChat) AdminsEnabled() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLChat) SetAdminsEnabled(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLChat) Admin() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLChat) SetAdmin(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLChat) Deactivated() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLChat) SetDeactivated(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLChat) HasMigratedTo() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLChat) SetHasMigratedTo(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
 }
 
 func (o *TLChat) String() string {
@@ -14640,18 +17192,6 @@ func (o *TLChatForbidden) String() string {
 // TLChannel represents ctor channel#a14dca52 flags:# flags.0?creator:true flags.1?kicked:true flags.2?left:true flags.3?editor:true flags.4?moderator:true flags.5?broadcast:true flags.7?verified:true flags.8?megagroup:true flags.9?restricted:true flags.10?democracy:true flags.11?signatures:true flags.12?min:true id:int flags.13?access_hash:long title:string flags.6?username:string photo:ChatPhoto date:int version:int flags.9?restriction_reason:string = Chat from Telegram
 type TLChannel struct {
 	Flags             uint            // flags:#
-	Creator           bool            // flags.0?creator:true
-	Kicked            bool            // flags.1?kicked:true
-	Left              bool            // flags.2?left:true
-	Editor            bool            // flags.3?editor:true
-	Moderator         bool            // flags.4?moderator:true
-	Broadcast         bool            // flags.5?broadcast:true
-	Verified          bool            // flags.7?verified:true
-	Megagroup         bool            // flags.8?megagroup:true
-	Restricted        bool            // flags.9?restricted:true
-	Democracy         bool            // flags.10?democracy:true
-	Signatures        bool            // flags.11?signatures:true
-	Min               bool            // flags.12?min:true
 	ID                int             // id:int
 	AccessHash        uint64          // flags.13?access_hash:long
 	Title             string          // title:string
@@ -14670,39 +17210,219 @@ func (o *TLChannel) Cmd() uint32 {
 
 func (o *TLChannel) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Creator = true
-	o.Kicked = true
-	o.Left = true
-	o.Editor = true
-	o.Moderator = true
-	o.Broadcast = true
-	o.Verified = true
-	o.Megagroup = true
-	o.Restricted = true
-	o.Democracy = true
-	o.Signatures = true
-	o.Min = true
 	o.ID = r.ReadInt()
-	o.AccessHash = r.ReadUint64()
+	if (o.Flags & (1 << 13)) != 0 {
+		o.AccessHash = r.ReadUint64()
+	}
 	o.Title = r.ReadString()
-	o.Username = r.ReadString()
+	if (o.Flags & (1 << 6)) != 0 {
+		o.Username = r.ReadString()
+	}
 	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagChatPhotoEmpty, TagChatPhoto).(TLChatPhotoType)
 	o.Date = r.ReadInt()
 	o.Version = r.ReadInt()
-	o.RestrictionReason = r.ReadString()
+	if (o.Flags & (1 << 9)) != 0 {
+		o.RestrictionReason = r.ReadString()
+	}
 }
 
 func (o *TLChannel) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.ID)
-	w.WriteUint64(o.AccessHash)
+	if (o.Flags & (1 << 13)) != 0 {
+		w.WriteUint64(o.AccessHash)
+	}
 	w.WriteString(o.Title)
-	w.WriteString(o.Username)
+	if (o.Flags & (1 << 6)) != 0 {
+		w.WriteString(o.Username)
+	}
 	w.WriteCmd(o.Photo.Cmd())
 	o.Photo.WriteBareTo(w)
 	w.WriteInt(o.Date)
 	w.WriteInt(o.Version)
-	w.WriteString(o.RestrictionReason)
+	if (o.Flags & (1 << 9)) != 0 {
+		w.WriteString(o.RestrictionReason)
+	}
+}
+
+func (o *TLChannel) Creator() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLChannel) SetCreator(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLChannel) Kicked() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLChannel) SetKicked(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLChannel) Left() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLChannel) SetLeft(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLChannel) Editor() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLChannel) SetEditor(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLChannel) Moderator() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLChannel) SetModerator(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLChannel) Broadcast() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLChannel) SetBroadcast(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLChannel) Verified() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLChannel) SetVerified(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
+	}
+}
+
+func (o *TLChannel) Megagroup() bool {
+	return (o.Flags & (1 << 8)) != 0
+}
+
+func (o *TLChannel) SetMegagroup(v bool) {
+	if v {
+		o.Flags |= (1 << 8)
+	} else {
+		o.Flags &= ^(1 << 8)
+	}
+}
+
+func (o *TLChannel) Restricted() bool {
+	return (o.Flags & (1 << 9)) != 0
+}
+
+func (o *TLChannel) SetRestricted(v bool) {
+	if v {
+		o.Flags |= (1 << 9)
+	} else {
+		o.Flags &= ^(1 << 9)
+	}
+}
+
+func (o *TLChannel) Democracy() bool {
+	return (o.Flags & (1 << 10)) != 0
+}
+
+func (o *TLChannel) SetDemocracy(v bool) {
+	if v {
+		o.Flags |= (1 << 10)
+	} else {
+		o.Flags &= ^(1 << 10)
+	}
+}
+
+func (o *TLChannel) Signatures() bool {
+	return (o.Flags & (1 << 11)) != 0
+}
+
+func (o *TLChannel) SetSignatures(v bool) {
+	if v {
+		o.Flags |= (1 << 11)
+	} else {
+		o.Flags &= ^(1 << 11)
+	}
+}
+
+func (o *TLChannel) Min() bool {
+	return (o.Flags & (1 << 12)) != 0
+}
+
+func (o *TLChannel) SetMin(v bool) {
+	if v {
+		o.Flags |= (1 << 12)
+	} else {
+		o.Flags &= ^(1 << 12)
+	}
+}
+
+func (o *TLChannel) HasAccessHash() bool {
+	return (o.Flags & (1 << 13)) != 0
+}
+
+func (o *TLChannel) SetHasAccessHash(v bool) {
+	if v {
+		o.Flags |= (1 << 13)
+	} else {
+		o.Flags &= ^(1 << 13)
+	}
+}
+
+func (o *TLChannel) HasUsername() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLChannel) SetHasUsername(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLChannel) HasRestrictionReason() bool {
+	return (o.Flags & (1 << 9)) != 0
+}
+
+func (o *TLChannel) SetHasRestrictionReason(v bool) {
+	if v {
+		o.Flags |= (1 << 9)
+	} else {
+		o.Flags &= ^(1 << 9)
+	}
 }
 
 func (o *TLChannel) String() string {
@@ -14712,8 +17432,6 @@ func (o *TLChannel) String() string {
 // TLChannelForbidden represents ctor channelForbidden#8537784f flags:# flags.5?broadcast:true flags.8?megagroup:true id:int access_hash:long title:string = Chat from Telegram
 type TLChannelForbidden struct {
 	Flags      uint   // flags:#
-	Broadcast  bool   // flags.5?broadcast:true
-	Megagroup  bool   // flags.8?megagroup:true
 	ID         int    // id:int
 	AccessHash uint64 // access_hash:long
 	Title      string // title:string
@@ -14727,8 +17445,6 @@ func (o *TLChannelForbidden) Cmd() uint32 {
 
 func (o *TLChannelForbidden) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Broadcast = true
-	o.Megagroup = true
 	o.ID = r.ReadInt()
 	o.AccessHash = r.ReadUint64()
 	o.Title = r.ReadString()
@@ -14739,6 +17455,30 @@ func (o *TLChannelForbidden) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ID)
 	w.WriteUint64(o.AccessHash)
 	w.WriteString(o.Title)
+}
+
+func (o *TLChannelForbidden) Broadcast() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLChannelForbidden) SetBroadcast(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLChannelForbidden) Megagroup() bool {
+	return (o.Flags & (1 << 8)) != 0
+}
+
+func (o *TLChannelForbidden) SetMegagroup(v bool) {
+	if v {
+		o.Flags |= (1 << 8)
+	} else {
+		o.Flags &= ^(1 << 8)
+	}
 }
 
 func (o *TLChannelForbidden) String() string {
@@ -14804,24 +17544,22 @@ func (o *TLChatFull) String() string {
 
 // TLChannelFull represents ctor channelFull#c3d5512f flags:# flags.3?can_view_participants:true flags.6?can_set_username:true id:int about:string flags.0?participants_count:int flags.1?admins_count:int flags.2?kicked_count:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int chat_photo:Photo notify_settings:PeerNotifySettings exported_invite:ExportedChatInvite bot_info:Vector<BotInfo> flags.4?migrated_from_chat_id:int flags.4?migrated_from_max_id:int flags.5?pinned_msg_id:int = ChatFull from Telegram
 type TLChannelFull struct {
-	Flags               uint                     // flags:#
-	CanViewParticipants bool                     // flags.3?can_view_participants:true
-	CanSetUsername      bool                     // flags.6?can_set_username:true
-	ID                  int                      // id:int
-	About               string                   // about:string
-	ParticipantsCount   int                      // flags.0?participants_count:int
-	AdminsCount         int                      // flags.1?admins_count:int
-	KickedCount         int                      // flags.2?kicked_count:int
-	ReadInboxMaxID      int                      // read_inbox_max_id:int
-	ReadOutboxMaxID     int                      // read_outbox_max_id:int
-	UnreadCount         int                      // unread_count:int
-	ChatPhoto           TLPhotoType              // chat_photo:Photo
-	NotifySettings      TLPeerNotifySettingsType // notify_settings:PeerNotifySettings
-	ExportedInvite      TLExportedChatInviteType // exported_invite:ExportedChatInvite
-	BotInfo             []*TLBotInfo             // bot_info:Vector<BotInfo>
-	MigratedFromChatID  int                      // flags.4?migrated_from_chat_id:int
-	MigratedFromMaxID   int                      // flags.4?migrated_from_max_id:int
-	PinnedMsgID         int                      // flags.5?pinned_msg_id:int
+	Flags              uint                     // flags:#
+	ID                 int                      // id:int
+	About              string                   // about:string
+	ParticipantsCount  int                      // flags.0?participants_count:int
+	AdminsCount        int                      // flags.1?admins_count:int
+	KickedCount        int                      // flags.2?kicked_count:int
+	ReadInboxMaxID     int                      // read_inbox_max_id:int
+	ReadOutboxMaxID    int                      // read_outbox_max_id:int
+	UnreadCount        int                      // unread_count:int
+	ChatPhoto          TLPhotoType              // chat_photo:Photo
+	NotifySettings     TLPeerNotifySettingsType // notify_settings:PeerNotifySettings
+	ExportedInvite     TLExportedChatInviteType // exported_invite:ExportedChatInvite
+	BotInfo            []*TLBotInfo             // bot_info:Vector<BotInfo>
+	MigratedFromChatID int                      // flags.4?migrated_from_chat_id:int
+	MigratedFromMaxID  int                      // flags.4?migrated_from_max_id:int
+	PinnedMsgID        int                      // flags.5?pinned_msg_id:int
 }
 
 func (o *TLChannelFull) IsTLChatFull() {}
@@ -14832,13 +17570,17 @@ func (o *TLChannelFull) Cmd() uint32 {
 
 func (o *TLChannelFull) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.CanViewParticipants = true
-	o.CanSetUsername = true
 	o.ID = r.ReadInt()
 	o.About = r.ReadString()
-	o.ParticipantsCount = r.ReadInt()
-	o.AdminsCount = r.ReadInt()
-	o.KickedCount = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.ParticipantsCount = r.ReadInt()
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.AdminsCount = r.ReadInt()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.KickedCount = r.ReadInt()
+	}
 	o.ReadInboxMaxID = r.ReadInt()
 	o.ReadOutboxMaxID = r.ReadInt()
 	o.UnreadCount = r.ReadInt()
@@ -14856,18 +17598,30 @@ func (o *TLChannelFull) ReadBareFrom(r *tl.Reader) {
 		o.BotInfo[i] = new(TLBotInfo)
 		o.BotInfo[i].ReadBareFrom(r)
 	}
-	o.MigratedFromChatID = r.ReadInt()
-	o.MigratedFromMaxID = r.ReadInt()
-	o.PinnedMsgID = r.ReadInt()
+	if (o.Flags & (1 << 4)) != 0 {
+		o.MigratedFromChatID = r.ReadInt()
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		o.MigratedFromMaxID = r.ReadInt()
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		o.PinnedMsgID = r.ReadInt()
+	}
 }
 
 func (o *TLChannelFull) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.ID)
 	w.WriteString(o.About)
-	w.WriteInt(o.ParticipantsCount)
-	w.WriteInt(o.AdminsCount)
-	w.WriteInt(o.KickedCount)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.ParticipantsCount)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteInt(o.AdminsCount)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteInt(o.KickedCount)
+	}
 	w.WriteInt(o.ReadInboxMaxID)
 	w.WriteInt(o.ReadOutboxMaxID)
 	w.WriteInt(o.UnreadCount)
@@ -14883,9 +17637,111 @@ func (o *TLChannelFull) WriteBareTo(w *tl.Writer) {
 		w.WriteCmd(TagBotInfo)
 		o.BotInfo[i].WriteBareTo(w)
 	}
-	w.WriteInt(o.MigratedFromChatID)
-	w.WriteInt(o.MigratedFromMaxID)
-	w.WriteInt(o.PinnedMsgID)
+	if (o.Flags & (1 << 4)) != 0 {
+		w.WriteInt(o.MigratedFromChatID)
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		w.WriteInt(o.MigratedFromMaxID)
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		w.WriteInt(o.PinnedMsgID)
+	}
+}
+
+func (o *TLChannelFull) CanViewParticipants() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLChannelFull) SetCanViewParticipants(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLChannelFull) CanSetUsername() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLChannelFull) SetCanSetUsername(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLChannelFull) HasParticipantsCount() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLChannelFull) SetHasParticipantsCount(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLChannelFull) HasAdminsCount() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLChannelFull) SetHasAdminsCount(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLChannelFull) HasKickedCount() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLChannelFull) SetHasKickedCount(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLChannelFull) HasMigratedFromChatID() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLChannelFull) SetHasMigratedFromChatID(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLChannelFull) HasMigratedFromMaxID() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLChannelFull) SetHasMigratedFromMaxID(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLChannelFull) HasPinnedMsgID() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLChannelFull) SetHasPinnedMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
 }
 
 func (o *TLChannelFull) String() string {
@@ -14989,14 +17845,30 @@ func (o *TLChatParticipantsForbidden) Cmd() uint32 {
 func (o *TLChatParticipantsForbidden) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.ChatID = r.ReadInt()
-	o.SelfParticipant = Schema.ReadLimitedBoxedObjectFrom(r, TagChatParticipant, TagChatParticipantCreator, TagChatParticipantAdmin).(TLChatParticipantType)
+	if (o.Flags & (1 << 0)) != 0 {
+		o.SelfParticipant = Schema.ReadLimitedBoxedObjectFrom(r, TagChatParticipant, TagChatParticipantCreator, TagChatParticipantAdmin).(TLChatParticipantType)
+	}
 }
 
 func (o *TLChatParticipantsForbidden) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.ChatID)
-	w.WriteCmd(o.SelfParticipant.Cmd())
-	o.SelfParticipant.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(o.SelfParticipant.Cmd())
+		o.SelfParticipant.WriteBareTo(w)
+	}
+}
+
+func (o *TLChatParticipantsForbidden) HasSelfParticipant() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLChatParticipantsForbidden) SetHasSelfParticipant(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLChatParticipantsForbidden) String() string {
@@ -15331,16 +18203,14 @@ func (o *TLMessageMediaGame) String() string {
 
 // TLMessageMediaInvoice represents ctor messageMediaInvoice#84551347 flags:# flags.1?shipping_address_requested:true flags.3?test:true title:string description:string flags.0?photo:WebDocument flags.2?receipt_msg_id:int currency:string total_amount:long start_param:string = MessageMedia from Telegram
 type TLMessageMediaInvoice struct {
-	Flags                    uint           // flags:#
-	ShippingAddressRequested bool           // flags.1?shipping_address_requested:true
-	Test                     bool           // flags.3?test:true
-	Title                    string         // title:string
-	Description              string         // description:string
-	Photo                    *TLWebDocument // flags.0?photo:WebDocument
-	ReceiptMsgID             int            // flags.2?receipt_msg_id:int
-	Currency                 string         // currency:string
-	TotalAmount              uint64         // total_amount:long
-	StartParam               string         // start_param:string
+	Flags        uint           // flags:#
+	Title        string         // title:string
+	Description  string         // description:string
+	Photo        *TLWebDocument // flags.0?photo:WebDocument
+	ReceiptMsgID int            // flags.2?receipt_msg_id:int
+	Currency     string         // currency:string
+	TotalAmount  uint64         // total_amount:long
+	StartParam   string         // start_param:string
 }
 
 func (o *TLMessageMediaInvoice) IsTLMessageMedia() {}
@@ -15351,16 +18221,18 @@ func (o *TLMessageMediaInvoice) Cmd() uint32 {
 
 func (o *TLMessageMediaInvoice) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.ShippingAddressRequested = true
-	o.Test = true
 	o.Title = r.ReadString()
 	o.Description = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagWebDocument {
-		r.Fail(errors.New("expected: webDocument"))
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagWebDocument {
+			r.Fail(errors.New("expected: webDocument"))
+		}
+		o.Photo = new(TLWebDocument)
+		o.Photo.ReadBareFrom(r)
 	}
-	o.Photo = new(TLWebDocument)
-	o.Photo.ReadBareFrom(r)
-	o.ReceiptMsgID = r.ReadInt()
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReceiptMsgID = r.ReadInt()
+	}
 	o.Currency = r.ReadString()
 	o.TotalAmount = r.ReadUint64()
 	o.StartParam = r.ReadString()
@@ -15370,12 +18242,64 @@ func (o *TLMessageMediaInvoice) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.Title)
 	w.WriteString(o.Description)
-	w.WriteCmd(TagWebDocument)
-	o.Photo.WriteBareTo(w)
-	w.WriteInt(o.ReceiptMsgID)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagWebDocument)
+		o.Photo.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteInt(o.ReceiptMsgID)
+	}
 	w.WriteString(o.Currency)
 	w.WriteUint64(o.TotalAmount)
 	w.WriteString(o.StartParam)
+}
+
+func (o *TLMessageMediaInvoice) ShippingAddressRequested() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessageMediaInvoice) SetShippingAddressRequested(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLMessageMediaInvoice) Test() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLMessageMediaInvoice) SetTest(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLMessageMediaInvoice) HasPhoto() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessageMediaInvoice) SetHasPhoto(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessageMediaInvoice) HasReceiptMsgID() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLMessageMediaInvoice) SetHasReceiptMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLMessageMediaInvoice) String() string {
@@ -15744,12 +18668,16 @@ func (o *TLMessageActionPaymentSentMe) ReadBareFrom(r *tl.Reader) {
 	o.Currency = r.ReadString()
 	o.TotalAmount = r.ReadUint64()
 	o.Payload = r.ReadBlob()
-	if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
-		r.Fail(errors.New("expected: paymentRequestedInfo"))
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
+			r.Fail(errors.New("expected: paymentRequestedInfo"))
+		}
+		o.Info = new(TLPaymentRequestedInfo)
+		o.Info.ReadBareFrom(r)
 	}
-	o.Info = new(TLPaymentRequestedInfo)
-	o.Info.ReadBareFrom(r)
-	o.ShippingOptionID = r.ReadString()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.ShippingOptionID = r.ReadString()
+	}
 	if cmd := r.ReadCmd(); cmd != TagPaymentCharge {
 		r.Fail(errors.New("expected: paymentCharge"))
 	}
@@ -15762,11 +18690,39 @@ func (o *TLMessageActionPaymentSentMe) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Currency)
 	w.WriteUint64(o.TotalAmount)
 	w.WriteBlob(o.Payload)
-	w.WriteCmd(TagPaymentRequestedInfo)
-	o.Info.WriteBareTo(w)
-	w.WriteString(o.ShippingOptionID)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagPaymentRequestedInfo)
+		o.Info.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.ShippingOptionID)
+	}
 	w.WriteCmd(TagPaymentCharge)
 	o.Charge.WriteBareTo(w)
+}
+
+func (o *TLMessageActionPaymentSentMe) HasInfo() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessageActionPaymentSentMe) SetHasInfo(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessageActionPaymentSentMe) HasShippingOptionID() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessageActionPaymentSentMe) SetHasShippingOptionID(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLMessageActionPaymentSentMe) String() string {
@@ -15816,16 +18772,48 @@ func (o *TLMessageActionPhoneCall) Cmd() uint32 {
 func (o *TLMessageActionPhoneCall) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.CallID = r.ReadUint64()
-	o.Reason = Schema.ReadLimitedBoxedObjectFrom(r, TagPhoneCallDiscardReasonMissed, TagPhoneCallDiscardReasonDisconnect, TagPhoneCallDiscardReasonHangup, TagPhoneCallDiscardReasonBusy).(TLPhoneCallDiscardReasonType)
-	o.Duration = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Reason = Schema.ReadLimitedBoxedObjectFrom(r, TagPhoneCallDiscardReasonMissed, TagPhoneCallDiscardReasonDisconnect, TagPhoneCallDiscardReasonHangup, TagPhoneCallDiscardReasonBusy).(TLPhoneCallDiscardReasonType)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Duration = r.ReadInt()
+	}
 }
 
 func (o *TLMessageActionPhoneCall) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteUint64(o.CallID)
-	w.WriteCmd(o.Reason.Cmd())
-	o.Reason.WriteBareTo(w)
-	w.WriteInt(o.Duration)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(o.Reason.Cmd())
+		o.Reason.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteInt(o.Duration)
+	}
+}
+
+func (o *TLMessageActionPhoneCall) HasReason() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLMessageActionPhoneCall) SetHasReason(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLMessageActionPhoneCall) HasDuration() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLMessageActionPhoneCall) SetHasDuration(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLMessageActionPhoneCall) String() string {
@@ -15854,11 +18842,9 @@ func (o *TLPeerNotifySettingsEmpty) String() string {
 
 // TLPeerNotifySettings represents ctor peerNotifySettings#9acda4c0 flags:# flags.0?show_previews:true flags.1?silent:true mute_until:int sound:string = PeerNotifySettings from Telegram
 type TLPeerNotifySettings struct {
-	Flags        uint   // flags:#
-	ShowPreviews bool   // flags.0?show_previews:true
-	Silent       bool   // flags.1?silent:true
-	MuteUntil    int    // mute_until:int
-	Sound        string // sound:string
+	Flags     uint   // flags:#
+	MuteUntil int    // mute_until:int
+	Sound     string // sound:string
 }
 
 func (o *TLPeerNotifySettings) IsTLPeerNotifySettings() {}
@@ -15869,8 +18855,6 @@ func (o *TLPeerNotifySettings) Cmd() uint32 {
 
 func (o *TLPeerNotifySettings) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.ShowPreviews = true
-	o.Silent = true
 	o.MuteUntil = r.ReadInt()
 	o.Sound = r.ReadString()
 }
@@ -15879,6 +18863,30 @@ func (o *TLPeerNotifySettings) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.MuteUntil)
 	w.WriteString(o.Sound)
+}
+
+func (o *TLPeerNotifySettings) ShowPreviews() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPeerNotifySettings) SetShowPreviews(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPeerNotifySettings) Silent() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPeerNotifySettings) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLPeerNotifySettings) String() string {
@@ -15908,7 +18916,6 @@ func (o *TLDraftMessageEmpty) String() string {
 // TLDraftMessage represents ctor draftMessage#fd8e711f flags:# flags.1?no_webpage:true flags.0?reply_to_msg_id:int message:string flags.3?entities:Vector<MessageEntity> date:int = DraftMessage from Telegram
 type TLDraftMessage struct {
 	Flags        uint                  // flags:#
-	NoWebpage    bool                  // flags.1?no_webpage:true
 	ReplyToMsgID int                   // flags.0?reply_to_msg_id:int
 	Message      string                // message:string
 	Entities     []TLMessageEntityType // flags.3?entities:Vector<MessageEntity>
@@ -15923,30 +18930,73 @@ func (o *TLDraftMessage) Cmd() uint32 {
 
 func (o *TLDraftMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.NoWebpage = true
-	o.ReplyToMsgID = r.ReadInt()
-	o.Message = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 0)) != 0 {
+		o.ReplyToMsgID = r.ReadInt()
 	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	o.Message = r.ReadString()
+	if (o.Flags & (1 << 3)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
 	}
 	o.Date = r.ReadInt()
 }
 
 func (o *TLDraftMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.ReplyToMsgID)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.ReplyToMsgID)
+	}
 	w.WriteString(o.Message)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
 	}
 	w.WriteInt(o.Date)
+}
+
+func (o *TLDraftMessage) NoWebpage() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLDraftMessage) SetNoWebpage(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLDraftMessage) HasReplyToMsgID() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLDraftMessage) SetHasReplyToMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLDraftMessage) HasEntities() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLDraftMessage) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
 }
 
 func (o *TLDraftMessage) String() string {
@@ -15978,12 +19028,11 @@ func (o *TLPhotoEmpty) String() string {
 
 // TLPhoto represents ctor photo#9288dd29 flags:# flags.0?has_stickers:true id:long access_hash:long date:int sizes:Vector<PhotoSize> = Photo from Telegram
 type TLPhoto struct {
-	Flags       uint              // flags:#
-	HasStickers bool              // flags.0?has_stickers:true
-	ID          uint64            // id:long
-	AccessHash  uint64            // access_hash:long
-	Date        int               // date:int
-	Sizes       []TLPhotoSizeType // sizes:Vector<PhotoSize>
+	Flags      uint              // flags:#
+	ID         uint64            // id:long
+	AccessHash uint64            // access_hash:long
+	Date       int               // date:int
+	Sizes      []TLPhotoSizeType // sizes:Vector<PhotoSize>
 }
 
 func (o *TLPhoto) IsTLPhoto() {}
@@ -15994,7 +19043,6 @@ func (o *TLPhoto) Cmd() uint32 {
 
 func (o *TLPhoto) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.HasStickers = true
 	o.ID = r.ReadUint64()
 	o.AccessHash = r.ReadUint64()
 	o.Date = r.ReadInt()
@@ -16017,6 +19065,18 @@ func (o *TLPhoto) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.Sizes); i++ {
 		w.WriteCmd(o.Sizes[i].Cmd())
 		o.Sizes[i].WriteBareTo(w)
+	}
+}
+
+func (o *TLPhoto) HasStickers() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPhoto) SetHasStickers(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -17552,8 +20612,7 @@ func (o *TLInputMessagesFilterChatPhotos) String() string {
 
 // TLInputMessagesFilterPhoneCalls represents ctor inputMessagesFilterPhoneCalls#80c99768 flags:# flags.0?missed:true = MessagesFilter from Telegram
 type TLInputMessagesFilterPhoneCalls struct {
-	Flags  uint // flags:#
-	Missed bool // flags.0?missed:true
+	Flags uint // flags:#
 }
 
 func (o *TLInputMessagesFilterPhoneCalls) IsTLMessagesFilter() {}
@@ -17564,11 +20623,22 @@ func (o *TLInputMessagesFilterPhoneCalls) Cmd() uint32 {
 
 func (o *TLInputMessagesFilterPhoneCalls) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Missed = true
 }
 
 func (o *TLInputMessagesFilterPhoneCalls) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLInputMessagesFilterPhoneCalls) Missed() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLInputMessagesFilterPhoneCalls) SetMissed(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLInputMessagesFilterPhoneCalls) String() string {
@@ -18175,7 +21245,6 @@ func (o *TLUpdateNotifySettings) String() string {
 // TLUpdateServiceNotification represents ctor updateServiceNotification#ebe46819 flags:# flags.0?popup:true flags.1?inbox_date:int type:string message:string media:MessageMedia entities:Vector<MessageEntity> = Update from Telegram
 type TLUpdateServiceNotification struct {
 	Flags     uint                  // flags:#
-	Popup     bool                  // flags.0?popup:true
 	InboxDate int                   // flags.1?inbox_date:int
 	Type      string                // type:string
 	Message   string                // message:string
@@ -18191,8 +21260,9 @@ func (o *TLUpdateServiceNotification) Cmd() uint32 {
 
 func (o *TLUpdateServiceNotification) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Popup = true
-	o.InboxDate = r.ReadInt()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.InboxDate = r.ReadInt()
+	}
 	o.Type = r.ReadString()
 	o.Message = r.ReadString()
 	o.Media = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageMediaEmpty, TagMessageMediaPhoto, TagMessageMediaGeo, TagMessageMediaContact, TagMessageMediaUnsupported, TagMessageMediaDocument, TagMessageMediaWebPage, TagMessageMediaVenue, TagMessageMediaGame, TagMessageMediaInvoice).(TLMessageMediaType)
@@ -18207,7 +21277,9 @@ func (o *TLUpdateServiceNotification) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLUpdateServiceNotification) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteInt(o.InboxDate)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteInt(o.InboxDate)
+	}
 	w.WriteString(o.Type)
 	w.WriteString(o.Message)
 	w.WriteCmd(o.Media.Cmd())
@@ -18217,6 +21289,30 @@ func (o *TLUpdateServiceNotification) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.Entities); i++ {
 		w.WriteCmd(o.Entities[i].Cmd())
 		o.Entities[i].WriteBareTo(w)
+	}
+}
+
+func (o *TLUpdateServiceNotification) Popup() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdateServiceNotification) SetPopup(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLUpdateServiceNotification) HasInboxDate() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdateServiceNotification) SetHasInboxDate(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
 	}
 }
 
@@ -18439,13 +21535,29 @@ func (o *TLUpdateChannelTooLong) Cmd() uint32 {
 func (o *TLUpdateChannelTooLong) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.ChannelID = r.ReadInt()
-	o.Pts = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Pts = r.ReadInt()
+	}
 }
 
 func (o *TLUpdateChannelTooLong) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.ChannelID)
-	w.WriteInt(o.Pts)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.Pts)
+	}
+}
+
+func (o *TLUpdateChannelTooLong) HasPts() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdateChannelTooLong) SetHasPts(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLUpdateChannelTooLong) String() string {
@@ -18704,7 +21816,6 @@ func (o *TLUpdateNewStickerSet) String() string {
 // TLUpdateStickerSetsOrder represents ctor updateStickerSetsOrder#0bb2d201 flags:# flags.0?masks:true order:Vector<long> = Update from Telegram
 type TLUpdateStickerSetsOrder struct {
 	Flags uint     // flags:#
-	Masks bool     // flags.0?masks:true
 	Order []uint64 // order:Vector<long>
 }
 
@@ -18716,7 +21827,6 @@ func (o *TLUpdateStickerSetsOrder) Cmd() uint32 {
 
 func (o *TLUpdateStickerSetsOrder) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Masks = true
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -18732,6 +21842,18 @@ func (o *TLUpdateStickerSetsOrder) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(len(o.Order))
 	for i := 0; i < len(o.Order); i++ {
 		w.WriteUint64(o.Order[i])
+	}
+}
+
+func (o *TLUpdateStickerSetsOrder) Masks() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdateStickerSetsOrder) SetMasks(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -18800,7 +21922,9 @@ func (o *TLUpdateBotInlineQuery) ReadBareFrom(r *tl.Reader) {
 	o.QueryID = r.ReadUint64()
 	o.UserID = r.ReadInt()
 	o.Query = r.ReadString()
-	o.Geo = Schema.ReadLimitedBoxedObjectFrom(r, TagGeoPointEmpty, TagGeoPoint).(TLGeoPointType)
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Geo = Schema.ReadLimitedBoxedObjectFrom(r, TagGeoPointEmpty, TagGeoPoint).(TLGeoPointType)
+	}
 	o.Offset = r.ReadString()
 }
 
@@ -18809,9 +21933,23 @@ func (o *TLUpdateBotInlineQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.QueryID)
 	w.WriteInt(o.UserID)
 	w.WriteString(o.Query)
-	w.WriteCmd(o.Geo.Cmd())
-	o.Geo.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(o.Geo.Cmd())
+		o.Geo.WriteBareTo(w)
+	}
 	w.WriteString(o.Offset)
+}
+
+func (o *TLUpdateBotInlineQuery) HasGeo() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdateBotInlineQuery) SetHasGeo(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLUpdateBotInlineQuery) String() string {
@@ -18838,24 +21976,56 @@ func (o *TLUpdateBotInlineSend) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.UserID = r.ReadInt()
 	o.Query = r.ReadString()
-	o.Geo = Schema.ReadLimitedBoxedObjectFrom(r, TagGeoPointEmpty, TagGeoPoint).(TLGeoPointType)
-	o.ID = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagInputBotInlineMessageID {
-		r.Fail(errors.New("expected: inputBotInlineMessageID"))
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Geo = Schema.ReadLimitedBoxedObjectFrom(r, TagGeoPointEmpty, TagGeoPoint).(TLGeoPointType)
 	}
-	o.MsgID = new(TLInputBotInlineMessageID)
-	o.MsgID.ReadBareFrom(r)
+	o.ID = r.ReadString()
+	if (o.Flags & (1 << 1)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagInputBotInlineMessageID {
+			r.Fail(errors.New("expected: inputBotInlineMessageID"))
+		}
+		o.MsgID = new(TLInputBotInlineMessageID)
+		o.MsgID.ReadBareFrom(r)
+	}
 }
 
 func (o *TLUpdateBotInlineSend) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.UserID)
 	w.WriteString(o.Query)
-	w.WriteCmd(o.Geo.Cmd())
-	o.Geo.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(o.Geo.Cmd())
+		o.Geo.WriteBareTo(w)
+	}
 	w.WriteString(o.ID)
-	w.WriteCmd(TagInputBotInlineMessageID)
-	o.MsgID.WriteBareTo(w)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteCmd(TagInputBotInlineMessageID)
+		o.MsgID.WriteBareTo(w)
+	}
+}
+
+func (o *TLUpdateBotInlineSend) HasGeo() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdateBotInlineSend) SetHasGeo(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLUpdateBotInlineSend) HasMsgID() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdateBotInlineSend) SetHasMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLUpdateBotInlineSend) String() string {
@@ -18943,8 +22113,12 @@ func (o *TLUpdateBotCallbackQuery) ReadBareFrom(r *tl.Reader) {
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
 	o.MsgID = r.ReadInt()
 	o.ChatInstance = r.ReadUint64()
-	o.Data = r.ReadBlob()
-	o.GameShortName = r.ReadString()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Data = r.ReadBlob()
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.GameShortName = r.ReadString()
+	}
 }
 
 func (o *TLUpdateBotCallbackQuery) WriteBareTo(w *tl.Writer) {
@@ -18955,8 +22129,36 @@ func (o *TLUpdateBotCallbackQuery) WriteBareTo(w *tl.Writer) {
 	o.Peer.WriteBareTo(w)
 	w.WriteInt(o.MsgID)
 	w.WriteUint64(o.ChatInstance)
-	w.WriteBlob(o.Data)
-	w.WriteString(o.GameShortName)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteBlob(o.Data)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.GameShortName)
+	}
+}
+
+func (o *TLUpdateBotCallbackQuery) HasData() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdateBotCallbackQuery) SetHasData(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLUpdateBotCallbackQuery) HasGameShortName() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdateBotCallbackQuery) SetHasGameShortName(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLUpdateBotCallbackQuery) String() string {
@@ -19020,8 +22222,12 @@ func (o *TLUpdateInlineBotCallbackQuery) ReadBareFrom(r *tl.Reader) {
 	o.MsgID = new(TLInputBotInlineMessageID)
 	o.MsgID.ReadBareFrom(r)
 	o.ChatInstance = r.ReadUint64()
-	o.Data = r.ReadBlob()
-	o.GameShortName = r.ReadString()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Data = r.ReadBlob()
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.GameShortName = r.ReadString()
+	}
 }
 
 func (o *TLUpdateInlineBotCallbackQuery) WriteBareTo(w *tl.Writer) {
@@ -19031,8 +22237,36 @@ func (o *TLUpdateInlineBotCallbackQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(TagInputBotInlineMessageID)
 	o.MsgID.WriteBareTo(w)
 	w.WriteUint64(o.ChatInstance)
-	w.WriteBlob(o.Data)
-	w.WriteString(o.GameShortName)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteBlob(o.Data)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.GameShortName)
+	}
+}
+
+func (o *TLUpdateInlineBotCallbackQuery) HasData() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdateInlineBotCallbackQuery) SetHasData(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLUpdateInlineBotCallbackQuery) HasGameShortName() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdateInlineBotCallbackQuery) SetHasGameShortName(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLUpdateInlineBotCallbackQuery) String() string {
@@ -19208,9 +22442,8 @@ func (o *TLUpdateChannelWebPage) String() string {
 
 // TLUpdateDialogPinned represents ctor updateDialogPinned#d711a2cc flags:# flags.0?pinned:true peer:Peer = Update from Telegram
 type TLUpdateDialogPinned struct {
-	Flags  uint       // flags:#
-	Pinned bool       // flags.0?pinned:true
-	Peer   TLPeerType // peer:Peer
+	Flags uint       // flags:#
+	Peer  TLPeerType // peer:Peer
 }
 
 func (o *TLUpdateDialogPinned) IsTLUpdate() {}
@@ -19221,7 +22454,6 @@ func (o *TLUpdateDialogPinned) Cmd() uint32 {
 
 func (o *TLUpdateDialogPinned) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Pinned = true
 	o.Peer = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
 }
 
@@ -19229,6 +22461,18 @@ func (o *TLUpdateDialogPinned) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Peer.Cmd())
 	o.Peer.WriteBareTo(w)
+}
+
+func (o *TLUpdateDialogPinned) Pinned() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdateDialogPinned) SetPinned(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLUpdateDialogPinned) String() string {
@@ -19249,22 +22493,38 @@ func (o *TLUpdatePinnedDialogs) Cmd() uint32 {
 
 func (o *TLUpdatePinnedDialogs) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
-	}
-	o.Order = make([]TLPeerType, r.ReadInt())
-	for i := 0; i < len(o.Order); i++ {
-		o.Order[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Order = make([]TLPeerType, r.ReadInt())
+		for i := 0; i < len(o.Order); i++ {
+			o.Order[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagPeerUser, TagPeerChat, TagPeerChannel).(TLPeerType)
+		}
 	}
 }
 
 func (o *TLUpdatePinnedDialogs) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Order))
-	for i := 0; i < len(o.Order); i++ {
-		w.WriteCmd(o.Order[i].Cmd())
-		o.Order[i].WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Order))
+		for i := 0; i < len(o.Order); i++ {
+			w.WriteCmd(o.Order[i].Cmd())
+			o.Order[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLUpdatePinnedDialogs) HasOrder() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdatePinnedDialogs) SetHasOrder(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
 	}
 }
 
@@ -19394,12 +22654,16 @@ func (o *TLUpdateBotPrecheckoutQuery) ReadBareFrom(r *tl.Reader) {
 	o.QueryID = r.ReadUint64()
 	o.UserID = r.ReadInt()
 	o.Payload = r.ReadBlob()
-	if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
-		r.Fail(errors.New("expected: paymentRequestedInfo"))
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagPaymentRequestedInfo {
+			r.Fail(errors.New("expected: paymentRequestedInfo"))
+		}
+		o.Info = new(TLPaymentRequestedInfo)
+		o.Info.ReadBareFrom(r)
 	}
-	o.Info = new(TLPaymentRequestedInfo)
-	o.Info.ReadBareFrom(r)
-	o.ShippingOptionID = r.ReadString()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.ShippingOptionID = r.ReadString()
+	}
 	o.Currency = r.ReadString()
 	o.TotalAmount = r.ReadUint64()
 }
@@ -19409,11 +22673,39 @@ func (o *TLUpdateBotPrecheckoutQuery) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.QueryID)
 	w.WriteInt(o.UserID)
 	w.WriteBlob(o.Payload)
-	w.WriteCmd(TagPaymentRequestedInfo)
-	o.Info.WriteBareTo(w)
-	w.WriteString(o.ShippingOptionID)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagPaymentRequestedInfo)
+		o.Info.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.ShippingOptionID)
+	}
 	w.WriteString(o.Currency)
 	w.WriteUint64(o.TotalAmount)
+}
+
+func (o *TLUpdateBotPrecheckoutQuery) HasInfo() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdateBotPrecheckoutQuery) SetHasInfo(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLUpdateBotPrecheckoutQuery) HasShippingOptionID() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdateBotPrecheckoutQuery) SetHasShippingOptionID(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLUpdateBotPrecheckoutQuery) String() string {
@@ -19712,10 +23004,6 @@ func (o *TLUpdatesTooLong) String() string {
 // TLUpdateShortMessage represents ctor updateShortMessage#914fbf11 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true id:int user_id:int message:string pts:int pts_count:int date:int flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int flags.7?entities:Vector<MessageEntity> = Updates from Telegram
 type TLUpdateShortMessage struct {
 	Flags        uint                  // flags:#
-	Out          bool                  // flags.1?out:true
-	Mentioned    bool                  // flags.4?mentioned:true
-	MediaUnread  bool                  // flags.5?media_unread:true
-	Silent       bool                  // flags.13?silent:true
 	ID           int                   // id:int
 	UserID       int                   // user_id:int
 	Message      string                // message:string
@@ -19736,29 +23024,33 @@ func (o *TLUpdateShortMessage) Cmd() uint32 {
 
 func (o *TLUpdateShortMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Out = true
-	o.Mentioned = true
-	o.MediaUnread = true
-	o.Silent = true
 	o.ID = r.ReadInt()
 	o.UserID = r.ReadInt()
 	o.Message = r.ReadString()
 	o.Pts = r.ReadInt()
 	o.PtsCount = r.ReadInt()
 	o.Date = r.ReadInt()
-	if cmd := r.ReadCmd(); cmd != TagMessageFwdHeader {
-		r.Fail(errors.New("expected: messageFwdHeader"))
+	if (o.Flags & (1 << 2)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagMessageFwdHeader {
+			r.Fail(errors.New("expected: messageFwdHeader"))
+		}
+		o.FwdFrom = new(TLMessageFwdHeader)
+		o.FwdFrom.ReadBareFrom(r)
 	}
-	o.FwdFrom = new(TLMessageFwdHeader)
-	o.FwdFrom.ReadBareFrom(r)
-	o.ViaBotID = r.ReadInt()
-	o.ReplyToMsgID = r.ReadInt()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 11)) != 0 {
+		o.ViaBotID = r.ReadInt()
 	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	if (o.Flags & (1 << 3)) != 0 {
+		o.ReplyToMsgID = r.ReadInt()
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
 	}
 }
 
@@ -19770,15 +23062,119 @@ func (o *TLUpdateShortMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
 	w.WriteInt(o.Date)
-	w.WriteCmd(TagMessageFwdHeader)
-	o.FwdFrom.WriteBareTo(w)
-	w.WriteInt(o.ViaBotID)
-	w.WriteInt(o.ReplyToMsgID)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(TagMessageFwdHeader)
+		o.FwdFrom.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 11)) != 0 {
+		w.WriteInt(o.ViaBotID)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteInt(o.ReplyToMsgID)
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLUpdateShortMessage) Out() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdateShortMessage) SetOut(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLUpdateShortMessage) Mentioned() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLUpdateShortMessage) SetMentioned(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLUpdateShortMessage) MediaUnread() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLUpdateShortMessage) SetMediaUnread(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLUpdateShortMessage) Silent() bool {
+	return (o.Flags & (1 << 13)) != 0
+}
+
+func (o *TLUpdateShortMessage) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 13)
+	} else {
+		o.Flags &= ^(1 << 13)
+	}
+}
+
+func (o *TLUpdateShortMessage) HasFwdFrom() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLUpdateShortMessage) SetHasFwdFrom(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLUpdateShortMessage) HasViaBotID() bool {
+	return (o.Flags & (1 << 11)) != 0
+}
+
+func (o *TLUpdateShortMessage) SetHasViaBotID(v bool) {
+	if v {
+		o.Flags |= (1 << 11)
+	} else {
+		o.Flags &= ^(1 << 11)
+	}
+}
+
+func (o *TLUpdateShortMessage) HasReplyToMsgID() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLUpdateShortMessage) SetHasReplyToMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLUpdateShortMessage) HasEntities() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLUpdateShortMessage) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
 	}
 }
 
@@ -19789,10 +23185,6 @@ func (o *TLUpdateShortMessage) String() string {
 // TLUpdateShortChatMessage represents ctor updateShortChatMessage#16812688 flags:# flags.1?out:true flags.4?mentioned:true flags.5?media_unread:true flags.13?silent:true id:int from_id:int chat_id:int message:string pts:int pts_count:int date:int flags.2?fwd_from:MessageFwdHeader flags.11?via_bot_id:int flags.3?reply_to_msg_id:int flags.7?entities:Vector<MessageEntity> = Updates from Telegram
 type TLUpdateShortChatMessage struct {
 	Flags        uint                  // flags:#
-	Out          bool                  // flags.1?out:true
-	Mentioned    bool                  // flags.4?mentioned:true
-	MediaUnread  bool                  // flags.5?media_unread:true
-	Silent       bool                  // flags.13?silent:true
 	ID           int                   // id:int
 	FromID       int                   // from_id:int
 	ChatID       int                   // chat_id:int
@@ -19814,10 +23206,6 @@ func (o *TLUpdateShortChatMessage) Cmd() uint32 {
 
 func (o *TLUpdateShortChatMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Out = true
-	o.Mentioned = true
-	o.MediaUnread = true
-	o.Silent = true
 	o.ID = r.ReadInt()
 	o.FromID = r.ReadInt()
 	o.ChatID = r.ReadInt()
@@ -19825,19 +23213,27 @@ func (o *TLUpdateShortChatMessage) ReadBareFrom(r *tl.Reader) {
 	o.Pts = r.ReadInt()
 	o.PtsCount = r.ReadInt()
 	o.Date = r.ReadInt()
-	if cmd := r.ReadCmd(); cmd != TagMessageFwdHeader {
-		r.Fail(errors.New("expected: messageFwdHeader"))
+	if (o.Flags & (1 << 2)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagMessageFwdHeader {
+			r.Fail(errors.New("expected: messageFwdHeader"))
+		}
+		o.FwdFrom = new(TLMessageFwdHeader)
+		o.FwdFrom.ReadBareFrom(r)
 	}
-	o.FwdFrom = new(TLMessageFwdHeader)
-	o.FwdFrom.ReadBareFrom(r)
-	o.ViaBotID = r.ReadInt()
-	o.ReplyToMsgID = r.ReadInt()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 11)) != 0 {
+		o.ViaBotID = r.ReadInt()
 	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	if (o.Flags & (1 << 3)) != 0 {
+		o.ReplyToMsgID = r.ReadInt()
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
 	}
 }
 
@@ -19850,15 +23246,119 @@ func (o *TLUpdateShortChatMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
 	w.WriteInt(o.Date)
-	w.WriteCmd(TagMessageFwdHeader)
-	o.FwdFrom.WriteBareTo(w)
-	w.WriteInt(o.ViaBotID)
-	w.WriteInt(o.ReplyToMsgID)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(TagMessageFwdHeader)
+		o.FwdFrom.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 11)) != 0 {
+		w.WriteInt(o.ViaBotID)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteInt(o.ReplyToMsgID)
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLUpdateShortChatMessage) Out() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdateShortChatMessage) SetOut(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLUpdateShortChatMessage) Mentioned() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLUpdateShortChatMessage) SetMentioned(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLUpdateShortChatMessage) MediaUnread() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLUpdateShortChatMessage) SetMediaUnread(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLUpdateShortChatMessage) Silent() bool {
+	return (o.Flags & (1 << 13)) != 0
+}
+
+func (o *TLUpdateShortChatMessage) SetSilent(v bool) {
+	if v {
+		o.Flags |= (1 << 13)
+	} else {
+		o.Flags &= ^(1 << 13)
+	}
+}
+
+func (o *TLUpdateShortChatMessage) HasFwdFrom() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLUpdateShortChatMessage) SetHasFwdFrom(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLUpdateShortChatMessage) HasViaBotID() bool {
+	return (o.Flags & (1 << 11)) != 0
+}
+
+func (o *TLUpdateShortChatMessage) SetHasViaBotID(v bool) {
+	if v {
+		o.Flags |= (1 << 11)
+	} else {
+		o.Flags &= ^(1 << 11)
+	}
+}
+
+func (o *TLUpdateShortChatMessage) HasReplyToMsgID() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLUpdateShortChatMessage) SetHasReplyToMsgID(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLUpdateShortChatMessage) HasEntities() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLUpdateShortChatMessage) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
 	}
 }
 
@@ -20035,7 +23535,6 @@ func (o *TLUpdates) String() string {
 // TLUpdateShortSentMessage represents ctor updateShortSentMessage#11f1331c flags:# flags.1?out:true id:int pts:int pts_count:int date:int flags.9?media:MessageMedia flags.7?entities:Vector<MessageEntity> = Updates from Telegram
 type TLUpdateShortSentMessage struct {
 	Flags    uint                  // flags:#
-	Out      bool                  // flags.1?out:true
 	ID       int                   // id:int
 	Pts      int                   // pts:int
 	PtsCount int                   // pts_count:int
@@ -20052,18 +23551,21 @@ func (o *TLUpdateShortSentMessage) Cmd() uint32 {
 
 func (o *TLUpdateShortSentMessage) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Out = true
 	o.ID = r.ReadInt()
 	o.Pts = r.ReadInt()
 	o.PtsCount = r.ReadInt()
 	o.Date = r.ReadInt()
-	o.Media = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageMediaEmpty, TagMessageMediaPhoto, TagMessageMediaGeo, TagMessageMediaContact, TagMessageMediaUnsupported, TagMessageMediaDocument, TagMessageMediaWebPage, TagMessageMediaVenue, TagMessageMediaGame, TagMessageMediaInvoice).(TLMessageMediaType)
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 9)) != 0 {
+		o.Media = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageMediaEmpty, TagMessageMediaPhoto, TagMessageMediaGeo, TagMessageMediaContact, TagMessageMediaUnsupported, TagMessageMediaDocument, TagMessageMediaWebPage, TagMessageMediaVenue, TagMessageMediaGame, TagMessageMediaInvoice).(TLMessageMediaType)
 	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	if (o.Flags & (1 << 7)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
 	}
 }
 
@@ -20073,13 +23575,53 @@ func (o *TLUpdateShortSentMessage) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.Pts)
 	w.WriteInt(o.PtsCount)
 	w.WriteInt(o.Date)
-	w.WriteCmd(o.Media.Cmd())
-	o.Media.WriteBareTo(w)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 9)) != 0 {
+		w.WriteCmd(o.Media.Cmd())
+		o.Media.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLUpdateShortSentMessage) Out() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdateShortSentMessage) SetOut(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLUpdateShortSentMessage) HasMedia() bool {
+	return (o.Flags & (1 << 9)) != 0
+}
+
+func (o *TLUpdateShortSentMessage) SetHasMedia(v bool) {
+	if v {
+		o.Flags |= (1 << 9)
+	} else {
+		o.Flags &= ^(1 << 9)
+	}
+}
+
+func (o *TLUpdateShortSentMessage) HasEntities() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLUpdateShortSentMessage) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
 	}
 }
 
@@ -21645,7 +25187,6 @@ func (o *TLDocumentAttributeAnimated) String() string {
 // TLDocumentAttributeSticker represents ctor documentAttributeSticker#6319d612 flags:# flags.1?mask:true alt:string stickerset:InputStickerSet flags.0?mask_coords:MaskCoords = DocumentAttribute from Telegram
 type TLDocumentAttributeSticker struct {
 	Flags      uint                  // flags:#
-	Mask       bool                  // flags.1?mask:true
 	Alt        string                // alt:string
 	Stickerset TLInputStickerSetType // stickerset:InputStickerSet
 	MaskCoords *TLMaskCoords         // flags.0?mask_coords:MaskCoords
@@ -21659,14 +25200,15 @@ func (o *TLDocumentAttributeSticker) Cmd() uint32 {
 
 func (o *TLDocumentAttributeSticker) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Mask = true
 	o.Alt = r.ReadString()
 	o.Stickerset = Schema.ReadLimitedBoxedObjectFrom(r, TagInputStickerSetEmpty, TagInputStickerSetID, TagInputStickerSetShortName).(TLInputStickerSetType)
-	if cmd := r.ReadCmd(); cmd != TagMaskCoords {
-		r.Fail(errors.New("expected: maskCoords"))
+	if (o.Flags & (1 << 0)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagMaskCoords {
+			r.Fail(errors.New("expected: maskCoords"))
+		}
+		o.MaskCoords = new(TLMaskCoords)
+		o.MaskCoords.ReadBareFrom(r)
 	}
-	o.MaskCoords = new(TLMaskCoords)
-	o.MaskCoords.ReadBareFrom(r)
 }
 
 func (o *TLDocumentAttributeSticker) WriteBareTo(w *tl.Writer) {
@@ -21674,8 +25216,34 @@ func (o *TLDocumentAttributeSticker) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Alt)
 	w.WriteCmd(o.Stickerset.Cmd())
 	o.Stickerset.WriteBareTo(w)
-	w.WriteCmd(TagMaskCoords)
-	o.MaskCoords.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(TagMaskCoords)
+		o.MaskCoords.WriteBareTo(w)
+	}
+}
+
+func (o *TLDocumentAttributeSticker) Mask() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLDocumentAttributeSticker) SetMask(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLDocumentAttributeSticker) HasMaskCoords() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLDocumentAttributeSticker) SetHasMaskCoords(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLDocumentAttributeSticker) String() string {
@@ -21714,7 +25282,6 @@ func (o *TLDocumentAttributeVideo) String() string {
 // TLDocumentAttributeAudio represents ctor documentAttributeAudio#9852f9c6 flags:# flags.10?voice:true duration:int flags.0?title:string flags.1?performer:string flags.2?waveform:bytes = DocumentAttribute from Telegram
 type TLDocumentAttributeAudio struct {
 	Flags     uint   // flags:#
-	Voice     bool   // flags.10?voice:true
 	Duration  int    // duration:int
 	Title     string // flags.0?title:string
 	Performer string // flags.1?performer:string
@@ -21729,19 +25296,78 @@ func (o *TLDocumentAttributeAudio) Cmd() uint32 {
 
 func (o *TLDocumentAttributeAudio) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Voice = true
 	o.Duration = r.ReadInt()
-	o.Title = r.ReadString()
-	o.Performer = r.ReadString()
-	o.Waveform = r.ReadBlob()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Title = r.ReadString()
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Performer = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Waveform = r.ReadBlob()
+	}
 }
 
 func (o *TLDocumentAttributeAudio) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.Duration)
-	w.WriteString(o.Title)
-	w.WriteString(o.Performer)
-	w.WriteBlob(o.Waveform)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.Title)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.Performer)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteBlob(o.Waveform)
+	}
+}
+
+func (o *TLDocumentAttributeAudio) Voice() bool {
+	return (o.Flags & (1 << 10)) != 0
+}
+
+func (o *TLDocumentAttributeAudio) SetVoice(v bool) {
+	if v {
+		o.Flags |= (1 << 10)
+	} else {
+		o.Flags &= ^(1 << 10)
+	}
+}
+
+func (o *TLDocumentAttributeAudio) HasTitle() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLDocumentAttributeAudio) SetHasTitle(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLDocumentAttributeAudio) HasPerformer() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLDocumentAttributeAudio) SetHasPerformer(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLDocumentAttributeAudio) HasWaveform() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLDocumentAttributeAudio) SetHasWaveform(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLDocumentAttributeAudio) String() string {
@@ -21992,19 +25618,45 @@ func (o *TLWebPage) ReadBareFrom(r *tl.Reader) {
 	o.Url = r.ReadString()
 	o.DisplayUrl = r.ReadString()
 	o.Hash = r.ReadInt()
-	o.Type = r.ReadString()
-	o.SiteName = r.ReadString()
-	o.Title = r.ReadString()
-	o.Description = r.ReadString()
-	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
-	o.EmbedUrl = r.ReadString()
-	o.EmbedType = r.ReadString()
-	o.EmbedWidth = r.ReadInt()
-	o.EmbedHeight = r.ReadInt()
-	o.Duration = r.ReadInt()
-	o.Author = r.ReadString()
-	o.Document = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentEmpty, TagDocument).(TLDocumentType)
-	o.CachedPage = Schema.ReadLimitedBoxedObjectFrom(r, TagPagePart, TagPageFull).(TLPageType)
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Type = r.ReadString()
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.SiteName = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Title = r.ReadString()
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		o.Description = r.ReadString()
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		o.EmbedUrl = r.ReadString()
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		o.EmbedType = r.ReadString()
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		o.EmbedWidth = r.ReadInt()
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		o.EmbedHeight = r.ReadInt()
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		o.Duration = r.ReadInt()
+	}
+	if (o.Flags & (1 << 8)) != 0 {
+		o.Author = r.ReadString()
+	}
+	if (o.Flags & (1 << 9)) != 0 {
+		o.Document = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentEmpty, TagDocument).(TLDocumentType)
+	}
+	if (o.Flags & (1 << 10)) != 0 {
+		o.CachedPage = Schema.ReadLimitedBoxedObjectFrom(r, TagPagePart, TagPageFull).(TLPageType)
+	}
 }
 
 func (o *TLWebPage) WriteBareTo(w *tl.Writer) {
@@ -22013,22 +25665,204 @@ func (o *TLWebPage) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Url)
 	w.WriteString(o.DisplayUrl)
 	w.WriteInt(o.Hash)
-	w.WriteString(o.Type)
-	w.WriteString(o.SiteName)
-	w.WriteString(o.Title)
-	w.WriteString(o.Description)
-	w.WriteCmd(o.Photo.Cmd())
-	o.Photo.WriteBareTo(w)
-	w.WriteString(o.EmbedUrl)
-	w.WriteString(o.EmbedType)
-	w.WriteInt(o.EmbedWidth)
-	w.WriteInt(o.EmbedHeight)
-	w.WriteInt(o.Duration)
-	w.WriteString(o.Author)
-	w.WriteCmd(o.Document.Cmd())
-	o.Document.WriteBareTo(w)
-	w.WriteCmd(o.CachedPage.Cmd())
-	o.CachedPage.WriteBareTo(w)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteString(o.Type)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.SiteName)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.Title)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteString(o.Description)
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		w.WriteCmd(o.Photo.Cmd())
+		o.Photo.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		w.WriteString(o.EmbedUrl)
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		w.WriteString(o.EmbedType)
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		w.WriteInt(o.EmbedWidth)
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		w.WriteInt(o.EmbedHeight)
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		w.WriteInt(o.Duration)
+	}
+	if (o.Flags & (1 << 8)) != 0 {
+		w.WriteString(o.Author)
+	}
+	if (o.Flags & (1 << 9)) != 0 {
+		w.WriteCmd(o.Document.Cmd())
+		o.Document.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 10)) != 0 {
+		w.WriteCmd(o.CachedPage.Cmd())
+		o.CachedPage.WriteBareTo(w)
+	}
+}
+
+func (o *TLWebPage) HasType() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLWebPage) SetHasType(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLWebPage) HasSiteName() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLWebPage) SetHasSiteName(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLWebPage) HasTitle() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLWebPage) SetHasTitle(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLWebPage) HasDescription() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLWebPage) SetHasDescription(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLWebPage) HasPhoto() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLWebPage) SetHasPhoto(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLWebPage) HasEmbedUrl() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLWebPage) SetHasEmbedUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLWebPage) HasEmbedType() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLWebPage) SetHasEmbedType(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLWebPage) HasEmbedWidth() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLWebPage) SetHasEmbedWidth(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLWebPage) HasEmbedHeight() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLWebPage) SetHasEmbedHeight(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLWebPage) HasDuration() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLWebPage) SetHasDuration(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
+	}
+}
+
+func (o *TLWebPage) HasAuthor() bool {
+	return (o.Flags & (1 << 8)) != 0
+}
+
+func (o *TLWebPage) SetHasAuthor(v bool) {
+	if v {
+		o.Flags |= (1 << 8)
+	} else {
+		o.Flags &= ^(1 << 8)
+	}
+}
+
+func (o *TLWebPage) HasDocument() bool {
+	return (o.Flags & (1 << 9)) != 0
+}
+
+func (o *TLWebPage) SetHasDocument(v bool) {
+	if v {
+		o.Flags |= (1 << 9)
+	} else {
+		o.Flags &= ^(1 << 9)
+	}
+}
+
+func (o *TLWebPage) HasCachedPage() bool {
+	return (o.Flags & (1 << 10)) != 0
+}
+
+func (o *TLWebPage) SetHasCachedPage(v bool) {
+	if v {
+		o.Flags |= (1 << 10)
+	} else {
+		o.Flags &= ^(1 << 10)
+	}
 }
 
 func (o *TLWebPage) String() string {
@@ -22191,10 +26025,6 @@ func (o *TLChatInviteAlready) String() string {
 // TLChatInvite represents ctor chatInvite#db74f558 flags:# flags.0?channel:true flags.1?broadcast:true flags.2?public:true flags.3?megagroup:true title:string photo:ChatPhoto participants_count:int flags.4?participants:Vector<User> = ChatInvite from Telegram
 type TLChatInvite struct {
 	Flags             uint            // flags:#
-	Channel           bool            // flags.0?channel:true
-	Broadcast         bool            // flags.1?broadcast:true
-	Public            bool            // flags.2?public:true
-	Megagroup         bool            // flags.3?megagroup:true
 	Title             string          // title:string
 	Photo             TLChatPhotoType // photo:ChatPhoto
 	ParticipantsCount int             // participants_count:int
@@ -22209,19 +26039,17 @@ func (o *TLChatInvite) Cmd() uint32 {
 
 func (o *TLChatInvite) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Channel = true
-	o.Broadcast = true
-	o.Public = true
-	o.Megagroup = true
 	o.Title = r.ReadString()
 	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagChatPhotoEmpty, TagChatPhoto).(TLChatPhotoType)
 	o.ParticipantsCount = r.ReadInt()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
-	}
-	o.Participants = make([]TLUserType, r.ReadInt())
-	for i := 0; i < len(o.Participants); i++ {
-		o.Participants[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUserEmpty, TagUser).(TLUserType)
+	if (o.Flags & (1 << 4)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Participants = make([]TLUserType, r.ReadInt())
+		for i := 0; i < len(o.Participants); i++ {
+			o.Participants[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagUserEmpty, TagUser).(TLUserType)
+		}
 	}
 }
 
@@ -22231,11 +26059,73 @@ func (o *TLChatInvite) WriteBareTo(w *tl.Writer) {
 	w.WriteCmd(o.Photo.Cmd())
 	o.Photo.WriteBareTo(w)
 	w.WriteInt(o.ParticipantsCount)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Participants))
-	for i := 0; i < len(o.Participants); i++ {
-		w.WriteCmd(o.Participants[i].Cmd())
-		o.Participants[i].WriteBareTo(w)
+	if (o.Flags & (1 << 4)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Participants))
+		for i := 0; i < len(o.Participants); i++ {
+			w.WriteCmd(o.Participants[i].Cmd())
+			o.Participants[i].WriteBareTo(w)
+		}
+	}
+}
+
+func (o *TLChatInvite) Channel() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLChatInvite) SetChannel(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLChatInvite) Broadcast() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLChatInvite) SetBroadcast(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLChatInvite) Public() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLChatInvite) SetPublic(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLChatInvite) Megagroup() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLChatInvite) SetMegagroup(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLChatInvite) HasParticipants() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLChatInvite) SetHasParticipants(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
 	}
 }
 
@@ -22435,10 +26325,9 @@ func (o *TLKeyboardButtonRequestGeoLocation) String() string {
 
 // TLKeyboardButtonSwitchInline represents ctor keyboardButtonSwitchInline#0568a748 flags:# flags.0?same_peer:true text:string query:string = KeyboardButton from Telegram
 type TLKeyboardButtonSwitchInline struct {
-	Flags    uint   // flags:#
-	SamePeer bool   // flags.0?same_peer:true
-	Text     string // text:string
-	Query    string // query:string
+	Flags uint   // flags:#
+	Text  string // text:string
+	Query string // query:string
 }
 
 func (o *TLKeyboardButtonSwitchInline) IsTLKeyboardButton() {}
@@ -22449,7 +26338,6 @@ func (o *TLKeyboardButtonSwitchInline) Cmd() uint32 {
 
 func (o *TLKeyboardButtonSwitchInline) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.SamePeer = true
 	o.Text = r.ReadString()
 	o.Query = r.ReadString()
 }
@@ -22458,6 +26346,18 @@ func (o *TLKeyboardButtonSwitchInline) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.Text)
 	w.WriteString(o.Query)
+}
+
+func (o *TLKeyboardButtonSwitchInline) SamePeer() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLKeyboardButtonSwitchInline) SetSamePeer(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLKeyboardButtonSwitchInline) String() string {
@@ -22512,8 +26412,7 @@ func (o *TLKeyboardButtonBuy) String() string {
 
 // TLReplyKeyboardHide represents ctor replyKeyboardHide#a03e5b85 flags:# flags.2?selective:true = ReplyMarkup from Telegram
 type TLReplyKeyboardHide struct {
-	Flags     uint // flags:#
-	Selective bool // flags.2?selective:true
+	Flags uint // flags:#
 }
 
 func (o *TLReplyKeyboardHide) IsTLReplyMarkup() {}
@@ -22524,11 +26423,22 @@ func (o *TLReplyKeyboardHide) Cmd() uint32 {
 
 func (o *TLReplyKeyboardHide) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Selective = true
 }
 
 func (o *TLReplyKeyboardHide) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLReplyKeyboardHide) Selective() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLReplyKeyboardHide) SetSelective(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLReplyKeyboardHide) String() string {
@@ -22537,9 +26447,7 @@ func (o *TLReplyKeyboardHide) String() string {
 
 // TLReplyKeyboardForceReply represents ctor replyKeyboardForceReply#f4108aa0 flags:# flags.1?single_use:true flags.2?selective:true = ReplyMarkup from Telegram
 type TLReplyKeyboardForceReply struct {
-	Flags     uint // flags:#
-	SingleUse bool // flags.1?single_use:true
-	Selective bool // flags.2?selective:true
+	Flags uint // flags:#
 }
 
 func (o *TLReplyKeyboardForceReply) IsTLReplyMarkup() {}
@@ -22550,12 +26458,34 @@ func (o *TLReplyKeyboardForceReply) Cmd() uint32 {
 
 func (o *TLReplyKeyboardForceReply) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.SingleUse = true
-	o.Selective = true
 }
 
 func (o *TLReplyKeyboardForceReply) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
+}
+
+func (o *TLReplyKeyboardForceReply) SingleUse() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLReplyKeyboardForceReply) SetSingleUse(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLReplyKeyboardForceReply) Selective() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLReplyKeyboardForceReply) SetSelective(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLReplyKeyboardForceReply) String() string {
@@ -22564,11 +26494,8 @@ func (o *TLReplyKeyboardForceReply) String() string {
 
 // TLReplyKeyboardMarkup represents ctor replyKeyboardMarkup#3502758c flags:# flags.0?resize:true flags.1?single_use:true flags.2?selective:true rows:Vector<KeyboardButtonRow> = ReplyMarkup from Telegram
 type TLReplyKeyboardMarkup struct {
-	Flags     uint                   // flags:#
-	Resize    bool                   // flags.0?resize:true
-	SingleUse bool                   // flags.1?single_use:true
-	Selective bool                   // flags.2?selective:true
-	Rows      []*TLKeyboardButtonRow // rows:Vector<KeyboardButtonRow>
+	Flags uint                   // flags:#
+	Rows  []*TLKeyboardButtonRow // rows:Vector<KeyboardButtonRow>
 }
 
 func (o *TLReplyKeyboardMarkup) IsTLReplyMarkup() {}
@@ -22579,9 +26506,6 @@ func (o *TLReplyKeyboardMarkup) Cmd() uint32 {
 
 func (o *TLReplyKeyboardMarkup) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Resize = true
-	o.SingleUse = true
-	o.Selective = true
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -22602,6 +26526,42 @@ func (o *TLReplyKeyboardMarkup) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.Rows); i++ {
 		w.WriteCmd(TagKeyboardButtonRow)
 		o.Rows[i].WriteBareTo(w)
+	}
+}
+
+func (o *TLReplyKeyboardMarkup) Resize() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLReplyKeyboardMarkup) SetResize(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLReplyKeyboardMarkup) SingleUse() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLReplyKeyboardMarkup) SetSingleUse(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLReplyKeyboardMarkup) Selective() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLReplyKeyboardMarkup) SetSelective(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
 	}
 }
 
@@ -23047,7 +27007,6 @@ func (o *TLInputChannel) String() string {
 // TLUpdatesChannelDifferenceEmpty represents ctor updates.channelDifferenceEmpty#3e11affb flags:# flags.0?final:true pts:int flags.1?timeout:int = updates.ChannelDifference from Telegram
 type TLUpdatesChannelDifferenceEmpty struct {
 	Flags   uint // flags:#
-	Final   bool // flags.0?final:true
 	Pts     int  // pts:int
 	Timeout int  // flags.1?timeout:int
 }
@@ -23060,15 +27019,42 @@ func (o *TLUpdatesChannelDifferenceEmpty) Cmd() uint32 {
 
 func (o *TLUpdatesChannelDifferenceEmpty) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Final = true
 	o.Pts = r.ReadInt()
-	o.Timeout = r.ReadInt()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Timeout = r.ReadInt()
+	}
 }
 
 func (o *TLUpdatesChannelDifferenceEmpty) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.Pts)
-	w.WriteInt(o.Timeout)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteInt(o.Timeout)
+	}
+}
+
+func (o *TLUpdatesChannelDifferenceEmpty) Final() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdatesChannelDifferenceEmpty) SetFinal(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLUpdatesChannelDifferenceEmpty) HasTimeout() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdatesChannelDifferenceEmpty) SetHasTimeout(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLUpdatesChannelDifferenceEmpty) String() string {
@@ -23078,7 +27064,6 @@ func (o *TLUpdatesChannelDifferenceEmpty) String() string {
 // TLUpdatesChannelDifferenceTooLong represents ctor updates.channelDifferenceTooLong#410dee07 flags:# flags.0?final:true pts:int flags.1?timeout:int top_message:int read_inbox_max_id:int read_outbox_max_id:int unread_count:int messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = updates.ChannelDifference from Telegram
 type TLUpdatesChannelDifferenceTooLong struct {
 	Flags           uint            // flags:#
-	Final           bool            // flags.0?final:true
 	Pts             int             // pts:int
 	Timeout         int             // flags.1?timeout:int
 	TopMessage      int             // top_message:int
@@ -23098,9 +27083,10 @@ func (o *TLUpdatesChannelDifferenceTooLong) Cmd() uint32 {
 
 func (o *TLUpdatesChannelDifferenceTooLong) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Final = true
 	o.Pts = r.ReadInt()
-	o.Timeout = r.ReadInt()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Timeout = r.ReadInt()
+	}
 	o.TopMessage = r.ReadInt()
 	o.ReadInboxMaxID = r.ReadInt()
 	o.ReadOutboxMaxID = r.ReadInt()
@@ -23131,7 +27117,9 @@ func (o *TLUpdatesChannelDifferenceTooLong) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdatesChannelDifferenceTooLong) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.Pts)
-	w.WriteInt(o.Timeout)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteInt(o.Timeout)
+	}
 	w.WriteInt(o.TopMessage)
 	w.WriteInt(o.ReadInboxMaxID)
 	w.WriteInt(o.ReadOutboxMaxID)
@@ -23156,6 +27144,30 @@ func (o *TLUpdatesChannelDifferenceTooLong) WriteBareTo(w *tl.Writer) {
 	}
 }
 
+func (o *TLUpdatesChannelDifferenceTooLong) Final() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdatesChannelDifferenceTooLong) SetFinal(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLUpdatesChannelDifferenceTooLong) HasTimeout() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdatesChannelDifferenceTooLong) SetHasTimeout(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
 func (o *TLUpdatesChannelDifferenceTooLong) String() string {
 	return tl.Pretty(o)
 }
@@ -23163,7 +27175,6 @@ func (o *TLUpdatesChannelDifferenceTooLong) String() string {
 // TLUpdatesChannelDifference represents ctor updates.channelDifference#2064674e flags:# flags.0?final:true pts:int flags.1?timeout:int new_messages:Vector<Message> other_updates:Vector<Update> chats:Vector<Chat> users:Vector<User> = updates.ChannelDifference from Telegram
 type TLUpdatesChannelDifference struct {
 	Flags        uint            // flags:#
-	Final        bool            // flags.0?final:true
 	Pts          int             // pts:int
 	Timeout      int             // flags.1?timeout:int
 	NewMessages  []TLMessageType // new_messages:Vector<Message>
@@ -23180,9 +27191,10 @@ func (o *TLUpdatesChannelDifference) Cmd() uint32 {
 
 func (o *TLUpdatesChannelDifference) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Final = true
 	o.Pts = r.ReadInt()
-	o.Timeout = r.ReadInt()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Timeout = r.ReadInt()
+	}
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -23216,7 +27228,9 @@ func (o *TLUpdatesChannelDifference) ReadBareFrom(r *tl.Reader) {
 func (o *TLUpdatesChannelDifference) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteInt(o.Pts)
-	w.WriteInt(o.Timeout)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteInt(o.Timeout)
+	}
 	w.WriteCmd(TagVector)
 	w.WriteInt(len(o.NewMessages))
 	for i := 0; i < len(o.NewMessages); i++ {
@@ -23240,6 +27254,30 @@ func (o *TLUpdatesChannelDifference) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.Users); i++ {
 		w.WriteCmd(o.Users[i].Cmd())
 		o.Users[i].WriteBareTo(w)
+	}
+}
+
+func (o *TLUpdatesChannelDifference) Final() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLUpdatesChannelDifference) SetFinal(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLUpdatesChannelDifference) HasTimeout() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLUpdatesChannelDifference) SetHasTimeout(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
 	}
 }
 
@@ -23269,9 +27307,8 @@ func (o *TLChannelMessagesFilterEmpty) String() string {
 
 // TLChannelMessagesFilter represents ctor channelMessagesFilter#cd77d957 flags:# flags.1?exclude_new_messages:true ranges:Vector<MessageRange> = ChannelMessagesFilter from Telegram
 type TLChannelMessagesFilter struct {
-	Flags              uint              // flags:#
-	ExcludeNewMessages bool              // flags.1?exclude_new_messages:true
-	Ranges             []*TLMessageRange // ranges:Vector<MessageRange>
+	Flags  uint              // flags:#
+	Ranges []*TLMessageRange // ranges:Vector<MessageRange>
 }
 
 func (o *TLChannelMessagesFilter) IsTLChannelMessagesFilter() {}
@@ -23282,7 +27319,6 @@ func (o *TLChannelMessagesFilter) Cmd() uint32 {
 
 func (o *TLChannelMessagesFilter) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.ExcludeNewMessages = true
 	if cmd := r.ReadCmd(); cmd != TagVector {
 		r.Fail(errors.New("expected: vector"))
 	}
@@ -23303,6 +27339,18 @@ func (o *TLChannelMessagesFilter) WriteBareTo(w *tl.Writer) {
 	for i := 0; i < len(o.Ranges); i++ {
 		w.WriteCmd(TagMessageRange)
 		o.Ranges[i].WriteBareTo(w)
+	}
+}
+
+func (o *TLChannelMessagesFilter) ExcludeNewMessages() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLChannelMessagesFilter) SetExcludeNewMessages(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
 	}
 }
 
@@ -23757,14 +27805,30 @@ func (o *TLInputBotInlineMessageMediaAuto) Cmd() uint32 {
 func (o *TLInputBotInlineMessageMediaAuto) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Caption = r.ReadString()
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
 }
 
 func (o *TLInputBotInlineMessageMediaAuto) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.Caption)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLInputBotInlineMessageMediaAuto) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLInputBotInlineMessageMediaAuto) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLInputBotInlineMessageMediaAuto) String() string {
@@ -23774,7 +27838,6 @@ func (o *TLInputBotInlineMessageMediaAuto) String() string {
 // TLInputBotInlineMessageText represents ctor inputBotInlineMessageText#3dcd7a87 flags:# flags.0?no_webpage:true message:string flags.1?entities:Vector<MessageEntity> flags.2?reply_markup:ReplyMarkup = InputBotInlineMessage from Telegram
 type TLInputBotInlineMessageText struct {
 	Flags       uint                  // flags:#
-	NoWebpage   bool                  // flags.0?no_webpage:true
 	Message     string                // message:string
 	Entities    []TLMessageEntityType // flags.1?entities:Vector<MessageEntity>
 	ReplyMarkup TLReplyMarkupType     // flags.2?reply_markup:ReplyMarkup
@@ -23788,29 +27851,72 @@ func (o *TLInputBotInlineMessageText) Cmd() uint32 {
 
 func (o *TLInputBotInlineMessageText) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.NoWebpage = true
 	o.Message = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 1)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
 	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 	}
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 }
 
 func (o *TLInputBotInlineMessageText) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.Message)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
 	}
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLInputBotInlineMessageText) NoWebpage() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLInputBotInlineMessageText) SetNoWebpage(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLInputBotInlineMessageText) HasEntities() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLInputBotInlineMessageText) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLInputBotInlineMessageText) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLInputBotInlineMessageText) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLInputBotInlineMessageText) String() string {
@@ -23833,15 +27939,31 @@ func (o *TLInputBotInlineMessageMediaGeo) Cmd() uint32 {
 func (o *TLInputBotInlineMessageMediaGeo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.GeoPoint = Schema.ReadLimitedBoxedObjectFrom(r, TagInputGeoPointEmpty, TagInputGeoPoint).(TLInputGeoPointType)
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
 }
 
 func (o *TLInputBotInlineMessageMediaGeo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.GeoPoint.Cmd())
 	o.GeoPoint.WriteBareTo(w)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLInputBotInlineMessageMediaGeo) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLInputBotInlineMessageMediaGeo) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLInputBotInlineMessageMediaGeo) String() string {
@@ -23872,7 +27994,9 @@ func (o *TLInputBotInlineMessageMediaVenue) ReadBareFrom(r *tl.Reader) {
 	o.Address = r.ReadString()
 	o.Provider = r.ReadString()
 	o.VenueID = r.ReadString()
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
 }
 
 func (o *TLInputBotInlineMessageMediaVenue) WriteBareTo(w *tl.Writer) {
@@ -23883,8 +28007,22 @@ func (o *TLInputBotInlineMessageMediaVenue) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Address)
 	w.WriteString(o.Provider)
 	w.WriteString(o.VenueID)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLInputBotInlineMessageMediaVenue) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLInputBotInlineMessageMediaVenue) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLInputBotInlineMessageMediaVenue) String() string {
@@ -23911,7 +28049,9 @@ func (o *TLInputBotInlineMessageMediaContact) ReadBareFrom(r *tl.Reader) {
 	o.PhoneNumber = r.ReadString()
 	o.FirstName = r.ReadString()
 	o.LastName = r.ReadString()
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
 }
 
 func (o *TLInputBotInlineMessageMediaContact) WriteBareTo(w *tl.Writer) {
@@ -23919,8 +28059,22 @@ func (o *TLInputBotInlineMessageMediaContact) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PhoneNumber)
 	w.WriteString(o.FirstName)
 	w.WriteString(o.LastName)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLInputBotInlineMessageMediaContact) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLInputBotInlineMessageMediaContact) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLInputBotInlineMessageMediaContact) String() string {
@@ -23941,13 +28095,29 @@ func (o *TLInputBotInlineMessageGame) Cmd() uint32 {
 
 func (o *TLInputBotInlineMessageGame) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
 }
 
 func (o *TLInputBotInlineMessageGame) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLInputBotInlineMessageGame) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLInputBotInlineMessageGame) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLInputBotInlineMessageGame) String() string {
@@ -23981,15 +28151,33 @@ func (o *TLInputBotInlineResult) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.ID = r.ReadString()
 	o.Type = r.ReadString()
-	o.Title = r.ReadString()
-	o.Description = r.ReadString()
-	o.Url = r.ReadString()
-	o.ThumbUrl = r.ReadString()
-	o.ContentUrl = r.ReadString()
-	o.ContentType = r.ReadString()
-	o.W = r.ReadInt()
-	o.H = r.ReadInt()
-	o.Duration = r.ReadInt()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Title = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Description = r.ReadString()
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		o.Url = r.ReadString()
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		o.ThumbUrl = r.ReadString()
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		o.ContentUrl = r.ReadString()
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		o.ContentType = r.ReadString()
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		o.W = r.ReadInt()
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		o.H = r.ReadInt()
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		o.Duration = r.ReadInt()
+	}
 	o.SendMessage = Schema.ReadLimitedBoxedObjectFrom(r, TagInputBotInlineMessageMediaAuto, TagInputBotInlineMessageText, TagInputBotInlineMessageMediaGeo, TagInputBotInlineMessageMediaVenue, TagInputBotInlineMessageMediaContact, TagInputBotInlineMessageGame).(TLInputBotInlineMessageType)
 }
 
@@ -23997,17 +28185,143 @@ func (o *TLInputBotInlineResult) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.ID)
 	w.WriteString(o.Type)
-	w.WriteString(o.Title)
-	w.WriteString(o.Description)
-	w.WriteString(o.Url)
-	w.WriteString(o.ThumbUrl)
-	w.WriteString(o.ContentUrl)
-	w.WriteString(o.ContentType)
-	w.WriteInt(o.W)
-	w.WriteInt(o.H)
-	w.WriteInt(o.Duration)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.Title)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.Description)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteString(o.Url)
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		w.WriteString(o.ThumbUrl)
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		w.WriteString(o.ContentUrl)
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		w.WriteString(o.ContentType)
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		w.WriteInt(o.W)
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		w.WriteInt(o.H)
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		w.WriteInt(o.Duration)
+	}
 	w.WriteCmd(o.SendMessage.Cmd())
 	o.SendMessage.WriteBareTo(w)
+}
+
+func (o *TLInputBotInlineResult) HasTitle() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLInputBotInlineResult) SetHasTitle(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLInputBotInlineResult) HasDescription() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLInputBotInlineResult) SetHasDescription(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLInputBotInlineResult) HasUrl() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLInputBotInlineResult) SetHasUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLInputBotInlineResult) HasThumbUrl() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLInputBotInlineResult) SetHasThumbUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLInputBotInlineResult) HasContentUrl() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLInputBotInlineResult) SetHasContentUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLInputBotInlineResult) HasContentType() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLInputBotInlineResult) SetHasContentType(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLInputBotInlineResult) HasW() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLInputBotInlineResult) SetHasW(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLInputBotInlineResult) HasH() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLInputBotInlineResult) SetHasH(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLInputBotInlineResult) HasDuration() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLInputBotInlineResult) SetHasDuration(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
+	}
 }
 
 func (o *TLInputBotInlineResult) String() string {
@@ -24069,8 +28383,12 @@ func (o *TLInputBotInlineResultDocument) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.ID = r.ReadString()
 	o.Type = r.ReadString()
-	o.Title = r.ReadString()
-	o.Description = r.ReadString()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Title = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Description = r.ReadString()
+	}
 	o.Document = Schema.ReadLimitedBoxedObjectFrom(r, TagInputDocumentEmpty, TagInputDocument).(TLInputDocumentType)
 	o.SendMessage = Schema.ReadLimitedBoxedObjectFrom(r, TagInputBotInlineMessageMediaAuto, TagInputBotInlineMessageText, TagInputBotInlineMessageMediaGeo, TagInputBotInlineMessageMediaVenue, TagInputBotInlineMessageMediaContact, TagInputBotInlineMessageGame).(TLInputBotInlineMessageType)
 }
@@ -24079,12 +28397,40 @@ func (o *TLInputBotInlineResultDocument) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.ID)
 	w.WriteString(o.Type)
-	w.WriteString(o.Title)
-	w.WriteString(o.Description)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.Title)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.Description)
+	}
 	w.WriteCmd(o.Document.Cmd())
 	o.Document.WriteBareTo(w)
 	w.WriteCmd(o.SendMessage.Cmd())
 	o.SendMessage.WriteBareTo(w)
+}
+
+func (o *TLInputBotInlineResultDocument) HasTitle() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLInputBotInlineResultDocument) SetHasTitle(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLInputBotInlineResultDocument) HasDescription() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLInputBotInlineResultDocument) SetHasDescription(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLInputBotInlineResultDocument) String() string {
@@ -24137,14 +28483,30 @@ func (o *TLBotInlineMessageMediaAuto) Cmd() uint32 {
 func (o *TLBotInlineMessageMediaAuto) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Caption = r.ReadString()
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
 }
 
 func (o *TLBotInlineMessageMediaAuto) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.Caption)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLBotInlineMessageMediaAuto) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLBotInlineMessageMediaAuto) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLBotInlineMessageMediaAuto) String() string {
@@ -24154,7 +28516,6 @@ func (o *TLBotInlineMessageMediaAuto) String() string {
 // TLBotInlineMessageText represents ctor botInlineMessageText#8c7f65e2 flags:# flags.0?no_webpage:true message:string flags.1?entities:Vector<MessageEntity> flags.2?reply_markup:ReplyMarkup = BotInlineMessage from Telegram
 type TLBotInlineMessageText struct {
 	Flags       uint                  // flags:#
-	NoWebpage   bool                  // flags.0?no_webpage:true
 	Message     string                // message:string
 	Entities    []TLMessageEntityType // flags.1?entities:Vector<MessageEntity>
 	ReplyMarkup TLReplyMarkupType     // flags.2?reply_markup:ReplyMarkup
@@ -24168,29 +28529,72 @@ func (o *TLBotInlineMessageText) Cmd() uint32 {
 
 func (o *TLBotInlineMessageText) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.NoWebpage = true
 	o.Message = r.ReadString()
-	if cmd := r.ReadCmd(); cmd != TagVector {
-		r.Fail(errors.New("expected: vector"))
+	if (o.Flags & (1 << 1)) != 0 {
+		if cmd := r.ReadCmd(); cmd != TagVector {
+			r.Fail(errors.New("expected: vector"))
+		}
+		o.Entities = make([]TLMessageEntityType, r.ReadInt())
+		for i := 0; i < len(o.Entities); i++ {
+			o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+		}
 	}
-	o.Entities = make([]TLMessageEntityType, r.ReadInt())
-	for i := 0; i < len(o.Entities); i++ {
-		o.Entities[i] = Schema.ReadLimitedBoxedObjectFrom(r, TagMessageEntityUnknown, TagMessageEntityMention, TagMessageEntityHashtag, TagMessageEntityBotCommand, TagMessageEntityUrl, TagMessageEntityEmail, TagMessageEntityBold, TagMessageEntityItalic, TagMessageEntityCode, TagMessageEntityPre, TagMessageEntityTextUrl, TagMessageEntityMentionName, TagInputMessageEntityMentionName).(TLMessageEntityType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 	}
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
 }
 
 func (o *TLBotInlineMessageText) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.Message)
-	w.WriteCmd(TagVector)
-	w.WriteInt(len(o.Entities))
-	for i := 0; i < len(o.Entities); i++ {
-		w.WriteCmd(o.Entities[i].Cmd())
-		o.Entities[i].WriteBareTo(w)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteCmd(TagVector)
+		w.WriteInt(len(o.Entities))
+		for i := 0; i < len(o.Entities); i++ {
+			w.WriteCmd(o.Entities[i].Cmd())
+			o.Entities[i].WriteBareTo(w)
+		}
 	}
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLBotInlineMessageText) NoWebpage() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLBotInlineMessageText) SetNoWebpage(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLBotInlineMessageText) HasEntities() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLBotInlineMessageText) SetHasEntities(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLBotInlineMessageText) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLBotInlineMessageText) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLBotInlineMessageText) String() string {
@@ -24213,15 +28617,31 @@ func (o *TLBotInlineMessageMediaGeo) Cmd() uint32 {
 func (o *TLBotInlineMessageMediaGeo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.Geo = Schema.ReadLimitedBoxedObjectFrom(r, TagGeoPointEmpty, TagGeoPoint).(TLGeoPointType)
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
 }
 
 func (o *TLBotInlineMessageMediaGeo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(o.Geo.Cmd())
 	o.Geo.WriteBareTo(w)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLBotInlineMessageMediaGeo) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLBotInlineMessageMediaGeo) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLBotInlineMessageMediaGeo) String() string {
@@ -24252,7 +28672,9 @@ func (o *TLBotInlineMessageMediaVenue) ReadBareFrom(r *tl.Reader) {
 	o.Address = r.ReadString()
 	o.Provider = r.ReadString()
 	o.VenueID = r.ReadString()
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
 }
 
 func (o *TLBotInlineMessageMediaVenue) WriteBareTo(w *tl.Writer) {
@@ -24263,8 +28685,22 @@ func (o *TLBotInlineMessageMediaVenue) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.Address)
 	w.WriteString(o.Provider)
 	w.WriteString(o.VenueID)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLBotInlineMessageMediaVenue) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLBotInlineMessageMediaVenue) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLBotInlineMessageMediaVenue) String() string {
@@ -24291,7 +28727,9 @@ func (o *TLBotInlineMessageMediaContact) ReadBareFrom(r *tl.Reader) {
 	o.PhoneNumber = r.ReadString()
 	o.FirstName = r.ReadString()
 	o.LastName = r.ReadString()
-	o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	if (o.Flags & (1 << 2)) != 0 {
+		o.ReplyMarkup = Schema.ReadLimitedBoxedObjectFrom(r, TagReplyKeyboardHide, TagReplyKeyboardForceReply, TagReplyKeyboardMarkup, TagReplyInlineMarkup).(TLReplyMarkupType)
+	}
 }
 
 func (o *TLBotInlineMessageMediaContact) WriteBareTo(w *tl.Writer) {
@@ -24299,8 +28737,22 @@ func (o *TLBotInlineMessageMediaContact) WriteBareTo(w *tl.Writer) {
 	w.WriteString(o.PhoneNumber)
 	w.WriteString(o.FirstName)
 	w.WriteString(o.LastName)
-	w.WriteCmd(o.ReplyMarkup.Cmd())
-	o.ReplyMarkup.WriteBareTo(w)
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteCmd(o.ReplyMarkup.Cmd())
+		o.ReplyMarkup.WriteBareTo(w)
+	}
+}
+
+func (o *TLBotInlineMessageMediaContact) HasReplyMarkup() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLBotInlineMessageMediaContact) SetHasReplyMarkup(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
 }
 
 func (o *TLBotInlineMessageMediaContact) String() string {
@@ -24334,15 +28786,33 @@ func (o *TLBotInlineResult) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.ID = r.ReadString()
 	o.Type = r.ReadString()
-	o.Title = r.ReadString()
-	o.Description = r.ReadString()
-	o.Url = r.ReadString()
-	o.ThumbUrl = r.ReadString()
-	o.ContentUrl = r.ReadString()
-	o.ContentType = r.ReadString()
-	o.W = r.ReadInt()
-	o.H = r.ReadInt()
-	o.Duration = r.ReadInt()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Title = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Description = r.ReadString()
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		o.Url = r.ReadString()
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		o.ThumbUrl = r.ReadString()
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		o.ContentUrl = r.ReadString()
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		o.ContentType = r.ReadString()
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		o.W = r.ReadInt()
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		o.H = r.ReadInt()
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		o.Duration = r.ReadInt()
+	}
 	o.SendMessage = Schema.ReadLimitedBoxedObjectFrom(r, TagBotInlineMessageMediaAuto, TagBotInlineMessageText, TagBotInlineMessageMediaGeo, TagBotInlineMessageMediaVenue, TagBotInlineMessageMediaContact).(TLBotInlineMessageType)
 }
 
@@ -24350,17 +28820,143 @@ func (o *TLBotInlineResult) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.ID)
 	w.WriteString(o.Type)
-	w.WriteString(o.Title)
-	w.WriteString(o.Description)
-	w.WriteString(o.Url)
-	w.WriteString(o.ThumbUrl)
-	w.WriteString(o.ContentUrl)
-	w.WriteString(o.ContentType)
-	w.WriteInt(o.W)
-	w.WriteInt(o.H)
-	w.WriteInt(o.Duration)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.Title)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.Description)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteString(o.Url)
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		w.WriteString(o.ThumbUrl)
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		w.WriteString(o.ContentUrl)
+	}
+	if (o.Flags & (1 << 5)) != 0 {
+		w.WriteString(o.ContentType)
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		w.WriteInt(o.W)
+	}
+	if (o.Flags & (1 << 6)) != 0 {
+		w.WriteInt(o.H)
+	}
+	if (o.Flags & (1 << 7)) != 0 {
+		w.WriteInt(o.Duration)
+	}
 	w.WriteCmd(o.SendMessage.Cmd())
 	o.SendMessage.WriteBareTo(w)
+}
+
+func (o *TLBotInlineResult) HasTitle() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLBotInlineResult) SetHasTitle(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLBotInlineResult) HasDescription() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLBotInlineResult) SetHasDescription(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLBotInlineResult) HasUrl() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLBotInlineResult) SetHasUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLBotInlineResult) HasThumbUrl() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLBotInlineResult) SetHasThumbUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
+}
+
+func (o *TLBotInlineResult) HasContentUrl() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLBotInlineResult) SetHasContentUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLBotInlineResult) HasContentType() bool {
+	return (o.Flags & (1 << 5)) != 0
+}
+
+func (o *TLBotInlineResult) SetHasContentType(v bool) {
+	if v {
+		o.Flags |= (1 << 5)
+	} else {
+		o.Flags &= ^(1 << 5)
+	}
+}
+
+func (o *TLBotInlineResult) HasW() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLBotInlineResult) SetHasW(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLBotInlineResult) HasH() bool {
+	return (o.Flags & (1 << 6)) != 0
+}
+
+func (o *TLBotInlineResult) SetHasH(v bool) {
+	if v {
+		o.Flags |= (1 << 6)
+	} else {
+		o.Flags &= ^(1 << 6)
+	}
+}
+
+func (o *TLBotInlineResult) HasDuration() bool {
+	return (o.Flags & (1 << 7)) != 0
+}
+
+func (o *TLBotInlineResult) SetHasDuration(v bool) {
+	if v {
+		o.Flags |= (1 << 7)
+	} else {
+		o.Flags &= ^(1 << 7)
+	}
 }
 
 func (o *TLBotInlineResult) String() string {
@@ -24389,10 +28985,18 @@ func (o *TLBotInlineMediaResult) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
 	o.ID = r.ReadString()
 	o.Type = r.ReadString()
-	o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
-	o.Document = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentEmpty, TagDocument).(TLDocumentType)
-	o.Title = r.ReadString()
-	o.Description = r.ReadString()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Photo = Schema.ReadLimitedBoxedObjectFrom(r, TagPhotoEmpty, TagPhoto).(TLPhotoType)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Document = Schema.ReadLimitedBoxedObjectFrom(r, TagDocumentEmpty, TagDocument).(TLDocumentType)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Title = r.ReadString()
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		o.Description = r.ReadString()
+	}
 	o.SendMessage = Schema.ReadLimitedBoxedObjectFrom(r, TagBotInlineMessageMediaAuto, TagBotInlineMessageText, TagBotInlineMessageMediaGeo, TagBotInlineMessageMediaVenue, TagBotInlineMessageMediaContact).(TLBotInlineMessageType)
 }
 
@@ -24400,14 +29004,70 @@ func (o *TLBotInlineMediaResult) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteString(o.ID)
 	w.WriteString(o.Type)
-	w.WriteCmd(o.Photo.Cmd())
-	o.Photo.WriteBareTo(w)
-	w.WriteCmd(o.Document.Cmd())
-	o.Document.WriteBareTo(w)
-	w.WriteString(o.Title)
-	w.WriteString(o.Description)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(o.Photo.Cmd())
+		o.Photo.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteCmd(o.Document.Cmd())
+		o.Document.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.Title)
+	}
+	if (o.Flags & (1 << 3)) != 0 {
+		w.WriteString(o.Description)
+	}
 	w.WriteCmd(o.SendMessage.Cmd())
 	o.SendMessage.WriteBareTo(w)
+}
+
+func (o *TLBotInlineMediaResult) HasPhoto() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLBotInlineMediaResult) SetHasPhoto(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLBotInlineMediaResult) HasDocument() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLBotInlineMediaResult) SetHasDocument(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLBotInlineMediaResult) HasTitle() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLBotInlineMediaResult) SetHasTitle(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLBotInlineMediaResult) HasDescription() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLBotInlineMediaResult) SetHasDescription(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
 }
 
 func (o *TLBotInlineMediaResult) String() string {
@@ -25598,11 +30258,9 @@ func (o *TLPageBlockPhoto) String() string {
 
 // TLPageBlockVideo represents ctor pageBlockVideo#d9d71866 flags:# flags.0?autoplay:true flags.1?loop:true video_id:long caption:RichText = PageBlock from Telegram
 type TLPageBlockVideo struct {
-	Flags    uint           // flags:#
-	Autoplay bool           // flags.0?autoplay:true
-	Loop     bool           // flags.1?loop:true
-	VideoID  uint64         // video_id:long
-	Caption  TLRichTextType // caption:RichText
+	Flags   uint           // flags:#
+	VideoID uint64         // video_id:long
+	Caption TLRichTextType // caption:RichText
 }
 
 func (o *TLPageBlockVideo) IsTLPageBlock() {}
@@ -25613,8 +30271,6 @@ func (o *TLPageBlockVideo) Cmd() uint32 {
 
 func (o *TLPageBlockVideo) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Autoplay = true
-	o.Loop = true
 	o.VideoID = r.ReadUint64()
 	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
 }
@@ -25624,6 +30280,30 @@ func (o *TLPageBlockVideo) WriteBareTo(w *tl.Writer) {
 	w.WriteUint64(o.VideoID)
 	w.WriteCmd(o.Caption.Cmd())
 	o.Caption.WriteBareTo(w)
+}
+
+func (o *TLPageBlockVideo) Autoplay() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPageBlockVideo) SetAutoplay(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPageBlockVideo) Loop() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPageBlockVideo) SetLoop(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLPageBlockVideo) String() string {
@@ -25656,15 +30336,13 @@ func (o *TLPageBlockCover) String() string {
 
 // TLPageBlockEmbed represents ctor pageBlockEmbed#cde200d1 flags:# flags.0?full_width:true flags.3?allow_scrolling:true flags.1?url:string flags.2?html:string flags.4?poster_photo_id:long w:int h:int caption:RichText = PageBlock from Telegram
 type TLPageBlockEmbed struct {
-	Flags          uint           // flags:#
-	FullWidth      bool           // flags.0?full_width:true
-	AllowScrolling bool           // flags.3?allow_scrolling:true
-	Url            string         // flags.1?url:string
-	Html           string         // flags.2?html:string
-	PosterPhotoID  uint64         // flags.4?poster_photo_id:long
-	W              int            // w:int
-	H              int            // h:int
-	Caption        TLRichTextType // caption:RichText
+	Flags         uint           // flags:#
+	Url           string         // flags.1?url:string
+	Html          string         // flags.2?html:string
+	PosterPhotoID uint64         // flags.4?poster_photo_id:long
+	W             int            // w:int
+	H             int            // h:int
+	Caption       TLRichTextType // caption:RichText
 }
 
 func (o *TLPageBlockEmbed) IsTLPageBlock() {}
@@ -25675,11 +30353,15 @@ func (o *TLPageBlockEmbed) Cmd() uint32 {
 
 func (o *TLPageBlockEmbed) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.FullWidth = true
-	o.AllowScrolling = true
-	o.Url = r.ReadString()
-	o.Html = r.ReadString()
-	o.PosterPhotoID = r.ReadUint64()
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Url = r.ReadString()
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		o.Html = r.ReadString()
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		o.PosterPhotoID = r.ReadUint64()
+	}
 	o.W = r.ReadInt()
 	o.H = r.ReadInt()
 	o.Caption = Schema.ReadLimitedBoxedObjectFrom(r, TagTextEmpty, TagTextPlain, TagTextBold, TagTextItalic, TagTextUnderline, TagTextStrike, TagTextFixed, TagTextUrl, TagTextEmail, TagTextConcat).(TLRichTextType)
@@ -25687,13 +30369,79 @@ func (o *TLPageBlockEmbed) ReadBareFrom(r *tl.Reader) {
 
 func (o *TLPageBlockEmbed) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
-	w.WriteString(o.Url)
-	w.WriteString(o.Html)
-	w.WriteUint64(o.PosterPhotoID)
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteString(o.Url)
+	}
+	if (o.Flags & (1 << 2)) != 0 {
+		w.WriteString(o.Html)
+	}
+	if (o.Flags & (1 << 4)) != 0 {
+		w.WriteUint64(o.PosterPhotoID)
+	}
 	w.WriteInt(o.W)
 	w.WriteInt(o.H)
 	w.WriteCmd(o.Caption.Cmd())
 	o.Caption.WriteBareTo(w)
+}
+
+func (o *TLPageBlockEmbed) FullWidth() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPageBlockEmbed) SetFullWidth(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPageBlockEmbed) AllowScrolling() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLPageBlockEmbed) SetAllowScrolling(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLPageBlockEmbed) HasUrl() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPageBlockEmbed) SetHasUrl(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
+}
+
+func (o *TLPageBlockEmbed) HasHtml() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLPageBlockEmbed) SetHasHtml(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLPageBlockEmbed) HasPosterPhotoID() bool {
+	return (o.Flags & (1 << 4)) != 0
+}
+
+func (o *TLPageBlockEmbed) SetHasPosterPhotoID(v bool) {
+	if v {
+		o.Flags |= (1 << 4)
+	} else {
+		o.Flags &= ^(1 << 4)
+	}
 }
 
 func (o *TLPageBlockEmbed) String() string {
@@ -26109,7 +30857,6 @@ func (o *TLInputPaymentCredentialsSaved) String() string {
 // TLInputPaymentCredentials represents ctor inputPaymentCredentials#3417d728 flags:# flags.0?save:true data:DataJSON = InputPaymentCredentials from Telegram
 type TLInputPaymentCredentials struct {
 	Flags uint        // flags:#
-	Save  bool        // flags.0?save:true
 	Data  *TLDataJSON // data:DataJSON
 }
 
@@ -26121,7 +30868,6 @@ func (o *TLInputPaymentCredentials) Cmd() uint32 {
 
 func (o *TLInputPaymentCredentials) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.Save = true
 	if cmd := r.ReadCmd(); cmd != TagDataJSON {
 		r.Fail(errors.New("expected: dataJSON"))
 	}
@@ -26133,6 +30879,18 @@ func (o *TLInputPaymentCredentials) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteCmd(TagDataJSON)
 	o.Data.WriteBareTo(w)
+}
+
+func (o *TLInputPaymentCredentials) Save() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLInputPaymentCredentials) SetSave(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLInputPaymentCredentials) String() string {
@@ -26192,7 +30950,9 @@ func (o *TLPhoneCallWaiting) ReadBareFrom(r *tl.Reader) {
 	}
 	o.Protocol = new(TLPhoneCallProtocol)
 	o.Protocol.ReadBareFrom(r)
-	o.ReceiveDate = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.ReceiveDate = r.ReadInt()
+	}
 }
 
 func (o *TLPhoneCallWaiting) WriteBareTo(w *tl.Writer) {
@@ -26204,7 +30964,21 @@ func (o *TLPhoneCallWaiting) WriteBareTo(w *tl.Writer) {
 	w.WriteInt(o.ParticipantID)
 	w.WriteCmd(TagPhoneCallProtocol)
 	o.Protocol.WriteBareTo(w)
-	w.WriteInt(o.ReceiveDate)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteInt(o.ReceiveDate)
+	}
+}
+
+func (o *TLPhoneCallWaiting) HasReceiveDate() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPhoneCallWaiting) SetHasReceiveDate(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
 }
 
 func (o *TLPhoneCallWaiting) String() string {
@@ -26383,12 +31157,10 @@ func (o *TLPhoneCall) String() string {
 
 // TLPhoneCallDiscarded represents ctor phoneCallDiscarded#50ca4de1 flags:# flags.2?need_rating:true flags.3?need_debug:true id:long flags.0?reason:PhoneCallDiscardReason flags.1?duration:int = PhoneCall from Telegram
 type TLPhoneCallDiscarded struct {
-	Flags      uint                         // flags:#
-	NeedRating bool                         // flags.2?need_rating:true
-	NeedDebug  bool                         // flags.3?need_debug:true
-	ID         uint64                       // id:long
-	Reason     TLPhoneCallDiscardReasonType // flags.0?reason:PhoneCallDiscardReason
-	Duration   int                          // flags.1?duration:int
+	Flags    uint                         // flags:#
+	ID       uint64                       // id:long
+	Reason   TLPhoneCallDiscardReasonType // flags.0?reason:PhoneCallDiscardReason
+	Duration int                          // flags.1?duration:int
 }
 
 func (o *TLPhoneCallDiscarded) IsTLPhoneCall() {}
@@ -26399,19 +31171,73 @@ func (o *TLPhoneCallDiscarded) Cmd() uint32 {
 
 func (o *TLPhoneCallDiscarded) ReadBareFrom(r *tl.Reader) {
 	o.Flags = uint(r.ReadUint32())
-	o.NeedRating = true
-	o.NeedDebug = true
 	o.ID = r.ReadUint64()
-	o.Reason = Schema.ReadLimitedBoxedObjectFrom(r, TagPhoneCallDiscardReasonMissed, TagPhoneCallDiscardReasonDisconnect, TagPhoneCallDiscardReasonHangup, TagPhoneCallDiscardReasonBusy).(TLPhoneCallDiscardReasonType)
-	o.Duration = r.ReadInt()
+	if (o.Flags & (1 << 0)) != 0 {
+		o.Reason = Schema.ReadLimitedBoxedObjectFrom(r, TagPhoneCallDiscardReasonMissed, TagPhoneCallDiscardReasonDisconnect, TagPhoneCallDiscardReasonHangup, TagPhoneCallDiscardReasonBusy).(TLPhoneCallDiscardReasonType)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		o.Duration = r.ReadInt()
+	}
 }
 
 func (o *TLPhoneCallDiscarded) WriteBareTo(w *tl.Writer) {
 	w.WriteUint32(uint32(o.Flags))
 	w.WriteUint64(o.ID)
-	w.WriteCmd(o.Reason.Cmd())
-	o.Reason.WriteBareTo(w)
-	w.WriteInt(o.Duration)
+	if (o.Flags & (1 << 0)) != 0 {
+		w.WriteCmd(o.Reason.Cmd())
+		o.Reason.WriteBareTo(w)
+	}
+	if (o.Flags & (1 << 1)) != 0 {
+		w.WriteInt(o.Duration)
+	}
+}
+
+func (o *TLPhoneCallDiscarded) NeedRating() bool {
+	return (o.Flags & (1 << 2)) != 0
+}
+
+func (o *TLPhoneCallDiscarded) SetNeedRating(v bool) {
+	if v {
+		o.Flags |= (1 << 2)
+	} else {
+		o.Flags &= ^(1 << 2)
+	}
+}
+
+func (o *TLPhoneCallDiscarded) NeedDebug() bool {
+	return (o.Flags & (1 << 3)) != 0
+}
+
+func (o *TLPhoneCallDiscarded) SetNeedDebug(v bool) {
+	if v {
+		o.Flags |= (1 << 3)
+	} else {
+		o.Flags &= ^(1 << 3)
+	}
+}
+
+func (o *TLPhoneCallDiscarded) HasReason() bool {
+	return (o.Flags & (1 << 0)) != 0
+}
+
+func (o *TLPhoneCallDiscarded) SetHasReason(v bool) {
+	if v {
+		o.Flags |= (1 << 0)
+	} else {
+		o.Flags &= ^(1 << 0)
+	}
+}
+
+func (o *TLPhoneCallDiscarded) HasDuration() bool {
+	return (o.Flags & (1 << 1)) != 0
+}
+
+func (o *TLPhoneCallDiscarded) SetHasDuration(v bool) {
+	if v {
+		o.Flags |= (1 << 1)
+	} else {
+		o.Flags &= ^(1 << 1)
+	}
 }
 
 func (o *TLPhoneCallDiscarded) String() string {
