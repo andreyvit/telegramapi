@@ -344,7 +344,7 @@ func TestMultiCtorType(t *testing.T) {
 
 func TestConditionalFlagField(t *testing.T) {
 	sch := tlschema.MustParse(`
-        dcOption#5d8c6cc flags:# ipv6:flags.0?true media_only:flags.1?true tcpo_only:flags.2?true id:int ip_address:string port:int = DcOption;
+        dcOption#5d8c6cc flags:# ipv6:flags.0?true media_only:flags.1?true tcpo_only:flags.2?true id:int ip_address:string port:flags.3?int = DcOption;
     `)
 	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
 	expected := `
@@ -363,14 +363,18 @@ func TestConditionalFlagField(t *testing.T) {
             o.Flags = uint(r.ReadUint32())
             o.ID = r.ReadInt()
             o.IPAddress = r.ReadString()
-            o.Port = r.ReadInt()
+            if (o.Flags & (1 << 3)) != 0 {
+                o.Port = r.ReadInt()
+            }
         }
 
         func (o *TLDCOption) WriteBareTo(w *tl.Writer) {
             w.WriteUint32(uint32(o.Flags))
             w.WriteInt(o.ID)
             w.WriteString(o.IPAddress)
-            w.WriteInt(o.Port)
+            if (o.Flags & (1 << 3)) != 0 {
+                w.WriteInt(o.Port)
+            }
         }
 
         func (o *TLDCOption) IPv6() bool {
@@ -381,7 +385,7 @@ func TestConditionalFlagField(t *testing.T) {
             if v {
                 o.Flags |= (1 << 0)
             } else {
-                o.Flags &= ^(1 << 0)
+                o.Flags &= ^uint(1 << 0)
             }
         }
 
@@ -393,7 +397,7 @@ func TestConditionalFlagField(t *testing.T) {
             if v {
                 o.Flags |= (1 << 1)
             } else {
-                o.Flags &= ^(1 << 1)
+                o.Flags &= ^uint(1 << 1)
             }
         }
 
@@ -405,7 +409,78 @@ func TestConditionalFlagField(t *testing.T) {
             if v {
                 o.Flags |= (1 << 2)
             } else {
-                o.Flags &= ^(1 << 2)
+                o.Flags &= ^uint(1 << 2)
+            }
+        }
+
+        func (o *TLDCOption) HasPort() bool {
+            return (o.Flags & (1 << 3)) != 0
+        }
+
+        func (o *TLDCOption) SetHasPort(v bool) {
+            if v {
+                o.Flags |= (1 << 3)
+            } else {
+                o.Flags &= ^uint(1 << 3)
+            }
+        }
+    `
+	a, e := diff.TrimLinesInString(code), diff.TrimLinesInString(expected)
+	if a != e {
+		t.Errorf("Code not as expected:\n%v\n\nActual:\n%s", diff.LineDiff(e, a), code)
+	}
+}
+
+func TestConditionalConflict(t *testing.T) {
+	sch := tlschema.MustParse(`
+        messages.botCallbackAnswer#36585ea4 flags:# has_url:flags.3?true url:flags.2?string = messages.BotCallbackAnswer;
+    `)
+	code := GenerateGoCode(sch, Options{PackageName: "foo", SkipPrelude: true})
+	expected := `
+        type TLMessagesBotCallbackAnswer struct {
+            Flags uint
+            URL   string
+        }
+
+        func (o *TLMessagesBotCallbackAnswer) Cmd() uint32 {
+            return TagMessagesBotCallbackAnswer
+        }
+
+        func (o *TLMessagesBotCallbackAnswer) ReadBareFrom(r *tl.Reader) {
+            o.Flags = uint(r.ReadUint32())
+            if (o.Flags & (1 << 2)) != 0 {
+                o.URL = r.ReadString()
+            }
+        }
+
+        func (o *TLMessagesBotCallbackAnswer) WriteBareTo(w *tl.Writer) {
+            w.WriteUint32(uint32(o.Flags))
+            if (o.Flags & (1 << 2)) != 0 {
+                w.WriteString(o.URL)
+            }
+        }
+
+        func (o *TLMessagesBotCallbackAnswer) HasURL() bool {
+            return (o.Flags & (1 << 3)) != 0
+        }
+
+        func (o *TLMessagesBotCallbackAnswer) SetHasURL(v bool) {
+            if v {
+                o.Flags |= (1 << 3)
+            } else {
+                o.Flags &= ^uint(1 << 3)
+            }
+        }
+
+        func (o *TLMessagesBotCallbackAnswer) HasURLField() bool {
+            return (o.Flags & (1 << 2)) != 0
+        }
+
+        func (o *TLMessagesBotCallbackAnswer) SetHasURLField(v bool) {
+            if v {
+                o.Flags |= (1 << 2)
+            } else {
+                o.Flags &= ^uint(1 << 2)
             }
         }
     `

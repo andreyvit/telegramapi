@@ -817,6 +817,23 @@ func (r *StructRepr) findArg(tlName string) *ArgRepr {
 	return nil
 }
 
+func (r *StructRepr) findConflictingGoName(name string) bool {
+	for _, ar := range r.ArgReprs {
+		if ar.HasField() && (ar.GoName == name) {
+			return true
+		}
+		if ar.IsCond() {
+			if ar.CondGetterGoName == name {
+				return true
+			}
+			if ar.CondSetterGoName == name {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (r *StructRepr) Resolve(resolver Resolver) error {
 	for _, arg := range r.Ctor.Args {
 		ar := &ArgRepr{
@@ -840,6 +857,10 @@ func (r *StructRepr) Resolve(resolver Resolver) error {
 				ar.CondType = FieldWithFlag
 				ar.CondGetterGoName = "Has" + ar.GoName
 				ar.CondSetterGoName = "SetHas" + ar.GoName
+				if r.findConflictingGoName(ar.CondGetterGoName) {
+					ar.CondGetterGoName = "Has" + ar.GoName + "Field"
+					ar.CondSetterGoName = "SetHas" + ar.GoName + "Field"
+				}
 			}
 			ar.CondBit = arg.CondBit
 		}
@@ -981,7 +1002,7 @@ func (r *StructRepr) AppendGoDefs(buf *bytes.Buffer, options CodeGenOptions) {
 		buf.WriteString(fmt.Sprintf("return (o.%s & (1<<%d)) != 0\n}\n", ar.CondArg.GoName, ar.CondBit))
 		buf.WriteString("\n")
 		buf.WriteString(fmt.Sprintf("func (o *%s) %s(v bool) {\n", r.GoName, ar.CondSetterGoName))
-		buf.WriteString(fmt.Sprintf("if v { o.%s |= (1<<%d) } else { o.%s &= ^(1<<%d) }\n}\n", ar.CondArg.GoName, ar.CondBit, ar.CondArg.GoName, ar.CondBit))
+		buf.WriteString(fmt.Sprintf("if v { o.%s |= (1<<%d) } else { o.%s &= ^%s(1<<%d) }\n}\n", ar.CondArg.GoName, ar.CondBit, ar.CondArg.GoName, ar.CondArg.TypeRepr.GoType(), ar.CondBit))
 	}
 
 	if !options.SkipUtil {
