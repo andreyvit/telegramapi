@@ -60,6 +60,11 @@ func (schema *Schema) MustReadBoxedObject(raw []byte) Object {
 }
 
 func (schema *Schema) ReadBoxedObjectFrom(r *Reader) Object {
+	r = DecodeObject(r)
+	if r == nil {
+		return nil
+	}
+
 	cmd := r.PeekCmd()
 	o := schema.Factory(cmd)
 	if o != nil {
@@ -73,6 +78,11 @@ func (schema *Schema) ReadBoxedObjectFrom(r *Reader) Object {
 }
 
 func (schema *Schema) ReadLimitedBoxedObjectFrom(r *Reader, cmds ...uint32) Object {
+	r = DecodeObject(r)
+	if r == nil {
+		return nil
+	}
+
 	if r.ExpectCmd(cmds...) {
 		return schema.ReadBoxedObjectFrom(r)
 	} else {
