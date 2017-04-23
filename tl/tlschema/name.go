@@ -75,7 +75,7 @@ func (n ScopedName) GoName() string {
 	}
 }
 
-var abbrevs = [][]byte{[]byte("DH"), []byte("OK"), []byte("PQ"), []byte("RPC"), []byte("IP"), []byte("DC"), []byte("ID"), []byte("IDs"), []byte("API"), []byte("IPv6"), []byte("TCPo"), []byte("TCP")}
+var abbrevs = [][]byte{[]byte("DH"), []byte("OK"), []byte("PQ"), []byte("RPC"), []byte("IP"), []byte("DC"), []byte("ID"), []byte("IDs"), []byte("API"), []byte("IPv6"), []byte("TCPo"), []byte("TCP"), []byte("URL")}
 var badAbbrevs [][]byte
 
 func init() {
