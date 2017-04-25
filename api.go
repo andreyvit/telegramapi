@@ -201,13 +201,13 @@ func (c *Conn) runInternal() error {
 		Verbose: c.Verbose,
 	})
 
-	c.session.OnStateChanged(c.saveSessionState)
-
 	if dc.Auth.KeyID != 0 {
 		c.session.RestoreAuthState(&dc.Auth, dc.FramerState)
 	} else {
 		c.state.LoginState = LoggedOut
 	}
+
+	c.session.OnStateChanged(c.saveSessionState)
 
 	go c.dispatchDelegateCalls()
 	go c.runProcessing()
