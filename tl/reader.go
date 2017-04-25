@@ -129,6 +129,9 @@ func (r *Reader) ReadUint32() uint32 {
 func (r *Reader) ReadInt() int {
 	return int(r.ReadUint32())
 }
+func (r *Reader) ReadBool() bool {
+	return r.ReadUint32() != 0
+}
 func (r *Reader) ReadCmd() uint32 {
 	return r.ReadUint32()
 }

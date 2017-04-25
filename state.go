@@ -82,6 +82,19 @@ type State struct {
 	PreferredDC int
 
 	DCs map[int]*DCState
+
+	LoginState    LoginState
+	PhoneNumber   string
+	PhoneCodeHash string
+
+	UserID    int
+	FirstName string
+	LastName  string
+	Username  string
+}
+
+func (o *State) Cmd() uint32 {
+	return 0
 }
 
 func (o *State) initialize() {
@@ -105,9 +118,27 @@ func (o *State) findPreferredDC() *DCState {
 	return nil
 }
 
-func (o *State) Read(r *tl.Reader) {
+func (o *State) WriteBareTo(w *tl.Writer) {
+	w.WriteInt(4)
+	w.WriteInt(o.PreferredDC)
+
+	w.WriteInt(len(o.DCs))
+	for _, dc := range o.DCs {
+		dc.Write(w)
+	}
+
+	w.WriteUint32(uint32(o.LoginState))
+	w.WriteString(o.PhoneNumber)
+	w.WriteString(o.PhoneCodeHash)
+	w.WriteInt(o.UserID)
+	w.WriteString(o.FirstName)
+	w.WriteString(o.LastName)
+	w.WriteString(o.Username)
+}
+
+func (o *State) ReadBareFrom(r *tl.Reader) {
 	ver := r.ReadInt()
-	if ver < 1 || ver > 1 {
+	if ver < 1 || ver > 4 {
 		r.Fail(errors.New("Unsupported version"))
 	}
 
@@ -120,28 +151,18 @@ func (o *State) Read(r *tl.Reader) {
 		dc.Read(r, 1)
 		o.DCs[dc.ID] = dc
 	}
-}
 
-func (o *State) Write(w *tl.Writer) {
-	w.WriteInt(1)
-	w.WriteInt(o.PreferredDC)
-
-	w.WriteInt(len(o.DCs))
-	for _, dc := range o.DCs {
-		dc.Write(w)
+	if ver >= 2 {
+		o.LoginState = LoginState(r.ReadUint32())
+		o.PhoneNumber = r.ReadString()
+		o.PhoneCodeHash = r.ReadString()
 	}
-}
-
-func (o *State) ReadBytes(data []byte) error {
-	var r tl.Reader
-	r.Reset(data)
-	o.Read(&r)
-	r.ExpectEOF()
-	return r.Err()
-}
-
-func (o *State) Bytes() []byte {
-	var w tl.Writer
-	o.Write(&w)
-	return w.Bytes()
+	if ver >= 4 {
+		o.UserID = r.ReadInt()
+	}
+	if ver >= 3 {
+		o.FirstName = r.ReadString()
+		o.LastName = r.ReadString()
+		o.Username = r.ReadString()
+	}
 }

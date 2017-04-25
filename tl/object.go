@@ -106,6 +106,20 @@ func (schema *Schema) DescribeCmdOfPayload(raw []byte) string {
 	return schema.DescribeCmd(CmdOfPayload(raw))
 }
 
+func ReadBare(o Object, data []byte) error {
+	var r Reader
+	r.Reset(data)
+	o.ReadBareFrom(&r)
+	r.ExpectEOF()
+	return r.Err()
+}
+
+func BareBytes(o Object) []byte {
+	var w Writer
+	o.WriteBareTo(&w)
+	return w.Bytes()
+}
+
 func Bytes(o Object) []byte {
 	var w Writer
 	w.WriteCmd(o.Cmd())

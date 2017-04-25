@@ -203,6 +203,8 @@ func (c *Conn) runInternal() error {
 
 	if dc.Auth.KeyID != 0 {
 		c.session.RestoreAuthState(&dc.Auth, dc.FramerState)
+	} else {
+		c.state.LoginState = LoggedOut
 	}
 
 	go c.dispatchDelegateCalls()

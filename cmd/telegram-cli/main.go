@@ -1,14 +1,18 @@
 package main
 
 import (
+	"errors"
+	"flag"
 	"fmt"
+	"github.com/andreyvit/telegramapi/tl"
+	"github.com/chzyer/readline"
+	"github.com/kr/pretty"
 	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
 
 	"github.com/andreyvit/telegramapi"
-	"github.com/andreyvit/telegramapi/mtproto"
 )
 
 const publicKey = `
@@ -28,12 +32,7 @@ func main() {
 	options := telegramapi.Options{
 		SeedAddr:  telegramapi.Addr{"149.154.175.100", 443},
 		PublicKey: publicKey,
-		Verbose:   2,
-	}
-
-	isTest := false
-	if isTest {
-		options.SeedAddr = telegramapi.Addr{"149.154.167.40", 443}
+		Verbose:   1,
 	}
 
 	apiID := os.Getenv("TG_APP_ID")
@@ -57,10 +56,19 @@ func main() {
 		stateFile: "tg-state.bin",
 	}
 
+	var isTest bool
+	flag.StringVar(&tool.phoneNumber, "phone", "", "Set the phone number to log in as")
+	flag.BoolVar(&isTest, "test", false, "Use test endpoint")
+	flag.Parse()
+
+	if isTest {
+		options.SeedAddr = telegramapi.Addr{"149.154.167.40", 443}
+	}
+
 	state := new(telegramapi.State)
 	stateBytes, err := ioutil.ReadFile(tool.stateFile)
 	if err == nil {
-		err = state.ReadBytes(stateBytes)
+		err = tl.ReadBare(state, stateBytes)
 		if err != nil {
 			log.Printf("** ERROR: reading state from %v: %v", tool.stateFile, err)
 			os.Exit(1)
@@ -82,13 +90,16 @@ type Tool struct {
 	tg *telegramapi.Conn
 
 	stateFile string
+
+	phoneNumber string
+	phoneCode   string
 }
 
 func (tool *Tool) HandleConnectionReady() {
 	go tool.runProcessingNoErr()
 }
 func (tool *Tool) HandleStateChanged(newState telegramapi.State) {
-	bytes := newState.Bytes()
+	bytes := tl.BareBytes(&newState)
 	err := ioutil.WriteFile(tool.stateFile, bytes, 0777)
 	if err != nil {
 		log.Printf("** ERROR: saving state to %v: %v", tool.stateFile, err)
@@ -105,26 +116,58 @@ func (tool *Tool) runProcessingNoErr() {
 }
 
 func (tool *Tool) runProcessing() error {
-	r, err := tool.tg.Send(&mtproto.TLHelpGetConfig{})
+	if tool.tg.LoginState() == telegramapi.LoggedOut {
+		err := tool.tg.StartLogin(tool.phoneNumber)
+		if err != nil {
+			return err
+		}
+	}
+
+	if tool.tg.LoginState() == telegramapi.WaitingForCode {
+		code, err := readline.Line("Code: ")
+		if err != nil {
+			return err
+		}
+
+		err = tool.tg.CompleteLoginWithCode(code)
+		if err != nil {
+			return err
+		}
+	}
+
+	if tool.tg.LoginState() == telegramapi.WaitingFor2FA {
+		pw, err := readline.Password("2FA password: ")
+		if err != nil {
+			return err
+		}
+
+		err = tool.tg.CompleteLoginWith2FAPassword(pw)
+		if err != nil {
+			return err
+		}
+	}
+
+	if tool.tg.LoginState() != telegramapi.LoggedIn {
+		log.Printf("** login failed for some reason")
+		return errors.New("login failed for some reason")
+	}
+
+	log.Printf("LOGGED IN")
+
+	contacts := telegramapi.NewContactList()
+
+	err := tool.tg.LoadChats(contacts)
 	if err != nil {
 		return err
 	}
 
-	r, err = tool.tg.Send(&mtproto.TLAuthSendCode{
-		Flags:         1,
-		PhoneNumber:   "79061932959",
-		CurrentNumber: true,
-		APIID:         tool.tg.APIID,
-		APIHash:       tool.tg.APIHash,
-	})
-	if err != nil {
-		return err
-	}
-	switch r := r.(type) {
-	case *mtproto.TLAuthSentCode:
-		log.Printf("Got auth.sendCode response: %v", r)
-	default:
-		return tool.tg.HandleUnknownReply(r)
+	log.Printf("Loaded contacts: %v", pretty.Sprint(contacts))
+
+	if contacts.SelfChat != nil {
+		err := tool.tg.LoadHistory(contacts, contacts.SelfChat)
+		if err != nil {
+			return err
+		}
 	}
 
 	// for {

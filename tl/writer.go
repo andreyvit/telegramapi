@@ -69,6 +69,13 @@ func (w *Writer) WriteCmd(v uint32) {
 func (w *Writer) WriteInt(v int) {
 	w.WriteUint32(uint32(v))
 }
+func (w *Writer) WriteBool(v bool) {
+	if v {
+		w.WriteUint32(1)
+	} else {
+		w.WriteUint32(0)
+	}
+}
 func (w *Writer) WriteTimeSec32(tm time.Time) {
 	w.WriteUint32(uint32(tm.Unix()))
 }
