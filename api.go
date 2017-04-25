@@ -2,6 +2,7 @@ package telegramapi
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"sync"
@@ -137,10 +138,11 @@ func (c *Conn) HandleUnknownReply(r tl.Object) error {
 			}
 		}
 		log.Printf("RPC error: %v", r)
+		return fmt.Errorf("telegram error: %s", r.ErrorMessage)
 	default:
 		log.Printf("Unknown reply: %v", r)
+		return errors.New("unknown reply")
 	}
-	return errors.New("unknown reply")
 }
 
 func (c *Conn) saveSessionState() {
