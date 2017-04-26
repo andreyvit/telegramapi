@@ -52,19 +52,25 @@ func main() {
 		os.Exit(64) // EX_USAGE
 	}
 
-	tool := &Tool{
-		stateFile: "tg-state.bin",
-	}
+	tool := &Tool{}
 
 	var isTest bool
 	var isFreshStart bool
 	var dumpStateAndQuit bool
 	flag.StringVar(&tool.phoneNumber, "phone", "", "Set the phone number to log in as")
 	flag.BoolVar(&isTest, "test", false, "Use test endpoint")
-	flag.BoolVar(&isFreshStart, "F", false, "Kill state and start any")
+	flag.BoolVar(&isFreshStart, "fresh", false, "Kill state and start any")
 	flag.BoolVar(&dumpStateAndQuit, "dump", false, "Dump state and quit")
 	flag.BoolVar(&tool.isDryRun, "dry", false, "Dry run (don't do any processing, just connect)")
+	flag.IntVar(&tool.limit, "limit", 0, "Limit to this number of messages")
 	flag.Parse()
+
+	if tool.phoneNumber == "" {
+		fmt.Fprintf(os.Stderr, "** need to specify -phone\n")
+		os.Exit(64) // EX_USAGE
+	}
+
+	tool.stateFile = tool.phoneNumber + ".db"
 
 	if isTest {
 		options.SeedAddr = telegramapi.Addr{"149.154.167.40", 443}
@@ -104,6 +110,7 @@ type Tool struct {
 	phoneNumber string
 	phoneCode   string
 	isDryRun    bool
+	limit       int
 }
 
 func (tool *Tool) HandleConnectionReady() {
@@ -180,7 +187,7 @@ func (tool *Tool) runProcessing() error {
 	log.Printf("Loaded contacts: %v", pretty.Sprint(contacts))
 
 	if contacts.SelfChat != nil {
-		err := tool.tg.LoadHistory(contacts, contacts.SelfChat)
+		err := tool.export(contacts, contacts.SelfChat)
 		if err != nil {
 			return err
 		}
@@ -196,6 +203,25 @@ func (tool *Tool) runProcessing() error {
 	// 	}
 	// 	// conn.PrintMessage(msg)
 	// }
+
+	return nil
+}
+
+func (tool *Tool) export(contacts *telegramapi.ContactList, chat *telegramapi.Chat) error {
+	err := tool.tg.LoadHistory(contacts, chat, tool.limit)
+	if err != nil {
+		return err
+	}
+
+	exp := &Exporter{}
+	s := exp.Export(chat)
+
+	fname := chat.TitleOrName() + ".txt"
+
+	err = ioutil.WriteFile(fname, []byte(s), 0666)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

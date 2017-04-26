@@ -1,4 +1,4 @@
-tg-state.bin
+*.db
 *.txt
 
 # Compiled Object files, Static and Dynamic libs (Shared Objects)

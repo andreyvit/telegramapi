@@ -1,8 +1,11 @@
 package telegramapi
 
 import (
-	"github.com/andreyvit/telegramapi/mtproto"
+	"fmt"
+	// "sort"
 	"time"
+
+	"github.com/andreyvit/telegramapi/mtproto"
 )
 
 type ChatType int
@@ -35,6 +38,19 @@ func NewContactList() *ContactList {
 	}
 }
 
+func (contacts *ContactList) FindChatByPeer(peer mtproto.TLPeerType) *Chat {
+	switch peer := peer.(type) {
+	case *mtproto.TLPeerUser:
+		return contacts.UserChats[peer.UserID]
+	case *mtproto.TLPeerChat:
+		return contacts.ChatChats[peer.ChatID]
+	case *mtproto.TLPeerChannel:
+		return contacts.ChannelChats[peer.ChannelID]
+	default:
+		return nil
+	}
+}
+
 type Chat struct {
 	Type ChatType
 
@@ -57,6 +73,16 @@ type Chat struct {
 	Username string
 }
 
+func (chat *Chat) TitleOrName() string {
+	if chat.Title != "" {
+		return chat.Title
+	} else if chat.User != nil {
+		return chat.User.Name()
+	} else {
+		return fmt.Sprintf("Chat %d", chat.ID)
+	}
+}
+
 func (chat *Chat) inputPeer() mtproto.TLInputPeerType {
 	switch chat.Type {
 	case UserChat:
@@ -77,15 +103,36 @@ type User struct {
 	LastName  string
 }
 
+func (user *User) Name() string {
+	if user.Username != "" {
+		return user.Username
+	} else if user.FirstName != "" && user.LastName != "" {
+		return user.FirstName + " " + user.LastName
+	} else if user.FirstName != "" {
+		return user.FirstName
+	} else if user.LastName != "" {
+		return user.LastName
+	} else {
+		return fmt.Sprintf("User %d", user.ID)
+	}
+}
+
 type MessageList struct {
 	TopMessage   *Message
 	Messages     []*Message
 	MessagesByID map[int]*Message
+	MinKnownID   int
 }
 
 func newMessageList() *MessageList {
 	return &MessageList{
 		MessagesByID: make(map[int]*Message),
+	}
+}
+
+func (messages *MessageList) foundID(id int) {
+	if messages.MinKnownID == 0 || messages.MinKnownID > id {
+		messages.MinKnownID = id
 	}
 }
 
@@ -103,11 +150,19 @@ type Message struct {
 	EditDate time.Time
 
 	From *User
-	To   *User
 
 	FwdFrom    *User
 	FwdChannel *Chat
 	FwdDate    time.Time
 
+	ReplyToID int
+	ReplyTo   *Message
+
 	Text string
 }
+
+type byMsgDate []*Message
+
+func (a byMsgDate) Len() int           { return len(a) }
+func (a byMsgDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byMsgDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
