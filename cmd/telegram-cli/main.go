@@ -63,6 +63,7 @@ func main() {
 	flag.BoolVar(&isTest, "test", false, "Use test endpoint")
 	flag.BoolVar(&isFreshStart, "F", false, "Kill state and start any")
 	flag.BoolVar(&dumpStateAndQuit, "dump", false, "Dump state and quit")
+	flag.BoolVar(&tool.isDryRun, "dry", false, "Dry run (don't do any processing, just connect)")
 	flag.Parse()
 
 	if isTest {
@@ -75,11 +76,6 @@ func main() {
 		err = tl.ReadBare(state, stateBytes)
 		if err != nil {
 			log.Printf("** ERROR: reading state from %v: %v", tool.stateFile, err)
-			os.Exit(1)
-		}
-
-		if state.DCs[2] != nil && state.DCs[2].Auth.KeyID == 0 {
-			log.Printf("** oops: %v", pretty.Sprint(state))
 			os.Exit(1)
 		}
 	}
@@ -107,23 +103,14 @@ type Tool struct {
 
 	phoneNumber string
 	phoneCode   string
-
-	authed bool
+	isDryRun    bool
 }
 
 func (tool *Tool) HandleConnectionReady() {
 	go tool.runProcessingNoErr()
 }
 func (tool *Tool) HandleStateChanged(newState *telegramapi.State) {
-	log.Printf("HandleStateChanged: %v", pretty.Sprint(newState))
-	if tool.authed && newState.DCs[2] != nil && newState.DCs[2].Auth.KeyID == 0 {
-		panic("** oops")
-		// panic(fmt.Sprint("** oops: %v", pretty.Sprint(newState)))
-	}
-	if newState.DCs[2] != nil && newState.DCs[2].Auth.KeyID != 0 {
-		tool.authed = true
-	}
-
+	// log.Printf("HandleStateChanged: %v", pretty.Sprint(newState))
 	bytes := tl.BareBytes(newState)
 	err := ioutil.WriteFile(tool.stateFile, bytes, 0777)
 	if err != nil {
@@ -178,6 +165,10 @@ func (tool *Tool) runProcessing() error {
 	}
 
 	log.Printf("LOGGED IN")
+
+	if tool.isDryRun {
+		return nil
+	}
 
 	contacts := telegramapi.NewContactList()
 

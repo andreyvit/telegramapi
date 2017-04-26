@@ -32,7 +32,7 @@ type SessionOptions struct {
 	Verbose int
 }
 
-type Handler func(cmd uint32, o tl.Object) ([]tl.Object, error)
+type Handler func(msgID uint64, o tl.Object) ([]tl.Object, error)
 
 var ErrCmdNotHandled = errors.New("not handled")
 
@@ -54,7 +54,8 @@ type Session struct {
 	failc  chan error
 	sendc  chan outgoingMsg
 	closec chan struct{}
-	eventc chan uint32
+	// eventc chan uint32
+	closing bool
 
 	stateMut  sync.Mutex
 	stateCond *sync.Cond
@@ -96,7 +97,7 @@ func NewSession(transport Transport, options SessionOptions) *Session {
 		failc:  make(chan error, 1),
 		sendc:  make(chan outgoingMsg, 1),
 		closec: make(chan struct{}),
-		eventc: make(chan uint32, 10),
+		// eventc: make(chan uint32, 10),
 	}
 	s.stateCond = sync.NewCond(&s.stateMut)
 	s.AddHandler(s.handleKeyEx)
@@ -126,7 +127,7 @@ func (sess *Session) SetDC(dc int) {
 	sess.dc = dc
 }
 
-func (sess *Session) AddHandler(handler func(cmd uint32, o tl.Object) ([]tl.Object, error)) {
+func (sess *Session) AddHandler(handler func(msgID uint64, o tl.Object) ([]tl.Object, error)) {
 	h := Handler(handler)
 	sess.handlers = append(sess.handlers, h)
 }
@@ -161,9 +162,9 @@ func (sess *Session) Err() error {
 	return sess.err
 }
 
-func (sess *Session) Notify(pseudocmd uint32) {
-	sess.eventc <- pseudocmd
-}
+// func (sess *Session) Notify(pseudocmd uint32) {
+// 	sess.eventc <- pseudocmd
+// }
 
 func (sess *Session) Run() {
 	incomingc := make(chan []byte, 1)
@@ -194,8 +195,13 @@ loop:
 			sess.sendInternal(msg.Obj, msg.Reply)
 		case err := <-sess.failc:
 			sess.failInternal(err)
-		case pseudocmd := <-sess.eventc:
-			sess.broadcastInternal(pseudocmd)
+			// case pseudocmd := <-sess.eventc:
+			// 	sess.broadcastInternal(pseudocmd)
+		case <-sess.closec:
+			if !sess.closing {
+				sess.closing = true
+				sess.transport.Close()
+			}
 		}
 	}
 
@@ -330,6 +336,13 @@ func (sess *Session) finishPendingRPC(msgID uint64, obj tl.Object, err error) {
 	infl.Reply <- reply{obj, err}
 }
 
+func (sess *Session) ack(msgID uint64) {
+	// TODO: batch these messages
+	sess.sendInternal(&TLMsgsAck{
+		MsgIDs: []uint64{msgID},
+	}, nil)
+}
+
 func (sess *Session) handle(msg []byte) {
 	err := sess.doHandle(msg)
 	if err != nil {
@@ -366,13 +379,13 @@ func (sess *Session) doHandle(raw []byte) error {
 		log.Printf("mtproto.Session received %s (%v bytes, %v)", tl.Name(o), len(msg.Payload), msg.Type)
 	}
 
-	sess.invokeHandlersInternal(o)
+	sess.invokeHandlersInternal(msg.MsgID, o)
 
 	return nil
 }
 
-func (sess *Session) invokeHandlersInternal(o tl.Object) {
-	msgs, err := sess.invokeHandlersInternalReturnCmds(o)
+func (sess *Session) invokeHandlersInternal(msgID uint64, o tl.Object) {
+	msgs, err := sess.invokeHandlersInternalReturnCmds(msgID, o)
 	if err == ErrCmdNotHandled {
 		sess.logDroppedIncomingMsg(o)
 	} else if err != nil {
@@ -390,9 +403,9 @@ func (sess *Session) logDroppedIncomingMsg(o tl.Object) {
 	}
 }
 
-func (sess *Session) invokeHandlersInternalReturnCmds(o tl.Object) ([]tl.Object, error) {
+func (sess *Session) invokeHandlersInternalReturnCmds(msgID uint64, o tl.Object) ([]tl.Object, error) {
 	for _, h := range sess.handlers {
-		msgs, err := h(o.Cmd(), o)
+		msgs, err := h(msgID, o)
 		if err == ErrCmdNotHandled {
 			continue
 		} else if err != nil {
@@ -405,15 +418,15 @@ func (sess *Session) invokeHandlersInternalReturnCmds(o tl.Object) ([]tl.Object,
 	return nil, ErrCmdNotHandled
 }
 
-func (sess *Session) broadcastInternal(cmd uint32) {
-	if sess.options.Verbose >= 1 {
-		log.Printf("mtproto.Session broadcasting %08x", cmd)
-	}
-	for _, h := range sess.handlers {
-		msgs, err := h(cmd, nil)
-		sess.processResult(msgs, err)
-	}
-}
+// func (sess *Session) broadcastInternal(cmd uint32) {
+// 	if sess.options.Verbose >= 1 {
+// 		log.Printf("mtproto.Session broadcasting %08x", cmd)
+// 	}
+// 	for _, h := range sess.handlers {
+// 		msgs, err := h(cmd, nil)
+// 		sess.processResult(msgs, err)
+// 	}
+// }
 
 func (sess *Session) processResult(msgs []tl.Object, err error) {
 	if err != nil && err != ErrCmdNotHandled {
@@ -430,42 +443,39 @@ func (sess *Session) startKeyEx() {
 	sess.processResult([]tl.Object{omsg}, nil)
 }
 
-func (sess *Session) handleKeyEx(cmd uint32, o tl.Object) ([]tl.Object, error) {
+func (sess *Session) handleKeyEx(msgID uint64, o tl.Object) ([]tl.Object, error) {
 	if sess.connKeyExDone {
 		return nil, ErrCmdNotHandled
 	}
 
-	if o != nil {
-		omsg, err := sess.keyex.Handle(o)
+	omsg, err := sess.keyex.Handle(o)
+	if err != nil {
+		return nil, err
+	}
+	if omsg != nil {
+		return []tl.Object{omsg}, nil
+	} else {
+		auth, err := sess.keyex.Result()
 		if err != nil {
 			return nil, err
 		}
-		if omsg != nil {
-			return []tl.Object{omsg}, nil
-		} else {
-			auth, err := sess.keyex.Result()
-			if err != nil {
-				return nil, err
-			}
-			sess.applyAuth(auth)
-			return []tl.Object{}, nil
-		}
-	} else {
-		return nil, ErrCmdNotHandled
+		sess.applyAuth(auth)
+		return []tl.Object{}, nil
 	}
 }
 
-func (sess *Session) handleRPCResult(cmd uint32, o tl.Object) ([]tl.Object, error) {
+func (sess *Session) handleRPCResult(msgID uint64, o tl.Object) ([]tl.Object, error) {
 	switch o := o.(type) {
 	case *TLRPCResult:
 		sess.finishPendingRPC(o.ReqMsgID, o.Result, nil)
+		sess.ack(msgID)
 		return nil, nil
 	case *TLMsgContainer:
 		var replies []tl.Object
 		for _, msg := range o.Messages {
 			// TODO: verify msg.MsgId
 			// TODO: verify msg.Seqno
-			r, err := sess.invokeHandlersInternalReturnCmds(msg.Body)
+			r, err := sess.invokeHandlersInternalReturnCmds(msg.MsgID, msg.Body)
 			if err == ErrCmdNotHandled {
 				sess.logDroppedIncomingMsg(msg.Body)
 			} else if err != nil {
@@ -476,6 +486,7 @@ func (sess *Session) handleRPCResult(cmd uint32, o tl.Object) ([]tl.Object, erro
 		return replies, nil
 	case *TLNewSessionCreated:
 		log.Printf("NOTICE: %v", o)
+		sess.ack(msgID)
 		return nil, nil
 	case *TLMsgsAck:
 		for _, msgID := range o.MsgIDs {
@@ -493,6 +504,18 @@ func (sess *Session) handleRPCResult(cmd uint32, o tl.Object) ([]tl.Object, erro
 	case *TLBadMsgNotification:
 		log.Printf("WARNING: bad msg %08x: err code %d, seq no %d", o.BadMsgID, o.ErrorCode, o.BadMsgSeqno)
 		sess.finishPendingRPC(o.BadMsgID, nil, ErrInvalidMsg)
+		return nil, nil
+	case *TLUpdates:
+		sess.ack(msgID)
+		return nil, nil
+	case *TLUpdateShort:
+		sess.ack(msgID)
+		return nil, nil
+	case *TLMsgDetailedInfo:
+		sess.ack(o.AnswerMsgID)
+		return nil, nil
+	case *TLMsgNewDetailedInfo:
+		sess.ack(o.AnswerMsgID)
 		return nil, nil
 	default:
 		return nil, ErrCmdNotHandled
@@ -539,7 +562,7 @@ func (sess *Session) applyAuth(auth *AuthResult) {
 }
 
 func (sess *Session) Shutdown() {
-	sess.transport.Close()
+	sess.closec <- struct{}{}
 }
 
 func (sess *Session) Wait() {

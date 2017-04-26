@@ -66,7 +66,7 @@ func ReadAbridgedTCPMessage(r TCPReader, maxMsgLen int, firstByteTimeout time.Du
 		log.Printf("mtproto.TCPTransport: failed to read TCP message (%d): %v", msglen, err)
 		return nil, err
 	}
-	log.Printf("mtproto.TCPTransport: received %d bytes", len(data))
+	// log.Printf("mtproto.TCPTransport: received %d bytes", len(data))
 
 	return data, nil
 }
@@ -133,7 +133,7 @@ func (tr *TCPTransport) Close() {
 func (tr *TCPTransport) Send(data []byte) error {
 	data = formatTCPMessage(data, !tr.firstSent)
 	tr.firstSent = true
-	log.Printf("mtproto.TCPTransport: sending %d bytes", len(data))
+	// log.Printf("mtproto.TCPTransport: sending %d bytes", len(data))
 	_, err := tr.Conn.Write(data)
 	return err
 }

@@ -48,3 +48,7 @@ func MsgFromObj(o tl.Object) Msg {
 func IsContentMsg(o tl.Object) bool {
 	return combOrigins[o.Cmd()] == SchemaOriginTelegram
 }
+
+func RequiresAck(o tl.Object) bool {
+	return IsContentMsg(o)
+}

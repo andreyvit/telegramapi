@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/kr/pretty"
-
 	"github.com/andreyvit/telegramapi/mtproto"
 	"github.com/andreyvit/telegramapi/tl"
 )
@@ -113,7 +111,7 @@ func (c *Conn) updateState(f func(state *State)) {
 	c.stateMut.Lock()
 	f(c.state)
 	newState := c.state.Clone()
-	log.Printf("updateState: %v", pretty.Sprint(newState))
+	// log.Printf("updateState: %v", pretty.Sprint(newState))
 	c.stateMut.Unlock()
 
 	c.delegateQueue <- func() {
@@ -159,7 +157,7 @@ func (c *Conn) saveSessionState() {
 				dc.FramerState = fs
 			}
 		}
-		log.Printf("saveSessionState (dc %d): %v", id, pretty.Sprint(c.state))
+		// log.Printf("saveSessionState (dc %d): %v", id, pretty.Sprint(c.state))
 	})
 }
 
@@ -180,7 +178,7 @@ func (c *Conn) finalize() {
 
 func (c *Conn) runInternal() error {
 	c.state.initialize()
-	log.Printf("Running with state: %v", pretty.Sprint(c.state))
+	// log.Printf("Running with state: %v", pretty.Sprint(c.state))
 
 	dc := c.state.findPreferredDC()
 

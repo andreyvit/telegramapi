@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"io"
-	"log"
 )
 
 func DecodeObject(r *Reader) *Reader {
@@ -16,7 +15,7 @@ func DecodeObject(r *Reader) *Reader {
 			return nil
 		}
 
-		log.Printf("Gzipped data found: %x", raw)
+		// log.Printf("Gzipped data found: %x", raw)
 		data, err := gunzip(raw)
 		if err != nil {
 			r.Fail(err)
