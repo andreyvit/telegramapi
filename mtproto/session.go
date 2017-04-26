@@ -170,7 +170,7 @@ func (sess *Session) Run() {
 
 	go sess.listen(incomingc)
 
-	if sess.options.Verbose >= 2 {
+	if sess.options.Verbose >= 3 {
 		log.Printf("mtproto.Session running...")
 	}
 
@@ -185,7 +185,7 @@ loop:
 			if ok {
 				sess.handle(raw)
 			} else {
-				if sess.options.Verbose >= 2 {
+				if sess.options.Verbose >= 3 {
 					log.Printf("mtproto.Session incoming closed")
 				}
 				break loop
@@ -205,7 +205,7 @@ loop:
 }
 
 func (sess *Session) listen(incomingc chan<- []byte) {
-	if sess.options.Verbose >= 2 {
+	if sess.options.Verbose >= 3 {
 		log.Printf("mtproto.Session listening...")
 	}
 	for {
@@ -216,7 +216,7 @@ func (sess *Session) listen(incomingc chan<- []byte) {
 			}
 			break
 		} else if err != nil {
-			if sess.options.Verbose >= 2 {
+			if sess.options.Verbose >= 1 {
 				log.Printf("mtproto.Session Recv failed: %v", err)
 			}
 			sess.failc <- err

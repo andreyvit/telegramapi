@@ -26,7 +26,7 @@ type Framer struct {
 }
 
 func (fr *Framer) State() (*AuthResult, FramerState) {
-	log.Printf("Framer.State: %#v", fr.FramerState)
+	// log.Printf("Framer.State: %#v", fr.FramerState)
 	return fr.auth, fr.FramerState
 }
 
@@ -95,8 +95,8 @@ func (fr *Framer) Format(msg Msg) ([]byte, uint64, error) {
 		var key, iv [32]byte
 		deriveAESKey(fr.auth.Key, msgKey[:], key[:], iv[:], true)
 
-		log.Printf("AES key: %x", key)
-		log.Printf("AES iv: %x", key)
+		// log.Printf("AES key: %x", key)
+		// log.Printf("AES iv: %x", key)
 
 		encrypted, err := AESIGEPadEncrypt(nil, data, key[:], iv[:], nil)
 		if err != nil {
@@ -141,12 +141,12 @@ func (fr *Framer) Parse(raw []byte) (Msg, error) {
 			return Msg{}, r.Err()
 		}
 
-		log.Printf("Received encrypted: authKeyID=%x data=(%d) %x", authKeyID, len(enc), enc)
+		// log.Printf("Received encrypted: authKeyID=%x data=(%d) %x", authKeyID, len(enc), enc)
 
 		var key, iv [32]byte
 		deriveAESKey(fr.auth.Key, msgKey[:], key[:], iv[:], false)
-		log.Printf("AES key: %x", key)
-		log.Printf("AES iv: %x", key)
+		// log.Printf("AES key: %x", key)
+		// log.Printf("AES iv: %x", key)
 
 		decrypted, err := AESIGEDecrypt(nil, enc, key[:], iv[:])
 		if err != nil {
@@ -166,7 +166,7 @@ func (fr *Framer) Parse(raw []byte) (Msg, error) {
 			return Msg{}, r.Err()
 		}
 
-		log.Printf("Received: authKeyID=%x msgID=%v seqNo=%v payload=(%d) %x", authKeyID, msgID, seqNo, len(payload), payload)
+		// log.Printf("Received: authKeyID=%x msgID=%v seqNo=%v payload=(%d) %x", authKeyID, msgID, seqNo, len(payload), payload)
 
 		var typ MsgType
 		if (seqNo & 1) == 0 {

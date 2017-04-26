@@ -32,7 +32,7 @@ func main() {
 	options := telegramapi.Options{
 		SeedAddr:  telegramapi.Addr{"149.154.175.100", 443},
 		PublicKey: publicKey,
-		Verbose:   1,
+		Verbose:   2,
 	}
 
 	apiID := os.Getenv("TG_APP_ID")
@@ -57,8 +57,12 @@ func main() {
 	}
 
 	var isTest bool
+	var isFreshStart bool
+	var dumpStateAndQuit bool
 	flag.StringVar(&tool.phoneNumber, "phone", "", "Set the phone number to log in as")
 	flag.BoolVar(&isTest, "test", false, "Use test endpoint")
+	flag.BoolVar(&isFreshStart, "F", false, "Kill state and start any")
+	flag.BoolVar(&dumpStateAndQuit, "dump", false, "Dump state and quit")
 	flag.Parse()
 
 	if isTest {
@@ -67,12 +71,22 @@ func main() {
 
 	state := new(telegramapi.State)
 	stateBytes, err := ioutil.ReadFile(tool.stateFile)
-	if err == nil {
+	if err == nil && !isFreshStart {
 		err = tl.ReadBare(state, stateBytes)
 		if err != nil {
 			log.Printf("** ERROR: reading state from %v: %v", tool.stateFile, err)
 			os.Exit(1)
 		}
+
+		if state.DCs[2] != nil && state.DCs[2].Auth.KeyID == 0 {
+			log.Printf("** oops: %v", pretty.Sprint(state))
+			os.Exit(1)
+		}
+	}
+
+	if dumpStateAndQuit {
+		log.Printf("State: %v", pretty.Sprint(state))
+		os.Exit(0)
 	}
 
 	tool.tg = telegramapi.New(options, state, tool)
@@ -93,13 +107,24 @@ type Tool struct {
 
 	phoneNumber string
 	phoneCode   string
+
+	authed bool
 }
 
 func (tool *Tool) HandleConnectionReady() {
 	go tool.runProcessingNoErr()
 }
-func (tool *Tool) HandleStateChanged(newState telegramapi.State) {
-	bytes := tl.BareBytes(&newState)
+func (tool *Tool) HandleStateChanged(newState *telegramapi.State) {
+	log.Printf("HandleStateChanged: %v", pretty.Sprint(newState))
+	if tool.authed && newState.DCs[2] != nil && newState.DCs[2].Auth.KeyID == 0 {
+		panic("** oops")
+		// panic(fmt.Sprint("** oops: %v", pretty.Sprint(newState)))
+	}
+	if newState.DCs[2] != nil && newState.DCs[2].Auth.KeyID != 0 {
+		tool.authed = true
+	}
+
+	bytes := tl.BareBytes(newState)
 	err := ioutil.WriteFile(tool.stateFile, bytes, 0777)
 	if err != nil {
 		log.Printf("** ERROR: saving state to %v: %v", tool.stateFile, err)

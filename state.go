@@ -8,12 +8,6 @@ import (
 	"github.com/andreyvit/telegramapi/tl"
 )
 
-// Key        []byte
-// KeyID      uint64
-// ServerSalt [8]byte
-// TimeOffset int
-// SessionID  [8]byte
-
 func readAuth(o *mtproto.AuthResult, fs *mtproto.FramerState, r *tl.Reader, ver int) {
 	o.KeyID = r.ReadUint64()
 	if o.KeyID != 0 {
@@ -66,6 +60,11 @@ type DCState struct {
 	FramerState mtproto.FramerState
 }
 
+func (o *DCState) Clone() *DCState {
+	c := *o
+	return &c
+}
+
 func (o *DCState) Read(r *tl.Reader, ver int) {
 	o.ID = r.ReadInt()
 	o.PrimaryAddr.Read(r, 1)
@@ -91,6 +90,14 @@ type State struct {
 	FirstName string
 	LastName  string
 	Username  string
+}
+
+func (o *State) Clone() *State {
+	c := *o
+	for id, dc := range o.DCs {
+		c.DCs[id] = dc.Clone()
+	}
+	return &c
 }
 
 func (o *State) Cmd() uint32 {

@@ -27,6 +27,7 @@ type Conn struct {
 
 	delegate      Delegate
 	delegateQueue chan func()
+	delegateDone  sync.WaitGroup
 
 	state    *State
 	stateMut sync.Mutex
@@ -36,7 +37,7 @@ type Conn struct {
 
 type Delegate interface {
 	HandleConnectionReady()
-	HandleStateChanged(newState State)
+	HandleStateChanged(newState *State)
 }
 
 func New(options Options, state *State, delegate Delegate) *Conn {
@@ -69,6 +70,7 @@ func (c *Conn) dispatchDelegateCalls() {
 	for f := range c.delegateQueue {
 		f()
 	}
+	c.delegateDone.Done()
 }
 
 func (c *Conn) runProcessing() {
@@ -110,7 +112,8 @@ func (c *Conn) Fail(err error) {
 func (c *Conn) updateState(f func(state *State)) {
 	c.stateMut.Lock()
 	f(c.state)
-	newState := *c.state
+	newState := c.state.Clone()
+	log.Printf("updateState: %v", pretty.Sprint(newState))
 	c.stateMut.Unlock()
 
 	c.delegateQueue <- func() {
@@ -148,12 +151,15 @@ func (c *Conn) HandleUnknownReply(r tl.Object) error {
 func (c *Conn) saveSessionState() {
 	auth, fs := c.session.AuthState()
 	c.updateState(func(state *State) {
-		dc := state.DCs[c.session.DC()]
+		id := c.session.DC()
+		dc := state.DCs[id]
 		if dc != nil {
-			dc.Auth = *auth
-			dc.FramerState = fs
+			if auth.KeyID != 0 || dc.Auth.KeyID == 0 {
+				dc.Auth = *auth
+				dc.FramerState = fs
+			}
 		}
-		log.Printf("saveSessionState: %v", pretty.Sprint(c.state))
+		log.Printf("saveSessionState (dc %d): %v", id, pretty.Sprint(c.state))
 	})
 }
 
@@ -161,9 +167,15 @@ func (c *Conn) Run() error {
 	for {
 		err := c.runInternal()
 		if err != mtproto.ErrReconnectRequired {
+			c.finalize()
 			return err
 		}
 	}
+}
+
+func (c *Conn) finalize() {
+	close(c.delegateQueue)
+	c.delegateDone.Wait()
 }
 
 func (c *Conn) runInternal() error {
@@ -200,6 +212,9 @@ func (c *Conn) runInternal() error {
 		PubKey:  pubKey,
 		Verbose: c.Verbose,
 	})
+	if dc.ID != 0 {
+		c.session.SetDC(dc.ID)
+	}
 
 	if dc.Auth.KeyID != 0 {
 		c.session.RestoreAuthState(&dc.Auth, dc.FramerState)
@@ -209,6 +224,7 @@ func (c *Conn) runInternal() error {
 
 	c.session.OnStateChanged(c.saveSessionState)
 
+	c.delegateDone.Add(1)
 	go c.dispatchDelegateCalls()
 	go c.runProcessing()
 
