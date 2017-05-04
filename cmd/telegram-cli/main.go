@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/andreyvit/telegramapi"
 )
@@ -213,7 +214,19 @@ func (tool *Tool) export(contacts *telegramapi.ContactList, chat *telegramapi.Ch
 		return err
 	}
 
-	exp := &Exporter{}
+	loc, err := time.LoadLocation("Asia/Novosibirsk")
+	if err != nil {
+		return err
+	}
+
+	exp := &Exporter{
+		UserNameAliases: map[string]string{
+			"andreyvit":  "Андрей",
+			"Arisu_dono": "Аля",
+		},
+		Format:   FormatFavorites,
+		TimeZone: loc,
+	}
 	s := exp.Export(chat)
 
 	fname := chat.TitleOrName() + ".txt"
