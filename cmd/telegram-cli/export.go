@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"regexp"
 	"strings"
 	"time"
 
@@ -14,39 +15,64 @@ const (
 	FormatFavorites Format = iota
 )
 
+var dividerRegexp = regexp.MustCompile(`^((\*\s*){2,}|={2,}|-{2,})$`)
+var dividerRegexpStart = regexp.MustCompile(`^((\*\s*){2,}|={2,}|-{2,})\s`)
+
 type Exporter struct {
 	UserNameAliases map[string]string
 	Format          Format
 	TimeZone        *time.Location
+}
 
+type exportState struct {
 	lastDate Date
+	hadMsgs  bool
 }
 
 func (exp *Exporter) Export(chat *telegramapi.Chat) string {
 	var buf bytes.Buffer
+	var state exportState
 
 	for _, msg := range chat.Messages.Messages {
-		exp.exportMsg(&buf, msg)
+		exp.exportMsg(&buf, &state, msg)
 	}
 
 	return buf.String()
 }
 
-func (exp *Exporter) exportMsg(w *bytes.Buffer, msg *telegramapi.Message) {
+func (exp *Exporter) exportMsg(w *bytes.Buffer, state *exportState, msg *telegramapi.Message) {
 	date := MakeDate(msg.Date.Add(-4 * time.Hour).In(exp.TimeZone).Date())
-	if exp.lastDate.IsZero() || !date.Equal(exp.lastDate) {
-		if !exp.lastDate.IsZero() {
+	if state.lastDate.IsZero() || !date.Equal(state.lastDate) {
+		if !state.lastDate.IsZero() {
 			w.WriteString("\n\n")
 		}
-		exp.lastDate = date
+		state.lastDate = date
 		w.WriteString("###  ")
 		w.WriteString(date.String())
 		w.WriteString("  ###\n\n")
+		state.hadMsgs = false
 	}
 
 	text := msg.Text
 	text = strings.Replace(text, "\n", "\n    ", -1)
 	isMultiline := strings.Contains(text, "\n")
+
+	if dividerRegexp.MatchString(text) {
+		if state.hadMsgs {
+			w.WriteString("\n")
+			w.WriteString("* * *\n")
+			w.WriteString("\n")
+			state.hadMsgs = false
+		}
+		return
+	} else if dividerRegexpStart.MatchString(text) {
+		comment := strings.TrimSpace(dividerRegexpStart.ReplaceAllString(text, ""))
+		w.WriteString("\n")
+		w.WriteString("* * * " + comment + "\n")
+		w.WriteString("\n")
+		state.hadMsgs = false
+		return
+	}
 
 	from, tm := msg.From, msg.Date
 	if msg.FwdFrom != nil {
@@ -71,4 +97,6 @@ func (exp *Exporter) exportMsg(w *bytes.Buffer, msg *telegramapi.Message) {
 	if isMultiline {
 		w.WriteString("\n")
 	}
+
+	state.hadMsgs = true
 }
