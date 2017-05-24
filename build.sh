@@ -10,4 +10,7 @@ fi
 
 VER="$(cat VERSION)"
 
-go build -ldflags "-X main.version=$VER -X main.apiID=$TG_APP_ID -X main.apiHash=$TG_API_HASH" ./cmd/telegram-cli 
+LDFLAGS="-X main.version=$VER -X main.apiID=$TG_APP_ID -X main.apiHash=$TG_API_HASH"
+
+go build -ldflags "$LDFLAGS" ./cmd/telegram-exporter 
+GOOS=windows GOARCH=386 go build -ldflags "$LDFLAGS" ./cmd/telegram-exporter 

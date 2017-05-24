@@ -1,5 +1,7 @@
 *.db
 *.txt
+/telegram-exporter
+/telegram-exporter.exe
 
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
