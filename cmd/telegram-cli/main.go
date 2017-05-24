@@ -249,7 +249,7 @@ func (tool *Tool) runProcessing() error {
 		return err
 	}
 
-	log.Printf("Loaded contacts: %v", pretty.Sprint(contacts))
+	// log.Printf("Loaded contacts: %v", pretty.Sprint(contacts))
 
 	if contacts.SelfChat != nil {
 		err := tool.export(contacts, contacts.SelfChat)

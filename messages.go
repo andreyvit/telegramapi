@@ -2,10 +2,12 @@ package telegramapi
 
 import (
 	"github.com/andreyvit/telegramapi/mtproto"
+	"log"
 	"time"
 )
 
 func (c *Conn) LoadChats(contacts *ContactList) error {
+	log.Printf("Loading list of chats...")
 	r, err := c.Send(&mtproto.TLMessagesGetDialogs{
 		Flags:      0,
 		Limit:      1000,
@@ -76,6 +78,7 @@ func (c *Conn) updateChatsLocked(contacts *ContactList, dialogs []*mtproto.TLDia
 func (c *Conn) LoadHistory(contacts *ContactList, chat *Chat, limit int) error {
 	more := true
 	var count int
+	log.Printf("Loading history of “%s”...", chat.TitleOrName())
 	for more && (limit == 0 || count < limit) {
 		r, err := c.Send(&mtproto.TLMessagesGetHistory{
 			Peer:     chat.inputPeer(),
@@ -97,9 +100,13 @@ func (c *Conn) LoadHistory(contacts *ContactList, chat *Chat, limit int) error {
 		default:
 			return c.HandleUnknownReply(r)
 		}
+		if more {
+			log.Printf("Loaded %d messages...")
+		}
 
 		time.Sleep(1 * time.Second)
 	}
+	log.Printf("Done. Loaded %d messages.")
 
 	return nil
 }
