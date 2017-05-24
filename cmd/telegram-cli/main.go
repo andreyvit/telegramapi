@@ -10,7 +10,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/andreyvit/telegramapi"
@@ -27,48 +29,110 @@ Slv8kg9qv1m6XHVQY3PnEw+QQtqSIXklHwIDAQAB
 -----END RSA PUBLIC KEY-----
 `
 
+var apiID string
+var apiHash string
+var version string
+var delayExit string
+
 func main() {
 	var err error
+
+	if version == "" {
+		version = "DEV"
+	}
+	fmt.Fprintf(os.Stderr, "Telegram Exporter v. %s\n\n", version)
 
 	options := telegramapi.Options{
 		SeedAddr:  telegramapi.Addr{"149.154.175.100", 443},
 		PublicKey: publicKey,
-		Verbose:   2,
+		Verbose:   0,
 	}
 
-	apiID := os.Getenv("TG_APP_ID")
 	if apiID == "" {
-		fmt.Fprintf(os.Stderr, "** missing TG_APP_ID env variable\n")
-		os.Exit(64) // EX_USAGE
+		apiID = os.Getenv("TG_APP_ID")
+		if apiID == "" {
+			fmt.Fprintf(os.Stderr, "** missing TG_APP_ID env variable\n")
+			os.Exit(64) // EX_USAGE
+		}
 	}
 	options.APIID, err = strconv.Atoi(apiID)
-	if apiID == "" {
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "** invalid TG_APP_ID\n")
 		os.Exit(64) // EX_USAGE
 	}
 
-	options.APIHash = os.Getenv("TG_API_HASH")
-	if options.APIHash == "" {
-		fmt.Fprintf(os.Stderr, "** missing TG_API_HASH env variable\n")
-		os.Exit(64) // EX_USAGE
+	if apiHash == "" {
+		apiHash = os.Getenv("TG_API_HASH")
+		if apiHash == "" {
+			fmt.Fprintf(os.Stderr, "** missing TG_API_HASH env variable\n")
+			os.Exit(64) // EX_USAGE
+		}
 	}
+	options.APIHash = apiHash
 
 	tool := &Tool{}
 
 	var isTest bool
 	var isFreshStart bool
 	var dumpStateAndQuit bool
+	var verbose bool
 	flag.StringVar(&tool.phoneNumber, "phone", "", "Set the phone number to log in as")
 	flag.BoolVar(&isTest, "test", false, "Use test endpoint")
 	flag.BoolVar(&isFreshStart, "fresh", false, "Kill state and start any")
 	flag.BoolVar(&dumpStateAndQuit, "dump", false, "Dump state and quit")
 	flag.BoolVar(&tool.isDryRun, "dry", false, "Dry run (don't do any processing, just connect)")
+	flag.BoolVar(&verbose, "v", false, "Verbose output")
 	flag.IntVar(&tool.limit, "limit", 0, "Limit to this number of messages")
 	flag.Parse()
 
+	if verbose {
+		options.Verbose = 2
+	}
+
 	if tool.phoneNumber == "" {
-		fmt.Fprintf(os.Stderr, "** need to specify -phone\n")
-		os.Exit(64) // EX_USAGE
+		if fn := flag.Arg(0); fn != "" {
+			if number := databasePhoneNumber(fn); number != "" {
+				tool.phoneNumber = number
+			} else {
+				fmt.Fprintf(os.Stderr, "** invalid database: %v\n", fn)
+				os.Exit(64) // EX_USAGE
+			}
+		}
+	}
+
+	if tool.phoneNumber == "" {
+		files, _ := ioutil.ReadDir(".")
+
+		var lastModTime time.Time
+		for _, file := range files {
+			number := databasePhoneNumber(file.Name())
+			if number == "" {
+				continue
+			}
+
+			if lastModTime.IsZero() || file.ModTime().After(lastModTime) {
+				lastModTime = file.ModTime()
+				tool.phoneNumber = number
+			}
+		}
+	}
+
+	if tool.phoneNumber == "" {
+		number, err := readline.Line("Phone number (e.g +7 987 654 32-10): ")
+		if err != nil {
+			log.Printf("** ERROR: failed to read input: %v", err)
+			os.Exit(1)
+		}
+		number = strings.Replace(number, "+", "", -1)
+		number = strings.Replace(number, " ", "", -1)
+		number = strings.Replace(number, "-", "", -1)
+		number = strings.Replace(number, "(", "", -1)
+		number = strings.Replace(number, ")", "", -1)
+		number = strings.TrimSpace(number)
+
+		tool.phoneNumber = number
+	} else {
+		fmt.Fprintf(os.Stderr, "Phone number: %s\n\n", tool.phoneNumber)
 	}
 
 	tool.stateFile = tool.phoneNumber + ".db"
@@ -237,4 +301,13 @@ func (tool *Tool) export(contacts *telegramapi.ContactList, chat *telegramapi.Ch
 	}
 
 	return nil
+}
+
+func databasePhoneNumber(fn string) string {
+	if !strings.HasSuffix(fn, ".db") {
+		return ""
+	}
+
+	base := path.Base(fn)
+	return base[:len(base)-3]
 }
