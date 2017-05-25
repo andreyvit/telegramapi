@@ -101,12 +101,12 @@ func (c *Conn) LoadHistory(contacts *ContactList, chat *Chat, limit int) error {
 			return c.HandleUnknownReply(r)
 		}
 		if more {
-			log.Printf("Loaded %d messages...")
+			log.Printf("Loaded %d messages...", count)
 		}
 
 		time.Sleep(1 * time.Second)
 	}
-	log.Printf("Done. Loaded %d messages.")
+	log.Printf("Done. Loaded %d messages.", count)
 
 	return nil
 }
