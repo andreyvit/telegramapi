@@ -36,7 +36,9 @@ func (c *Conn) StartLogin(phoneNumber string) error {
 	}
 	switch r := r.(type) {
 	case *mtproto.TLAuthSentCode:
-		log.Printf("Got auth.sendCode response: %v", r)
+		if c.Verbose >= 2 {
+			log.Printf("Got auth.sendCode response: %v", r)
+		}
 		c.updateState(func(state *State) {
 			state.LoginState = WaitingForCode
 			state.PhoneNumber = phoneNumber
@@ -62,11 +64,15 @@ func (c *Conn) CompleteLoginWithCode(code string) error {
 		return err
 	}
 	if r1, ok := r.(*mtproto.TLAuthAuthorization); ok {
-		log.Printf("Got auth.signIn response: %v", r1)
+		if c.Verbose >= 2 {
+			log.Printf("Got auth.signIn response: %v", r1)
+		}
 		c.completeLogin(r1)
 		return nil
 	} else if r2, ok := r.(*mtproto.TLRPCError); ok && r2.ErrorMessage == "SESSION_PASSWORD_NEEDED" {
-		log.Printf("Got auth.signIn response: %v", r2)
+		if c.Verbose >= 2 {
+			log.Printf("Got auth.signIn response: %v", r2)
+		}
 		c.updateState(func(state *State) {
 			state.LoginState = WaitingFor2FA
 		})
@@ -97,7 +103,9 @@ func (c *Conn) CompleteLoginWith2FAPassword(password []byte) error {
 		return err
 	}
 	if r, ok := r.(*mtproto.TLAccountPassword); ok {
-		log.Printf("Got account.getPassword response: %v", r)
+		if c.Verbose >= 2 {
+			log.Printf("Got account.getPassword response: %v", r)
+		}
 		curSalt = r.CurrentSalt
 	} else {
 		return c.HandleUnknownReply(r)
@@ -114,7 +122,9 @@ func (c *Conn) CompleteLoginWith2FAPassword(password []byte) error {
 		return err
 	}
 	if r, ok := r.(*mtproto.TLAuthAuthorization); ok {
-		log.Printf("Got auth.checkPassword response: %v", r)
+		if c.Verbose >= 2 {
+			log.Printf("Got auth.checkPassword response: %v", r)
+		}
 		c.completeLogin(r)
 		return nil
 	} else {

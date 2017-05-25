@@ -189,7 +189,7 @@ func (kex *KeyEx) handleResPQ(in *TLResPQ) (tl.Object, error) {
 	}
 	pqn := in.PQ.Uint64()
 	p, q := factorize(pqn)
-	log.Printf("mtproto/keyex: %v = %v (p) * %v (q)", pqn, p, q)
+	// log.Printf("mtproto/keyex: %v = %v (p) * %v (q)", pqn, p, q)
 
 	_, err := io.ReadFull(kex.RandomReader, kex.newNonce[:])
 	if err != nil {
@@ -244,7 +244,7 @@ func (kex *KeyEx) handleServerDHParamsOK(o *TLServerDHParamsOK) (tl.Object, erro
 
 	// DECRYPTION
 
-	if true {
+	if false {
 		if false {
 			log.Printf("Server nonce: %v", hex.EncodeToString(kex.serverNonce[:]))
 			log.Printf("New nonce: %v", hex.EncodeToString(kex.newNonce[:]))
@@ -306,7 +306,7 @@ func (kex *KeyEx) handleServerDHParamsOK(o *TLServerDHParamsOK) (tl.Object, erro
 		kex.auth.ServerSalt[i] = kex.newNonce[i] ^ kex.serverNonce[i]
 	}
 
-	log.Printf("Auth key: %v (key ID: %x, server salt: %x)", hex.EncodeToString(kex.auth.Key), kex.auth.KeyID, kex.auth.ServerSalt)
+	// log.Printf("Auth key: %v (key ID: %x, server salt: %x)", hex.EncodeToString(kex.auth.Key), kex.auth.KeyID, kex.auth.ServerSalt)
 
 	// RESPONSE
 

@@ -485,13 +485,17 @@ func (sess *Session) handleRPCResult(msgID uint64, o tl.Object) ([]tl.Object, er
 		}
 		return replies, nil
 	case *TLNewSessionCreated:
-		log.Printf("NOTICE: %v", o)
+		if sess.options.Verbose >= 2 {
+			log.Printf("NOTICE: %v", o)
+		}
 		sess.ack(msgID)
 		return nil, nil
 	case *TLMsgsAck:
 		for _, msgID := range o.MsgIDs {
 			// TODO: ack
-			log.Printf("TODO: ack'ed %08x", msgID)
+			if sess.options.Verbose >= 2 {
+				log.Printf("TODO: ack'ed %08x", msgID)
+			}
 		}
 		return nil, nil
 	case *TLBadServerSalt:

@@ -183,7 +183,9 @@ func (c *Conn) runInternal() error {
 	dc := c.state.findPreferredDC()
 
 	if dc != nil {
-		log.Printf("Will connect to DC %v at %v", dc.ID, dc.PrimaryAddr.Endpoint())
+		if c.Verbose >= 2 {
+			log.Printf("Will connect to DC %v at %v", dc.ID, dc.PrimaryAddr.Endpoint())
+		}
 	} else {
 		dc = &DCState{
 			ID:          0,
@@ -192,7 +194,9 @@ func (c *Conn) runInternal() error {
 		if c.state.PreferredDC != 0 {
 			log.Printf("** WARNING: preferred DC %v not found, will connect to default DC at %v", c.state.PreferredDC, dc.PrimaryAddr.Endpoint())
 		} else {
-			log.Printf("Will connect to default DC at %v", dc.PrimaryAddr.Endpoint())
+			if c.Verbose >= 1 {
+				log.Printf("Will connect to default DC at %v", dc.PrimaryAddr.Endpoint())
+			}
 		}
 	}
 
