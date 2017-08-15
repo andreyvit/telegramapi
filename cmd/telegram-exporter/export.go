@@ -80,18 +80,21 @@ func (exp *Exporter) exportMsg(w *bytes.Buffer, state *exportState, msg *telegra
 		tm = msg.FwdDate
 	}
 
-	name := from.Name()
-	if alias := exp.UserNameAliases[name]; alias != "" {
-		name = alias
+	if from != nil {
+		name := from.Name()
+		if alias := exp.UserNameAliases[name]; alias != "" {
+			name = alias
+		}
+		w.WriteString(name)
+
+		if false {
+			w.WriteString(" (")
+			w.WriteString(tm.Format("2006-01-02 15:04:05"))
+			w.WriteString(")")
+		}
+		w.WriteString(": ")
 	}
 
-	w.WriteString(name)
-	if false {
-		w.WriteString(" (")
-		w.WriteString(tm.Format("2006-01-02 15:04:05"))
-		w.WriteString(")")
-	}
-	w.WriteString(": ")
 	w.WriteString(text)
 	w.WriteString("\n")
 	if isMultiline {

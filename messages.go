@@ -33,9 +33,9 @@ func (c *Conn) updateChatsLocked(contacts *ContactList, dialogs []*mtproto.TLDia
 	defer c.stateMut.Unlock()
 
 	accessHashByUserID := make(map[int]uint64)
+	accessHashByChannelID := make(map[int]uint64)
 	c.updateUsers(contacts, users, accessHashByUserID)
-	c.updateGroups(contacts, chats)
-	// c.updateChannels(contacts, users, accessHashByUserID)
+	c.updateGroups(contacts, chats, accessHashByChannelID)
 
 	// for _, apimsg := range apimessages {
 	// 	msg := c.updateMessage(contacts, messages, apimsg)
@@ -70,19 +70,20 @@ func (c *Conn) updateChatsLocked(contacts *ContactList, dialogs []*mtproto.TLDia
 
 				// TODO: dialog.TopMessage
 			}
-			// } else if cpeer, ok := dialog.Peer.(*mtproto.TLPeerChannel); ok {
-			// 	if user := contacts.Channels[cpeer.ChannelID]; user != nil {
-			// 		chat = contacts.UserChats[user.ID]
-			// 		if chat == nil {
-			// 			chat = &Chat{
-			// 				Type:     UserChat,
-			// 				ID:       user.ID,
-			// 				User:     user,
-			// 				Messages: newMessageList(),
-			// 			}
-			// 			contacts.UserChats[user.ID] = chat
-			// 		}
-			// 	}
+		} else if cpeer, ok := dialog.Peer.(*mtproto.TLPeerChannel); ok {
+			chat = contacts.ChannelChats[cpeer.ChannelID]
+			if chat == nil {
+				chat = &Chat{
+					Type:     ChannelChat,
+					ID:       cpeer.ChannelID,
+					Messages: newMessageList(),
+				}
+				contacts.ChannelChats[cpeer.ChannelID] = chat
+			}
+			chat.AccessHash = accessHashByChannelID[cpeer.ChannelID]
+			if channel := contacts.Channels[cpeer.ChannelID]; channel != nil {
+				chat.Title = channel.Title
+			}
 		} else if gpeer, ok := dialog.Peer.(*mtproto.TLPeerChat); ok {
 			if group := contacts.Groups[gpeer.ChatID]; group != nil {
 				chat = contacts.GroupChats[group.ID]
@@ -96,6 +97,8 @@ func (c *Conn) updateChatsLocked(contacts *ContactList, dialogs []*mtproto.TLDia
 				}
 				chat.Title = group.Title
 			}
+		} else {
+			log.Printf("Unknown dialog peer: %v", dialog)
 		}
 		if chat != nil {
 			contacts.Chats = append(contacts.Chats, chat)
@@ -122,6 +125,10 @@ func (c *Conn) LoadHistory(contacts *ContactList, chat *Chat, limit int) error {
 			more = false
 			count += len(r.Messages)
 		case *mtproto.TLMessagesMessagesSlice:
+			c.updateHistoryLocked(contacts, chat, r.Messages, r.Chats, r.Users)
+			more = len(r.Messages) > 0
+			count += len(r.Messages)
+		case *mtproto.TLMessagesChannelMessages:
 			c.updateHistoryLocked(contacts, chat, r.Messages, r.Chats, r.Users)
 			more = len(r.Messages) > 0
 			count += len(r.Messages)
@@ -173,9 +180,12 @@ func (c *Conn) updateMessage(contacts *ContactList, messages *MessageList, apims
 			return nil
 		}
 
-		fromu := contacts.Users[apimsg.FromID]
-		if fromu == nil {
-			return nil
+		var fromu *User
+		if apimsg.FromID != 0 {
+			fromu = contacts.Users[apimsg.FromID]
+			if fromu == nil {
+				return nil
+			}
 		}
 
 		msg := messages.MessagesByID[apimsg.ID]
@@ -239,38 +249,26 @@ func (c *Conn) updateUsers(contacts *ContactList, users []mtproto.TLUserType, ac
 	}
 }
 
-func (c *Conn) updateGroups(contacts *ContactList, apichats []mtproto.TLChatType) {
+func (c *Conn) updateGroups(contacts *ContactList, apichats []mtproto.TLChatType, accessHashByChannelID map[int]uint64) {
 	for _, apichat := range apichats {
-		if apichat, ok := apichat.(*mtproto.TLChat); ok {
-			group := contacts.Groups[apichat.ID]
+		if apigroup, ok := apichat.(*mtproto.TLChat); ok {
+			group := contacts.Groups[apigroup.ID]
 			if group == nil {
-				group = &Group{ID: apichat.ID}
-				contacts.Groups[apichat.ID] = group
+				group = &Group{ID: apigroup.ID}
+				contacts.Groups[apigroup.ID] = group
 			}
-			group.Title = apichat.Title
-			group.ParticipantsCount = apichat.ParticipantsCount
+			group.Title = apigroup.Title
+			group.ParticipantsCount = apigroup.ParticipantsCount
+		} else if apichan, ok := apichat.(*mtproto.TLChannel); ok {
+			channel := contacts.Channels[apichan.ID]
+			if channel == nil {
+				channel = &Channel{ID: apichan.ID}
+				contacts.Channels[apichan.ID] = channel
+			}
+			channel.Title = apichan.Title
+			if accessHashByChannelID != nil {
+				accessHashByChannelID[apichan.ID] = apichan.AccessHash
+			}
 		}
 	}
 }
-
-// func (c *Conn) updateChannels(contacts *ContactList, users []mtproto.TLUserType, accessHashByUserID map[int]uint64) {
-// 	selfUserID := c.state.UserID
-// 	for _, apiuser := range users {
-// 		if apiuser, ok := apiuser.(*mtproto.TLUser); ok {
-// 			user := contacts.Users[apiuser.ID]
-// 			if user == nil {
-// 				user = &User{ID: apiuser.ID}
-// 				contacts.Users[apiuser.ID] = user
-// 			}
-// 			user.Username = apiuser.Username
-// 			user.FirstName = apiuser.FirstName
-// 			user.LastName = apiuser.LastName
-// 			if accessHashByUserID != nil {
-// 				accessHashByUserID[apiuser.ID] = apiuser.AccessHash
-// 			}
-// 			if user.ID == selfUserID {
-// 				contacts.Self = user
-// 			}
-// 		}
-// 	}
-// }

@@ -256,9 +256,6 @@ func (tool *Tool) runProcessing() error {
 
 	log.Printf("Chats:")
 	chats := contacts.Chats
-	if len(chats) > 30 {
-		chats = chats[:30]
-	}
 	for i, chat := range chats {
 		// log.Printf("%v", pretty.Sprint(chat))
 		log.Printf("%03d  %v %v", i+1, chat.Type, chat.TitleOrName())
