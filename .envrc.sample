@@ -1,2 +1,4 @@
+export GOPATH=~/dev/tg
+export PATH=$GOPATH/bin:$PATH
 export TG_APP_ID=11111
 export TG_API_HASH=aaaaaaa0000a00a0aaa000000aa0aa00
