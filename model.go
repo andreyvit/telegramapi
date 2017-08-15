@@ -2,6 +2,7 @@ package telegramapi
 
 import (
 	"fmt"
+	"strings"
 	// "sort"
 	"time"
 
@@ -12,9 +13,15 @@ type ChatType int
 
 const (
 	UserChat ChatType = iota
-	ChatChat
+	GroupChat
 	ChannelChat
 )
+
+var chatTypeStrings = []string{"user", "group", "channel"}
+
+func (t ChatType) String() string {
+	return chatTypeStrings[t]
+}
 
 type ContactList struct {
 	Self *User
@@ -22,19 +29,46 @@ type ContactList struct {
 	Chats    []*Chat
 	SelfChat *Chat
 
-	Users        map[int]*User
+	Users    map[int]*User
+	Groups   map[int]*Group
+	Channels map[int]*Channel
+
 	UserChats    map[int]*Chat
-	ChatChats    map[int]*Chat
+	GroupChats   map[int]*Chat
 	ChannelChats map[int]*Chat
 }
 
 func NewContactList() *ContactList {
 	return &ContactList{
-		Users: make(map[int]*User),
+		Users:    make(map[int]*User),
+		Groups:   make(map[int]*Group),
+		Channels: make(map[int]*Channel),
 
 		UserChats:    make(map[int]*Chat),
-		ChatChats:    make(map[int]*Chat),
+		GroupChats:   make(map[int]*Chat),
 		ChannelChats: make(map[int]*Chat),
+	}
+}
+
+func (contacts *ContactList) FindChatByTitle(title string) *Chat {
+	for _, chat := range contacts.Chats {
+		if chat.TitleOrName() == title {
+			return chat
+		}
+	}
+
+	var matches int
+	var match *Chat
+	for _, chat := range contacts.Chats {
+		if strings.Contains(chat.TitleOrName(), title) {
+			matches++
+			match = chat
+		}
+	}
+	if matches == 1 {
+		return match
+	} else {
+		return nil
 	}
 }
 
@@ -43,7 +77,7 @@ func (contacts *ContactList) FindChatByPeer(peer mtproto.TLPeerType) *Chat {
 	case *mtproto.TLPeerUser:
 		return contacts.UserChats[peer.UserID]
 	case *mtproto.TLPeerChat:
-		return contacts.ChatChats[peer.ChatID]
+		return contacts.GroupChats[peer.ChatID]
 	case *mtproto.TLPeerChannel:
 		return contacts.ChannelChats[peer.ChannelID]
 	default:
@@ -87,7 +121,7 @@ func (chat *Chat) inputPeer() mtproto.TLInputPeerType {
 	switch chat.Type {
 	case UserChat:
 		return &mtproto.TLInputPeerUser{UserID: chat.ID, AccessHash: chat.AccessHash}
-	case ChatChat:
+	case GroupChat:
 		return &mtproto.TLInputPeerChat{ChatID: chat.ID}
 	case ChannelChat:
 		return &mtproto.TLInputPeerChannel{ChannelID: chat.ID, AccessHash: chat.AccessHash}
@@ -115,6 +149,18 @@ func (user *User) Name() string {
 	} else {
 		return fmt.Sprintf("User %d", user.ID)
 	}
+}
+
+type Channel struct {
+	ID    int
+	Title string
+}
+
+type Group struct {
+	ID    int
+	Title string
+
+	ParticipantsCount int
 }
 
 type MessageList struct {

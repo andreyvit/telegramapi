@@ -83,6 +83,7 @@ func main() {
 	flag.BoolVar(&tool.isDryRun, "dry", false, "Dry run (don't do any processing, just connect)")
 	flag.BoolVar(&verbose, "v", false, "Verbose output")
 	flag.IntVar(&tool.limit, "limit", 0, "Limit to this number of messages")
+	flag.StringVar(&tool.chatSpec, "chat", "", "Chat title to export")
 	flag.Parse()
 
 	if verbose {
@@ -176,6 +177,8 @@ type Tool struct {
 	phoneCode   string
 	isDryRun    bool
 	limit       int
+
+	chatSpec string
 }
 
 func (tool *Tool) HandleConnectionReady() {
@@ -251,11 +254,33 @@ func (tool *Tool) runProcessing() error {
 
 	// log.Printf("Loaded contacts: %v", pretty.Sprint(contacts))
 
-	if contacts.SelfChat != nil {
-		err := tool.export(contacts, contacts.SelfChat)
-		if err != nil {
-			return err
-		}
+	log.Printf("Chats:")
+	chats := contacts.Chats
+	if len(chats) > 30 {
+		chats = chats[:30]
+	}
+	for i, chat := range chats {
+		// log.Printf("%v", pretty.Sprint(chat))
+		log.Printf("%03d  %v %v", i+1, chat.Type, chat.TitleOrName())
+	}
+
+	if tool.chatSpec == "" {
+		return nil
+	}
+
+	var chat *telegramapi.Chat
+	if tool.chatSpec == "self" {
+		chat = contacts.SelfChat
+	} else {
+		chat = contacts.FindChatByTitle(tool.chatSpec)
+	}
+	if chat == nil {
+		log.Printf("Chat not found: %q", tool.chatSpec)
+	}
+
+	err = tool.export(contacts, chat)
+	if err != nil {
+		return err
 	}
 
 	// for {

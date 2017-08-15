@@ -34,6 +34,8 @@ func (c *Conn) updateChatsLocked(contacts *ContactList, dialogs []*mtproto.TLDia
 
 	accessHashByUserID := make(map[int]uint64)
 	c.updateUsers(contacts, users, accessHashByUserID)
+	c.updateGroups(contacts, chats)
+	// c.updateChannels(contacts, users, accessHashByUserID)
 
 	// for _, apimsg := range apimessages {
 	// 	msg := c.updateMessage(contacts, messages, apimsg)
@@ -67,6 +69,32 @@ func (c *Conn) updateChatsLocked(contacts *ContactList, dialogs []*mtproto.TLDia
 				}
 
 				// TODO: dialog.TopMessage
+			}
+			// } else if cpeer, ok := dialog.Peer.(*mtproto.TLPeerChannel); ok {
+			// 	if user := contacts.Channels[cpeer.ChannelID]; user != nil {
+			// 		chat = contacts.UserChats[user.ID]
+			// 		if chat == nil {
+			// 			chat = &Chat{
+			// 				Type:     UserChat,
+			// 				ID:       user.ID,
+			// 				User:     user,
+			// 				Messages: newMessageList(),
+			// 			}
+			// 			contacts.UserChats[user.ID] = chat
+			// 		}
+			// 	}
+		} else if gpeer, ok := dialog.Peer.(*mtproto.TLPeerChat); ok {
+			if group := contacts.Groups[gpeer.ChatID]; group != nil {
+				chat = contacts.GroupChats[group.ID]
+				if chat == nil {
+					chat = &Chat{
+						Type:     GroupChat,
+						ID:       group.ID,
+						Messages: newMessageList(),
+					}
+					contacts.GroupChats[group.ID] = chat
+				}
+				chat.Title = group.Title
 			}
 		}
 		if chat != nil {
@@ -210,3 +238,39 @@ func (c *Conn) updateUsers(contacts *ContactList, users []mtproto.TLUserType, ac
 		}
 	}
 }
+
+func (c *Conn) updateGroups(contacts *ContactList, apichats []mtproto.TLChatType) {
+	for _, apichat := range apichats {
+		if apichat, ok := apichat.(*mtproto.TLChat); ok {
+			group := contacts.Groups[apichat.ID]
+			if group == nil {
+				group = &Group{ID: apichat.ID}
+				contacts.Groups[apichat.ID] = group
+			}
+			group.Title = apichat.Title
+			group.ParticipantsCount = apichat.ParticipantsCount
+		}
+	}
+}
+
+// func (c *Conn) updateChannels(contacts *ContactList, users []mtproto.TLUserType, accessHashByUserID map[int]uint64) {
+// 	selfUserID := c.state.UserID
+// 	for _, apiuser := range users {
+// 		if apiuser, ok := apiuser.(*mtproto.TLUser); ok {
+// 			user := contacts.Users[apiuser.ID]
+// 			if user == nil {
+// 				user = &User{ID: apiuser.ID}
+// 				contacts.Users[apiuser.ID] = user
+// 			}
+// 			user.Username = apiuser.Username
+// 			user.FirstName = apiuser.FirstName
+// 			user.LastName = apiuser.LastName
+// 			if accessHashByUserID != nil {
+// 				accessHashByUserID[apiuser.ID] = apiuser.AccessHash
+// 			}
+// 			if user.ID == selfUserID {
+// 				contacts.Self = user
+// 			}
+// 		}
+// 	}
+// }
